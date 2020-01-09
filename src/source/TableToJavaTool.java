@@ -199,8 +199,8 @@ public class TableToJavaTool {
 		String javaServiceImplName=javaBeanClassName+"ServiceImpl";
 		String javaDaoName=javaBeanClassName+"Dao";
 
-		String lowerCaseBeanName=firstLowerCase(javaDaoName);
-
+		String lowerDaoCaseName=firstLowerCase(javaDaoName);
+        String lowerBeanName=firstLowerCase(javaBeanClassName);
 		//获取表注释  如果表注释最后一个字有表字那么去除这个字
 		String tableComment=tableCommentMap.get(tableName);
 		if(!Utils.isEmpty(tableComment)&&"表".equals(tableComment.substring(tableComment.length()-1))){
@@ -239,48 +239,49 @@ public class TableToJavaTool {
 		        .append("{").append("\r\n");
 		//拼接全局变量
 		jbString.append("   @Autowired\r\n")
-		        .append("   private "+javaDaoName+" "+lowerCaseBeanName+";");
+		        .append("   private "+javaDaoName+" "+lowerDaoCaseName+";");
 		        
 		jbString.append("	//添加"+tableComment+"\r\n" + 
 		                "   @Override\r\n"+
-				        "	public boolean add"+javaBeanClassName+"("+javaBeanClassName+" "+lowerCaseBeanName+"){\r\n")
-		        .append("        Objects.requireNonNull("+lowerCaseBeanName+");\r\n" + 
-		        		"		CoreUtil.setBeanInsertDateTime("+lowerCaseBeanName+", "+lowerCaseBeanName+".getOperatorId());\r\n" + 
-		        		"		return "+lowerCaseBeanName+".add"+javaBeanClassName+"("+lowerCaseBeanName+")==1;\r\n")
+				        "	public boolean add"+javaBeanClassName+"("+javaBeanClassName+" "+lowerBeanName+"){\r\n")
+		        .append("       Objects.requireNonNull("+lowerBeanName+");\r\n" + 
+		        		"		CoreUtil.setBeanInsertDateTime("+lowerBeanName+", "+lowerBeanName+".getOperatorId());\r\n" + 
+		        		"		return "+lowerDaoCaseName+".add"+javaBeanClassName+"("+lowerBeanName+")==1;\r\n")
 		        .append("	}\r\n")
 		        .append("	//删除"+tableComment+" 根据其ID数组\r\n" +
 		                "   @Override\r\n"+
 		        		"	public boolean delete"+javaBeanClassName+"(String idS){\r\n")
 		        .append("        if(Strings.isNotBlank(idS)) {\r\n" + 
 		        		"			List<String> idArray=Arrays.stream(idS.split(\",\")).filter(i->Strings.isNotBlank(i)).distinct().collect(Collectors.toList());\r\n" + 
-		        		"			return "+lowerCaseBeanName+".delete"+javaBeanClassName+"(idArray)==idArray.size();\r\n" + 
+		        		"			return "+lowerDaoCaseName+".delete"+javaBeanClassName+"(idArray)==idArray.size();\r\n" + 
 		        		"		}\r\n" + 
 		        		"		return false;\r\n")
 		        .append("	}\r\n")
 		        .append("	//编辑"+tableComment+"\r\n" +
 		                "   @Override\r\n"+
-		        		"	public boolean edit"+javaBeanClassName+"("+javaBeanClassName+" "+lowerCaseBeanName+"){\r\n")
-		        .append("        Objects.requireNonNull("+lowerCaseBeanName+");\r\n" + 
-		        		"		CoreUtil.setBeanUpdateDateTime("+lowerCaseBeanName+", "+lowerCaseBeanName+".getOperatorId());\r\n" + 
-		        		"		return "+lowerCaseBeanName+".edit"+javaBeanClassName+"("+lowerCaseBeanName+")==1;\r\n")
+		        		"	public boolean edit"+javaBeanClassName+"("+javaBeanClassName+" "+lowerBeanName+"){\r\n")
+		        .append("        Objects.requireNonNull("+lowerBeanName+");\r\n" + 
+		        		"		CoreUtil.setBeanUpdateDateTime("+lowerBeanName+", "+lowerBeanName+".getOperatorId());\r\n" + 
+		        		"		return "+lowerDaoCaseName+".edit"+javaBeanClassName+"("+lowerBeanName+")==1;\r\n")
 		        .append("	}\r\n")
 		        .append("	//根据ID获取"+tableComment+"信息\r\n" +
 		                "   @Override\r\n"+
 		        		"	public "+javaBeanClassName+" get"+javaBeanClassName+"ById(String id){\r\n")
 		        .append("        if(!Strings.isBlank(id)) {\r\n" + 
-		        		"			"+javaBeanClassName+" "+lowerCaseBeanName+"="+lowerCaseBeanName+".get"+javaBeanClassName+"ById(id);\r\n" + 
-		        		"			return "+lowerCaseBeanName+";\r\n" + 
-		        		"		}\r\n")
+		        		"			"+javaBeanClassName+" "+lowerDaoCaseName+"="+lowerDaoCaseName+".get"+javaBeanClassName+"ById(id);\r\n" + 
+		        		"			return "+lowerDaoCaseName+";\r\n" + 
+		        		"		}\r\n"+
+		        		"       return null;\r\n")
 		        .append("	}\r\n")
 		        .append("	//根据所属者id和关键字获取"+tableComment+"信息个数\r\n" +
 		        		"   @Override\r\n"+
 		        		"	public int get"+javaBeanClassName+"Count(String belongToId,String findKey){\r\n")
-		        .append("       return "+lowerCaseBeanName+".get"+javaBeanClassName+"Count(belongToId,findKey);\r\n")
+		        .append("       return "+lowerDaoCaseName+".get"+javaBeanClassName+"Count(belongToId,findKey);\r\n")
 		        .append("	}\r\n")
 		        .append("	//分页方法获取"+tableComment+"信息列表\r\n" +
 		                "   @Override\r\n"+
 		        		"	public List<"+javaBeanClassName+"> getAll"+javaBeanClassName+"List(String belongToId,String findKey,Integer offset,Integer pageCount){\r\n")
-		        .append("       return "+lowerCaseBeanName+".get"+javaBeanClassName+"List(belongToId,findKey,offset,pageCount);\r\n")
+		        .append("       return "+lowerDaoCaseName+".getAll"+javaBeanClassName+"List(belongToId,findKey,offset,pageCount);\r\n")
 		        .append("	}\r\n");
 		jbString.append("}\r\n");
 		jbString.append("//");
@@ -394,7 +395,7 @@ public class TableToJavaTool {
 						" * @author fpp\r\n" + 
 						" */\r\n")
 		        .append("@RestController\r\n" + 
-				"@RequestMapping(\"/controller/"+javaBeanClassName.toLowerCase()+"/"+javaClassControllerName.toLowerCase()+"/\")")
+				"@RequestMapping(\"/controller/"+javaBeanClassName.toLowerCase()+"/"+javaClassControllerName.toLowerCase()+"/\")\r\n")
 	            .append("@Api(value = \""+javaClassControllerName+"|"+tableComment+"控制器\")\r\n")
 		        .append("public class ").append(javaClassControllerName).append("\r\n")
 		        .append("{").append("\r\n");
@@ -511,7 +512,7 @@ public class TableToJavaTool {
 						"        @ApiImplicitParam(paramType=\"query\", name = \"indexofPage\", value = \"当前页数,如果不传默认为1\", required = false, dataType = \"Integer\"),\r\n" + 
 						"        @ApiImplicitParam(paramType=\"query\", name = \"pageCount\", value = \"每页记录数，如果不传默认为20\", required = true, dataType = \"Integer\"),\r\n" + 
 						"    })\r\n")
-				.append("    public ReturnValue getAll"+javaBeanClassName+"List(@RequestParam belongToId,@RequestParam String findKey,@RequestParam Integer indexofPage,@RequestParam Integer pageCount) {\r\n" + 
+				.append("    public ReturnValue getAll"+javaBeanClassName+"List(@RequestParam String belongToId,@RequestParam String findKey,@RequestParam Integer indexofPage,@RequestParam Integer pageCount) {\r\n" + 
 						"		try {\r\n" + 
 						"			//获取当前记录的总数\r\n" + 
 						"			if(null==indexofPage) {\r\n" + 
@@ -522,8 +523,8 @@ public class TableToJavaTool {
 						"    		}\r\n" + 
 						"    		//根据页码得到当前需要显示的记录数\r\n" + 
 						"    		int offset=(indexofPage-1)*pageCount;\r\n" + 
-						"    		int "+lowerCaseBeanName+"Count=ps.get"+javaBeanClassName+"Count(agentId,pFindKey);\r\n" + 
-						"			List<"+javaBeanClassName+"> result="+lowerCaseBeanName+"Service.getAll"+lowerCaseBeanName+"List(belongToId,findKey,offset,pageCount);\r\n" + 
+						"    		int "+lowerCaseBeanName+"Count="+lowerCaseBeanName+"Service.get"+javaBeanClassName+"Count(belongToId,findKey);\r\n" + 
+						"			List<"+javaBeanClassName+"> result="+lowerCaseBeanName+"Service.getAll"+javaBeanClassName+"List(belongToId,findKey,offset,pageCount);\r\n" + 
 						"		    return CoreUtil.returnValue((JSON)JSON.toJSON(result),"+lowerCaseBeanName+"Count,indexofPage,pageCount);\r\n" + 
 						"		}catch(Exception e) {\r\n" + 
 						"			e.printStackTrace();\r\n" + 
