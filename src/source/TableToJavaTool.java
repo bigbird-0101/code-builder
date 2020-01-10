@@ -268,7 +268,7 @@ public class TableToJavaTool {
 		                "   @Override\r\n"+
 		        		"	public "+javaBeanClassName+" get"+javaBeanClassName+"ById(String id){\r\n")
 		        .append("        if(!Strings.isBlank(id)) {\r\n" + 
-		        		"			"+javaBeanClassName+" "+lowerDaoCaseName+"="+lowerDaoCaseName+".get"+javaBeanClassName+"ById(id);\r\n" + 
+		        		"			"+javaBeanClassName+" "+lowerBeanName+"="+lowerDaoCaseName+".get"+javaBeanClassName+"ById(id);\r\n" + 
 		        		"			return "+lowerDaoCaseName+";\r\n" + 
 		        		"		}\r\n"+
 		        		"       return null;\r\n")
@@ -1223,4 +1223,4 @@ public class TableToJavaTool {
 		
 	}
 }
-//                
+//                   
