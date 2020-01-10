@@ -987,7 +987,7 @@ public class TableToJavaTool {
 			}
 			
 		}
-		buffer.substring(0,buffer.length()-6);
+		buffer.substring(0,buffer.length()-7);
 		buffer.append("\",\r\n");
 		buffer.append("        \"from "+tableName+" \",\r\n" + 
 					  "        \"<where>\",\r\n" + 
@@ -1036,7 +1036,7 @@ public class TableToJavaTool {
 				a=0;
 			}
 		}
-		buffer.substring(0,buffer.length()-6);
+		buffer.substring(0,buffer.length()-7);
 		buffer.append("\",\r\n");
 		buffer.append("        \"from "+tableName+"\",\r\n" + 
 						"        \"<where>\",\r\n" + 
