@@ -1058,7 +1058,7 @@ public class TableToJavaTool {
 			String jdbcType = getMybatisJdbcType((Integer) map.get("dataType"));
 			buffer.append("        \"<if test=\\\"").append(fieldName).append(" != null\\\">\", \r\n");
 			buffer.append("            \"").append(columnName).append(" = ").append("#{").append(fieldName)
-					.append(",jdbcType=").append(jdbcType).append("}\", \r\n");
+					.append(",jdbcType=").append(jdbcType).append(",}\", \r\n");
 			buffer.append("        \"</if>\", \r\n");
 		}
 		buffer.append("    \"</set>\", \r\n");
