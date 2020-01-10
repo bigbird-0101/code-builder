@@ -643,7 +643,7 @@ public class TableToJavaTool {
 		Utils.mkDirs(a);
 		try {
 			FileOutputStream fops = new FileOutputStream(a);
-			fops.write(fileStr.getBytes());
+			fops.write(fileStr.getBytes("utf-8"));
 			fops.flush();
 			fops.close();
 		} catch (FileNotFoundException e) {
