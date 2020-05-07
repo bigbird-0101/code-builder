@@ -1,4 +1,4 @@
-package main.java.source;
+package main.java.common;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
