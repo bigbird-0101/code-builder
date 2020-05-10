@@ -2,9 +2,9 @@ package main.java.org;
 
 import com.mysql.jdbc.PreparedStatement;
 import main.java.common.Utils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
@@ -17,30 +17,43 @@ import java.util.*;
  * @author fpp
  */
 public class TableToJavaTool {
-    public static String quDongName;
 
-    // 数据库连接-用户名
-    public static String user;
+    /**
+     * 数据源配置
+     */
+    private DataSourceConfigPojo dataSourceConfigPojo;
+    /**
+     * 文件模板配置
+     */
+    private FileTempleConfigPojo fileTempleConfigPojo;
 
-    // 数据库连接-密码
-    public static String password;
+    private List<String> buildEdFileUrlList = new ArrayList<>();
 
-    // 数据库连接-URL
-    public static String dbUrl;
+    public List<String> getBuildEdFileUrlList() {
+        return buildEdFileUrlList;
+    }
 
-    // 表名
+    /**
+     * 表名
+     */
     public static String tableName;
-    // 表类别名称
+    /**
+     * 表类别名称
+     */
     private String catalog;
 
-    //项目地址
-    public static String projectUrl;
-    //源代码前缀地址
-    public static String beforeSrcUrl;
-    //源代码地址
-    public static String srcUrl;
-    //完整地址
-    public static String completeUrl;
+
+    private final List<String> primaryKeyList = new ArrayList<String>();
+
+    private List<Map<String, Object>> dataList = null;
+    private Set<String> uniqueKeyMap = new HashSet<>();
+
+    private Map<String, String> tableCommentMap = new HashMap<String, String>();
+
+    public TableToJavaTool(DataSourceConfigPojo dataSourceConfigPojo, FileTempleConfigPojo fileTempleConfigPojo) {
+        this.dataSourceConfigPojo = dataSourceConfigPojo;
+        this.fileTempleConfigPojo = fileTempleConfigPojo;
+    }
 
     public List<Map<String, Object>> getDataList() {
         return dataList;
@@ -54,61 +67,59 @@ public class TableToJavaTool {
         return primaryKeyList;
     }
 
-    private final List<String> primaryKeyList = new ArrayList<String>();
-
-    private List<Map<String, Object>> dataList = null;
-
-    private Map<String, String> tableCommentMap = new HashMap<String, String>();
-
-    public TableToJavaTool() {
-
-    }
-
-    public void process(int fileType, int functionType) {
+    public void process() throws SQLException, ClassNotFoundException {
         List<String> tableNameS = getAllTableName();
 
         for (String tableName : tableNameS) {
-            process(tableName, fileType, functionType);
+            process(tableName);
         }
     }
 
-    public void process(String tableName, int fileType, int functionType) {
+    public void process(String tableName) throws SQLException, ClassNotFoundException {
         getAllTableComment(tableName);//获取所有表注释
-        completeUrl = projectUrl + "\\" + beforeSrcUrl + "\\" + srcUrl;
+        String srcUrl = fileTempleConfigPojo.getSrcUrl();
+        String completeUrl = fileTempleConfigPojo.getProjectUrl() + "\\" + fileTempleConfigPojo.getSrcUrlPrefix() + "\\" + srcUrl;
         //校验完整地址是否真实存在
         dataList = readData(tableName);
         //生成bean文件
+        int fileType = fileTempleConfigPojo.getTypeBuild();
         if ((fileType & FileTypeEnum.DOMAIN.getType()) == FileTypeEnum.DOMAIN.getType()) {
-            createJavaBeanFile(tableName, completeUrl + "\\domain", getPackName(srcUrl + "\\domain"));
+            String domainPackage = fileTempleConfigPojo.getDomainPackage();
+            createJavaBeanFile(tableName, completeUrl + "\\" + domainPackage, getPackName(srcUrl+"/"+ domainPackage));
         }
 
         //生成controller 文件
         if ((fileType & FileTypeEnum.CONTROLLER.getType()) == FileTypeEnum.CONTROLLER.getType()) {
-            createJavaControllerFile(tableName, completeUrl + "\\controller", getPackName(srcUrl + "\\controller"), functionType);
+            String controllerPackage = fileTempleConfigPojo.getControllerPackage();
+            createJavaControllerFile(tableName, completeUrl + "\\" + controllerPackage, getPackName(srcUrl+"/"+ controllerPackage));
         }
 
         //生成service 文件
         if ((fileType & FileTypeEnum.SERVICE.getType()) == FileTypeEnum.SERVICE.getType()) {
-            createJavaServiceFile(tableName, completeUrl + "\\service\\inter", getPackName(srcUrl + "\\service\\inter"), functionType);
+            String servicePackage = fileTempleConfigPojo.getServicePackage();
+            createJavaServiceFile(tableName, completeUrl + "\\" + servicePackage, getPackName(srcUrl+"/" + servicePackage));
         }
 
         //生成serviceImpl 文件
         if ((fileType & FileTypeEnum.SERVICE.getType()) == FileTypeEnum.SERVICE.getType()) {
-            createJavaServiceImplFile(tableName, completeUrl + "\\service\\impl", getPackName(srcUrl + "\\service\\impl"), functionType);
+            String serviceImplPackage = fileTempleConfigPojo.getServiceImplPackage();
+            createJavaServiceImplFile(tableName, completeUrl + "\\" + serviceImplPackage, getPackName(srcUrl+"/" + serviceImplPackage));
         }
 
         //生成Dao 文件
         if ((fileType & FileTypeEnum.DAO.getType()) == FileTypeEnum.DAO.getType()) {
-            createJavaDaoFile(tableName, completeUrl + "\\dao", getPackName(srcUrl + "\\dao"), functionType);
+            String daoPackage = fileTempleConfigPojo.getDaoPackage();
+            createJavaDaoFile(tableName, completeUrl + "\\" + daoPackage, getPackName(srcUrl+"/" + daoPackage));
         }
 
     }
 
-    private void createJavaDaoFile(String tableName, String daoFileUrl, String packageName, int functionType) {
+    private void createJavaDaoFile(String tableName, String daoFileUrl, String packageName) {
         //如果在目录当中已经有表名一样的目录，那么就放在该目录下面
         String parentFile = getFileInExistFile(daoFileUrl, tableName);
         String parentFileReal = Utils.isEmpty(parentFile) ? "" : "\\" + parentFile;
         daoFileUrl = daoFileUrl + parentFileReal;
+
 
         String javaBeanClassName = getJavaClassName(tableName);
         String javaDaoName = javaBeanClassName + "Dao";
@@ -128,7 +139,8 @@ public class TableToJavaTool {
 
         //导入jar包
         //bean 包
-        String beanImportJar = "import " + srcUrl.replaceAll("\\\\", ".") + ".domain." + (Utils.isEmpty(parentFile) ? "" : parentFile + ".") + "" + javaBeanClassName + ";\r\n";
+        String srcUrl = fileTempleConfigPojo.getSrcUrl();
+        String beanImportJar = "import " + getPackName(srcUrl+"/"+"/"+fileTempleConfigPojo.getDomainPackage()) +"."+ (Utils.isEmpty(parentFile) ? "" : parentFile + ".") + "" + javaBeanClassName + ";\r\n";
         jbString.append(beanImportJar)
                 .append("import java.util.List;\r\n" +
                         "\r\n" +
@@ -152,6 +164,7 @@ public class TableToJavaTool {
                 .append("@Mapper\r\n")
                 .append("public interface ").append(javaDaoName).append("\r\n")
                 .append("{").append("\r\n");
+        int functionType = fileTempleConfigPojo.getFunctionBuild();
         if ((functionType & FunctionTypeEnum.ADD.getType()) == FunctionTypeEnum.ADD.getType()) {
             jbString.append("	/**\r\n" +
                     "    * 添加" + tableComment + "\r\n" +
@@ -229,7 +242,7 @@ public class TableToJavaTool {
 
     }
 
-    private void createJavaServiceImplFile(String tableName, String serviceImplFileUrl, String packageName, int functionType) {
+    private void createJavaServiceImplFile(String tableName, String serviceImplFileUrl, String packageName) {
         //如果在目录当中已经有表名一样的目录，那么就放在该目录下面
         String parentFile = getFileInExistFile(serviceImplFileUrl, tableName);
         String parentFileReal = Utils.isEmpty(parentFile) ? "" : "\\" + parentFile;
@@ -254,11 +267,12 @@ public class TableToJavaTool {
 
         //导入jar包
         //bean 包
-        String beanImportJar = "import " + srcUrl.replaceAll("\\\\", ".") + ".domain." + javaBeanClassName + ";\r\n";
-        String daoImportJar = "import " + srcUrl.replaceAll("\\\\", ".") + ".dao." + javaDaoName + ";\r\n";
+        String srcUrl = fileTempleConfigPojo.getSrcUrl();
+        String beanImportJar = "import " + getPackName(srcUrl+"/"+fileTempleConfigPojo.getDomainPackage()) +"."+ javaBeanClassName + ";\r\n";
+        String daoImportJar = "import " +  getPackName(srcUrl+"/"+fileTempleConfigPojo.getDaoPackage()) + "."+javaDaoName + ";\r\n";
         jbString.append(beanImportJar)
                 .append(daoImportJar)
-                .append("import " + srcUrl.replaceAll("\\\\", ".") + ".service.inter." + javaServiceName + ";\r\n")
+                .append("import " + getPackName(srcUrl+"/"+fileTempleConfigPojo.getServicePackage()) + "."+javaServiceName + ";\r\n")
                 .append("import java.util.Arrays;\r\n")
                 .append("import java.util.Objects;\r\n")
                 .append("import java.util.stream.Collectors;\r\n")
@@ -280,6 +294,7 @@ public class TableToJavaTool {
         //拼接全局变量
         jbString.append("   @Autowired\r\n")
                 .append("   private " + javaDaoName + " " + lowerDaoCaseName + ";\r\n");
+        int functionType = fileTempleConfigPojo.getFunctionBuild();
         if ((functionType & FunctionTypeEnum.ADD.getType()) == FunctionTypeEnum.ADD.getType()) {
             jbString.append("	/**\r\n" +
                     "    * 添加" + tableComment + "\r\n" +
@@ -362,7 +377,7 @@ public class TableToJavaTool {
         buildTargetFile(jbString.toString(), serviceImplFileUrl + "\\" + javaServiceImplName);
     }
 
-    private void createJavaServiceFile(String tableName, String serviceFileUrl, String packageName, int functionType) {
+    private void createJavaServiceFile(String tableName, String serviceFileUrl, String packageName) {
         //如果在目录当中已经有表名一样的目录，那么就放在该目录下面
         String parentFile = getFileInExistFile(serviceFileUrl, tableName);
         String parentFileReal = Utils.isEmpty(parentFile) ? "" : "\\" + parentFile;
@@ -385,7 +400,8 @@ public class TableToJavaTool {
 
         //导入jar包
         //bean 包
-        String beanImportJar = "import " + srcUrl.replaceAll("\\\\", ".") + ".domain." + (Utils.isEmpty(parentFile) ? "" : parentFile + ".") + "" + javaBeanClassName + ";\r\n";
+        String srcUrl = fileTempleConfigPojo.getSrcUrl();
+        String beanImportJar = "import " + getPackName(srcUrl+"/"+fileTempleConfigPojo.getDomainPackage()) +"."+ (Utils.isEmpty(parentFile) ? "" : parentFile + ".") + "" + javaBeanClassName + ";\r\n";
         jbString.append(beanImportJar)
                 .append("import java.util.List;\r\n");
 
@@ -396,6 +412,7 @@ public class TableToJavaTool {
                 " */\r\n")
                 .append("public interface ").append(javaServiceName)
                 .append("{").append("\r\n");
+        int functionType = fileTempleConfigPojo.getFunctionBuild();
         if ((functionType & FunctionTypeEnum.ADD.getType()) == FunctionTypeEnum.ADD.getType()) {
             jbString.append("	/**\r\n" +
                     "	 * 添加" + tableComment + "\r\n" +
@@ -452,7 +469,7 @@ public class TableToJavaTool {
         buildTargetFile(jbString.toString(), serviceFileUrl + "\\" + javaServiceName);
     }
 
-    private void createJavaControllerFile(String tableName, String controllerFileUrl, String packageName, int functionType) {
+    private void createJavaControllerFile(String tableName, String controllerFileUrl, String packageName) {
         //如果在目录当中已经有表名一样的目录，那么就放在该目录下面
         String parentFile = getFileInExistFile(controllerFileUrl, tableName);
         String parentFileReal = Utils.isEmpty(parentFile) ? "" : "\\" + parentFile;
@@ -474,9 +491,10 @@ public class TableToJavaTool {
         }
         //导入jar包
         //bean 包
-        String beanImportJar = "import " + srcUrl.replaceAll("\\\\", ".") + ".domain." + (Utils.isEmpty(parentFile) ? "" : parentFile + ".") + "" + javaBeanClassName + ";\r\n";
+        String srcUrl = fileTempleConfigPojo.getSrcUrl();
+        String beanImportJar = "import " + getPackName(srcUrl+"/"+fileTempleConfigPojo.getDomainPackage())+"."+ (Utils.isEmpty(parentFile) ? "" : parentFile + ".") + "" + javaBeanClassName + ";\r\n";
         //service包
-        String serviceImportJar = "import " + srcUrl.replaceAll("\\\\", ".") + ".service.inter." + javaServiceName + ";\r\n";
+        String serviceImportJar = "import " + getPackName(srcUrl+"/"+fileTempleConfigPojo.getServicePackage())+"."+ javaServiceName + ";\r\n";
 
         jbString.append("import org.springframework.beans.factory.annotation.Autowired;\r\n" +
                 "import org.springframework.validation.BindingResult;\r\n" +
@@ -512,6 +530,7 @@ public class TableToJavaTool {
                 .append("    @Autowired\r\n")
                 .append("    private " + javaServiceName + " " + firstLowerCase(javaServiceName) + ";\r\n\n");
 
+        int functionType = fileTempleConfigPojo.getFunctionBuild();
         //拼接增加 删除 、 修改、根据id获取bean,查找所有的记录(包含分页)
         if ((functionType & FunctionTypeEnum.ADD.getType()) == FunctionTypeEnum.ADD.getType()) {
             //增加
@@ -647,7 +666,7 @@ public class TableToJavaTool {
             for (Map<String, Object> map : dataList) {
                 String javaType = getJavaType((Integer) map.get("dataType"));
                 if ("Date".equals(javaType)) {
-                    if (jbString.toString().indexOf("import java.util.Date;") < 0) {
+                    if (!jbString.toString().contains("import java.util.Date;")) {
                         flag = false;
                         jbString.append("import java.util.Date;").append("\r\n");
                     }
@@ -702,18 +721,6 @@ public class TableToJavaTool {
                 jbString.append("\r\n");
 
             }
-//			//拼接toString 方法
-//			jbString.append("    public ").append("String").append(" toString")
-//			.append("()").append("\r\n");
-//	        jbString.append("    {").append("\r\n");
-//			jbString.append("        return \""+javaClassName+"[\\r\\n\"+\r\n");
-//			for (Map<String, Object> map : dataList) {
-//				String fieldName = getFieldName((String) map.get("columnName"));
-//				jbString.append("        ").append("\""+fieldName+"====="+"\"+"+fieldName+"+").append("\"\\r\\n\"+\r\n");
-//			}
-//			jbString.append("        \"]\";\r\n");
-//			jbString.append("    }").append("\r\n");
-
             jbString.append("\r\n");
         }
 
@@ -726,27 +733,19 @@ public class TableToJavaTool {
 
     public void buildTargetFile(String fileStr, String fileUrl) {
         // 创建文件
-        File a = new File(fileUrl + ".java");
+        String fileName = fileUrl + ".java";
+        File a = new File(fileName);
         if (a.exists()) {
-            a = new File(fileUrl + "_1.java");
+            fileName = fileUrl + "_1.java";
+            a = new File(fileName);
         }
-        Utils.mkDirs(a);
         try {
+            FileUtils.forceMkdirParent(a);
             FileOutputStream fops = new FileOutputStream(a);
             fops.write(fileStr.getBytes("utf-8"));
             fops.flush();
             fops.close();
-        } catch (FileNotFoundException e) {
-//			Utils.mkDirs(a);
-//			try {
-//				FileOutputStream fops = new FileOutputStream(a);
-//				fops.write(fileStr.getBytes());
-//				fops.flush();
-//				fops.close();
-//			}catch(Exception ex) {
-//
-//			}
-            e.printStackTrace();
+            buildEdFileUrlList.add(fileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -757,20 +756,18 @@ public class TableToJavaTool {
      *
      * @return Connection 数据库连接对象
      */
-    private static Connection getConnection() {
+    private Connection getConnection() throws SQLException, ClassNotFoundException {
         Connection conn = null;
-        try {
-            Properties props = new Properties();
-            props.put("remarksReporting", "true");
-            props.put("user", user);
-            props.put("password", password);
-
-            Class.forName(quDongName);
-            conn = DriverManager.getConnection(dbUrl, props);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        String quDongName = dataSourceConfigPojo.getQuDongName();
+        String user = dataSourceConfigPojo.getUserName();
+        String password = dataSourceConfigPojo.getPassword();
+        String url = dataSourceConfigPojo.getUrl();
+        Properties props = new Properties();
+        props.put("remarksReporting", "true");
+        props.put("user", user);
+        props.put("password", password);
+        Class.forName(quDongName);
+        conn = DriverManager.getConnection(url, props);
         return conn;
     }
 
@@ -780,7 +777,7 @@ public class TableToJavaTool {
      * @param tableName 表名
      * @return List<Map < String, Object>> 列信息列表
      */
-    private List<Map<String, Object>> readData(String tableName) {
+    private List<Map<String, Object>> readData(String tableName) throws SQLException, ClassNotFoundException {
         Connection conn = getConnection();
         List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
 
@@ -790,16 +787,28 @@ public class TableToJavaTool {
             ResultSet rs = dbmd.getColumns(getCatalog(), null, tableName, null);
             Map<String, Object> map = null;
             while (rs.next()) {
-                map = new HashMap<String, Object>();
+                map = new HashMap<>();
                 map.put("columnName", rs.getString("COLUMN_NAME"));
                 map.put("dataType", rs.getInt("DATA_TYPE"));
                 map.put("remarks", rs.getString("REMARKS"));
+                map.put("nullAble", rs.getInt("NULLABLE"));
+                map.put("size", rs.getString("COLUMN_SIZE"));
                 dataList.add(map);
             }
 
             ResultSet rs1 = dbmd.getPrimaryKeys(getCatalog(), null, tableName);
             while (rs1.next()) {
                 primaryKeyList.add(rs1.getString("COLUMN_NAME"));
+            }
+            //mysql数据库
+            ResultSet indexInfo = dbmd.getIndexInfo(null, null, tableName, false, false);
+            while (indexInfo.next()) {
+                String indexName = indexInfo.getString("INDEX_NAME");
+                //如果为真则说明索引值不唯一，为假则说明索引值必须唯一。
+                boolean nonUnique = indexInfo.getBoolean("NON_UNIQUE");
+                if (!nonUnique) {
+                    uniqueKeyMap.add(indexName);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -816,10 +825,7 @@ public class TableToJavaTool {
     public static String getPackName(String fileUrl) {
         String result = "";
         if (!Utils.isEmpty(fileUrl)) {
-//			int index = fileUrl.indexOf("java");
-//			result = fileUrl.substring(index + 4, fileUrl.length());
-            result = fileUrl.replaceAll("\\\\", ".");
-//			result = result.substring(1, result.length());
+            result = fileUrl.replaceAll("\\\\", ".").replaceAll("/",".").replaceAll("//",".");
         }
         return result;
     }
@@ -1268,8 +1274,10 @@ public class TableToJavaTool {
         this.catalog = catalog;
     }
 
-    // 通过数据库来得到所有表名
-    public List<String> getAllTableName() {
+    /**
+     * 通过数据库来得到所有表名
+     */
+    public List<String> getAllTableName() throws SQLException, ClassNotFoundException {
         List<String> tableNameS = null;
         Connection conn = null;
         try {
@@ -1280,13 +1288,12 @@ public class TableToJavaTool {
             ResultSet rs = dbmd.getTables(null, null, null, new String[]{"TABLE"});
             while (rs.next()) {
                 // 获得表名
-                String table_name = rs.getString("TABLE_NAME");
-                tableNameS.add(table_name);
+                String tableName = rs.getString("TABLE_NAME");
+                tableNameS.add(tableName);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
+        }  finally {
             try {
+                assert conn != null;
                 conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -1295,7 +1302,9 @@ public class TableToJavaTool {
         return tableNameS;
     }
 
-    //根据连接获取数据库名
+    /**
+     * 根据连接获取数据库名
+     */
     public String getDataBaseName(String url) {
         String beforeValue = url.substring(0, url.indexOf("?"));
         beforeValue = beforeValue.replace("//", "*");
@@ -1303,9 +1312,12 @@ public class TableToJavaTool {
     }
 
 
-    //获取表的注释
-    public void getAllTableComment(String tableNameParam) {
+    /**
+     * 获取表的注释
+     */
+    public void getAllTableComment(String tableNameParam) throws SQLException, ClassNotFoundException {
         //获取数据库名
+        String dbUrl = dataSourceConfigPojo.getUrl();
         String dataBaseName = getDataBaseName(dbUrl);
         Connection conn = null;
         try {
@@ -1319,8 +1331,6 @@ public class TableToJavaTool {
                 String tableComment = rs.getString(2);
                 tableCommentMap.put(tableName, tableComment);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
             try {
                 conn.close();

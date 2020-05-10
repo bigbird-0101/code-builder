@@ -7,16 +7,16 @@ import main.java.config.ProjectFileConfig;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
+import java.util.*;
+import java.util.List;
 
 /**
  * @author Administrator
  */
 public class CodeMainJFrame extends JFrame {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 5725706474912002588L;
     private final JCheckBox chckbxNewCheckBox;
     private final JCheckBox doMainFile;
@@ -34,35 +34,27 @@ public class CodeMainJFrame extends JFrame {
     private final JTextField textControllerPackage;
     private final JTextField textDaopackage;
     private final JTextField textServiceImpl;
-    private JPanel contentPane;
-    private JTextField textField_1;
-    private JTextField textField_2;
-    private JTextField textField_4;
-    private JTextArea textFiled_5;
-    private JTextField textFiled_6;
-    private JTextField takenJabberers;
-    private JButton buildNewFileBtn;
+    private final JButton saveConfigBtn;
+    private final JButton deleteFileBtn;
+    private final JPanel contentPane;
+    private final JTextField textField_1;
+    private final JTextField textField_2;
+    private final JTextField textField4;
+    private final JTextArea textFiled_5;
+    private final JTextField textFiled_6;
+    private final JTextField takenJabberers;
+    private final JButton buildNewFileBtn;
     private DataSourceFileConfig dataSourceFileConfig;
     private ProjectFileConfig projectFileConfig;
 
-    /**
-     * Launch the application.
-     */
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                CodeMainJFrame frame = new CodeMainJFrame();
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
+    private String configUrl="code.properties";
 
+    private List<String> buildEdFileUrlList;
     /**
      * Create the frame.
      */
-    public CodeMainJFrame() throws IOException {
+    public CodeMainJFrame(String configUrl) throws IOException {
+        this.configUrl = configUrl;
         initConfig();
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -80,16 +72,12 @@ public class CodeMainJFrame extends JFrame {
         label.setBounds(156, 81, 154, 15);
         contentPane.add(label);
 
-//		textField = new JTextField();
-//		textField.setBounds(234, 78, 478, 21);
         textArea = new JTextArea(5, 10);
         textArea.setBounds(234, 78, 400, 51);
-//		contentPane.add(textField);
         textArea.append(this.dataSourceFileConfig.getProperty("url"));
         // 设置自动换行
         textArea.setLineWrap(true);
         contentPane.add(textArea);
-//		textField.setColumns(10);
 
         JLabel label_1 = new JLabel("用户名:");
         label_1.setBounds(156, 143, 54, 15);
@@ -140,58 +128,58 @@ public class CodeMainJFrame extends JFrame {
         contentPane.add(daoFile);
 
         addFunction = new JCheckBox("生成添加方法");
-        if(haveFunctionProperty(FunctionTypeEnum.ADD)) {
-            addFunction.setSelected(true);
-        }
+        addFunction.setSelected(haveFunctionProperty(FunctionTypeEnum.ADD));
         addFunction.setBounds(140, 408, 103, 23);
         contentPane.add(addFunction);
 
         editFunction = new JCheckBox("生成修改方法");
-        if(haveFunctionProperty(FunctionTypeEnum.EDIT)) {
-            editFunction.setSelected(true);
-        }
+        editFunction.setSelected(haveFunctionProperty(FunctionTypeEnum.EDIT));
         editFunction.setBounds(280, 408, 103, 23);
         contentPane.add(editFunction);
 
         getByIdFunction = new JCheckBox("生成根据id查询方法");
-        if(haveFunctionProperty(FunctionTypeEnum.GETBYID)) {
-            getByIdFunction.setSelected(true);
-        }
+        getByIdFunction.setSelected(haveFunctionProperty(FunctionTypeEnum.GETBYID));
         getByIdFunction.setBounds(420, 408, 163, 23);
         contentPane.add(getByIdFunction);
 
         deleteFunction = new JCheckBox("生成删除方法");
-        if(haveFunctionProperty(FunctionTypeEnum.DELETE)) {
-            deleteFunction.setSelected(true);
-        }
+        deleteFunction.setSelected(haveFunctionProperty(FunctionTypeEnum.DELETE));
         deleteFunction.setBounds(590, 408, 103, 23);
         contentPane.add(deleteFunction);
 
         getAllFunciton = new JCheckBox("生成分页方法");
-        if(haveFunctionProperty(FunctionTypeEnum.GETALL)) {
-            getAllFunciton.setSelected(true);
-        }
+        getAllFunciton.setSelected(haveFunctionProperty(FunctionTypeEnum.GETALL));
         getAllFunciton.setBounds(140, 438, 103, 23);
         contentPane.add(getAllFunciton);
 
-
         buildNewFileBtn = new JButton("生成");
-        addBuildNewFileBtnListener();
+        buildNewFileBtnListener();
 
-        buildNewFileBtn.setBounds(324, 505, 93, 23);
+        buildNewFileBtn.setBounds(124, 505, 93, 23);
         contentPane.add(buildNewFileBtn);
+
+        saveConfigBtn = new JButton("持久化保存配置");
+        saveConfigBtnListener();
+
+        saveConfigBtn.setBounds(300, 505, 133, 23);
+        contentPane.add(saveConfigBtn);
+
+        deleteFileBtn = new JButton("删除最后生成的文件->依次");
+        deleteFileBtnListener();
+
+        deleteFileBtn.setBounds(500, 505, 210, 23);
+        contentPane.add(deleteFileBtn);
 
         JLabel lblNewLabel = new JLabel("目标表名");
         lblNewLabel.setBounds(358, 348, 54, 15);
         contentPane.add(lblNewLabel);
 
-        textField_4 = new JTextField();
-        textField_4.setBounds(422, 348, 122, 21);
-        contentPane.add(textField_4);
-        textField_4.setColumns(10);
+        textField4 = new JTextField();
+        textField4.setBounds(422, 348, 122, 21);
+        contentPane.add(textField4);
+        textField4.setColumns(10);
 
         textFiled_5 = new JTextArea(5, 10);
-//		textFiled_5.setText("C:\\ecplise workspace\\ChaoqiIsPrivateLibrary-master\\springboot_swagger");
         textFiled_5.setText(projectFileConfig.getProperty("projecturl"));
         textFiled_5.setColumns(10);
         JScrollPane jsp = new JScrollPane(textFiled_5);
@@ -277,81 +265,115 @@ public class CodeMainJFrame extends JFrame {
 
         JTextPane jTextPane = new JTextPane();
         jTextPane.setBackground(Color.WHITE);
-        jTextPane.setForeground(Color.RED);
         jTextPane.setText("javabean目录 默认为bean，controller目录默认为controller ，service 目录为默认service.inter   serviceimpl目录为默认 service.impl   dao目录为默认 dao");
-        jTextPane.setBounds(23, 10, 547, 38);
+        jTextPane.setBounds(23, 10, 750, 48);
         contentPane.add(jTextPane);
+    }
+
+    private void deleteFileBtnListener() {
+        deleteFileBtn.addActionListener(e -> {
+            if(null!=this.buildEdFileUrlList&&!this.buildEdFileUrlList.isEmpty()){
+                String filePath=this.buildEdFileUrlList.get(this.buildEdFileUrlList.size()-1);
+                File file=new File(filePath);
+                String fileName=getFileName(filePath);
+                if(file.exists()){
+                    int result = JOptionPane.showConfirmDialog(
+                            contentPane,
+                            "确认删除"+fileName+"吗？",
+                            "提示",
+                            JOptionPane.YES_NO_OPTION
+                    );
+                    System.out.println("选择结果: " + result);
+                    if(JOptionPane.YES_OPTION==result){
+                         file.delete();
+                        JOptionPane.showMessageDialog(contentPane, "删除成功", "提示", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+            }
+        });
 
     }
+
+    /**
+     * 获取文件名
+     * @param filePath
+     * @return
+     */
+    private static String getFileName(String filePath) {
+        String fileName=filePath.contains("/") ?filePath.substring(filePath.lastIndexOf("/")+1):filePath;
+        fileName=filePath.contains("\\") ?filePath.substring(filePath.lastIndexOf("\\")+1):filePath;
+        return fileName;
+    }
+
+    private void saveConfigBtnListener() {
+        saveConfigBtn.addActionListener(e -> {
+            DataSourceConfigPojo dataSourcePojo = getDataSouceConfigPojo();
+            FileTempleConfigPojo fileTemplePojo = getFileTempleConfigPojo();
+            try {
+                reloadConfig(Arrays.asList(dataSourcePojo,fileTemplePojo));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
+    private void reloadConfig(List<Object> configPojoList) throws IOException {
+
+        configPojoList.forEach(item->{
+            if(item instanceof DataSourceConfigPojo){
+                Map<String,String> properties=new LinkedHashMap<>();
+                properties.put("url",((DataSourceConfigPojo) item).getUrl());
+                properties.put("username",((DataSourceConfigPojo) item).getUserName());
+                properties.put("password",((DataSourceConfigPojo) item).getPassword());
+                try {
+                    dataSourceFileConfig.coverProperty(properties);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(item instanceof FileTempleConfigPojo){
+                Map<String,String> properties=new LinkedHashMap<>();
+                properties.put("projecturl",((FileTempleConfigPojo) item).getProjectUrl());
+                properties.put("srcurl",((FileTempleConfigPojo) item).getSrcUrl());
+                properties.put("srcurl-prefix",((FileTempleConfigPojo) item).getSrcUrlPrefix());
+                properties.put("dao.package",((FileTempleConfigPojo) item).getDaoPackage());
+                properties.put("domain.package",((FileTempleConfigPojo) item).getDomainPackage());
+                properties.put("service.package",((FileTempleConfigPojo) item).getServicePackage());
+                properties.put("serviceimpl.package",((FileTempleConfigPojo) item).getServiceImplPackage());
+                properties.put("controller.package",((FileTempleConfigPojo) item).getControllerPackage());
+                properties.put("type-build",getFileTypeString());
+                properties.put("function-build",getFunctionTypeString());
+                try {
+                    projectFileConfig.coverProperty(properties);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        JOptionPane.showMessageDialog(contentPane, "成功", "提示", JOptionPane.WARNING_MESSAGE);
+    }
+
 
     private void initConfig() throws IOException {
-        dataSourceFileConfig = new DataSourceFileConfig("code.properties");
-        projectFileConfig=new ProjectFileConfig("code.properties");
+        dataSourceFileConfig = new DataSourceFileConfig(configUrl);
+        projectFileConfig = new ProjectFileConfig(configUrl);
     }
 
-    private void addBuildNewFileBtnListener() {
+    private void buildNewFileBtnListener() {
         buildNewFileBtn.addActionListener(e -> {
-            String url = textArea.getText();
-            String user = textField_1.getText();
-            String password = textField_2.getText();
-            String tableName = textField_4.getText();
-            String projectUrl = textFiled_5.getText();
-            String beforeSrcUrl = textFiled_6.getText();
-            String srcUrl = takenJabberers.getText();
-            String daoPackage=textDaopackage.getText();
-            String servicePackage=textServicepackage.getText();
-            String domainPackage=textDoMainpackage.getText();
-            String controllerPackage=textControllerPackage.getText();
-            String serviceImplPackage=textServiceImpl.getText();
-            String qudongName = url.indexOf("mysql") > 0 ? "com.mysql.jdbc.Driver" : url.indexOf("oracle") > 0 ? "" : "";
-            //判断是不是全库生成
-            boolean flag = chckbxNewCheckBox.isSelected();
-            //初始话数据
-            TableToJavaTool.quDongName = qudongName;
-            TableToJavaTool.user = user;
-            TableToJavaTool.dbUrl = url;
-            TableToJavaTool.password = password;
-            TableToJavaTool.projectUrl = projectUrl;
-            TableToJavaTool.beforeSrcUrl = beforeSrcUrl;
-            TableToJavaTool.srcUrl = srcUrl;
-
-            TableToJavaTool a = new TableToJavaTool();
-
-            int funcitonType = 0;
-            if (deleteFunction.isSelected()) {
-                funcitonType = funcitonType | FunctionTypeEnum.DELETE.getType();
-            }
-            if (addFunction.isSelected()) {
-                funcitonType = funcitonType | FunctionTypeEnum.ADD.getType();
-            }
-            if (editFunction.isSelected()) {
-                funcitonType = funcitonType | FunctionTypeEnum.EDIT.getType();
-            }
-            if (getByIdFunction.isSelected()) {
-                funcitonType = funcitonType | FunctionTypeEnum.GETBYID.getType();
-            }
-            if (getAllFunciton.isSelected()) {
-                funcitonType = funcitonType | FunctionTypeEnum.GETALL.getType();
-            }
-            int fileType = 0;
-            if (controllerFile.isSelected()) {
-                fileType = fileType | FileTypeEnum.CONTROLLER.getType();
-            }
-            if (doMainFile.isSelected()) {
-                fileType = fileType | FileTypeEnum.DOMAIN.getType();
-            }
-            if (daoFile.isSelected()) {
-                fileType = fileType | FileTypeEnum.DAO.getType();
-            }
-            if (serviceFile.isSelected()) {
-                fileType = fileType | FileTypeEnum.SERVICE.getType();
-            }
+            String tableName = textField4.getText();
+            DataSourceConfigPojo dataSourcePojo = getDataSouceConfigPojo();
+            FileTempleConfigPojo fileTemplePojo = getFileTempleConfigPojo();
+            TableToJavaTool tableToJavaTool = new TableToJavaTool(dataSourcePojo, fileTemplePojo);
             try {
-                if (flag) {
-                    a.process(tableName, fileType, funcitonType);
+                //判断是不是全库生成
+                if (chckbxNewCheckBox.isSelected()) {
+                    tableToJavaTool.process(tableName);
                 } else {
-                    a.process(fileType, funcitonType);
+                    tableToJavaTool.process();
                 }
+                this.buildEdFileUrlList=tableToJavaTool.getBuildEdFileUrlList();
                 JOptionPane.showMessageDialog(contentPane, "成功", "提示", JOptionPane.WARNING_MESSAGE);
             } catch (Exception e1) {
                 JOptionPane.showMessageDialog(contentPane, "生成失败!\n\r\n原因:" + e1.getMessage(), "提示", JOptionPane.WARNING_MESSAGE);
@@ -359,20 +381,147 @@ public class CodeMainJFrame extends JFrame {
         });
     }
 
-    public boolean haveFunctionProperty(FunctionTypeEnum functionTypeEnum){
-        String property=projectFileConfig.getProperty("function-build");
-        String functionName=functionTypeEnum.getClass().getSimpleName();
-        System.out.println("配置方法名"+functionName);
-        if(Utils.isEmpty(property)||property.toLowerCase().indexOf(functionName)>0){
+    /**
+     * 获取用户输入的数据连接配置
+     * @return
+     */
+    public DataSourceConfigPojo getDataSouceConfigPojo(){
+        String url = textArea.getText();
+        String user = textField_1.getText();
+        String password = textField_2.getText();
+        String quDongName = url.indexOf("mysql") > 0 ? "com.mysql.jdbc.Driver" : url.indexOf("oracle") > 0 ? "" : "";
+        DataSourceConfigPojo dataSourcePojo = new DataSourceConfigPojo(quDongName, user, url, password);
+        return dataSourcePojo;
+    }
+
+    /**
+     * 获取用户输入的数据连接配置
+     * @return
+     */
+    public FileTempleConfigPojo getFileTempleConfigPojo(){
+        String projectUrl = textFiled_5.getText();
+        String srcUrlPrefix = textFiled_6.getText();
+        String srcUrl = takenJabberers.getText();
+        String daoPackage = textDaopackage.getText();
+        String servicePackage = textServicepackage.getText();
+        String domainPackage = textDoMainpackage.getText();
+        String controllerPackage = textControllerPackage.getText();
+        String serviceImplPackage = textServiceImpl.getText();
+        int funcitonType = getFunctionType();
+        int fileType = getFileType();
+        FileTempleConfigPojo fileTemplePojo = new FileTempleConfigPojo(projectUrl, srcUrl, srcUrlPrefix, daoPackage, servicePackage, controllerPackage, serviceImplPackage, domainPackage, fileType, funcitonType);
+        return fileTemplePojo;
+    }
+
+    /**
+     * 获取需要生成的文件类型
+     *
+     * @return
+     */
+    private String getFileTypeString() {
+        StringBuilder fileType=new StringBuilder();
+        if (controllerFile.isSelected()) {
+            fileType.append(FileTypeEnum.CONTROLLER.name().toLowerCase()).append(",");
+        }
+        if (doMainFile.isSelected()) {
+            fileType.append(FileTypeEnum.DOMAIN.name().toLowerCase()).append(",");
+        }
+        if (daoFile.isSelected()) {
+            fileType.append(FileTypeEnum.DAO.name().toLowerCase()).append(",");
+        }
+        if (serviceFile.isSelected()) {
+            fileType.append(FileTypeEnum.SERVICE.name().toLowerCase()).append(",");
+        }
+        fileType=new StringBuilder(fileType.toString().substring(0,fileType.toString().length()-1));
+        return fileType.toString();
+    }
+
+    /**
+     * 获取需要生成的文件类型
+     *
+     * @return
+     */
+    private int getFileType() {
+        int fileType = 0;
+        if (controllerFile.isSelected()) {
+            fileType = fileType | FileTypeEnum.CONTROLLER.getType();
+        }
+        if (doMainFile.isSelected()) {
+            fileType = fileType | FileTypeEnum.DOMAIN.getType();
+        }
+        if (daoFile.isSelected()) {
+            fileType = fileType | FileTypeEnum.DAO.getType();
+        }
+        if (serviceFile.isSelected()) {
+            fileType = fileType | FileTypeEnum.SERVICE.getType();
+        }
+        return fileType;
+    }
+
+    /**
+     * 获取需要生成的方法
+     *
+     * @return
+     */
+    private String getFunctionTypeString() {
+        StringBuilder funcitonType = new StringBuilder();
+        if (deleteFunction.isSelected()) {
+            funcitonType.append(FunctionTypeEnum.DELETE.name().toLowerCase()).append(",");
+        }
+        if (addFunction.isSelected()) {
+            funcitonType.append(FunctionTypeEnum.ADD.name().toLowerCase()).append(",");
+        }
+        if (editFunction.isSelected()) {
+            funcitonType.append(FunctionTypeEnum.EDIT.name().toLowerCase()).append(",");
+        }
+        if (getByIdFunction.isSelected()) {
+            funcitonType.append(FunctionTypeEnum.GETBYID.name().toLowerCase()).append(",");
+        }
+        if (getAllFunciton.isSelected()) {
+            funcitonType.append(FunctionTypeEnum.GETALL.name().toLowerCase()).append(",");
+        }
+        funcitonType=new StringBuilder(funcitonType.toString().substring(0,funcitonType.toString().length()-1));
+        return funcitonType.toString();
+    }
+
+    /**
+     * 获取需要生成的方法
+     *
+     * @return
+     */
+    private int getFunctionType() {
+        int funcitonType = 0;
+        if (deleteFunction.isSelected()) {
+            funcitonType = funcitonType | FunctionTypeEnum.DELETE.getType();
+        }
+        if (addFunction.isSelected()) {
+            funcitonType = funcitonType | FunctionTypeEnum.ADD.getType();
+        }
+        if (editFunction.isSelected()) {
+            funcitonType = funcitonType | FunctionTypeEnum.EDIT.getType();
+        }
+        if (getByIdFunction.isSelected()) {
+            funcitonType = funcitonType | FunctionTypeEnum.GETBYID.getType();
+        }
+        if (getAllFunciton.isSelected()) {
+            funcitonType = funcitonType | FunctionTypeEnum.GETALL.getType();
+        }
+        return funcitonType;
+    }
+
+    public boolean haveFunctionProperty(FunctionTypeEnum functionTypeEnum) {
+        String property = projectFileConfig.getProperty("function-build");
+        String functionName = functionTypeEnum.name().toLowerCase();
+        if (Utils.isEmpty(property) || property.toLowerCase().contains(functionName)) {
             return true;
         }
         return false;
     }
-    public boolean haveFileProperty(FileTypeEnum fileTypeEnum){
-        String property=projectFileConfig.getProperty("type-build");
-        String fileName=fileTypeEnum.name().toLowerCase();
-        System.out.println("配置文件名:"+fileName);
-        if(Utils.isEmpty(property)||property.toLowerCase().indexOf(fileName)>0){
+
+    public boolean haveFileProperty(FileTypeEnum fileTypeEnum) {
+        String property = projectFileConfig.getProperty("type-build");
+        String fileName = fileTypeEnum.name().toLowerCase();
+        if (Utils.isEmpty(property) || property.toLowerCase().contains(fileName)) {
             return true;
         }
         return false;

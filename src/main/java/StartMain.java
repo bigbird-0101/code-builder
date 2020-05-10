@@ -11,7 +11,11 @@ public class StartMain {
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
-                CodeMainJFrame frame = new CodeMainJFrame();
+                String config="code.properties";
+                if(args.length>0){
+                    config=args[0];
+                }
+                CodeMainJFrame frame = new CodeMainJFrame(config);
                 frame.setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();

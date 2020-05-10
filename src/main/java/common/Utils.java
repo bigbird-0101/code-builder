@@ -66,11 +66,12 @@ public class Utils {
 
 	public static boolean mkDirs(File file) {
 		if(file!=null) {
-			if(file.getParentFile()!=null) {
-				if(!file.getParentFile().exists()) {
-					file.getParentFile().setWritable(true, false);
-					file.getParentFile().mkdir();
-					return mkDirs(file.getParentFile());
+			File parentFile=file.getParentFile();
+			if(parentFile!=null) {
+				if(!parentFile.exists()) {
+					parentFile.setWritable(true, false);
+					parentFile.mkdir();
+					return mkDirs(parentFile);
 				}
 			}
 		}
