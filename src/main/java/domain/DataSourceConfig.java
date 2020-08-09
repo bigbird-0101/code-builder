@@ -1,12 +1,15 @@
-package main.java.org;
+package main.java.domain;
 
-public class DataSourcePojo {
+/**
+ * @author Administrator
+ */
+public class DataSourceConfig {
     private String quDongName;
     private String userName;
     private String url;
     private String password;
 
-    public DataSourcePojo(String quDongName, String userName, String url, String password) {
+    public DataSourceConfig(String quDongName, String userName, String url, String password) {
         this.quDongName = quDongName;
         this.userName = userName;
         this.url = url;

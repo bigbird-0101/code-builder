@@ -1,8 +1,10 @@
-package main.java.org;
+package main.java.orgv1;
 
+import main.java.domain.DataSourceConfig;
 import main.java.common.Utils;
 import main.java.config.DataSourceFileConfig;
 import main.java.config.ProjectFileConfig;
+import main.java.domain.FileTempleConfig;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -44,6 +46,11 @@ public class CodeMainJFrame extends JFrame {
     private final JTextField textFiled_6;
     private final JTextField takenJabberers;
     private final JButton buildNewFileBtn;
+    private final JTextField deleteFileText;
+    private final JButton buildAfterFileBtn;
+    private final JCheckBox getByFiledFunction;
+    private final JTextField filedSText;
+    private final JButton deleteAllFileBtn;
     private DataSourceFileConfig dataSourceFileConfig;
     private ProjectFileConfig projectFileConfig;
 
@@ -79,18 +86,18 @@ public class CodeMainJFrame extends JFrame {
         textArea.setLineWrap(true);
         contentPane.add(textArea);
 
-        JLabel label_1 = new JLabel("用户名:");
-        label_1.setBounds(156, 143, 54, 15);
-        contentPane.add(label_1);
+        JLabel label1 = new JLabel("用户名:");
+        label1.setBounds(156, 143, 54, 15);
+        contentPane.add(label1);
 
         textField_1 = new JTextField();
         textField_1.setColumns(10);
         textField_1.setBounds(234, 143, 178, 21);
         contentPane.add(textField_1);
 
-        JLabel label_2 = new JLabel("密码:");
-        label_2.setBounds(156, 172, 54, 15);
-        contentPane.add(label_2);
+        JLabel label2 = new JLabel("密码:");
+        label2.setBounds(156, 172, 54, 15);
+        contentPane.add(label2);
 
         textField_2 = new JTextField();
         textField_2.setColumns(10);
@@ -138,7 +145,7 @@ public class CodeMainJFrame extends JFrame {
         contentPane.add(editFunction);
 
         getByIdFunction = new JCheckBox("生成根据id查询方法");
-        getByIdFunction.setSelected(haveFunctionProperty(FunctionTypeEnum.GETBYID));
+        getByIdFunction.setSelected(haveFunctionProperty(FunctionTypeEnum.GET_BY_ID));
         getByIdFunction.setBounds(420, 408, 163, 23);
         contentPane.add(getByIdFunction);
 
@@ -148,28 +155,66 @@ public class CodeMainJFrame extends JFrame {
         contentPane.add(deleteFunction);
 
         getAllFunciton = new JCheckBox("生成分页方法");
-        getAllFunciton.setSelected(haveFunctionProperty(FunctionTypeEnum.GETALL));
+        getAllFunciton.setSelected(haveFunctionProperty(FunctionTypeEnum.GET_ALL));
         getAllFunciton.setBounds(140, 438, 103, 23);
         contentPane.add(getAllFunciton);
+
+        JLabel filedSLabel = new JLabel("字段名(多个,分开)");
+        filedSLabel.setBounds(280, 438, 180, 23);
+        contentPane.add(filedSLabel);
+
+        filedSText = new JTextField();
+        filedSText.setBounds(390, 438, 122, 23);
+        contentPane.add(filedSText);
+        filedSText.setColumns(10);
+
+        getByFiledFunction = new JCheckBox("生成根据字段查询方法");
+        getByFiledFunction.setSelected(haveFunctionProperty(FunctionTypeEnum.GET_BY_FILED));
+        getByFiledFunction.setBounds(280, 470, 183, 23);
+        contentPane.add(getByFiledFunction);
 
         buildNewFileBtn = new JButton("生成");
         buildNewFileBtnListener();
 
-        buildNewFileBtn.setBounds(124, 505, 93, 23);
+        buildNewFileBtn.setBounds(124, 535, 93, 23);
         contentPane.add(buildNewFileBtn);
+
+
+        buildAfterFileBtn = new JButton("在已有的文件末尾处添加生成");
+        buildAfterFileBtnListener();
+
+        buildAfterFileBtn.setBounds(124, 565, 213, 23);
+        contentPane.add(buildAfterFileBtn);
+
 
         saveConfigBtn = new JButton("持久化保存配置");
         saveConfigBtnListener();
 
-        saveConfigBtn.setBounds(300, 505, 133, 23);
+        saveConfigBtn.setBounds(300, 535, 133, 23);
         contentPane.add(saveConfigBtn);
 
         deleteFileBtn = new JButton("删除最后生成的文件->依次");
         deleteFileBtnListener();
 
-        deleteFileBtn.setBounds(500, 505, 210, 23);
+        deleteFileBtn.setBounds(500, 535, 210, 23);
         contentPane.add(deleteFileBtn);
 
+        deleteAllFileBtn = new JButton("删除所有一次操作生成的文件");
+        deleteAllFileBtnListener();
+
+        deleteAllFileBtn.setBounds(500, 565, 220, 23);
+        contentPane.add(deleteAllFileBtn);
+
+        JLabel lblNewLabelFile = new JLabel("文件名");
+        lblNewLabelFile.setBounds(500, 505, 54, 23);
+        contentPane.add(lblNewLabelFile);
+
+        deleteFileText = new JTextField();
+        deleteFileText.setBounds(560, 505, 122, 23);
+        contentPane.add(deleteFileText);
+        deleteFileText.setColumns(10);
+        
+        
         JLabel lblNewLabel = new JLabel("目标表名");
         lblNewLabel.setBounds(358, 348, 54, 15);
         contentPane.add(lblNewLabel);
@@ -270,28 +315,81 @@ public class CodeMainJFrame extends JFrame {
         contentPane.add(jTextPane);
     }
 
+    private void deleteAllFileBtnListener() {
+        deleteAllFileBtn.addActionListener(e -> {
+            if(null!=this.buildEdFileUrlList&&!this.buildEdFileUrlList.isEmpty()){
+                for (String filePath : buildEdFileUrlList) {
+                    File file = new File(filePath);
+                    String fileName = getFileName(filePath);
+                    if (file.exists()) {
+                        int result = JOptionPane.showConfirmDialog(
+                                contentPane,
+                                "确认删除" + fileName + "吗？",
+                                "提示",
+                                JOptionPane.YES_NO_OPTION
+                        );
+                        System.out.println("选择结果: " + result);
+                        if (JOptionPane.YES_OPTION == result) {
+                            file.delete();
+                            JOptionPane.showMessageDialog(contentPane, "删除成功", "提示", JOptionPane.WARNING_MESSAGE);
+                        }
+                    }
+                }
+                this.buildEdFileUrlList.clear();
+            }else{
+                JOptionPane.showMessageDialog(contentPane, "上一步操作文件已删空", "提示", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+    }
+
+    private void buildAfterFileBtnListener() {
+        buildCodeFile(buildAfterFileBtn,BuildCodeType.AFTER_FILE);
+    }
+
     private void deleteFileBtnListener() {
         deleteFileBtn.addActionListener(e -> {
             if(null!=this.buildEdFileUrlList&&!this.buildEdFileUrlList.isEmpty()){
-                String filePath=this.buildEdFileUrlList.get(this.buildEdFileUrlList.size()-1);
-                File file=new File(filePath);
-                String fileName=getFileName(filePath);
-                if(file.exists()){
+                int index=Utils.isEmpty(deleteFileText.getText())?this.buildEdFileUrlList.size() - 1:getDeleteFileIndex();
+                if(index<0){
+                    JOptionPane.showMessageDialog(contentPane, "文件名不存在", "提示", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                String filePath = this.buildEdFileUrlList.get(index);
+                File file = new File(filePath);
+                String fileName = getFileName(filePath);
+                if (file.exists()) {
                     int result = JOptionPane.showConfirmDialog(
                             contentPane,
-                            "确认删除"+fileName+"吗？",
+                            "确认删除" + fileName + "吗？",
                             "提示",
                             JOptionPane.YES_NO_OPTION
                     );
                     System.out.println("选择结果: " + result);
-                    if(JOptionPane.YES_OPTION==result){
-                         file.delete();
+                    if (JOptionPane.YES_OPTION == result) {
+                        file.delete();
+                        this.buildEdFileUrlList.remove(index);
                         JOptionPane.showMessageDialog(contentPane, "删除成功", "提示", JOptionPane.WARNING_MESSAGE);
                     }
                 }
+            }else{
+                JOptionPane.showMessageDialog(contentPane, "上一步操作文件已删空", "提示", JOptionPane.WARNING_MESSAGE);
             }
         });
 
+    }
+
+    private int getDeleteFileIndex() {
+        int a=0;
+        boolean isHave=false;
+        for(String filePath:this.buildEdFileUrlList){
+            String fileName = getFileName(filePath);
+            if(fileName.contains(deleteFileText.getText())){
+                isHave=true;
+                break;
+            }
+            a++;
+        }
+        return isHave?a:-1;
     }
 
     /**
@@ -301,14 +399,14 @@ public class CodeMainJFrame extends JFrame {
      */
     private static String getFileName(String filePath) {
         String fileName=filePath.contains("/") ?filePath.substring(filePath.lastIndexOf("/")+1):filePath;
-        fileName=filePath.contains("\\") ?filePath.substring(filePath.lastIndexOf("\\")+1):filePath;
+        fileName=fileName.contains("\\") ?fileName.substring(fileName.lastIndexOf("\\")+1):filePath;
         return fileName;
     }
 
     private void saveConfigBtnListener() {
         saveConfigBtn.addActionListener(e -> {
-            DataSourceConfigPojo dataSourcePojo = getDataSouceConfigPojo();
-            FileTempleConfigPojo fileTemplePojo = getFileTempleConfigPojo();
+            DataSourceConfig dataSourcePojo = getDataSouceConfigPojo();
+            FileTempleConfig fileTemplePojo = getFileTempleConfigPojo();
             try {
                 reloadConfig(Arrays.asList(dataSourcePojo,fileTemplePojo));
             } catch (IOException ex) {
@@ -320,27 +418,27 @@ public class CodeMainJFrame extends JFrame {
     private void reloadConfig(List<Object> configPojoList) throws IOException {
 
         configPojoList.forEach(item->{
-            if(item instanceof DataSourceConfigPojo){
+            if(item instanceof DataSourceConfig){
                 Map<String,String> properties=new LinkedHashMap<>();
-                properties.put("url",((DataSourceConfigPojo) item).getUrl());
-                properties.put("username",((DataSourceConfigPojo) item).getUserName());
-                properties.put("password",((DataSourceConfigPojo) item).getPassword());
+                properties.put("url",((DataSourceConfig) item).getUrl());
+                properties.put("username",((DataSourceConfig) item).getUserName());
+                properties.put("password",((DataSourceConfig) item).getPassword());
                 try {
                     dataSourceFileConfig.coverProperty(properties);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if(item instanceof FileTempleConfigPojo){
+            if(item instanceof FileTempleConfig){
                 Map<String,String> properties=new LinkedHashMap<>();
-                properties.put("projecturl",((FileTempleConfigPojo) item).getProjectUrl());
-                properties.put("srcurl",((FileTempleConfigPojo) item).getSrcUrl());
-                properties.put("srcurl-prefix",((FileTempleConfigPojo) item).getSrcUrlPrefix());
-                properties.put("dao.package",((FileTempleConfigPojo) item).getDaoPackage());
-                properties.put("domain.package",((FileTempleConfigPojo) item).getDomainPackage());
-                properties.put("service.package",((FileTempleConfigPojo) item).getServicePackage());
-                properties.put("serviceimpl.package",((FileTempleConfigPojo) item).getServiceImplPackage());
-                properties.put("controller.package",((FileTempleConfigPojo) item).getControllerPackage());
+                properties.put("projecturl",((FileTempleConfig) item).getProjectUrl());
+                properties.put("srcurl",((FileTempleConfig) item).getSrcUrl());
+                properties.put("srcurl-prefix",((FileTempleConfig) item).getSrcUrlPrefix());
+                properties.put("dao.package",((FileTempleConfig) item).getDaoPackage());
+                properties.put("domain.package",((FileTempleConfig) item).getDomainPackage());
+                properties.put("service.package",((FileTempleConfig) item).getServicePackage());
+                properties.put("serviceimpl.package",((FileTempleConfig) item).getServiceImplPackage());
+                properties.put("controller.package",((FileTempleConfig) item).getControllerPackage());
                 properties.put("type-build",getFileTypeString());
                 properties.put("function-build",getFunctionTypeString());
                 try {
@@ -360,12 +458,12 @@ public class CodeMainJFrame extends JFrame {
         projectFileConfig = new ProjectFileConfig(configUrl);
     }
 
-    private void buildNewFileBtnListener() {
-        buildNewFileBtn.addActionListener(e -> {
+    private void buildCodeFile(JButton button, BuildCodeType buildNewFile){
+        button.addActionListener(e -> {
             String tableName = textField4.getText();
-            DataSourceConfigPojo dataSourcePojo = getDataSouceConfigPojo();
-            FileTempleConfigPojo fileTemplePojo = getFileTempleConfigPojo();
-            TableToJavaTool tableToJavaTool = new TableToJavaTool(dataSourcePojo, fileTemplePojo);
+            DataSourceConfig dataSourcePojo = getDataSouceConfigPojo();
+            FileTempleConfig fileTemplePojo = getFileTempleConfigPojo();
+            TableToJavaTool tableToJavaTool = new TableToJavaTool(dataSourcePojo, fileTemplePojo,buildNewFile);
             try {
                 //判断是不是全库生成
                 if (chckbxNewCheckBox.isSelected()) {
@@ -379,38 +477,42 @@ public class CodeMainJFrame extends JFrame {
                 JOptionPane.showMessageDialog(contentPane, "生成失败!\n\r\n原因:" + e1.getMessage(), "提示", JOptionPane.WARNING_MESSAGE);
             }
         });
+
+    }
+
+    private void buildNewFileBtnListener() {
+        buildCodeFile(buildNewFileBtn,BuildCodeType.BUILD_NEW_FILE);
     }
 
     /**
      * 获取用户输入的数据连接配置
      * @return
      */
-    public DataSourceConfigPojo getDataSouceConfigPojo(){
+    public DataSourceConfig getDataSouceConfigPojo(){
         String url = textArea.getText();
         String user = textField_1.getText();
         String password = textField_2.getText();
         String quDongName = url.indexOf("mysql") > 0 ? "com.mysql.jdbc.Driver" : url.indexOf("oracle") > 0 ? "" : "";
-        DataSourceConfigPojo dataSourcePojo = new DataSourceConfigPojo(quDongName, user, url, password);
-        return dataSourcePojo;
+        return new DataSourceConfig(quDongName, user, url, password);
     }
 
     /**
      * 获取用户输入的数据连接配置
      * @return
      */
-    public FileTempleConfigPojo getFileTempleConfigPojo(){
-        String projectUrl = textFiled_5.getText();
-        String srcUrlPrefix = textFiled_6.getText();
-        String srcUrl = takenJabberers.getText();
-        String daoPackage = textDaopackage.getText();
-        String servicePackage = textServicepackage.getText();
-        String domainPackage = textDoMainpackage.getText();
-        String controllerPackage = textControllerPackage.getText();
-        String serviceImplPackage = textServiceImpl.getText();
+    public FileTempleConfig getFileTempleConfigPojo(){
+        String projectUrl = textFiled_5.getText().replaceAll("\\\\","/");
+        String srcUrlPrefix = textFiled_6.getText().replaceAll("\\\\","/");
+        String srcUrl = takenJabberers.getText().replaceAll("\\\\","/");
+        String daoPackage = textDaopackage.getText().replaceAll("\\\\","/");
+        String servicePackage = textServicepackage.getText().replaceAll("\\\\","/");
+        String domainPackage = textDoMainpackage.getText().replaceAll("\\\\","/");
+        String controllerPackage = textControllerPackage.getText().replaceAll("\\\\","/");
+        String serviceImplPackage = textServiceImpl.getText().replaceAll("\\\\","/");
+        String getByFiledFiledS=filedSText.getText();
         int funcitonType = getFunctionType();
         int fileType = getFileType();
-        FileTempleConfigPojo fileTemplePojo = new FileTempleConfigPojo(projectUrl, srcUrl, srcUrlPrefix, daoPackage, servicePackage, controllerPackage, serviceImplPackage, domainPackage, fileType, funcitonType);
-        return fileTemplePojo;
+        return new FileTempleConfig(projectUrl, srcUrl, srcUrlPrefix, daoPackage, servicePackage, controllerPackage, serviceImplPackage, domainPackage, fileType, funcitonType,getByFiledFiledS);
     }
 
     /**
@@ -475,10 +577,13 @@ public class CodeMainJFrame extends JFrame {
             funcitonType.append(FunctionTypeEnum.EDIT.name().toLowerCase()).append(",");
         }
         if (getByIdFunction.isSelected()) {
-            funcitonType.append(FunctionTypeEnum.GETBYID.name().toLowerCase()).append(",");
+            funcitonType.append(FunctionTypeEnum.GET_BY_ID.name().toLowerCase()).append(",");
         }
         if (getAllFunciton.isSelected()) {
-            funcitonType.append(FunctionTypeEnum.GETALL.name().toLowerCase()).append(",");
+            funcitonType.append(FunctionTypeEnum.GET_ALL.name().toLowerCase()).append(",");
+        }
+        if (getByFiledFunction.isSelected()) {
+            funcitonType.append(FunctionTypeEnum.GET_BY_FILED.name().toLowerCase()).append(",");
         }
         funcitonType=new StringBuilder(funcitonType.toString().substring(0,funcitonType.toString().length()-1));
         return funcitonType.toString();
@@ -501,10 +606,13 @@ public class CodeMainJFrame extends JFrame {
             funcitonType = funcitonType | FunctionTypeEnum.EDIT.getType();
         }
         if (getByIdFunction.isSelected()) {
-            funcitonType = funcitonType | FunctionTypeEnum.GETBYID.getType();
+            funcitonType = funcitonType | FunctionTypeEnum.GET_BY_ID.getType();
         }
         if (getAllFunciton.isSelected()) {
-            funcitonType = funcitonType | FunctionTypeEnum.GETALL.getType();
+            funcitonType = funcitonType | FunctionTypeEnum.GET_ALL.getType();
+        }
+        if (getByFiledFunction.isSelected()) {
+            funcitonType = funcitonType | FunctionTypeEnum.GET_BY_FILED.getType();
         }
         return funcitonType;
     }

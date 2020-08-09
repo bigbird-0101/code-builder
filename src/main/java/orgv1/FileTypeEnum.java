@@ -1,4 +1,4 @@
-package main.java.org;
+package main.java.orgv1;
 
 /**
  * @author fpp

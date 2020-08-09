@@ -1,6 +1,10 @@
-package main.java.org;
+package main.java.domain;
 
-public class FileTempleConfigPojo {
+/**
+ * 文件模板配置
+ * @author Administrator
+ */
+public class FileTempleConfig {
     private String projectUrl;
     private String srcUrl;
     private String srcUrlPrefix;
@@ -11,6 +15,15 @@ public class FileTempleConfigPojo {
     private String domainPackage;
     private int typeBuild;
     private int functionBuild;
+    private String getByFiledFiledS;
+
+    public String getGetByFiledFiledS() {
+        return getByFiledFiledS;
+    }
+
+    public void setGetByFiledFiledS(String getByFiledFiledS) {
+        this.getByFiledFiledS = getByFiledFiledS;
+    }
 
     public String getProjectUrl() {
         return projectUrl;
@@ -92,7 +105,7 @@ public class FileTempleConfigPojo {
         this.functionBuild = functionBuild;
     }
 
-    public FileTempleConfigPojo(String projectUrl, String srcUrl, String srcUrlPrefix, String daoPackage, String servicePackage, String controllerPackage, String serviceImplPackage, String domainPackage, int typeBuild, int functionBuild) {
+    public FileTempleConfig(String projectUrl, String srcUrl, String srcUrlPrefix, String daoPackage, String servicePackage, String controllerPackage, String serviceImplPackage, String domainPackage, int typeBuild, int functionBuild, String getByFiledFiledS) {
         this.projectUrl = projectUrl;
         this.srcUrl = srcUrl;
         this.srcUrlPrefix = srcUrlPrefix;
@@ -103,6 +116,7 @@ public class FileTempleConfigPojo {
         this.domainPackage = domainPackage;
         this.typeBuild = typeBuild;
         this.functionBuild = functionBuild;
+        this.getByFiledFiledS = getByFiledFiledS;
     }
 
     @Override

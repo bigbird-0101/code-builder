@@ -6,13 +6,12 @@ import java.util.*;
 /**
  * key的顺序按照文件顺序
  *
- * @author jiangzeyin
- * @date 2016-11-15
+ * @author fpp
+ * @date 2020-5-15
  */
 public class OrderedProperties extends Properties {
 
     private static final long serialVersionUID = -4627607243846121965L;
-
     private File file;
     private final LinkedHashSet<Object> keys = new LinkedHashSet<Object>();
 

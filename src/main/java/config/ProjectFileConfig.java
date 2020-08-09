@@ -33,4 +33,17 @@ public class ProjectFileConfig extends AbstractConfig{
         });
         super.coverProperty(temp);
     }
+
+    @Override
+    public String toString() {
+        return getPropertys().toString();
+    }
+
+    /**
+     * 获取前缀
+     * @return
+     */
+    public static String getConfigPrefix() {
+        return CONFIG_PREFIX;
+    }
 }

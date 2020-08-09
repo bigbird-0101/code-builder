@@ -1,8 +1,11 @@
 package main.java;
 
-import main.java.org.CodeMainJFrame;
+import main.java.orgv2.MainJFramePage;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
 
 public class StartMain {
     /**
@@ -11,15 +14,19 @@ public class StartMain {
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
-                String config="code.properties";
-                if(args.length>0){
-                    config=args[0];
-                }
-                CodeMainJFrame frame = new CodeMainJFrame(config);
+                Map<String,String> map=new HashMap<>(1);
+                Stream.of(args).forEach(s->{
+                    String[] array=s.split("\\=");
+                    String key=array[0].replaceAll("\\-\\-","");
+                    String value=array[1];
+                    map.put(key,value);
+                });
+                MainJFramePage frame = new MainJFramePage(map);
                 frame.setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
+
     }
 }

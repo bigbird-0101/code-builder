@@ -1,14 +1,12 @@
 package main.java.config;
 
+import main.java.common.CommonFileUtils;
 import main.java.common.OrderedProperties;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -64,7 +62,7 @@ public abstract class AbstractConfig implements Config{
 
     public void readFile(String fileName) throws IOException {
         Properties pss = new OrderedProperties();
-        pss.load(getConfigFileInput(fileName));
+        pss.load(new BufferedReader(new InputStreamReader(CommonFileUtils.getConfigFileInput(fileName))));
         LinkedHashMap<String,String> properties=new LinkedHashMap<>(pss.size());
         pss.stringPropertyNames().forEach((k)->{
             properties.put(k,pss.getProperty(k));
@@ -72,24 +70,7 @@ public abstract class AbstractConfig implements Config{
         setProperty(properties);
     }
 
-    public FileInputStream getConfigFileInput(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
-        return new FileInputStream(URLDecoder.decode(getFilePath(fileName),"UTF-8"));
-    }
 
-    public String getFilePath(String fileName){
-        URL url=AbstractConfig.class.getClassLoader().getResource("main/resources/"+fileName);
-        String path;
-        if(Objects.nonNull(url)){
-            path=url.getPath();
-        }else{
-            path=fileName;
-        }
-        return path;
-    }
-
-    public FileOutputStream getConfigFileOut(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
-        return new FileOutputStream(URLDecoder.decode(getFilePath(fileName),"UTF-8"));
-    }
 
     /**
      * 覆盖文件 的写文件
@@ -99,11 +80,11 @@ public abstract class AbstractConfig implements Config{
      */
     private void writeCoverFile(String fileName,byte[] data) throws IOException {
 //        clearFileContent(fileName);
-        IOUtils.write(new String(data),getConfigFileOut(fileName), "UTF-8");
+        IOUtils.write(new String(data),CommonFileUtils.getConfigFileOut(fileName), "UTF-8");
     }
 
     private void clearFileContent(String fileName) throws IOException {
-        FileOutputStream fileWriter=getConfigFileOut(fileName);
+        FileOutputStream fileWriter=CommonFileUtils.getConfigFileOut(fileName);
         fileWriter.write("".getBytes());
         fileWriter.flush();
         fileWriter.close();

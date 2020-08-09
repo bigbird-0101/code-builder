@@ -1,4 +1,4 @@
-package main.java.org;
+package main.java.orgv1;
 
 /**
  * @author fpp
@@ -21,11 +21,15 @@ public enum FunctionTypeEnum {
     /**
      * 根据id查询
      */
-    GETBYID(8),
+    GET_BY_ID(8),
     /**
      * 分页方法
      */
-    GETALL(16)
+    GET_ALL(16),
+    /**
+     * 分页方法
+     */
+    GET_BY_FILED(32)
     ;
 
     private int type;
