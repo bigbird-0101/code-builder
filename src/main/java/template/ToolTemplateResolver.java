@@ -20,7 +20,10 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver{
     private static String mendLastStr;
     private static String mendFirstStr;
 
-
+    public ToolTemplateResolver() {
+        super();
+        this.resolverName=LANG_NAME;
+    }
 
     /**
      * 工具类方法枚举

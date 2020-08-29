@@ -60,7 +60,7 @@ public class MainJFramePage extends JFrame {
 
     private String CONFIG_URL = DEFAULT_CONFIG_URL;
 
-    private static final String DEFAULT_CONFIG_URL="code.properties";
+    private static final String DEFAULT_CONFIG_URL="META-INF/code.properties";
 
     private Map<String,String> paragramParam=null;
 
@@ -93,7 +93,7 @@ public class MainJFramePage extends JFrame {
         this.CONFIG_URL=Utils.isEmpty(paragramParam.get("config.file.url"))?DEFAULT_CONFIG_URL:paragramParam.get("config.file.url");
         dataSourceFileConfig = new DataSourceFileConfig(CONFIG_URL);
         projectFileConfig = new ProjectFileConfig(CONFIG_URL);
-        initTableAll();
+//        initTableAll();
     }
 
     /**
@@ -328,6 +328,7 @@ public class MainJFramePage extends JFrame {
             JSONArray handleTemplateBuild = projectTemplateInfoConfig.getHandleTemplateBuild();
             JSONArray noHandleTemplateBuild = projectTemplateInfoConfig.getNoHandleTemplateBuild();
             if(searchComponentByName(getContentPane(),"AllGenerate",JCheckBox.class).isSelected()){
+                initTableAll();
                 this.tableSelected=this.tableAll;
             }else{
                 String tableName=searchComponentByName(getContentPane(),"TargetTableName",JTextField.class).getText();

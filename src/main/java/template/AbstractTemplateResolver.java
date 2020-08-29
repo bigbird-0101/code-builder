@@ -108,8 +108,12 @@ public abstract class AbstractTemplateResolver implements TemplateResolver {
     }
 
     public void init(){
+        this.templateLangResolverList=new ArrayList<>(16);
         ServiceLoader<TemplateLangResolver> serviceLoader=ServiceLoader.load(TemplateLangResolver.class);
-        serviceLoader.forEach(this.templateLangResolverList::add);
+        serviceLoader.forEach(item->{
+            item.setTemplateResolver(this);
+            this.templateLangResolverList.add(item);
+        });
     }
 
     private void  initTemplateLangResolverListWhenConfig(ProjectFileConfig projectFileConfig) throws CodeConfigException {

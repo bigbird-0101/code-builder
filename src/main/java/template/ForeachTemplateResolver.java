@@ -19,6 +19,11 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
 
     private static final String LANG_NAME="foreach";
 
+    public ForeachTemplateResolver() {
+        super();
+        this.resolverName=LANG_NAME;
+    }
+
     public ForeachTemplateResolver(TemplateResolver templateResolver) {
         super(templateResolver);
         this.resolverName=LANG_NAME;

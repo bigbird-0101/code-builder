@@ -37,13 +37,13 @@ public class DefaultMultipleTemplate extends AbstractMultipleTemplate {
     public List<Template> getDefaultTemplates() throws IOException, CodeConfigException {
         List<Template> templateList = new ArrayList<>(5);
         if (null == this.jsonObject || this.jsonObject.isEmpty()) {
-            Template templateDomain = new DefaultNoHandleFunctionTemplate("DoMain模板", "DoMainTemplate.txt", "domain");
+            Template templateDomain = new DefaultNoHandleFunctionTemplate("DoMain模板", "META-INF/DoMainTemplate.txt", "domain");
             templateDomain.setTemplateFileNameStrategy(new OnlySubFourTemplateFilePrefixNameStrategy());
             templateList.add(templateDomain);
-            templateList.add(new DefaultHandleFunctionTemplate("Controller模板", "ControllerFileTemplate.txt", "controller"));
-            templateList.add(new DefaultHandleFunctionTemplate("Dao模板", "DaoFileTemplate.txt", "dao"));
-            Template serviceTemplate = new DefaultHandleFunctionTemplate("ServiceInterface模板", "ServiceInterfaceFileTemplate.txt", "service");
-            templateList.add(new DefaultHandleFunctionTemplate("ServiceImpl模板", "ServiceImplFileTemplate.txt", serviceTemplate, "service/impl"));
+            templateList.add(new DefaultHandleFunctionTemplate("Controller模板", "META-INF/ControllerFileTemplate.txt", "controller"));
+            templateList.add(new DefaultHandleFunctionTemplate("Dao模板", "META-INF/DaoFileTemplate.txt", "dao"));
+            Template serviceTemplate = new DefaultHandleFunctionTemplate("ServiceInterface模板", "META-INF/ServiceInterfaceFileTemplate.txt", "service");
+            templateList.add(new DefaultHandleFunctionTemplate("ServiceImpl模板", "META-INF/ServiceImplFileTemplate.txt", serviceTemplate, "service/impl"));
             templateList.add(serviceTemplate);
         } else {
             Iterator<Map.Entry<String, Object>> iterator=jsonObject.entrySet().iterator();

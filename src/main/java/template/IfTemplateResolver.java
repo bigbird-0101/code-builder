@@ -21,6 +21,10 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
 
     private Set<Pattern> excludeVariablePatten=new HashSet<>(Arrays.asList(templateGrammarPatternPrefix,templateGrammarPatternSuffix));
 
+    public IfTemplateResolver() {
+        super();
+        this.resolverName=LANG_NAME;
+    }
 
     public IfTemplateResolver(TemplateResolver template) {
         super(template);

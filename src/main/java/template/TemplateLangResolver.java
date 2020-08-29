@@ -19,4 +19,10 @@ public interface TemplateLangResolver extends Rule {
      * @throws TemplateResolveException 模板解析异常
      */
     String langResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException;
+
+    /**
+     * 设置模板解析器
+     * @param templateResolver
+     */
+    void setTemplateResolver(TemplateResolver templateResolver);
 }
