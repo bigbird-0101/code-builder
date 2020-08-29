@@ -119,4 +119,4 @@ TableInfo 的 ColumnInfo的domainPropertyName 的值
 
 如有疑问请加群
 
-![](\Spring-Code 交流群群二维码.png)
+![](quncode.png)
