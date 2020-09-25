@@ -30,7 +30,7 @@
 4. `isHandleFunction`  是否是能够控制模板中的方法的模板
 5. `fileNameStrategyType` 文件的命令策略 如果想自定义命名策略，请实现**FileNameBuilder** 默认实现是 **JavaFileNameBuilderImpl** 
 
-点击启动spring-code.bat
+`点击启动spring-code.bat`
 
 
 
@@ -79,7 +79,7 @@ TableInfo 的 ColumnInfo的size的值
 例子
 
 ```java
- *{if v-if='!column.isNull'}*
+    *{if v-if='!column.isNull'}*
     @NotNull(message = "*{column.comment}*不允许为空")
     *{/if}*
     *{if v-if='column.javaType==String'}*
@@ -97,7 +97,7 @@ column.domainPropertyName 对应
 TableInfo 的 ColumnInfo的domainPropertyName 的值
 
 ```java
-*{foreach v-for="column in tableInfo.columnList"}*
+    *{foreach v-for="column in tableInfo.columnList"}*
 
     public *{column.javaType}* get*{tool.firstUpper(*{column.domainPropertyName}*)}*()
     {
