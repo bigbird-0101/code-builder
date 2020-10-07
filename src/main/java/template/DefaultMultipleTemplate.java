@@ -53,6 +53,7 @@ public class DefaultMultipleTemplate extends AbstractMultipleTemplate {
                     TemplateConfigDomain templateConfigDomain=template.toJavaObject(TemplateConfigDomain.class);
                     JSONObject templateJSON=(JSONObject)template;
                     templateConfigDomain.setIsHandleFunction(templateJSON.containsKey("isHandleFunction")?templateJSON.getIntValue("isHandleFunction"):1);
+                    templateConfigDomain.setFileSuffixName(templateJSON.containsKey("fileSuffixName")?templateJSON.getString("fileSuffixName"):"java");
                     templateConfigList.add(templateConfigDomain);
                 }
                 templateFactoryReal.setTemplateConfigList(templateConfigList);
@@ -68,11 +69,11 @@ public class DefaultMultipleTemplate extends AbstractMultipleTemplate {
      */
     public List<TemplateConfigDomain> getDefaultTemplateConfigList(){
         List<TemplateConfigDomain> templateConfigList=new ArrayList<>(5);
-        templateConfigList.add(new TemplateConfigDomain("META-INF/DoMainTemplate.txt","DoMain模板","domain",1,0,null));
-        templateConfigList.add(new TemplateConfigDomain("META-INF/ControllerFileTemplate.txt","Controller模板",  "controller",0,1,null));
-        templateConfigList.add(new TemplateConfigDomain("META-INF/DaoFileTemplate.txt","Dao模板",  "dao",0,1,null));
-        templateConfigList.add(new TemplateConfigDomain("META-INF/ServiceInterfaceFileTemplate.txt","ServiceInterface模板",  "service",0,1,null));
-        templateConfigList.add(new TemplateConfigDomain("META-INF/ServiceImplFileTemplate.txt", "ServiceImpl模板", "service/impl",0,1, "ServiceInterface模板"));
+        templateConfigList.add(new TemplateConfigDomain("META-INF/DoMainTemplate.txt","DoMain模板","domain",1,"java",0,null));
+        templateConfigList.add(new TemplateConfigDomain("META-INF/ControllerFileTemplate.txt","Controller模板",  "controller",0,"java",1,null));
+        templateConfigList.add(new TemplateConfigDomain("META-INF/DaoFileTemplate.txt","Dao模板",  "dao",0,"java",1,null));
+        templateConfigList.add(new TemplateConfigDomain("META-INF/ServiceInterfaceFileTemplate.txt","ServiceInterface模板",  "service",0,"java",1,null));
+        templateConfigList.add(new TemplateConfigDomain("META-INF/ServiceImplFileTemplate.txt", "ServiceImpl模板", "service/impl",0,"java",1, "ServiceInterface模板"));
         return templateConfigList;
     }
 

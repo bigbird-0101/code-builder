@@ -1,3 +1,15 @@
+##### 前言
+
+Spring项目代码生成器.
+
+###### 亮点 
+
+1.根据数据表格和自定义的模板，生成任意你想生成的代码，避免项目中重复写相似的，大大提高开发效率。
+
+2.动态操作模板中的每一个方法，生成你想生成目标文件的任意方法。
+
+3.以已有模板中的方法为基础，根据自定义参数，生成类似的代码。
+
 ##### QUICK START
 
 ###### 1.通过代码直接启动
@@ -27,12 +39,11 @@
 1. `url`  模板文件的地址
 2. name 模板的名字
 3. `path` 最终生成代码的路径(注意该路径是基于项目+代码路径的)
-4. `isHandleFunction`  是否是能够控制模板中的方法的模板
-5. `fileNameStrategyType` 文件的命令策略 如果想自定义命名策略，请实现**FileNameBuilder** 默认实现是 **JavaFileNameBuilderImpl** 
+4. `isHandleFunction`  是否是能够控制模板中的方法的模板 1-是 0-否
+5. `filePrefixNameStrategyType` 文件的前缀命令策略   （默认）0-从表格名第四个字符开始+path的首字母大写  1-从表格名的第四个字符开始
+6. `fileSuffixName` 文件的后缀名  默认 java
 
-`点击启动spring-code.bat`
-
-
+点击启动`spring-code.bat`
 
 与easy-code 对比
 
@@ -74,7 +85,7 @@
 
 column.size对应
 
-TableInfo 的 ColumnInfo的size的值
+TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的属性 详情请查看代码
 
 例子
 

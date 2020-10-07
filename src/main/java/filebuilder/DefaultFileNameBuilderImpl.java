@@ -4,12 +4,12 @@ import main.java.template.Template;
 import main.java.template.TemplateFilePrefixNameStrategy;
 
 /**
- * java文件名生成器
+ * 默认文件名生成器
  * @author fpp
  * @version 1.0
  * @date 2020/6/30 17:42
  */
-public class JavaFileNameBuilderImpl implements FileNameBuilder {
+public class DefaultFileNameBuilderImpl implements FileNameBuilder {
     /**
      * 文件名生成方法
      *
@@ -21,8 +21,8 @@ public class JavaFileNameBuilderImpl implements FileNameBuilder {
         String result="";
         TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy=template.getTemplateFileNameStrategy();
         if(null!=templateFilePrefixNameStrategy){
-            result+=templateFilePrefixNameStrategy.prefixStrategy(template,tableName);
+            result+=templateFilePrefixNameStrategy.prefixStrategy(template,tableName)+"."+template.getTemplateFileSuffixName();
         }
-        return result+".java";
+        return result;
     }
 }

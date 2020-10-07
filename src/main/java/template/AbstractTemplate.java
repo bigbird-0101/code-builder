@@ -27,13 +27,15 @@ public abstract class AbstractTemplate implements Template {
 
     private TemplateFilePrefixNameStrategy templateFileNameStrategy=new DefaultTemplateFilePrefixNameStrategy();
 
+    private String templateFileSuffixName;
+
     @Override
     public TemplateFilePrefixNameStrategy getTemplateFileNameStrategy() {
         return templateFileNameStrategy;
     }
 
     @Override
-    public void setTemplateFileNameStrategy(TemplateFilePrefixNameStrategy templateFileNameStrategy) {
+    public void setTemplateFilePrefixNameStrategy(TemplateFilePrefixNameStrategy templateFileNameStrategy) {
         this.templateFileNameStrategy = templateFileNameStrategy;
     }
 
@@ -104,6 +106,16 @@ public abstract class AbstractTemplate implements Template {
     @Override
     public String getPath() {
         return this.path;
+    }
+
+    @Override
+    public String getTemplateFileSuffixName() {
+        return templateFileSuffixName;
+    }
+
+    @Override
+    public void setTemplateFileSuffixName(String templateFileSuffixName) {
+        this.templateFileSuffixName = templateFileSuffixName;
     }
 
     public abstract void refresh(String templeFileName) throws IOException;

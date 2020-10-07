@@ -39,11 +39,12 @@ public abstract class AbstractTemplateFactory implements TemplateFactory {
                 template.setPath(templateConfig.getPath());
                 template.setTemplateName(templateConfig.getName());
                 template.refresh(templateConfig.getUrl());
-                if (templateConfig.getFileNameStrategyType() == 0) {
-                    template.setTemplateFileNameStrategy(new DefaultTemplateFilePrefixNameStrategy());
-                } else if (templateConfig.getFileNameStrategyType() == 1) {
-                    template.setTemplateFileNameStrategy(new OnlySubFourTemplateFilePrefixNameStrategy());
+                if (templateConfig.getFilePrefixNameStrategyType() == 0) {
+                    template.setTemplateFilePrefixNameStrategy(new DefaultTemplateFilePrefixNameStrategy());
+                } else if (templateConfig.getFilePrefixNameStrategyType() == 1) {
+                    template.setTemplateFilePrefixNameStrategy(new OnlySubFourTemplateFilePrefixNameStrategy());
                 }
+                template.setTemplateFileSuffixName(templateConfig.getFileSuffixName());
                 templateList.add(template);
             }
         }

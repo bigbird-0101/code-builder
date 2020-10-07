@@ -29,7 +29,7 @@ public interface FileCodeBuilderStrategy {
      * @param fileNameBuilder 文件名构建器
      * @return
      */
-    String done(CoreConfig coreConfig,Template template, String tableName,FileNameBuilder fileNameBuilder) throws SQLException, ClassNotFoundException, IOException, TemplateResolveException;
+    String done(CoreConfig coreConfig, Template template, String tableName, FileNameBuilder fileNameBuilder) throws SQLException, ClassNotFoundException, IOException, TemplateResolveException;
 
     /**
      * 文件写入的方式
