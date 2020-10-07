@@ -12,6 +12,9 @@ import java.io.IOException;
  */
 public class DefaultHandleFunctionTemplate extends HandleFunctionTemplate {
 
+    public DefaultHandleFunctionTemplate() throws IOException, CodeConfigException {
+        super(null);
+    }
 
     public DefaultHandleFunctionTemplate(String templateName,String templeFileName,String path) throws IOException, CodeConfigException {
         super(templeFileName);

@@ -50,6 +50,7 @@ public abstract class AbstractTemplate implements Template {
         this.templateName = templateName;
     }
 
+    @Override
     public void setParentTemplate(Template parentTemplate) {
         this.parentTemplate = parentTemplate;
     }
@@ -104,4 +105,6 @@ public abstract class AbstractTemplate implements Template {
     public String getPath() {
         return this.path;
     }
+
+    public abstract void refresh(String templeFileName) throws IOException;
 }

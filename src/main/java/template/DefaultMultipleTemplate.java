@@ -1,8 +1,8 @@
 package main.java.template;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import main.java.common.Utils;
 import main.java.config.CodeConfigException;
 import main.java.config.ProjectFileConfig;
 
@@ -24,68 +24,57 @@ public class DefaultMultipleTemplate extends AbstractMultipleTemplate {
     private List<Template> templateList;
     private static String TEMPLATE_SPRING = "Spring项目模板";
 
-    private JSONObject jsonObject;
+    private TemplateFactory templateFactory;
+    private JSONObject fileConfig;
 
     public DefaultMultipleTemplate() {
         this(null);
     }
 
     public DefaultMultipleTemplate(JSONObject jsonObject) {
-        this.jsonObject = jsonObject;
+        this.fileConfig = jsonObject;
+        this.templateFactory=new GenericTemplateFactory();
     }
 
     public List<Template> getDefaultTemplates() throws IOException, CodeConfigException {
-        List<Template> templateList = new ArrayList<>(5);
-        if (null == this.jsonObject || this.jsonObject.isEmpty()) {
-            Template templateDomain = new DefaultNoHandleFunctionTemplate("DoMain模板", "META-INF/DoMainTemplate.txt", "domain");
-            templateDomain.setTemplateFileNameStrategy(new OnlySubFourTemplateFilePrefixNameStrategy());
-            templateList.add(templateDomain);
-            templateList.add(new DefaultHandleFunctionTemplate("Controller模板", "META-INF/ControllerFileTemplate.txt", "controller"));
-            templateList.add(new DefaultHandleFunctionTemplate("Dao模板", "META-INF/DaoFileTemplate.txt", "dao"));
-            Template serviceTemplate = new DefaultHandleFunctionTemplate("ServiceInterface模板", "META-INF/ServiceInterfaceFileTemplate.txt", "service");
-            templateList.add(new DefaultHandleFunctionTemplate("ServiceImpl模板", "META-INF/ServiceImplFileTemplate.txt", serviceTemplate, "service/impl"));
-            templateList.add(serviceTemplate);
+        templateList = new ArrayList<>(5);
+        GenericTemplateFactory templateFactoryReal=(GenericTemplateFactory)templateFactory;
+        if (null == this.fileConfig || this.fileConfig.isEmpty()) {
+            templateFactoryReal.setTemplateConfigList(getDefaultTemplateConfigList());
+            templateList.addAll(templateFactoryReal.getTemplates());
         } else {
-            Iterator<Map.Entry<String, Object>> iterator=jsonObject.entrySet().iterator();
-            TEMPLATE_SPRING=jsonObject.keySet().stream().findFirst().get();
+            Iterator<Map.Entry<String, Object>> iterator= fileConfig.entrySet().iterator();
+            TEMPLATE_SPRING= fileConfig.keySet().stream().findFirst().get();
             while(iterator.hasNext()){
                 JSONArray templateArray= (JSONArray) iterator.next().getValue();
+                List<TemplateConfigDomain> templateConfigList=new ArrayList<>(templateArray.size());
                 for(Object obj:templateArray) {
-                    JSONObject template=(JSONObject)obj;
-                    String url = template.getString("url");
-                    String name = template.getString("name");
-                    String path = template.getString("path");
-                    int fileNameStrategyType = template.getIntValue("fileNameStrategy");
-                    int isHandleFunction = template.getIntValue("isHandleFunction");
-                    Template parent = Utils.isEmpty(template.getString("parent")) ? null : getParentTemplate(templateList, template.getString("parent"));
-                    Template resultTemplate;
-                    if (isHandleFunction == 1) {
-                        resultTemplate = new DefaultNoHandleFunctionTemplate(name, url, parent, path);
-                    } else {
-                        resultTemplate = new DefaultHandleFunctionTemplate(name, url, parent, path);
-                    }
-                    if (fileNameStrategyType == 0) {
-                        resultTemplate.setTemplateFileNameStrategy(new DefaultTemplateFilePrefixNameStrategy());
-                    } else if (fileNameStrategyType == 1) {
-                        resultTemplate.setTemplateFileNameStrategy(new OnlySubFourTemplateFilePrefixNameStrategy());
-                    }
-                    templateList.add(resultTemplate);
+                    JSON template=((JSON)obj);
+                    TemplateConfigDomain templateConfigDomain=template.toJavaObject(TemplateConfigDomain.class);
+                    JSONObject templateJSON=(JSONObject)template;
+                    templateConfigDomain.setIsHandleFunction(templateJSON.containsKey("isHandleFunction")?templateJSON.getIntValue("isHandleFunction"):1);
+                    templateConfigList.add(templateConfigDomain);
                 }
+                templateFactoryReal.setTemplateConfigList(templateConfigList);
+                templateList.addAll(templateFactoryReal.getTemplates());
             }
         }
         return templateList;
     }
 
     /**
-     * 根据父模板名获取父模板对象
-     * @param templateList
-     * @param templateName
+     * 获取默认的模板配置
      * @return
      */
-    private Template getParentTemplate(List<Template> templateList,String templateName){
-        return templateList.stream().filter(template -> template.getTemplateName().equals(templateName)).findFirst().get();
+    public List<TemplateConfigDomain> getDefaultTemplateConfigList(){
+        List<TemplateConfigDomain> templateConfigList=new ArrayList<>(5);
+        templateConfigList.add(new TemplateConfigDomain("META-INF/DoMainTemplate.txt","DoMain模板","domain",1,0,null));
+        templateConfigList.add(new TemplateConfigDomain("META-INF/ControllerFileTemplate.txt","Controller模板",  "controller",0,1,null));
+        templateConfigList.add(new TemplateConfigDomain("META-INF/DaoFileTemplate.txt","Dao模板",  "dao",0,1,null));
+        templateConfigList.add(new TemplateConfigDomain("META-INF/ServiceInterfaceFileTemplate.txt","ServiceInterface模板",  "service",0,1,null));
+        templateConfigList.add(new TemplateConfigDomain("META-INF/ServiceImplFileTemplate.txt", "ServiceImpl模板", "service/impl",0,1, "ServiceInterface模板"));
+        return templateConfigList;
     }
-
 
 
     /**
@@ -105,9 +94,7 @@ public class DefaultMultipleTemplate extends AbstractMultipleTemplate {
      */
     @Override
     public List<Template> getMultipleTemplate(ProjectFileConfig projectFileConfig) throws IOException, CodeConfigException {
-        List<Template> templateListTemp = getDefaultTemplates();
-        this.templateList = templateListTemp;
-        return templateListTemp;
+        return getDefaultTemplates();
     }
 
     @Override

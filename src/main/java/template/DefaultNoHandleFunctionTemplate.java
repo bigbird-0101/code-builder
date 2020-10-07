@@ -12,6 +12,10 @@ import java.io.IOException;
  */
 public class DefaultNoHandleFunctionTemplate extends NoHandleFunctionTemplate {
 
+    public DefaultNoHandleFunctionTemplate() throws IOException, CodeConfigException {
+        super(null);
+    }
+
     public DefaultNoHandleFunctionTemplate(String templateName,String templeFileName, ProjectFileConfig projectFileConfig,Template parentTemplate,String path) throws IOException, CodeConfigException {
         super(templeFileName,projectFileConfig);
         this.setTemplateName(templateName);

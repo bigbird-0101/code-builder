@@ -15,7 +15,8 @@ public class CommonFileUtils {
 
     public static String getFilePath(String fileName) {
         try {
-            Enumeration<URL> urls = getDefaultClassLoader().getResources(fileName);
+            ClassLoader classLoader=getDefaultClassLoader();
+            Enumeration<URL> urls = classLoader!=null?classLoader.getResources(fileName):ClassLoader.getSystemResources(fileName);
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();
                 String path;
@@ -27,7 +28,6 @@ public class CommonFileUtils {
                 return path;
             }
         }catch (IOException e){
-
         }
         return null;
     }
@@ -59,13 +59,17 @@ public class CommonFileUtils {
 
     public static InputStream getConfigFileInput(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
         try {
-            return new FileInputStream(URLDecoder.decode(getFilePath(fileName), "UTF-8"));
+            String path=getFilePath(fileName);
+            String realPath=Utils.isNotEmpty(path)?URLDecoder.decode(path, "UTF-8"):URLDecoder.decode(fileName, "UTF-8");
+            return new FileInputStream(realPath);
         }catch (IOException e){
             return getFileInputStream(URLDecoder.decode(fileName, "UTF-8"));
         }
     }
 
     public static FileOutputStream getConfigFileOut(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
-        return new FileOutputStream(URLDecoder.decode(getFilePath(fileName), "UTF-8"));
+        String path=getFilePath(fileName);
+        String realPath=Utils.isNotEmpty(path)?URLDecoder.decode(path, "UTF-8"):URLDecoder.decode(fileName, "UTF-8");
+        return new FileOutputStream(realPath);
     }
 }

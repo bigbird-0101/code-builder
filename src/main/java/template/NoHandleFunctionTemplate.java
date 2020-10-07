@@ -1,5 +1,6 @@
 package main.java.template;
 
+import main.java.common.Utils;
 import main.java.config.CodeConfigException;
 import main.java.config.ProjectFileConfig;
 
@@ -16,13 +17,20 @@ public abstract class NoHandleFunctionTemplate extends AbstractTemplate {
     private String templateContent;
     public NoHandleFunctionTemplate(String templeFileName, ProjectFileConfig projectFileConfig) throws IOException, CodeConfigException {
         super(templeFileName,projectFileConfig);
-        this.templateContent=readTempleteFile(templeFileName);
+        refresh(templeFileName);
     }
 
     public NoHandleFunctionTemplate(String templeFileName) throws IOException, CodeConfigException {
         super(templeFileName);
-        this.templateContent=readTempleteFile(templeFileName);
+        refresh(templeFileName);
     }
+
+    public void refresh(String templeFileName) throws IOException {
+        if(Utils.isNotEmpty(templeFileName)) {
+            this.templateContent = readTempleteFile(templeFileName);
+        }
+    }
+
 
     @Override
     public String getTempleResult(Map<String, Object> replaceKeyValue) throws TemplateResolveException {

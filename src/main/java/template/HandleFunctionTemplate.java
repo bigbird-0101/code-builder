@@ -21,20 +21,23 @@ public abstract class HandleFunctionTemplate extends AbstractTemplate {
 
     public HandleFunctionTemplate(String templeFileName) throws IOException, CodeConfigException {
         super(templeFileName);
-        String templateFileContent = readTempleteFile(templeFileName);
-        init(templateFileContent);
+        refresh(templeFileName);
     }
 
 
     public HandleFunctionTemplate(String templeFileName, ProjectFileConfig projectFileConfig) throws IOException, CodeConfigException {
         super(templeFileName,projectFileConfig);
-        String templateFileContent = readTempleteFile(templeFileName);
-        init(templateFileContent);
+        refresh(templeFileName);
     }
 
-    private void init(String tempFileContent) {
-        this.templateFileClassInfo = new TemplateFileClassInfo(getPrefix(tempFileContent), getSuffix(tempFileContent), getFunctionS(tempFileContent));
+    @Override
+    public void refresh(String templeFileName) throws IOException {
+        if(Utils.isNotEmpty(templeFileName)) {
+            String templateFileContent = readTempleteFile(templeFileName);
+            this.templateFileClassInfo = new TemplateFileClassInfo(getPrefix(templateFileContent), getSuffix(templateFileContent), getFunctionS(templateFileContent));
+        }
     }
+
 
     /**
      * 获取根据模板最终生成的模板内容
