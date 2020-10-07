@@ -8,7 +8,14 @@ public class TemplateConfigDomain {
     private String url;
     private String name;
     private String path;
-    private int fileNameStrategyType;
+    /**
+     * 文件名前缀策略
+     */
+    private int filePrefixNameStrategyType;
+    /**
+     * 文件名后缀
+     */
+    private String fileSuffixName;
     private int isHandleFunction;
     private String parent;
 
@@ -36,12 +43,20 @@ public class TemplateConfigDomain {
         this.path = path;
     }
 
-    public int getFileNameStrategyType() {
-        return fileNameStrategyType;
+    public int getFilePrefixNameStrategyType() {
+        return filePrefixNameStrategyType;
     }
 
-    public void setFileNameStrategyType(int fileNameStrategyType) {
-        this.fileNameStrategyType = fileNameStrategyType;
+    public void setFilePrefixNameStrategyType(int filePrefixNameStrategyType) {
+        this.filePrefixNameStrategyType = filePrefixNameStrategyType;
+    }
+
+    public String getFileSuffixName() {
+        return fileSuffixName;
+    }
+
+    public void setFileSuffixName(String fileSuffixName) {
+        this.fileSuffixName = fileSuffixName;
     }
 
     public int getIsHandleFunction() {
@@ -60,11 +75,12 @@ public class TemplateConfigDomain {
         this.parent = parent;
     }
 
-    public TemplateConfigDomain(String url, String name, String path, int fileNameStrategyType, int isHandleFunction, String parent) {
+    public TemplateConfigDomain(String url, String name, String path, int filePrefixNameStrategyType, String fileSuffixName, int isHandleFunction, String parent) {
         this.url = url;
         this.name = name;
         this.path = path;
-        this.fileNameStrategyType = fileNameStrategyType;
+        this.filePrefixNameStrategyType = filePrefixNameStrategyType;
+        this.fileSuffixName = fileSuffixName;
         this.isHandleFunction = isHandleFunction;
         this.parent = parent;
     }
@@ -78,7 +94,8 @@ public class TemplateConfigDomain {
                 "url='" + url + '\'' +
                 ", name='" + name + '\'' +
                 ", path='" + path + '\'' +
-                ", fileNameStrategyType=" + fileNameStrategyType +
+                ", filePrefixNameStrategyType=" + filePrefixNameStrategyType +
+                ", fileSuffixNameStrategyType=" + fileSuffixName+
                 ", isHandleFunction=" + isHandleFunction +
                 ", parent='" + parent + '\'' +
                 '}';

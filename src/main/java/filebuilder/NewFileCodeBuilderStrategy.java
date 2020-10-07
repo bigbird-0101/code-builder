@@ -31,7 +31,7 @@ public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy 
      * @return
      */
     @Override
-    public String done(CoreConfig coreConfig,Template template, String tableName,FileNameBuilder fileNameBuilder) throws SQLException, ClassNotFoundException, TemplateResolveException {
+    public String done(CoreConfig coreConfig, Template template, String tableName, FileNameBuilder fileNameBuilder) throws SQLException, ClassNotFoundException, TemplateResolveException {
         Objects.requireNonNull(template,"模板对象不允许为空!");
         Map<String, Object> temp = new HashMap<>(10);
         TableInfo tableInfo= DbUtil.getTableInfo(coreConfig.getDataSourceConfig(),tableName);

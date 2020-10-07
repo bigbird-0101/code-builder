@@ -22,7 +22,7 @@ public class DefaultFileBuilder extends AbstractFileBuilder {
     }
 
     public DefaultFileBuilder(){
-        this(new JavaFileNameBuilderImpl(),new NewFileCodeBuilderStrategy());
+        this(new DefaultFileNameBuilderImpl(),new NewFileCodeBuilderStrategy());
     }
 
     /**

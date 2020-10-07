@@ -55,5 +55,17 @@ public interface Template{
      * 设置 模板最终生成文件的文件名命名策略
      * @param templateFileNameStrategy 模板命名策略
      */
-    void setTemplateFileNameStrategy(TemplateFilePrefixNameStrategy templateFileNameStrategy);
+    void setTemplateFilePrefixNameStrategy(TemplateFilePrefixNameStrategy templateFileNameStrategy);
+
+    /**
+     * 获取最终生成文件的后缀名
+     * @return 文件的后缀名
+     */
+    String getTemplateFileSuffixName();
+
+    /**
+     * 设置最终生成文件的后缀名
+     * @param templateFileSuffixName 文件的后缀名
+     */
+    void setTemplateFileSuffixName(String templateFileSuffixName);
 }
