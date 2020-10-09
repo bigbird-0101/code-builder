@@ -29,7 +29,7 @@ public class CommonFileUtils {
             }
         }catch (IOException e){
         }
-        return null;
+        return fileName;
     }
 
     public static InputStream getFileInputStream(String fileName) {
@@ -59,17 +59,13 @@ public class CommonFileUtils {
 
     public static InputStream getConfigFileInput(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
         try {
-            String path=getFilePath(fileName);
-            String realPath=Utils.isNotEmpty(path)?URLDecoder.decode(path, "UTF-8"):URLDecoder.decode(fileName, "UTF-8");
-            return new FileInputStream(realPath);
+            return new FileInputStream(URLDecoder.decode(getFilePath(fileName), "UTF-8"));
         }catch (IOException e){
             return getFileInputStream(URLDecoder.decode(fileName, "UTF-8"));
         }
     }
 
     public static FileOutputStream getConfigFileOut(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
-        String path=getFilePath(fileName);
-        String realPath=Utils.isNotEmpty(path)?URLDecoder.decode(path, "UTF-8"):URLDecoder.decode(fileName, "UTF-8");
-        return new FileOutputStream(realPath);
+        return new FileOutputStream(URLDecoder.decode(getFilePath(fileName), "UTF-8"));
     }
 }
