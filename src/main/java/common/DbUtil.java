@@ -21,7 +21,7 @@ public class DbUtil {
      * @param dataType 列类型
      * @return String java数据类型
      */
-    private static String getJavaType(int dataType) {
+    public static String getJavaType(int dataType) {
         String javaType = "";
         if (dataType == Types.INTEGER || dataType == Types.SMALLINT) {
             javaType = "Integer";
@@ -36,7 +36,15 @@ public class DbUtil {
             javaType = "Double";
         }  else if (dataType == Types.REAL) {
             javaType = "Float";
-        } else if (dataType == Types.NUMERIC || dataType == Types.DECIMAL || dataType == Types.DOUBLE) {
+        } else {
+            javaType = getString(dataType);
+        }
+        return javaType;
+    }
+
+    public static String getString(int dataType) {
+        String javaType;
+        if (dataType == Types.NUMERIC || dataType == Types.DECIMAL || dataType == Types.DOUBLE) {
             javaType = "BigDecimal";
         } else if (dataType == Types.DATE || dataType == Types.TIMESTAMP || dataType == Types.TIME) {
             javaType = "String";
@@ -46,6 +54,74 @@ public class DbUtil {
         return javaType;
     }
 
+    /**
+     * 通过jdbc type 获取java数据类型
+     * @param jdbcType jdbc数据类型
+     * @param isUnsign 是否是无符号
+     * @param maxLength 最大长度
+     * @return
+     */
+    public static String getJavaTypeByJdbcType(String jdbcType,boolean isUnsign,int maxLength){
+        if( jdbcType == null || jdbcType.trim().length() == 0 ) {
+            return null;
+        }
+        jdbcType = jdbcType.toLowerCase();
+
+        switch(jdbcType){
+            case "nvarchar":
+            case "char":
+            case "varchar":
+            case "text":
+            case "nchar":
+                return "String";
+            case "blob":
+            case "image":
+                return "byte[]";
+            case "id":
+            case "bigint":
+                if(isUnsign){
+                    return "BigInteger";
+                }
+                return "Long";
+            case "tinyint":
+                return "Short";
+            case "mediumint":
+                return "Integer";
+            case "smallint":
+                if(isUnsign){
+                    return "Integer";
+                }
+                return "Short";
+            case "int":
+                if(isUnsign){
+                    return "Long";
+                }
+                return "Integer";
+            case "bit":
+                if(maxLength>1){
+                    return "byte[]";
+                }
+            case "boolean":
+                return "Boolean";
+            case "float":return "Float";
+            case "double":
+            case "money":
+            case "smallmoney":
+            case "decimal":
+            case "numeric":
+            case "real":
+                return "BigDecimal";
+            case "date":
+            case "datetime":
+            case "year":
+                return "Date";
+            case "time":return "Time";
+            case "timestamp":return "Timestamp";
+            default:
+                throw new IllegalStateException("未找到与之匹配的类型"+jdbcType);
+        }
+    }
+
 
     /**
      * 根据列的类型，获取mybatis配置中的jdbcType
@@ -53,13 +129,13 @@ public class DbUtil {
      * @param dataType 列的类型
      * @return String jdbcType
      */
-    private static String getMybatisJdbcType(int dataType) {
+    public static String getMybatisJdbcType(int dataType) {
         String jdbcType = "";
         if (dataType == Types.TINYINT) {
             jdbcType = "TINYINT";
         } else if (dataType == Types.SMALLINT) {
             jdbcType = "SMALLINT";
-        } else if (dataType == Types.INTEGER) {
+        }else if (dataType == Types.INTEGER) {
             jdbcType = "INTEGER";
         } else if (dataType == Types.BIGINT) {
             jdbcType = "BIGINT";
@@ -183,40 +259,32 @@ public class DbUtil {
 
     private static String getDomainName(String tableName) {
         String[] valueClassNameS = tableName.substring(4).split("_");
-        return Arrays.stream(valueClassNameS).map(Utils::firstUpperCase).reduce((s, b) -> s + b).get();
+        return Arrays.stream(valueClassNameS).map(Utils::firstUpperCase).reduce((s, b) -> s + b).map(s->Utils.isEmpty(s)?Utils.firstUpperCase(tableName):s).get();
     }
 
     public static TableInfo getTableInfo(DataSourceConfig dataSourceConfigPojo, String tableName) throws SQLException, ClassNotFoundException {
-        TableInfo tableInfo = null;
+        TableInfo tableInfo;
         Connection connection = DbUtil.getConnection(dataSourceConfigPojo);
-        DatabaseMetaData dbmd = connection.getMetaData();
-        ResultSet rs = dbmd.getColumns(null, null, tableName, null);
-        List<TableInfo.ColumnInfo> columnInfoList = new ArrayList<>(20);
+        String dataBaseName = getDataBaseName(dataSourceConfigPojo.getUrl());
+        PreparedStatement pStemt = connection.prepareStatement("Select *  from INFORMATION_SCHEMA.COLUMNS Where table_schema = '" + dataBaseName + "' and table_name ='" + tableName + "'");
+        ResultSet rs = pStemt.executeQuery();
+        List<TableInfo.ColumnInfo> columnInfoList = new ArrayList<>(16);
         while (rs.next()) {
             String name = rs.getString("COLUMN_NAME");
-            String javaType = getJavaType(rs.getInt("DATA_TYPE"));
-            String comment = rs.getString("REMARKS");
-            boolean isNull = rs.getInt("NULLABLE") == 1;
-            int size = rs.getInt("COLUMN_SIZE");
+            String comment = rs.getString("COLUMN_COMMENT");
+            boolean isNull = "yes".equalsIgnoreCase(rs.getString("IS_NULLABLE"));
+            int size = rs.getInt("CHARACTER_MAXIMUM_LENGTH")==0?rs.getInt("NUMERIC_PRECISION"):rs.getInt("CHARACTER_MAXIMUM_LENGTH");
+            boolean isUnsigned=rs.getString("COLUMN_TYPE").contains("unsigned");
+            String javaType = getJavaTypeByJdbcType(rs.getString("DATA_TYPE"),isUnsigned,size);
             String domainPropertyName = getDomainPropertyName(name);
-            String jdbcType = getMybatisJdbcType(rs.getInt("DATA_TYPE"));
+            String jdbcType =rs.getString("DATA_TYPE").toUpperCase();
+            jdbcType=jdbcType.equals("INT")?"INTEGER":jdbcType;
             boolean isPrimaryKey = false;
             boolean isUniqueKey = false;
-            ResultSet rs1 = dbmd.getPrimaryKeys(null, null, tableName);
-            while (rs1.next()) {
-                if (rs.getString("COLUMN_NAME").equals(name)) {
-                    isPrimaryKey = true;
-                }
-            }
-            //mysql数据库
-            ResultSet indexInfo = dbmd.getIndexInfo(null, null, tableName, false, false);
-            while (indexInfo.next()) {
-                String indexName = indexInfo.getString("INDEX_NAME");
-                //如果为真则说明索引值不唯一，为假则说明索引值必须唯一。
-                boolean nonUnique = indexInfo.getBoolean("NON_UNIQUE");
-                if (!nonUnique && indexName.equals(name)) {
-                    isUniqueKey = true;
-                }
+            String key=rs.getString("COLUMN_KEY");
+            if(Utils.isNotEmpty(key)){
+                isPrimaryKey= "PRI".equalsIgnoreCase(key);
+                isUniqueKey= "UNI".equalsIgnoreCase(key);
             }
             TableInfo.ColumnInfo columnInfo = new TableInfo.ColumnInfo(name, comment, javaType, domainPropertyName, isNull, size, isPrimaryKey, isUniqueKey, jdbcType);
             columnInfoList.add(columnInfo);
@@ -224,9 +292,8 @@ public class DbUtil {
         if(columnInfoList.isEmpty()){
             throw new IllegalArgumentException("表"+tableName+"不存在");
         }
-        String dataBaseName = getDataBaseName(dataSourceConfigPojo.getUrl());
-        PreparedStatement pStemt = connection.prepareStatement("Select table_name,TABLE_COMMENT  from INFORMATION_SCHEMA.TABLES Where table_schema = '" + dataBaseName + "' and table_name ='" + tableName + "'");
-        rs = pStemt.executeQuery();
+        PreparedStatement pStemtTables = connection.prepareStatement("Select table_name,TABLE_COMMENT  from INFORMATION_SCHEMA.TABLES Where table_schema = '" + dataBaseName + "' and table_name ='" + tableName + "'");
+        rs = pStemtTables.executeQuery();
         String tableComment = "";
         while (rs.next()) {
             String tableNameTemp = rs.getString(1);
@@ -269,10 +336,10 @@ public class DbUtil {
 
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        String url="jdbc:mysql://192.168.1.110:3306/car_wechat_xcx?useUnicode=true&characterEncoding=utf-8";
+        String url="jdbc:mysql://127.0.0.1:3306/xydj?useUnicode=true&characterEncoding=utf-8";
         String quDongName = url.indexOf("mysql") > 0 ? "com.mysql.jdbc.Driver" : url.indexOf("oracle") > 0 ? "" : "";
         DataSourceConfig a= new DataSourceConfig(quDongName,"root",url,"pttdata");
-        TableInfo tableInfo=getTableInfo(a,"tab_order");
+        TableInfo tableInfo=getTableInfo(a,"tab_test");
         System.out.println(tableInfo);
     }
 }

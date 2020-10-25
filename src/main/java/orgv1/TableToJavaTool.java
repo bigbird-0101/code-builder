@@ -1,6 +1,7 @@
 package main.java.orgv1;
 
 import com.mysql.jdbc.PreparedStatement;
+import main.java.common.DbUtil;
 import main.java.domain.DataSourceConfig;
 import main.java.common.Utils;
 import main.java.domain.FileTempleConfig;
@@ -1083,26 +1084,7 @@ public class TableToJavaTool {
      * @return String java数据类型
      */
     private static String getJavaType(int dataType) {
-        String javaType = "";
-        if (dataType == Types.INTEGER || dataType == Types.SMALLINT) {
-            javaType = "Integer";
-        } else if (dataType == Types.BIGINT) {
-            javaType = "Long";
-        } else if (dataType == Types.CHAR || dataType == Types.VARCHAR || dataType == Types.NVARCHAR
-                || dataType == Types.CLOB || dataType == Types.BLOB) {
-            javaType = "String";
-        } else if (dataType == Types.TINYINT) {
-            javaType = "Short";
-        } else if (dataType == Types.FLOAT) {
-            javaType = "float";
-        } else if (dataType == Types.NUMERIC || dataType == Types.DECIMAL || dataType == Types.DOUBLE) {
-            javaType = "BigDecimal";
-        } else if (dataType == Types.DATE || dataType == Types.TIMESTAMP || dataType == Types.TIME) {
-            javaType = "String";
-        } else {
-            javaType = "String";
-        }
-        return javaType;
+        return DbUtil.getJavaType(dataType);
     }
 
 	/*public void createMybatisColumnConfig(String tableName) {
@@ -1486,64 +1468,7 @@ public class TableToJavaTool {
      * @return String jdbcType
      */
     private static String getMybatisJdbcType(int dataType) {
-        String jdbcType = "";
-        if (dataType == Types.TINYINT) {
-            jdbcType = "TINYINT";
-        } else if (dataType == Types.SMALLINT) {
-            jdbcType = "SMALLINT";
-        } else if (dataType == Types.INTEGER) {
-            jdbcType = "INTEGER";
-        } else if (dataType == Types.BIGINT) {
-            jdbcType = "BIGINT";
-        } else if (dataType == Types.FLOAT) {
-            jdbcType = "FLOAT";
-        } else if (dataType == Types.DOUBLE) {
-            jdbcType = "DOUBLE";
-        } else if (dataType == Types.DECIMAL) {
-            jdbcType = "DECIMAL";
-        } else if (dataType == Types.NUMERIC) {
-            jdbcType = "NUMERIC";
-        } else if (dataType == Types.VARCHAR) {
-            jdbcType = "VARCHAR";
-        } else if (dataType == Types.NVARCHAR) {
-            jdbcType = "NVARCHAR";
-        } else if (dataType == Types.CHAR) {
-            jdbcType = "CHAR";
-        } else if (dataType == Types.NCHAR) {
-            jdbcType = "NCHAR";
-        } else if (dataType == Types.CLOB) {
-            jdbcType = "CLOB";
-        } else if (dataType == Types.BLOB) {
-            jdbcType = "BLOB";
-        } else if (dataType == Types.NCLOB) {
-            jdbcType = "NCLOB";
-        } else if (dataType == Types.DATE) {
-            jdbcType = "DATE";
-        } else if (dataType == Types.TIMESTAMP) {
-            jdbcType = "TIMESTAMP";
-        } else if (dataType == Types.ARRAY) {
-            jdbcType = "ARRAY";
-        } else if (dataType == Types.TIME) {
-            jdbcType = "TIME";
-        } else if (dataType == Types.BOOLEAN) {
-            jdbcType = "BOOLEAN";
-        } else if (dataType == Types.BIT) {
-            jdbcType = "BIT";
-        } else if (dataType == Types.BINARY) {
-            jdbcType = "BINARY";
-        } else if (dataType == Types.OTHER) {
-            jdbcType = "OTHER";
-        } else if (dataType == Types.REAL) {
-            jdbcType = "REAL";
-        } else if (dataType == Types.LONGVARCHAR) {
-            jdbcType = "LONGVARCHAR";
-        } else if (dataType == Types.VARBINARY) {
-            jdbcType = "VARBINARY";
-        } else if (dataType == Types.LONGVARBINARY) {
-            jdbcType = "LONGVARBINARY";
-        }
-
-        return jdbcType;
+        return DbUtil.getMybatisJdbcType(dataType);
     }
 
     public String getCatalog() {
