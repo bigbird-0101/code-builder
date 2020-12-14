@@ -101,6 +101,7 @@ public class DbUtil {
                 if(maxLength>1){
                     return "byte[]";
                 }
+                return "byte";
             case "boolean":
                 return "Boolean";
             case "float":return "Float";
