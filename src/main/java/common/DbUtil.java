@@ -300,7 +300,8 @@ public class DbUtil {
             String tableNameTemp = rs.getString(1);
             String tableCommentTemp = rs.getString(2);
             if (tableName.equals(tableNameTemp)) {
-                tableComment = tableCommentTemp;
+                int index=tableCommentTemp.lastIndexOf("表");
+                tableComment = index>0?tableCommentTemp.substring(0,index):tableCommentTemp;
             }
         }
         tableInfo = new TableInfo(tableName, tableComment, getDomainName(tableName), columnInfoList);
