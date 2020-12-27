@@ -102,9 +102,7 @@ TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的属性 详情请�
 ###### foreach 语句
 
 column.domainPropertyName 对应
-
 TableInfo 的 ColumnInfo的domainPropertyName 的值
-
 foreach 还有一个属性 trim 值true false(默认false) 去除两边的逗号
 
 ```java
