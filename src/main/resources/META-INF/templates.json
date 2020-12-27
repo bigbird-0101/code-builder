@@ -1,0 +1,34 @@
+[
+	{
+		"Spring代码模板": [{
+			"fileName": "ControllerFileTemplate.txt",
+			"name": "Controller模板",
+			"path": "controller"
+		}, {
+			"fileName": "DoMainTemplate.txt",
+			"name": "DoMain模板",
+			"path": "domain",
+			"isHandleFunction": 0,
+			"filePrefixNameStrategyType": 1
+		}, {
+			"fileName": "DaoFileTemplate.txt",
+			"name": "Dao模板",
+			"path": "dao"
+		}, {
+			"fileName": "ServiceInterfaceFileTemplate.txt",
+			"name": "ServiceInterface模板",
+			"path": "service"
+		}, {
+			"fileName": "ServiceImplFileTemplate.txt",
+			"name": "ServiceImpl模板",
+			"path": "service/impl"
+		}, {
+			"fileName": "trigger.txt",
+			"name": "触发器模板",
+			"path": "pages",
+			"isHandleFunction": 0,
+			"filePrefixNameStrategyType": 1,
+			"fileSuffixName": "sql"
+		}]
+	 }
+]

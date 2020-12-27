@@ -76,7 +76,7 @@ public class RegexDemo {
 //        JSONObject jsonObject2=new JSONObject();
 //        jsonObject2.put("url","C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\DoMainTemplate.txt");
 //        jsonObject2.put("name","DoMain模板");
-//        jsonObject2.put("path","domain");
+//        jsonObject2.put("path","com.fpp.code.domain");
 //        jsonObject2.put("fileNameStrategy",1);
 //        jsonObject2.put("isHandleFunction",1);
 //

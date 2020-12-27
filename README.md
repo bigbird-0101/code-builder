@@ -18,13 +18,11 @@ Spring项目代码生成器.
 
 ###### 2.下载 spring-code包 
 
-修改spring-code.bat的路径
+点击启动spring-code.bat
 
 **参数详解**
 
-1.`--config.file.url `
-
-核心配置文件路径
+1.`code.properties 配置文件详解`
 
 1. `code.datasource.url`  数据源地址
 2. `code.datasource.username` 数据源用户名
@@ -32,12 +30,12 @@ Spring项目代码生成器.
 4. `code.project.file.project-complete-url` 项目的完整地址  项目地址+源码路径  
 5. `code.project.file.project-target-packageurl`  源码的实际路径
 
-`2.--templates`
+`2.templates.json 配置文件详解`
 
 配置的模板  为json数组
 
-1. `url`  模板文件的地址
-2. name 模板的名字
+1. `fileName`  模板文件名(必须与data/template文件名一致)
+2. `name` 模板的名字
 3. `path` 最终生成代码的路径(注意该路径是基于项目+代码路径的)
 4. `isHandleFunction`  是否是能够控制模板中的方法的模板 1-是 0-否
 5. `filePrefixNameStrategyType` 文件的前缀命令策略   （默认）0-从表格名第四个字符开始+path的首字母大写  1-从表格名的第四个字符开始
@@ -106,6 +104,8 @@ TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的属性 详情请�
 column.domainPropertyName 对应
 
 TableInfo 的 ColumnInfo的domainPropertyName 的值
+
+foreach 还有一个属性 trim 值true false(默认false) 去除两天的逗号
 
 ```java
     *{foreach v-for="column in tableInfo.columnList"}*

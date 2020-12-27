@@ -1,0 +1,151 @@
+*{prefix}*
+package *{tableInfo.savePath}*.dao;
+
+import *{tableInfo.savePath}*.domain.*{tableInfo.domainName}*;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
+
+/**
+ * *{tableInfo.tableComment}*业务处理接口DB类
+ * @since  *{tool.currentDateTime()}*
+ * @version 1.0.0
+ * @author *{tool.author()}*
+ */
+@Mapper
+public interface *{tableInfo.domainName}*Dao {
+*{/prefix}*
+*{function}*
+    /**
+     * 添加*{tableInfo.tableComment}*
+     *
+     * @param *{tool.firstLower(*{tableInfo.domainName}*)}* *{tableInfo.tableComment}*POJO
+     * @return 返回影响的行数
+     */
+    @Insert({
+        "<script>",
+        "insert into *{tableInfo.tableName}*",
+        "<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">",
+        *{foreach v-for='column in tableInfo.columnList'}*
+         "<if test=\"*{column.domainPropertyName}*!= null\">",
+         "*{column.name}*,",
+         "</if>",
+        *{/foreach}*
+        "</trim>",
+        "<trim prefix=\"values (\" suffix=\")\" suffixOverrides=\",\">",
+        *{foreach v-for="column in tableInfo.columnList"}*
+        "<if test=\"*{column.domainPropertyName}*!= null\">",
+        "#{*{column.domainPropertyName}*,jdbcType=*{column.jdbcType}*},",
+        "</if>",
+        *{/foreach}*
+        "</trim>",
+        "</script>"
+    })
+    int $add*{tableInfo.domainName}*$(*{tableInfo.domainName}* *{tool.firstLower(*{tableInfo.domainName}*)}*);
+*{/function}*
+*{function}*
+    /**
+     * 删除*{tableInfo.tableComment}* 根据其id数组
+     *
+     * @param idArray *{tableInfo.tableComment}*id数组
+     * @return 返回影响的行数
+     */
+    @Delete({
+          "<script>",
+          " delete from *{tableInfo.tableName}* where id in ",
+          "<foreach collection='list' item='item' open='(' separator=',' close=')'>",
+          "#{item}",
+          "</foreach>",
+          "</script>"
+    })
+    int $delete*{tableInfo.domainName}*$(List<String> idArray);
+*{/function}*
+*{function}*
+    /**
+     * 编辑*{tableInfo.tableComment}*
+     *
+     * @param *{tool.firstLower(*{tableInfo.domainName}*)}* *{tableInfo.tableComment}*POJO
+     * @return 返回影响的行数
+     */
+    @Update({
+           "<script>",
+           "update  *{tableInfo.tableName}* ",
+           "<set>",
+           *{foreach v-for='column in tableInfo.columnList'}*
+           "<if test=\"*{column.domainPropertyName}* != null\">",
+            " *{column.name}*=#{*{column.domainPropertyName}*,jdbcType=*{column.jdbcType}*},",
+            "</if>",
+           *{/foreach}*
+           "</set>",
+           " where  id = #{id} ",
+           "</script>"
+    })
+    int $edit*{tableInfo.domainName}*$(*{tableInfo.domainName}* *{tool.firstLower(*{tableInfo.domainName}*)}*);
+*{/function}*
+*{function}*
+    /**
+     * 根据id获取*{tableInfo.tableComment}*信息
+     *
+     * @param id *{tableInfo.tableComment}*id
+     * @return *{tableInfo.tableComment}*POJO
+     */
+    @Select({
+           "<script>",
+           " select ",
+           *{tool.allSqlColumn()}*
+           " from *{tableInfo.tableName}*",
+           " where id=#{id}",
+           "</script>"
+    })
+   *{tableInfo.domainName}* $get*{tableInfo.domainName}*ById$(@Param("id") int id);
+*{/function}*
+*{function}*
+    /**
+     * 根据所属者id和关键字获取*{tableInfo.tableComment}*信息个数
+     *
+     * @param belongToId 所属者id
+     * @param findKey    查找关键字
+     * @return 查找到的记录总数
+     */
+    @Select({
+          "<script>",
+          " select count(*) from *{tableInfo.tableName}* ",
+          "<where>",
+           " <if test='belongToId!=null and belongToId !=\"\"'>",
+           " </if>",
+           " <if test='findKey!=null and findKey !=\"\"'>",
+           " </if>",
+          "</where>",
+          "</script>"
+    })
+    int $get*{tableInfo.domainName}*Count$(@Param("belongToId") Integer belongToId, @Param("findKey") String findKey);
+*{/function}*
+*{function}*
+    /**
+     * 分页方法获取*{tableInfo.tableComment}*信息列表
+     *
+     * @param belongToId *{tableInfo.tableComment}*所属者的id
+     * @param findKey    *{tableInfo.tableComment}* 信息关键字
+     * @param offset     当前页数
+     * @param pageCount  当前页总数
+     * @return *{tableInfo.tableComment}*数据列表
+     */
+    @Select({
+        "<script>",
+        " select ",
+        *{tool.allSqlColumn()}*
+        " from *{tableInfo.tableName}*",
+        "<where>",
+        " <if test='belongToId!=null and belongToId !=\"\"'>",
+        " </if>",
+        " <if test='findKey!=null and findKey !=\"\"'>",
+        " </if>",
+        "</where>",
+        " limit #{offset},#{pageCount}",
+        "</script>"
+    })
+    List<*{tableInfo.domainName}*> $getAll*{tableInfo.domainName}*List$(@Param("belongToId") Integer belongToId, @Param("findKey") String findKey, @Param("offset") int offset, @Param("pageCount") int pageCount);
+*{/function}*
+*{suffix}*
+}
+*{/suffix}*

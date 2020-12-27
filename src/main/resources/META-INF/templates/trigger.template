@@ -1,0 +1,23 @@
+create table zzd_chat_query.*{tableInfo.tableName}* like zzd_chat.*{tableInfo.tableName}*;
+alter table zzd_chat_query.*{tableInfo.tableName}* modify id bigint(20);
+
+DELIMITER $
+DROP TRIGGER IF EXISTS insert_*{tableInfo.tableName}*_data;
+CREATE TRIGGER insert_*{tableInfo.tableName}*_data AFTER INSERT ON *{tableInfo.tableName}* FOR EACH ROW
+BEGIN
+INSERT INTO zzd_chat_query.*{tableInfo.tableName}*(*{foreach v-for='column in tableInfo.columnList' trim='true'}*,*{column.name}**{/foreach}*) VALUES(*{foreach v-for='column in tableInfo.columnList' trim='true'}*,NEW.*{column.name}**{/foreach}*);
+END $
+
+DELIMITER $
+DROP TRIGGER IF EXISTS update_*{tableInfo.tableName}*_data;
+CREATE TRIGGER update_*{tableInfo.tableName}*_data AFTER UPDATE ON *{tableInfo.tableName}* FOR EACH ROW
+BEGIN
+UPDATE zzd_chat_query.*{tableInfo.tableName}* a SET *{foreach v-for='column in tableInfo.columnList' trim='true'}*,a.*{column.name}*=NEW.*{column.name}**{/foreach}* WHERE a.id=NEW.id;
+END $
+
+DELIMITER $
+DROP TRIGGER IF EXISTS delete_*{tableInfo.tableName}*_data;
+CREATE TRIGGER delete_*{tableInfo.tableName}*_data AFTER DELETE ON *{tableInfo.tableName}* FOR EACH ROW
+BEGIN
+DELETE FROM zzd_chat_query.*{tableInfo.tableName}* WHERE id=OLD.id;
+END $
