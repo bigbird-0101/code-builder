@@ -16,9 +16,9 @@ Spring项目代码生成器.
 
 启动StartMain main方法
 
-###### 2.下载 spring-code包 
+###### 2.下载 spring-code压缩包 
 
-点击启动spring-code.bat
+解压点击启动spring-code.bat
 
 **参数详解**
 
@@ -101,9 +101,9 @@ TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的属性 详情请�
 
 ###### foreach 语句
 
-column.domainPropertyName 对应
-TableInfo 的 ColumnInfo的domainPropertyName 的值
-foreach 还有一个属性 trim 值true false(默认false) 去除两边的逗号
+ column.domainPropertyName 对应 TableInfo 的 ColumnInfo的domainPropertyName 的值
+
+ foreach 还有一个属性 trim 值true false(默认false) 去除两边的逗号
 
 ```java
     *{foreach v-for="column in tableInfo.columnList"}*
