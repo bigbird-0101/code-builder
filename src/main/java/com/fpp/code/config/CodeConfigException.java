@@ -1,4 +1,5 @@
 package com.fpp.code.config;
+
 import com.fpp.code.common.CodeBuilderException;
 
 import java.security.PrivilegedActionException;
@@ -39,10 +40,4 @@ public class CodeConfigException extends CodeBuilderException {
     public CodeConfigException(Throwable cause) {
         super(cause);
     }
-
-
-    public CodeConfigException(String message,Throwable cause) {
-        super(message,cause);
-    }
-
 }

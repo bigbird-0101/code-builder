@@ -9,7 +9,7 @@ import java.util.List;
  * @version 1.0
  * @date 2020/12/22 11:14
  */
-public interface Environment extends Config{
+public interface Environment extends Config {
     Config getProjectFileConfig();
     Config getDataSourceFileConfig();
     List<MultipleTemplate> getMultipleTemplates();

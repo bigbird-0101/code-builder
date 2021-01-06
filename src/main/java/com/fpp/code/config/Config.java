@@ -12,4 +12,6 @@ public interface Config {
      * @return
      */
     String getProperty(String propertyKey);
+
+    <T> T getProperty(String propertyKey, Class<T> targetClass);
 }

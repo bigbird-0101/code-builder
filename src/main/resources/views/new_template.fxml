@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox prefHeight="500.0" fx:controller="com.fpp.code.controller.TemplateController" prefWidth="640.0"
+      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+  <children>
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="500.0" prefWidth="640.0" VBox.vgrow="ALWAYS">
+         <children>
+            <Label layoutX="82.0" layoutY="60.0" text="项目地址:" />
+            <TextArea fx:id="projectUrl" layoutX="182.0" layoutY="49.0" prefHeight="52.0" prefWidth="315.0" />
+            <Label layoutX="82.0" layoutY="128.0" text="模块名:" />
+            <TextField fx:id="moduleName" layoutX="182.0" layoutY="124.0" />
+            <Label layoutX="82.0" layoutY="170.0" text="源码包路径名:" />
+            <TextField fx:id="srcPackagePathName" layoutX="182.0" layoutY="166.0" />
+            <Label layoutX="83.0" layoutY="210.0" prefHeight="15.0" prefWidth="67.0" text="源码包名:" />
+            <TextField fx:id="srcPackageName" layoutX="182.0" layoutY="206.0" />
+            <Label layoutX="70.0" layoutY="246.0" prefHeight="15.0" prefWidth="100.0" text="选择模板文件：" />
+            <Button layoutX="182.0" layoutY="242.0" mnemonicParsing="false" text="选择" onAction="#selectTemplateFile"/>
+             <Label layoutX="88.0" layoutY="277.0" prefHeight="15.0" prefWidth="59.0" text="模板名:" />
+            <Label layoutX="72.0" layoutY="311.0" prefHeight="15.0" prefWidth="91.0" text="能否控制方法：" />
+            <RadioButton fx:id="trueHandleRadio" layoutX="182.0" layoutY="311.0" mnemonicParsing="false" text="是" />
+             <RadioButton fx:id="falseHandleRadio" layoutX="239.0" layoutY="311.0" mnemonicParsing="false" text="否" />
+            <TextField fx:id="templateName" layoutX="182.0" layoutY="273.0" />
+            <Label layoutX="72.0" layoutY="344.0" prefHeight="15.0" prefWidth="83.0" text="文件后缀名：" />
+            <TextField fx:id="fileSuffixName" layoutX="182.0" layoutY="340.0" />
+            <Button layoutX="185.0" layoutY="413.0" mnemonicParsing="false" prefHeight="23.0" prefWidth="75.0" text="创建" onAction="#createTemplate"/>
+         </children>
+    </AnchorPane>
+  </children>
+</VBox>

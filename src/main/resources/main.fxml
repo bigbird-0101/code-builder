@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:controller="com.fpp.code.controller.MainController" alignment="TOP_CENTER" prefHeight="600.0" prefWidth="640.0" style="-fx-pref-width: 1000;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <MenuBar nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="NEVER">
+            <menus>
+                <Menu mnemonicParsing="false" text="模板">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="新建" onAction="#coreConfig"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="配置">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="核心配置" onAction="#coreConfig"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="运行">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="生成" />
+                        <MenuItem mnemonicParsing="false" text="在已有文件的末尾处生成" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="帮助">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="关于" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+            <children>
+                <Label alignment="CENTER" layoutX="8.0" layoutY="22.0" prefHeight="15.0" prefWidth="75.0" style="&#10;" text="请选择模板：" textAlignment="CENTER" wrapText="false" />
+                <CheckBox layoutX="235.0" layoutY="20.0" mnemonicParsing="false" text="全库生成" />
+                <Label layoutX="320.0" layoutY="21.0" text="目标表名" />
+                <TextField layoutX="383.0" layoutY="15.0" />
+                <Button layoutX="570.0" layoutY="15.0" mnemonicParsing="false" text="刷新模板" />
+                <ChoiceBox layoutX="83.0" layoutY="18.0" prefHeight="23.0" prefWidth="128.0" />
+                <Button layoutX="650.0" layoutY="15.0" mnemonicParsing="false" prefHeight="23.0" prefWidth="90.0" text="持久化配置" />
+            </children>
+        </AnchorPane>
+    </children>
+</VBox>
