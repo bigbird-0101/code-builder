@@ -1,7 +1,7 @@
 package com.fpp.code.common;
 
-import com.fpp.code.domain.DataSourceConfig;
-import com.fpp.code.template.TableInfo;
+import com.fpp.code.core.domain.DataSourceConfig;
+import com.fpp.code.core.template.TableInfo;
 
 import java.sql.*;
 import java.util.ArrayList;

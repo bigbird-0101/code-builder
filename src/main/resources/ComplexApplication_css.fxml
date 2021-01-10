@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import java.net.*?>
 <?import javafx.geometry.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.text.Font?>
-<?import java.net.URL?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
 
-<VBox fx:controller="com.fpp.code.controller.ComplexController" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fx.controller.ComplexController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -20,7 +15,7 @@
           <items>
             <Menu mnemonicParsing="false" text="新建">
               <items>
-                <MenuItem mnemonicParsing="false" text="模板" onAction="#addTemplate"/>
+                <MenuItem mnemonicParsing="false" onAction="#addTemplate" text="模板" />
                 <MenuItem mnemonicParsing="false" text="组合模板" />
               </items>
             </Menu>
@@ -58,31 +53,27 @@
         </Menu>
       </menus>
     </MenuBar>
-    <SplitPane fx:id="splitPane" dividerPositions="0.2505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <SplitPane fx:id="splitPane" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <items>
-        <Pane fx:id="pane" prefHeight="-1.0" prefWidth="-1.0">
-          <children>
-                  <ListView fx:id="listViewTemplate">
-                    <Label layoutX="166.0" layoutY="21.0" text="增加模板" textAlignment="CENTER"/>
-                  </ListView>
-          </children>
-        </Pane>
-        <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
-          <content>
-            <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
-              <children>
-                <CheckBox layoutX="57.0" layoutY="20.0" mnemonicParsing="false" text="全库生成" />
-                <Label layoutX="166.0" layoutY="21.0" text="目标表名" />
-                <TextField layoutX="229.0" layoutY="15.0" />
-                <Button layoutX="430.0" layoutY="17.0" mnemonicParsing="false" text="刷新模板" />
-                <Button layoutX="526.0" layoutY="17.0" mnemonicParsing="false" prefHeight="23.0" prefWidth="90.0" text="持久化配置" />
-                        <CheckBox layoutX="57.0" layoutY="81.0" mnemonicParsing="false" text="CheckBox" />
-                        <CheckBox layoutX="166.0" layoutY="81.0" mnemonicParsing="false" text="CheckBox" />
-                        <CheckBox layoutX="269.0" layoutY="81.0" mnemonicParsing="false" text="CheckBox" />
+        <StackPane>
+          <Pane fx:id="pane">
+            <children>
+                    <ListView fx:id="listViewTemplate">
+                      <Label layoutX="166.0" layoutY="21.0" text="增加模板" textAlignment="CENTER" />
+                    </ListView>
             </children>
-            </AnchorPane>
-          </content>
-        </ScrollPane>
+          </Pane>
+        </StackPane>
+        <StackPane>
+          <ScrollPane fx:id="scrollMain" prefWidth="-1">
+            <content>
+              <VBox fx:id="content">
+                <children>
+                </children>
+              </VBox>
+            </content>
+          </ScrollPane>
+        </StackPane>
       </items>
     </SplitPane>
     <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
@@ -92,7 +83,7 @@
             <Font size="11.0" fx:id="x3" />
           </font>
           <textFill>
-            <Color blue="0.625" green="0.625" red="0.625" fx:id="x4" />
+            <Color red="0.625" green="0.625" blue="0.625" fx:id="x4" />
           </textFill>
         </Label>
         <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />

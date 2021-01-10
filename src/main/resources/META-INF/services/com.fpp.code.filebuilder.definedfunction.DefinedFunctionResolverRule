@@ -1,5 +1,0 @@
-com.fpp.code.filebuilder.definedfunction.FunctionNameDefinedFunctionResolverRule
-com.fpp.code.filebuilder.definedfunction.FunctionParamDefinedFunctionResolverRule
-com.fpp.code.filebuilder.definedfunction.JavaFunctionBodyOuterDefinedFunctionResolverRule
-com.fpp.code.filebuilder.definedfunction.FunctionInnerParamDefinedFunctionResolverRule
-com.fpp.code.filebuilder.definedfunction.MybatisSqlWhereDefinedFunctionResolverRule

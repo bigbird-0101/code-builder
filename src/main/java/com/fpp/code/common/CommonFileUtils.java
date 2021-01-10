@@ -57,15 +57,33 @@ public class CommonFileUtils {
         return classLoader;
     }
 
-    public static InputStream getConfigFileInput(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
+    public static InputStream getConfigFileInput(String fileName){
         try {
             return new FileInputStream(URLDecoder.decode(getFilePath(fileName), "UTF-8"));
         }catch (IOException e){
-            return getFileInputStream(URLDecoder.decode(fileName, "UTF-8"));
+            try {
+                return getFileInputStream(URLDecoder.decode(fileName, "UTF-8"));
+            } catch (UnsupportedEncodingException ex) {
+                ex.printStackTrace();
+            }
         }
+        return null;
     }
 
-    public static FileOutputStream getConfigFileOut(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
-        return new FileOutputStream(URLDecoder.decode(getFilePath(fileName), "UTF-8"));
+    public static FileOutputStream getConfigFileOut(String fileName) throws FileNotFoundException {
+        try {
+            return new FileOutputStream(URLDecoder.decode(getFilePath(fileName), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void clearFileContent(String fileName) throws IOException {
+        try(FileOutputStream fileWriter=CommonFileUtils.getConfigFileOut(fileName)){
+            assert fileWriter != null;
+            fileWriter.write("".getBytes());
+            fileWriter.flush();
+        }
     }
 }

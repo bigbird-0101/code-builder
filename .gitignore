@@ -2,3 +2,5 @@
 out
 spring-code
 .gradle
+log
+target
