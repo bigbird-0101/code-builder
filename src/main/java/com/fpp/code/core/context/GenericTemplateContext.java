@@ -11,9 +11,9 @@ import com.fpp.code.core.factory.config.TemplateDefinition;
  * @version 1.0
  * @date 2021/1/7 11:35
  */
-public class GenerateTemplateContext extends AbstractTemplateContext {
+public class GenericTemplateContext extends AbstractTemplateContext {
     private DefaultListableTemplateFactory defaultListableTemplateFactory;
-    public GenerateTemplateContext(Environment environment) throws CodeConfigException {
+    public GenericTemplateContext(Environment environment) throws CodeConfigException {
         super(environment);
         this.defaultListableTemplateFactory=new DefaultListableTemplateFactory();
         this.defaultListableTemplateFactory.setEnvironment(environment);

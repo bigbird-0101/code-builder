@@ -32,12 +32,6 @@ public interface TemplateDefinition {
     String getSrcPackage();
 
     /**
-     * 获取最终生成文件的最后一级路径
-     * @return
-     */
-    String getPath();
-
-    /**
      * 获取模板文件最终生成文件名后缀名
      * @return 模板文件最终生成文件名后缀名
      */

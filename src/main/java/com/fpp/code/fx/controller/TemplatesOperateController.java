@@ -6,6 +6,7 @@ import com.fpp.code.common.AlertUtil;
 import com.fpp.code.common.Utils;
 import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.config.GeneratePropertySource;
+import com.fpp.code.core.domain.DefinedFunctionDomain;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.OperateTemplateBeanFactory;
 import com.fpp.code.core.template.AbstractHandleFunctionTemplate;
@@ -48,9 +49,9 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     @FXML
     private FlowPane templates;
 
-    private Map<String,Set<String>> selectTemplateGroup=new HashMap<>();
+    public static Map<String,List<String>> selectTemplateGroup=new HashMap<>();
 
-    private List templateSaveConfigWappers;
+    public static List<DefinedFunctionDomain> definedFunctionDomainList=new ArrayList<>();
 
     private final URL resource=getClass().getResource("/views/template_info.fxml");
     private final Insets inserts=new Insets(5,5,5,0);
@@ -85,15 +86,13 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     private void initTemplateConfig() {
         try {
             String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
-            templateSaveConfigWappers=JSON.toJavaObject((JSON) JSON.parse(property), List.class);
-            if(null!=templateSaveConfigWappers) {
+            if(Utils.isNotEmpty(property)) {
+                selectTemplateGroup = JSON.toJavaObject((JSON) JSON.parse(property), Map.class);
+            }
+            if(!selectTemplateGroup.isEmpty()) {
                 if(logger.isInfoEnabled()){
                     logger.info("user save config {}",property);
                 }
-                templateSaveConfigWappers.forEach(s -> {
-                    TemplateSaveConfigWapper templateSaveConfigWapper = JSON.toJavaObject((JSON) s, TemplateSaveConfigWapper.class);
-                    selectTemplateGroup.put(templateSaveConfigWapper.getTemplateName(), templateSaveConfigWapper.getSelectFunctionNames());
-                });
             }
         }catch (Exception e){
             if(logger.isErrorEnabled()) {
@@ -120,7 +119,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             templateFunctionNameS.forEach(templateFunction->{
                 CheckBox checkBox=new CheckBox(templateFunction);
                 checkBox.setPadding(inserts);
-                Set<String> functionNames = selectTemplateGroup.get(templateName);
+                List<String> functionNames = selectTemplateGroup.get(templateName);
                 if(null!=functionNames&&functionNames.contains(templateFunction)){
                     checkBox.setSelected(true);
                 }
@@ -138,13 +137,15 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         templateNameCheckBox.setUserData(templateName);
         templateNameCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue){
-                selectTemplateGroup.putIfAbsent(templateName,new HashSet<>());
+                selectTemplateGroup.putIfAbsent(templateName,new ArrayList<>());
             }else{
                 selectTemplateGroup.remove(templateName);
-                flowPane.getChildren().forEach(node->{
-                    CheckBox checkBox= (CheckBox) node;
-                    checkBox.setSelected(false);
-                });
+                if(template instanceof AbstractHandleFunctionTemplate) {
+                    flowPane.getChildren().forEach(node -> {
+                        CheckBox checkBox = (CheckBox) node;
+                        checkBox.setSelected(false);
+                    });
+                }
             }
         });
 
@@ -165,32 +166,35 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue){
                 if(!selectTemplateGroup.containsKey(templateName)){
-                    HashSet<String> functionNames = new HashSet<>();
+                    List<String> functionNames = new ArrayList<>();
                     functionNames.add(templateFunction);
                     selectTemplateGroup.put(templateName,functionNames);
                 }else{
-                    Set<String> functionNames = selectTemplateGroup.get(templateName);
+                    List<String> functionNames = selectTemplateGroup.get(templateName);
                     if(null==functionNames){
-                        functionNames=new HashSet<>();
+                        functionNames=new ArrayList<>();
                     }
-                    functionNames.add(templateFunction);
+                    if(!functionNames.contains(templateFunction)) {
+                        functionNames.add(templateFunction);
+                    }
                     selectTemplateGroup.put(templateName,functionNames);
                 }
                 if(!templateNameCheckBox.isSelected()){
                     templateNameCheckBox.setSelected(true);
                 }
             }else{
-                Set<String> functionNames = selectTemplateGroup.get(templateName);
+                List<String> functionNames = selectTemplateGroup.get(templateName);
                 if(null!=functionNames){
                     functionNames.remove(templateFunction);
                 }
-                if(null!=functionNames&&functionNames.isEmpty()){
-                    selectTemplateGroup.remove(templateName);
+                if(null!=functionNames&&!functionNames.isEmpty()){
+                    functionNames.remove(templateName);
                     if(templateNameCheckBox.isSelected()){
                         templateNameCheckBox.setSelected(false);
                     }
-                }else {
                     selectTemplateGroup.put(templateName, functionNames);
+                }else {
+                    selectTemplateGroup.remove(templateName);
                 }
             }
         });
@@ -199,7 +203,6 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     @FXML
     public void saveConfig(){
         try {
-            Set<TemplateSaveConfigWapper> config = new HashSet<>();
             for (Node node : templates.getChildren()) {
                 VBox box = (VBox) node;
                 AnchorPane anchorPane = (AnchorPane) box.getChildren().get(0);
@@ -221,12 +224,10 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                     template.setSrcPackage(Utils.convertTruePathIfNotNull(srcPackage));
                     DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory) getTemplateContext().getTemplateFactory();
                     operateTemplateBeanFactory.refreshTemplate(template);
-                    TemplateSaveConfigWapper templateSaveConfigWapper = new TemplateSaveConfigWapper(template.getTemplateName(), selectTemplateGroup.get(templateName));
-                    config.add(templateSaveConfigWapper);
                 }
             }
-            if (!config.isEmpty()) {
-                getTemplateContext().getEnvironment().refreshPropertySourceSerialize(new GeneratePropertySource<>(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, JSON.toJSONString(config)));
+            if (!selectTemplateGroup.isEmpty()) {
+                getTemplateContext().getEnvironment().refreshPropertySourceSerialize(new GeneratePropertySource<>(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, JSON.toJSONString(selectTemplateGroup)));
             }
             AlertUtil.showInfo("保存成功");
         }catch (CodeConfigException e){
@@ -245,43 +246,6 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         } catch (CodeConfigException e) {
             AlertUtil.showError("refresh error :"+e.getMessage());
             e.printStackTrace();
-        }
-    }
-
-    public static class TemplateSaveConfigWapper{
-        private String templateName;
-        private Set<String> selectFunctionNames;
-
-        public TemplateSaveConfigWapper() {
-        }
-
-        public TemplateSaveConfigWapper(String templateName, Set<String> selectFunctionNames) {
-            this.templateName = templateName;
-            this.selectFunctionNames = selectFunctionNames;
-        }
-
-        public String getTemplateName() {
-            return templateName;
-        }
-
-        public void setTemplateName(String templateName) {
-            this.templateName = templateName;
-        }
-
-        public Set<String> getSelectFunctionNames() {
-            return selectFunctionNames;
-        }
-
-        public void setSelectFunctionNames(Set<String> selectFunctionNames) {
-            this.selectFunctionNames = selectFunctionNames;
-        }
-
-        @Override
-        public String toString() {
-            return "TemplateSaveConfigWapper{" +
-                    "templateName='" + templateName + '\'' +
-                    ", selectFunctionNames=" + selectFunctionNames +
-                    '}';
         }
     }
 }

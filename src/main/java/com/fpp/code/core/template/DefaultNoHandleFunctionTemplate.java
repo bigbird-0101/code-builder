@@ -16,17 +16,15 @@ public class DefaultNoHandleFunctionTemplate extends AbstractNoHandleFunctionTem
         super(null);
     }
 
-    public DefaultNoHandleFunctionTemplate(String templateName, String templeFileName, Environment environment, String path) throws CodeConfigException {
+    public DefaultNoHandleFunctionTemplate(String templateName, String templeFileName, Environment environment) throws CodeConfigException {
         super(templeFileName,environment);
         this.setTemplateName(templateName);
-        this.setPath(path);
     }
 
 
-    public DefaultNoHandleFunctionTemplate(String templateName, String templeFileName, String path) throws CodeConfigException {
+    public DefaultNoHandleFunctionTemplate(String templateName, String templeFileName) throws CodeConfigException {
         super(templeFileName);
         this.setTemplateName(templateName);
-        this.setPath(path);
     }
 
 }

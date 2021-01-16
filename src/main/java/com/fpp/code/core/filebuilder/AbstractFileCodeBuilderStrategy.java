@@ -1,11 +1,9 @@
 package com.fpp.code.core.filebuilder;
 
-import com.alibaba.fastjson.JSONArray;
 import com.fpp.code.common.Utils;
 import com.fpp.code.core.config.CoreConfig;
-import com.fpp.code.core.domain.ProjectTemplateInfoConfig;
-import com.fpp.code.core.filebuilder.definedfunction.DefinedFunctionResolver;
 import com.fpp.code.core.domain.DefinedFunctionDomain;
+import com.fpp.code.core.filebuilder.definedfunction.DefinedFunctionResolver;
 import com.fpp.code.core.template.*;
 import org.apache.commons.io.IOUtils;
 
@@ -14,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,14 +69,13 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
     }
 
     public void filterFunction(TemplateFileClassInfo templateFileClassInfo) {
-        JSONArray jsonArray = this.getCoreConfig().getProjectTemplateInfoConfig().getHandleTemplateBuild();
+        Map<String, List<String>> templateSelectedGroup = this.getCoreConfig().getProjectTemplateInfoConfig().getTemplateSelectedGroup();
         if (this.getTemplate() instanceof AbstractHandleFunctionTemplate) {
-            JSONArray jsonArrayFunction = Utils.getJsonArrayByKey(jsonArray, this.getTemplate().getTemplateName());
+            List<String> jsonArrayFunction = templateSelectedGroup.get(this.template.getTemplateName());
             Map<String, String> functionS = templateFileClassInfo.getFunctionS();
             Map<String, String> newFunction = new HashMap<>(10);
             functionS.forEach((k, v) -> jsonArrayFunction.forEach(data -> {
-                String functionNamePrefix = (String) data;
-                if (k.equals(functionNamePrefix)) {
+                if (k.equals(data)) {
                     newFunction.put(k, v);
                 }
             }));
@@ -126,8 +124,7 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
      * @return
      */
     public String getFilePath(String tableName) {
-        ProjectTemplateInfoConfig projectTemplateInfoConfig = coreConfig.getProjectTemplateInfoConfig();
-        return projectTemplateInfoConfig.getProjectCompleteUrl() + "/" + projectTemplateInfoConfig.getProjectTargetPackageurl() + "/" + template.getPath() + "/" + fileNameBuilder.nameBuilder(template, tableName);
+        return this.getTemplate().getProjectUrl()+"/"+this.getTemplate().getModule() + "/" + this.getTemplate().getSourcesRoot() + "/"+this.getTemplate().getSrcPackage()+"/" + fileNameBuilder.nameBuilder(template, tableName);
     }
 
     @Override

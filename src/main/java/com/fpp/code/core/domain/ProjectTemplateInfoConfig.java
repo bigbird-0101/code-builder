@@ -1,58 +1,35 @@
 package com.fpp.code.core.domain;
 
-import com.alibaba.fastjson.JSONArray;
-
 import java.util.List;
+import java.util.Map;
 
 /**
  * 项目模板详情配置
  * @author Administrator
  */
 public class ProjectTemplateInfoConfig {
-    private JSONArray handleTemplateBuild;
-    private JSONArray noHandleTemplateBuild;
-    private String projectCompleteUrl;
-    private String projectTargetPackageurl;
     private List<DefinedFunctionDomain> definedFunctionDomainList;
+    private Map<String, List<String>> templateSelectedGroup;
 
-    public ProjectTemplateInfoConfig(JSONArray handleTemplateBuild, JSONArray noHandleTemplateBuild, String projectCompleteUrl, String projectTargetPackageurl, List<DefinedFunctionDomain> definedFunctionDomainList) {
-        this.handleTemplateBuild = handleTemplateBuild;
-        this.noHandleTemplateBuild = noHandleTemplateBuild;
-        this.projectCompleteUrl = projectCompleteUrl;
-        this.projectTargetPackageurl = projectTargetPackageurl;
+    public ProjectTemplateInfoConfig(List<DefinedFunctionDomain> definedFunctionDomainList, Map<String, List<String>> templateSelectedGroup) {
         this.definedFunctionDomainList = definedFunctionDomainList;
+        this.templateSelectedGroup = templateSelectedGroup;
     }
 
-    public JSONArray getHandleTemplateBuild() {
-        return handleTemplateBuild;
+    @Override
+    public String toString() {
+        return "ProjectTemplateInfoConfig{" +
+                "definedFunctionDomainList=" + definedFunctionDomainList +
+                ", templateSelectedGroup=" + templateSelectedGroup +
+                '}';
     }
 
-    public void setHandleTemplateBuild(JSONArray handleTemplateBuild) {
-        this.handleTemplateBuild = handleTemplateBuild;
+    public Map<String, List<String>> getTemplateSelectedGroup() {
+        return templateSelectedGroup;
     }
 
-    public JSONArray getNoHandleTemplateBuild() {
-        return noHandleTemplateBuild;
-    }
-
-    public void setNoHandleTemplateBuild(JSONArray noHandleTemplateBuild) {
-        this.noHandleTemplateBuild = noHandleTemplateBuild;
-    }
-
-    public String getProjectCompleteUrl() {
-        return projectCompleteUrl;
-    }
-
-    public void setProjectCompleteUrl(String projectCompleteUrl) {
-        this.projectCompleteUrl = projectCompleteUrl;
-    }
-
-    public String getProjectTargetPackageurl() {
-        return projectTargetPackageurl;
-    }
-
-    public void setProjectTargetPackageurl(String projectTargetPackageurl) {
-        this.projectTargetPackageurl = projectTargetPackageurl;
+    public void setTemplateSelectedGroup(Map<String, List<String>> templateSelectedGroup) {
+        this.templateSelectedGroup = templateSelectedGroup;
     }
 
     public List<DefinedFunctionDomain> getDefinedFunctionDomainList() {
@@ -63,14 +40,4 @@ public class ProjectTemplateInfoConfig {
         this.definedFunctionDomainList = definedFunctionDomainList;
     }
 
-    @Override
-    public String toString() {
-        return "ProjectTemplateInfoConfig{" +
-                "handleTemplateBuild=" + handleTemplateBuild +
-                ", noHandleTemplateBuild=" + noHandleTemplateBuild +
-                ", projectCompleteUrl='" + projectCompleteUrl + '\'' +
-                ", projectTargetPackageurl='" + projectTargetPackageurl + '\'' +
-                ", definedFunctionDomainList=" + definedFunctionDomainList +
-                '}';
-    }
 }

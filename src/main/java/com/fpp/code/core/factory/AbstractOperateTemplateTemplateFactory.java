@@ -23,9 +23,9 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
         }else{
             template=new DefaultNoHandleFunctionTemplate();
         }
-        if (templateDefinition.getFilePrefixNameStrategy() == 0) {
+        if (templateDefinition.getFilePrefixNameStrategy() == 1) {
             template.setTemplateFilePrefixNameStrategy(new DefaultTemplateFilePrefixNameStrategy());
-        } else if (templateDefinition.getFilePrefixNameStrategy() == 1) {
+        } else if (templateDefinition.getFilePrefixNameStrategy() == 2) {
             template.setTemplateFilePrefixNameStrategy(new OnlySubFourTemplateFilePrefixNameStrategy());
         }
         template.setProjectUrl(templateDefinition.getProjectUrl());
@@ -33,7 +33,6 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
         template.setSrcPackage(templateDefinition.getSrcPackage());
         template.setSourcesRoot(templateDefinition.getSourcesRoot());
         template.setTemplateName(templateName);
-        template.setPath(templateDefinition.getPath());
         template.setTemplateFile(templateDefinition.getTemplateFile());
         template.setTemplateFileSuffixName(templateDefinition.getFileSuffixName());
         template.refresh();
@@ -43,7 +42,7 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
 
     @Override
     protected MultipleTemplate createMultipleTemplate(String templateName, MultipleTemplateDefinition multipleTemplateDefinition) throws CodeConfigException {
-        MultipleTemplate multipleTemplate=new GenerateMultipleTemplate();
+        MultipleTemplate multipleTemplate=new GenericMultipleTemplate();
         multipleTemplate.setTemplateName(templateName);
         Set<Template> templates=new LinkedHashSet<>();
         for(String templateNameSon:multipleTemplateDefinition.getTemplateNames()){

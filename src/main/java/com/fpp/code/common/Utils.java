@@ -469,7 +469,8 @@ public class Utils {
 	 * @return
 	 */
 	public static String getFileNameByPath(String path,String pattern){
-		return Arrays.stream(path.split(pattern)).map(Utils::firstUpperCase).collect(Collectors.joining());
+		String[] split = path.split(pattern);
+		return Arrays.stream(split).map(Utils::firstUpperCase).skip(split.length-1).collect(Collectors.joining());
 	}
 
 	/**
@@ -549,6 +550,7 @@ public class Utils {
 //		String a=" <<tool.firstUpper(id)>>\r\n   ";
 //		String b=getLastNewLineNull(a);
 //		System.out.println(b);
+		System.out.println(getFileNameByPath("com/aa/bb","\\/"));
 	}
 
 }

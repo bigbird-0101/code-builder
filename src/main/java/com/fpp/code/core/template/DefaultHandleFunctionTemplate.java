@@ -16,23 +16,20 @@ public class DefaultHandleFunctionTemplate extends AbstractHandleFunctionTemplat
         super(null);
     }
 
-    public DefaultHandleFunctionTemplate(String templateName,String templeFileName,String path) throws CodeConfigException {
+    public DefaultHandleFunctionTemplate(String templateName, String templeFileName) throws CodeConfigException {
         super(templeFileName);
         this.setTemplateName(templateName);
-        this.setPath(path);
     }
 
-    public DefaultHandleFunctionTemplate(String templateName,String templeFileName,ResolverStrategy resolverStrategy,String path) throws CodeConfigException {
+    public DefaultHandleFunctionTemplate(String templateName, String templeFileName, ResolverStrategy resolverStrategy) throws CodeConfigException {
         super(templeFileName);
         this.setTemplateName(templateName);
         this.setResolverStrategy(resolverStrategy);
-        this.setPath(path);
     }
 
-    public DefaultHandleFunctionTemplate(String templateName, String templeFileName, Environment environment, String path) throws CodeConfigException {
+    public DefaultHandleFunctionTemplate(String templateName, String templeFileName, Environment environment) throws CodeConfigException {
         super(templeFileName, environment);
         this.setTemplateName(templateName);
-        this.setPath(path);
     }
 
 

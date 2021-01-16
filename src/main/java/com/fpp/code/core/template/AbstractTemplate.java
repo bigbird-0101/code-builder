@@ -36,8 +36,6 @@ public abstract class AbstractTemplate implements Template {
 
     private File templateFile;
 
-    private String path;
-
     private TemplateResolver templateResolver;
 
     private TemplateFilePrefixNameStrategy templateFileNameStrategy=new DefaultTemplateFilePrefixNameStrategy();
@@ -57,11 +55,6 @@ public abstract class AbstractTemplate implements Template {
     @Override
     public String getTemplateName() {
         return templateName;
-    }
-
-    @Override
-    public void setPath(String path) {
-        this.path = path;
     }
 
     @Override
@@ -111,11 +104,6 @@ public abstract class AbstractTemplate implements Template {
     @Override
     public void setTemplateFile(File templateFile) {
         this.templateFile = templateFile;
-    }
-
-    @Override
-    public String getPath() {
-        return this.path;
     }
 
     @Override
@@ -187,7 +175,6 @@ public abstract class AbstractTemplate implements Template {
                 Objects.equals(getSourcesRoot(), that.getSourcesRoot()) &&
                 Objects.equals(getSrcPackage(), that.getSrcPackage()) &&
                 Objects.equals(getTemplateFile(), that.getTemplateFile()) &&
-                Objects.equals(getPath(), that.getPath()) &&
                 Objects.equals(getTemplateResolver(), that.getTemplateResolver()) &&
                 Objects.equals(getTemplateFileNameStrategy(), that.getTemplateFileNameStrategy()) &&
                 Objects.equals(getTemplateFileSuffixName(), that.getTemplateFileSuffixName());
@@ -195,17 +182,16 @@ public abstract class AbstractTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTemplateName(), getProjectUrl(), getModule(), getSourcesRoot(), getSrcPackage(), getTemplateFile(), getPath(), getTemplateResolver(), getTemplateFileNameStrategy(), getTemplateFileSuffixName());
+        return Objects.hash(getTemplateName(), getProjectUrl(), getModule(), getSourcesRoot(), getSrcPackage(), getTemplateFile(),getTemplateResolver(), getTemplateFileNameStrategy(), getTemplateFileSuffixName());
     }
 
     public static  class TemplateSerializer implements ObjectSerializer{
         @Override
-        public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+        public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) {
             AbstractTemplate abstractTemplate= (AbstractTemplate) object;
             JSONObject jsonObject=new JSONObject();
             jsonObject.put("fileName",abstractTemplate.getTemplateFile().getName());
             jsonObject.put("name",abstractTemplate.getTemplateName());
-            jsonObject.put("path",abstractTemplate.getPath());
             jsonObject.put("filePrefixNameStrategy",abstractTemplate.getTemplateFileNameStrategy().getTypeValue());
             jsonObject.put("fileSuffixName",abstractTemplate.getTemplateFileSuffixName());
             jsonObject.put("projectUrl",abstractTemplate.getProjectUrl());

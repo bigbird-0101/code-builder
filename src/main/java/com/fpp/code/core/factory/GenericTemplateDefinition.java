@@ -6,7 +6,7 @@ import java.util.Objects;
 /**
  * @author fpp
  */
-public class GenerateTemplateDefinition extends AbstractTemplateDefinition {
+public class GenericTemplateDefinition extends AbstractTemplateDefinition {
 
     private String projectUrl;
 
@@ -16,8 +16,6 @@ public class GenerateTemplateDefinition extends AbstractTemplateDefinition {
 
     private String srcPackage;
 
-    private String path;
-
     private String fileSuffixName;
 
     private boolean isHandleFunction;
@@ -26,7 +24,7 @@ public class GenerateTemplateDefinition extends AbstractTemplateDefinition {
 
     private File templateFile;
 
-    public GenerateTemplateDefinition() {
+    public GenericTemplateDefinition() {
     }
 
 
@@ -88,15 +86,6 @@ public class GenerateTemplateDefinition extends AbstractTemplateDefinition {
         isHandleFunction = handleFunction;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    @Override
-    public String getPath() {
-        return this.path;
-    }
-
     @Override
     public int getFilePrefixNameStrategy() {
         return filePrefixNameStrategy;
@@ -121,23 +110,22 @@ public class GenerateTemplateDefinition extends AbstractTemplateDefinition {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof GenerateTemplateDefinition)) {
+        if (!(o instanceof GenericTemplateDefinition)) {
             return false;
         }
-        GenerateTemplateDefinition that = (GenerateTemplateDefinition) o;
+        GenericTemplateDefinition that = (GenericTemplateDefinition) o;
         return isHandleFunction() == that.isHandleFunction() &&
                 getFilePrefixNameStrategy() == that.getFilePrefixNameStrategy() &&
                 Objects.equals(getProjectUrl(), that.getProjectUrl()) &&
                 Objects.equals(getModule(), that.getModule()) &&
                 Objects.equals(getSourcesRoot(), that.getSourcesRoot()) &&
                 Objects.equals(getSrcPackage(), that.getSrcPackage()) &&
-                Objects.equals(getPath(), that.getPath()) &&
                 Objects.equals(getFileSuffixName(), that.getFileSuffixName()) &&
                 Objects.equals(getTemplateFile(), that.getTemplateFile());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getProjectUrl(), getModule(), getSourcesRoot(), getSrcPackage(), getPath(), getFileSuffixName(), isHandleFunction(), getFilePrefixNameStrategy(), getTemplateFile());
+        return Objects.hash(getProjectUrl(), getModule(), getSourcesRoot(), getSrcPackage(),getFileSuffixName(), isHandleFunction(), getFilePrefixNameStrategy(), getTemplateFile());
     }
 }

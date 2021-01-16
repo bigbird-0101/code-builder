@@ -10,7 +10,7 @@ import java.util.Set;
  * @version 1.0
  * @date 2021/1/6 19:52
  */
-public class GenerateMultipleTemplateDefinition implements MultipleTemplateDefinition {
+public class GenericMultipleTemplateDefinition implements MultipleTemplateDefinition {
 
     private Set<String> templateNames;
 
@@ -28,10 +28,10 @@ public class GenerateMultipleTemplateDefinition implements MultipleTemplateDefin
         if (this == o) {
             return true;
         }
-        if (!(o instanceof GenerateMultipleTemplateDefinition)) {
+        if (!(o instanceof GenericMultipleTemplateDefinition)) {
             return false;
         }
-        GenerateMultipleTemplateDefinition that = (GenerateMultipleTemplateDefinition) o;
+        GenericMultipleTemplateDefinition that = (GenericMultipleTemplateDefinition) o;
         return Objects.equals(getTemplateNames(), that.getTemplateNames());
     }
 

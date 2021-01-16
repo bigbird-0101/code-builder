@@ -1,5 +1,8 @@
 package com.fpp.code.core.filebuilder.definedfunction;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ServiceLoader;
 
 /**
@@ -10,7 +13,12 @@ import java.util.ServiceLoader;
  */
 public class DefaultDefinedFunctionResolver extends AbstractDefinedFunctionResolver {
 
+    private static Logger logger= LogManager.getLogger(DefaultDefinedFunctionResolver.class);
+
     public DefaultDefinedFunctionResolver() {
         ServiceLoader.load(DefinedFunctionResolverRule.class).forEach(this::addResolverRule);
+        if(this.ruleList.size()==0&&logger.isWarnEnabled()){
+            logger.warn("defined function resolver rule load failed");
+        }
     }
 }

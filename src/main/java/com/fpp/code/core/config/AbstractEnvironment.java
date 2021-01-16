@@ -3,6 +3,7 @@ package com.fpp.code.core.config;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fpp.code.common.CommonFileUtils;
 import com.fpp.code.common.OrderedProperties;
 import com.fpp.code.core.template.MultipleTemplate;
@@ -48,6 +49,10 @@ public abstract class AbstractEnvironment implements Environment {
 
     public static String getTemplateContent(String teplateFileUrl) {
         return tepmlateFileUrlContentMapping.get(teplateFileUrl);
+    }
+
+    public static String putTemplateContent(String teplateFileUrl,String content) {
+        return tepmlateFileUrlContentMapping.put(teplateFileUrl,content);
     }
 
     public static String getTemplateFileUrl(String teplateFileName) {
@@ -160,12 +165,16 @@ public abstract class AbstractEnvironment implements Environment {
                 if (propertySource.getSource() instanceof Template) {
                     Template template = (Template) propertySource.getSource();
                     int index = IsHaveTemplate(templates, template.getTemplateName());
-                    templates.remove(index);
+                    if(index>0) {
+                        templates.remove(index);
+                    }
                     templates.add(JSON.toJSON(template));
                 } else if (propertySource.getSource() instanceof MultipleTemplate) {
                     MultipleTemplate template = (MultipleTemplate) propertySource.getSource();
-                    int index = IsHaveTemplate(templates, template.getTemplateName());
-                    multipleTemplates.remove(index);
+                    int index = IsHaveTemplate(multipleTemplates, template.getTemplateName());
+                    if(index>0) {
+                        multipleTemplates.remove(index);
+                    }
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("name", template.getTemplateName());
                     jsonObject.put("templates", template.getTemplates().stream().map(Template::getTemplateName).toArray());
@@ -174,7 +183,9 @@ public abstract class AbstractEnvironment implements Environment {
             });
             try (FileOutputStream fileOutputStream = new FileOutputStream(new File(templateConfigPath))) {
                 CommonFileUtils.clearFileContent(templateConfigPath);
-                IOUtils.write(configContent.toJSONString().getBytes(StandardCharsets.UTF_8), fileOutputStream);
+                String result = JSON.toJSONString(configContent, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue,
+                        SerializerFeature.WriteDateUseDateFormat);
+                IOUtils.write(result.getBytes(StandardCharsets.UTF_8), fileOutputStream);
             } catch (IOException e) {
                 e.printStackTrace();
             }

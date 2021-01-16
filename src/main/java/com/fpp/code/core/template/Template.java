@@ -71,20 +71,6 @@ public interface Template{
     void setTemplateName(String templateName);
 
     /**
-     * 获取模板最终在源代码包下的最后一段路径
-     * 比如 com.fpp.code  controller 这个controller就是该路径
-     * @return 最终在源代码包下的最后一段路径
-     */
-    String getPath();
-
-    /**
-     * 设置模板最终在源代码包下的最后一段路径
-     *  比如 com.fpp.code  controller 这个controller就是该路径
-     * @param path 模板最终在源代码包下的最后一段路径
-     */
-    void setPath(String path);
-
-    /**
      * 获取根据模板中的变量表最终生成的模板内容
      *
      * @param replaceKeyValue 模板中的变量表

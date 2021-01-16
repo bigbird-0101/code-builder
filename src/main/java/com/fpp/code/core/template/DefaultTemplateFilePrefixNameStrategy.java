@@ -30,6 +30,6 @@ public class DefaultTemplateFilePrefixNameStrategy implements TemplateFilePrefix
      */
     @Override
     public String prefixStrategy(Template template, String srcSource) {
-        return Utils.getFileNameByPath(srcSource.substring(4),"\\_")+Utils.getFileNameByPath(template.getPath(),"\\/");
+        return Utils.getFileNameByPath(srcSource.substring(4),"\\_")+Utils.getFileNameByPath(template.getSrcPackage(),"\\/");
     }
 }

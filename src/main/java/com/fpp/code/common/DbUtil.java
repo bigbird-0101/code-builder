@@ -34,7 +34,7 @@ public class DbUtil {
             javaType = "Short";
         } else if (dataType == Types.FLOAT) {
             javaType = "Double";
-        }  else if (dataType == Types.REAL) {
+        } else if (dataType == Types.REAL) {
             javaType = "Float";
         } else {
             javaType = getString(dataType);
@@ -56,18 +56,19 @@ public class DbUtil {
 
     /**
      * 通过jdbc type 获取java数据类型
-     * @param jdbcType jdbc数据类型
-     * @param isUnsign 是否是无符号
+     *
+     * @param jdbcType  jdbc数据类型
+     * @param isUnsign  是否是无符号
      * @param maxLength 最大长度
      * @return
      */
-    public static String getJavaTypeByJdbcType(String jdbcType,boolean isUnsign,int maxLength){
-        if( jdbcType == null || jdbcType.trim().length() == 0 ) {
+    public static String getJavaTypeByJdbcType(String jdbcType, boolean isUnsign, int maxLength) {
+        if (jdbcType == null || jdbcType.trim().length() == 0) {
             return null;
         }
         jdbcType = jdbcType.toLowerCase();
 
-        switch(jdbcType){
+        switch (jdbcType) {
             case "nvarchar":
             case "char":
             case "varchar":
@@ -79,7 +80,7 @@ public class DbUtil {
                 return "byte[]";
             case "id":
             case "bigint":
-                if(isUnsign){
+                if (isUnsign) {
                     return "BigInteger";
                 }
                 return "Long";
@@ -88,23 +89,24 @@ public class DbUtil {
             case "mediumint":
                 return "Integer";
             case "smallint":
-                if(isUnsign){
+                if (isUnsign) {
                     return "Integer";
                 }
                 return "Short";
             case "int":
-                if(isUnsign){
+                if (isUnsign) {
                     return "Long";
                 }
                 return "Integer";
             case "bit":
-                if(maxLength>1){
+                if (maxLength > 1) {
                     return "byte[]";
                 }
                 return "byte";
             case "boolean":
                 return "Boolean";
-            case "float":return "Float";
+            case "float":
+                return "Float";
             case "double":
             case "money":
             case "smallmoney":
@@ -116,10 +118,12 @@ public class DbUtil {
             case "datetime":
             case "year":
                 return "Date";
-            case "time":return "Time";
-            case "timestamp":return "Timestamp";
+            case "time":
+                return "Time";
+            case "timestamp":
+                return "Timestamp";
             default:
-                throw new IllegalStateException("未找到与之匹配的类型"+jdbcType);
+                throw new IllegalStateException("未找到与之匹配的类型" + jdbcType);
         }
     }
 
@@ -136,7 +140,7 @@ public class DbUtil {
             jdbcType = "TINYINT";
         } else if (dataType == Types.SMALLINT) {
             jdbcType = "SMALLINT";
-        }else if (dataType == Types.INTEGER) {
+        } else if (dataType == Types.INTEGER) {
             jdbcType = "INTEGER";
         } else if (dataType == Types.BIGINT) {
             jdbcType = "BIGINT";
@@ -260,7 +264,7 @@ public class DbUtil {
 
     private static String getDomainName(String tableName) {
         String[] valueClassNameS = tableName.substring(4).split("_");
-        return Arrays.stream(valueClassNameS).map(Utils::firstUpperCase).reduce((s, b) -> s + b).map(s->Utils.isEmpty(s)?Utils.firstUpperCase(tableName):s).get();
+        return Arrays.stream(valueClassNameS).map(Utils::firstUpperCase).reduce((s, b) -> s + b).map(s -> Utils.isEmpty(s) ? Utils.firstUpperCase(tableName) : s).get();
     }
 
     public static TableInfo getTableInfo(DataSourceConfig dataSourceConfigPojo, String tableName) throws SQLException, ClassNotFoundException {
@@ -274,24 +278,25 @@ public class DbUtil {
             String name = rs.getString("COLUMN_NAME");
             String comment = rs.getString("COLUMN_COMMENT");
             boolean isNull = "yes".equalsIgnoreCase(rs.getString("IS_NULLABLE"));
-            int size = rs.getInt("CHARACTER_MAXIMUM_LENGTH")==0?rs.getInt("NUMERIC_PRECISION"):rs.getInt("CHARACTER_MAXIMUM_LENGTH");
-            boolean isUnsigned=rs.getString("COLUMN_TYPE").contains("unsigned");
-            String javaType = getJavaTypeByJdbcType(rs.getString("DATA_TYPE"),isUnsigned,size);
+            int size = rs.getInt("CHARACTER_MAXIMUM_LENGTH") == 0 ? rs.getInt("NUMERIC_PRECISION") : rs.getInt("CHARACTER_MAXIMUM_LENGTH");
+            boolean isUnsigned = rs.getString("COLUMN_TYPE").contains("unsigned");
+            String javaType = getJavaTypeByJdbcType(rs.getString("DATA_TYPE"), isUnsigned, size);
             String domainPropertyName = getDomainPropertyName(name);
-            String jdbcType =rs.getString("DATA_TYPE").toUpperCase();
-            jdbcType=jdbcType.equals("INT")?"INTEGER":jdbcType;
+            String jdbcType = rs.getString("DATA_TYPE").toUpperCase();
+            jdbcType = "INT".equals(jdbcType) ? "INTEGER" : jdbcType;
+            jdbcType = "DATETIME".equals(jdbcType) ? "TIMESTAMP" : jdbcType;
             boolean isPrimaryKey = false;
             boolean isUniqueKey = false;
-            String key=rs.getString("COLUMN_KEY");
-            if(Utils.isNotEmpty(key)){
-                isPrimaryKey= "PRI".equalsIgnoreCase(key);
-                isUniqueKey= "UNI".equalsIgnoreCase(key);
+            String key = rs.getString("COLUMN_KEY");
+            if (Utils.isNotEmpty(key)) {
+                isPrimaryKey = "PRI".equalsIgnoreCase(key);
+                isUniqueKey = "UNI".equalsIgnoreCase(key);
             }
             TableInfo.ColumnInfo columnInfo = new TableInfo.ColumnInfo(name, comment, javaType, domainPropertyName, isNull, size, isPrimaryKey, isUniqueKey, jdbcType);
             columnInfoList.add(columnInfo);
         }
-        if(columnInfoList.isEmpty()){
-            throw new IllegalArgumentException("表"+tableName+"不存在");
+        if (columnInfoList.isEmpty()) {
+            throw new IllegalArgumentException("表" + tableName + "不存在");
         }
         PreparedStatement pStemtTables = connection.prepareStatement("Select table_name,TABLE_COMMENT  from INFORMATION_SCHEMA.TABLES Where table_schema = '" + dataBaseName + "' and table_name ='" + tableName + "'");
         rs = pStemtTables.executeQuery();
@@ -300,8 +305,8 @@ public class DbUtil {
             String tableNameTemp = rs.getString(1);
             String tableCommentTemp = rs.getString(2);
             if (tableName.equals(tableNameTemp)) {
-                int index=tableCommentTemp.lastIndexOf("表");
-                tableComment = index>0?tableCommentTemp.substring(0,index):tableCommentTemp;
+                int index = tableCommentTemp.lastIndexOf("表");
+                tableComment = index > 0 ? tableCommentTemp.substring(0, index) : tableCommentTemp;
             }
         }
         tableInfo = new TableInfo(tableName, tableComment, getDomainName(tableName), columnInfoList);
@@ -338,10 +343,10 @@ public class DbUtil {
 
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        String url="jdbc:mysql://127.0.0.1:3306/xydj?useUnicode=true&characterEncoding=utf-8";
+        String url = "jdbc:mysql://127.0.0.1:3306/xydj?useUnicode=true&characterEncoding=utf-8";
         String quDongName = url.indexOf("mysql") > 0 ? "com.mysql.jdbc.Driver" : url.indexOf("oracle") > 0 ? "" : "";
-        DataSourceConfig a= new DataSourceConfig(quDongName,"root",url,"root");
-        TableInfo tableInfo=getTableInfo(a,"tab_test");
+        DataSourceConfig a = new DataSourceConfig(quDongName, "root", url, "pttdata");
+        TableInfo tableInfo = getTableInfo(a, "tab_test");
         System.out.println(tableInfo);
     }
 }

@@ -3,6 +3,7 @@ package com.fpp.code.core.filebuilder;
 import com.fpp.code.common.DbUtil;
 import com.fpp.code.core.config.CoreConfig;
 import com.fpp.code.core.template.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,7 +37,7 @@ public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy 
         Objects.requireNonNull(template,"模板对象不允许为空!");
         Map<String, Object> temp = new HashMap<>(10);
         TableInfo tableInfo= DbUtil.getTableInfo(coreConfig.getDataSourceConfig(),tableName);
-        tableInfo.setSavePath(coreConfig.getProjectTemplateInfoConfig().getProjectTargetPackageurl().replaceAll("\\/","."));
+        tableInfo.setSavePath(template.getSrcPackage().replaceAll("\\/","."));
         temp.put("tableInfo", tableInfo);
         this.setCoreConfig(coreConfig);
         this.setTemplate(template);
@@ -67,7 +68,7 @@ public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy 
         if(logger.isInfoEnabled()) {
             logger.info("最终的生成文件的路径 {} ", filePath);
         }
-//        FileUtils.forceMkdirParent(a);
+        FileUtils.forceMkdirParent(a);
         FileOutputStream fops = new FileOutputStream(a);
         fops.write(code.getBytes("utf-8"));
         fops.flush();

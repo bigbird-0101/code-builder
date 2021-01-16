@@ -3,6 +3,8 @@ package com.fpp.code.core.template;
 import com.fpp.code.common.Utils;
 import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.config.Environment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -14,6 +16,8 @@ import java.util.regex.Pattern;
  * @date 2020/6/15 13:29
  */
 public abstract class AbstractTemplateResolver implements TemplateResolver {
+
+    private static Logger logger= LogManager.getLogger(AbstractTemplateResolver.class);
 
     protected static final String CONFIG_TEMPLATE_RESOLVERS="code.project.file.template-lang-resolver";
 
@@ -114,6 +118,9 @@ public abstract class AbstractTemplateResolver implements TemplateResolver {
             item.setTemplateResolver(this);
             this.templateLangResolverList.add(item);
         });
+        if(templateLangResolverList.size()==0&&logger.isWarnEnabled()){
+            logger.warn("template lang resolver load failed");
+        }
     }
 
     private void  initTemplateLangResolverListWhenConfig(Environment environment) throws CodeConfigException {

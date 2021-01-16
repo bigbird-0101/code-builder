@@ -8,7 +8,7 @@ import java.util.Set;
  * @version 1.0
  * @date 2021/1/7 14:03
  */
-public class GenerateMultipleTemplate extends AbstractMultipleTemplate{
+public class GenericMultipleTemplate extends AbstractMultipleTemplate{
     private String templateName;
     private Set<Template> templates;
 

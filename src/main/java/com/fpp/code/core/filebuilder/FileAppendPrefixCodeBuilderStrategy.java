@@ -2,7 +2,6 @@ package com.fpp.code.core.filebuilder;
 
 import com.fpp.code.common.DbUtil;
 import com.fpp.code.core.config.CoreConfig;
-import com.fpp.code.core.domain.ProjectTemplateInfoConfig;
 import com.fpp.code.core.template.*;
 
 import java.io.IOException;
@@ -12,7 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 在文件的属性末尾添加代码策略
+ * 在文件的属性首部添加代码策略
  * @author fpp
  * @version 1.0
  * @date 2020/7/1 19:34
@@ -33,8 +32,7 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
         Objects.requireNonNull(template,"模板对象不允许为空!");
         Map<String, Object> temp = new HashMap<>(10);
         TableInfo tableInfo= DbUtil.getTableInfo(coreConfig.getDataSourceConfig(),tableName);
-        ProjectTemplateInfoConfig projectTemplateInfoConfig=coreConfig.getProjectTemplateInfoConfig();
-        tableInfo.setSavePath(projectTemplateInfoConfig.getProjectTargetPackageurl().replaceAll("\\/","."));
+        tableInfo.setSavePath(template.getSrcPackage().replaceAll("\\/","."));
         temp.put("tableInfo", tableInfo);
         this.setCoreConfig(coreConfig);
         this.setTemplate(template);
@@ -43,7 +41,7 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
             handleFunctionTemplate.setResolverStrategy(this);
             String templeResult=handleFunctionTemplate.getTempleResult(temp);
 
-            String srcFilePath=projectTemplateInfoConfig.getProjectCompleteUrl()+projectTemplateInfoConfig.getProjectTargetPackageurl()+fileNameBuilder.nameBuilder(template,tableName);
+            String srcFilePath=template.getProjectUrl()+template.getModule()+template.getSourcesRoot()+template.getSrcPackage()+fileNameBuilder.nameBuilder(template,tableName);
             String srcResult=getSrcFileCode(srcFilePath);
             String result = srcResult.substring(0, srcResult.indexOf("{\r\n"));
             return result + templeResult + "}\r\n";

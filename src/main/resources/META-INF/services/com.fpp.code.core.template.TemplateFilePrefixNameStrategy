@@ -1,0 +1,2 @@
+com.fpp.code.core.template.DefaultTemplateFilePrefixNameStrategy
+com.fpp.code.core.template.OnlySubFourTemplateFilePrefixNameStrategy

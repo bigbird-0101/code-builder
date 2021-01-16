@@ -20,7 +20,7 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
     private TemplateScanner allTypeTemplateScanner;
 
     public AbstractTemplateContext(Environment environment) {
-        this(environment, new GenerateTemplateScanner());
+        this(environment, new GenericTemplateScanner());
     }
 
     public AbstractTemplateContext(Environment environment, TemplateScanner allTypeTemplateScanner) {
@@ -75,7 +75,6 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
         Set<TemplateDefinitionHolder> templateDefinitionHolders = allTemplateDefinitionHolder.getTemplateDefinitionHolders();
         for (TemplateDefinitionHolder templateDefinitionHolder : templateDefinitionHolders) {
             templateFactory.registerTemplateDefinition(templateDefinitionHolder.getTemplateName(), templateDefinitionHolder.getTemplateDefinition());
-            ;
         }
         Set<MultipleTemplateDefinitionHolder> multipleTemplateDefinitionHolders = allTemplateDefinitionHolder.getMultipleTemplateDefinitionHolders();
         for (MultipleTemplateDefinitionHolder multipleTemplateDefinitionHolder : multipleTemplateDefinitionHolders) {

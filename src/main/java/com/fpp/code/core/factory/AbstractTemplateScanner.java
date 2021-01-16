@@ -92,9 +92,9 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
                     }
                     templateNames.add(templateName);
                 }
-                GenerateMultipleTemplateDefinition generateMultipleTemplateDefinition=new GenerateMultipleTemplateDefinition();
-                generateMultipleTemplateDefinition.setTemplateNames(templateNames);
-                MultipleTemplateDefinitionHolder multipleTemplateDefinitionHolder=new MultipleTemplateDefinitionHolder(generateMultipleTemplateDefinition,name);
+                GenericMultipleTemplateDefinition genericMultipleTemplateDefinition =new GenericMultipleTemplateDefinition();
+                genericMultipleTemplateDefinition.setTemplateNames(templateNames);
+                MultipleTemplateDefinitionHolder multipleTemplateDefinitionHolder=new MultipleTemplateDefinitionHolder(genericMultipleTemplateDefinition,name);
                 multipleTemplateDefinitionHolders.add(multipleTemplateDefinitionHolder);
             }
         }
@@ -112,15 +112,14 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
         Collection<File> files = FileUtils.listFiles(new File(templatesFilePath), new SuffixFileFilter(DEFAULT_TEMPALTE_FILE_SUFFIX), null);
         for(Object jsonObject:templates){
             JSONObject templateConfigInfo =(JSONObject) jsonObject;
-            GenerateTemplateDefinition generateTemplateDefinition=new GenerateTemplateDefinition();
-            generateTemplateDefinition.setFileSuffixName(Utils.setIfNull(templateConfigInfo.getString("fileSuffixName"),DEFAULT_FILE_SUFFIX_NAME));
-            generateTemplateDefinition.setHandleFunction(Utils.setIfNull(templateConfigInfo.getBoolean("isHandleFunction"),DEFAULT_IS_HANDLE_FUNCTION));
-            generateTemplateDefinition.setProjectUrl(templateConfigInfo.getString("projectUrl"));
-            generateTemplateDefinition.setModule(templateConfigInfo.getString("module"));
-            generateTemplateDefinition.setSourcesRoot(templateConfigInfo.getString("sourcesRoot"));
-            generateTemplateDefinition.setSrcPackage(templateConfigInfo.getString("srcPackage"));
-            generateTemplateDefinition.setPath(templateConfigInfo.getString("path"));
-            generateTemplateDefinition.setFilePrefixNameStrategy(templateConfigInfo.getIntValue("filePrefixNameStrategy"));
+            GenericTemplateDefinition genericTemplateDefinition =new GenericTemplateDefinition();
+            genericTemplateDefinition.setFileSuffixName(Utils.setIfNull(templateConfigInfo.getString("fileSuffixName"),DEFAULT_FILE_SUFFIX_NAME));
+            genericTemplateDefinition.setHandleFunction(Utils.setIfNull(templateConfigInfo.getBoolean("isHandleFunction"),DEFAULT_IS_HANDLE_FUNCTION));
+            genericTemplateDefinition.setProjectUrl(templateConfigInfo.getString("projectUrl"));
+            genericTemplateDefinition.setModule(templateConfigInfo.getString("module"));
+            genericTemplateDefinition.setSourcesRoot(templateConfigInfo.getString("sourcesRoot"));
+            genericTemplateDefinition.setSrcPackage(templateConfigInfo.getString("srcPackage"));
+            genericTemplateDefinition.setFilePrefixNameStrategy(templateConfigInfo.getIntValue("filePrefixNameStrategy"));
             String templateName = templateConfigInfo.getString("name");
             if(Utils.isEmpty(templateName)){
                 throw new CodeConfigException("模板名字不允许为空");
@@ -130,9 +129,9 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
                 throw new CodeConfigException("模板文件名不允许为空");
             }
             File templateFile = files.stream().filter(file -> templateFileName.equals(file.getName())).findFirst().orElseThrow(()->new CodeConfigException("模板名为"+templateName+",配置模板文件名为"+templateFileName+",在"+templatesFilePath+"中不存在"));
-            generateTemplateDefinition.setTemplateFile(templateFile);
-            TemplateDefinitionHolder templateDefinitionHolder=new TemplateDefinitionHolder(generateTemplateDefinition,templateName);
-            templateDefinitionMapTemp.put(templateName,generateTemplateDefinition);
+            genericTemplateDefinition.setTemplateFile(templateFile);
+            TemplateDefinitionHolder templateDefinitionHolder=new TemplateDefinitionHolder(genericTemplateDefinition,templateName);
+            templateDefinitionMapTemp.put(templateName, genericTemplateDefinition);
             templateDefinitionHolders.add(templateDefinitionHolder);
         }
     }
