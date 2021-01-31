@@ -11,8 +11,8 @@ import com.fpp.code.core.template.Template;
  */
 public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry implements ConfigurableTemplateFactory {
     @Override
-    public void removeTemplate(String templateName) {
-        removeTemplate(templateName);
+    public void removeTemplate(String templateName) throws CodeConfigException {
+        super.removeTemplate(templateName);
     }
 
     @Override
@@ -41,6 +41,11 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
             template = createTemplate(templateName, templateDefinition);
         }
         return template;
+    }
+
+    @Override
+    public void removeMultipleTemplate(String templateName) throws CodeConfigException {
+        super.removeMultipleTemplate(templateName);
     }
 
     /**

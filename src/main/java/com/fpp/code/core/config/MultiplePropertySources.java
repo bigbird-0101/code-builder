@@ -41,6 +41,7 @@ public class MultiplePropertySources implements PropertySources {
         this.sources.add(propertySource);
     }
 
+    @Override
     public void removeIfPresent(PropertySource<?> propertySource){
         this.sources.remove(propertySource);
     }

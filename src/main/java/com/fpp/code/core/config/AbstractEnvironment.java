@@ -209,6 +209,65 @@ public abstract class AbstractEnvironment implements Environment {
         }
     }
 
+    @Override
+    public <T> void removePropertySourceSerialize(PropertySource<T>... propertySources) {
+        boolean isTemplateCorePath = false;
+        if (propertySources.length > 0) {
+            isTemplateCorePath = propertySources[0].getName().equals(DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE);
+        }
+        if (isTemplateCorePath) {
+            JSONObject configContent = null;
+            try {
+                configContent = getConfigContent(templateConfigPath);
+            } catch (CodeConfigException e) {
+                e.printStackTrace();
+            }
+            assert configContent != null;
+            JSONArray multipleTemplates = configContent.getJSONArray("multipleTemplates");
+            JSONArray templates = configContent.getJSONArray("templates");
+            Arrays.stream(propertySources).forEach(propertySource -> {
+                if (propertySource.getSource() instanceof Template) {
+                    Template template = (Template) propertySource.getSource();
+                    int index = IsHaveTemplate(templates, template.getTemplateName());
+                    if(index>0) {
+                        templates.remove(index);
+                    }
+                } else if (propertySource.getSource() instanceof MultipleTemplate) {
+                    MultipleTemplate template = (MultipleTemplate) propertySource.getSource();
+                    int index = IsHaveTemplate(multipleTemplates, template.getTemplateName());
+                    if(index>0) {
+                        multipleTemplates.remove(index);
+                    }
+                }
+            });
+            try (FileOutputStream fileOutputStream = new FileOutputStream(new File(templateConfigPath))) {
+                CommonFileUtils.clearFileContent(templateConfigPath);
+                String result = JSON.toJSONString(configContent, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue,
+                        SerializerFeature.WriteDateUseDateFormat);
+                IOUtils.write(result.getBytes(StandardCharsets.UTF_8), fileOutputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Arrays.stream(propertySources).forEach(propertySource -> {
+                getPropertySources().removeIfPresent(propertySource);
+            });
+            Properties properties = getPropertySources().convertProperties(getPropertySources());
+            StringBuilder stringBuilder = new StringBuilder();
+            properties.forEach((k, v) -> {
+                if (!k.equals(DEFAULT_CORE_TEMPLATE_PATH) && !k.equals(DEFAULT_CORE_TEMPLATE_FILES_PATH)) {
+                    stringBuilder.append(k).append("=").append(v).append("\r\n");
+                }
+            });
+            try (FileOutputStream fileOutputStream = new FileOutputStream(new File(coreConfigPath))) {
+                CommonFileUtils.clearFileContent(coreConfigPath);
+                IOUtils.write(stringBuilder.toString().getBytes(StandardCharsets.UTF_8), fileOutputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private int IsHaveTemplate(JSONArray jsonArray, String templateName) {
         if (null != jsonArray && !jsonArray.isEmpty()) {
             for (int i = 0; i < jsonArray.size(); i++) {

@@ -22,6 +22,12 @@ public interface PropertySources {
     <T> boolean updatePropertySource(String name,T object);
 
     /**
+     * 删除属性
+     * @param propertySource
+     */
+    void removeIfPresent(PropertySource<?> propertySource);
+
+    /**
      * 添加属性
      * @param propertySource
      * @param <T>

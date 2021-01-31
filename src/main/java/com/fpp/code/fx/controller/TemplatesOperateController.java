@@ -37,11 +37,11 @@ import java.util.*;
  */
 public class TemplatesOperateController extends TemplateContextProvider implements Initializable {
 
-    private static Logger logger= LogManager.getLogger(TemplatesOperateController.class);
+    private static Logger logger = LogManager.getLogger(TemplatesOperateController.class);
 
-    private static final String DEFAULT_SOURCES_ROOT="src/main/java";
+    private static final String DEFAULT_SOURCES_ROOT = "src/main/java";
 
-    private static final String DEFAULT_USER_SAVE_TEMPLATE_CONFIG="code.user.save.config";
+    private static final String DEFAULT_USER_SAVE_TEMPLATE_CONFIG = "code.user.save.config";
 
     @FXML
     private VBox box;
@@ -49,14 +49,14 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     @FXML
     private FlowPane templates;
 
-    public static Map<String,List<String>> selectTemplateGroup=new HashMap<>();
+    public static Map<String, List<String>> selectTemplateGroup = new HashMap<>();
 
-    public static List<DefinedFunctionDomain> definedFunctionDomainList=new ArrayList<>();
+    public static List<DefinedFunctionDomain> definedFunctionDomainList = new ArrayList<>();
 
-    private final URL resource=getClass().getResource("/views/template_info.fxml");
-    private final Insets inserts=new Insets(5,5,5,0);
+    private final URL resource = getClass().getResource("/views/template_info.fxml");
+    private final Insets inserts = new Insets(5, 5, 5, 0);
     public static final BorderWidths DEFAULT = new BorderWidths(1, 0, 0, 0, false, false, false, false);
-    private final BorderStroke borderStroke = new BorderStroke(null,null, Color.BLACK,null, BorderStrokeStyle.SOLID,null, null,null,null, DEFAULT,new Insets(0,0,0,0));
+    private final BorderStroke borderStroke = new BorderStroke(null, null, Color.BLACK, null, BorderStrokeStyle.SOLID, null, null, null, null, DEFAULT, new Insets(0, 0, 0, 0));
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -66,11 +66,11 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             initTemplateConfig();
             String templateNameSelected = Main.userOperateCache.getTemplateNameSelected();
             MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(templateNameSelected);
-            if(null!=multipleTemplate){
-                int size=1;
-                for(Template template:multipleTemplate.getTemplates()){
+            if (null != multipleTemplate) {
+                int size = 1;
+                for (Template template : multipleTemplate.getTemplates()) {
                     VBox vBox = initTemplateInfo(template);
-                    if(size>3){
+                    if (size > 3) {
                         vBox.setBorder(new Border(borderStroke));
                     }
                     templates.getChildren().add(vBox);
@@ -78,25 +78,27 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 }
             }
         } catch (IOException | CodeConfigException | TemplateResolveException e) {
-            logger.info("Template Operate init error",e);
+            logger.info("Template Operate init error", e);
             e.printStackTrace();
         }
     }
 
     private void initTemplateConfig() {
         try {
-            String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
-            if(Utils.isNotEmpty(property)) {
-                selectTemplateGroup = JSON.toJavaObject((JSON) JSON.parse(property), Map.class);
-            }
-            if(!selectTemplateGroup.isEmpty()) {
-                if(logger.isInfoEnabled()){
-                    logger.info("user save config {}",property);
+            if(selectTemplateGroup.isEmpty()) {
+                String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
+                if (Utils.isNotEmpty(property)) {
+                    selectTemplateGroup = JSON.toJavaObject((JSON) JSON.parse(property), Map.class);
+                }
+                if (!selectTemplateGroup.isEmpty()) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("user save config {}", property);
+                    }
                 }
             }
-        }catch (Exception e){
-            if(logger.isErrorEnabled()) {
-                logger.error("初始化用户配置异常: {} {} {} {} {}",DEFAULT_USER_SAVE_TEMPLATE_CONFIG,",",e.getClass().getName(),":",e.getMessage());
+        } catch (Exception e) {
+            if (logger.isErrorEnabled()) {
+                logger.error("初始化用户配置异常: {} {} {} {} {}", DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -104,96 +106,94 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
 
     public VBox initTemplateInfo(Template template) throws IOException, TemplateResolveException {
         VBox root = FXMLLoader.load(resource);
-        initTemplateInfo(root,template);
+        initTemplateInfo(root, template);
         return root;
     }
 
     public void initTemplateInfo(VBox root, Template template) throws TemplateResolveException {
-        Scene scene =new Scene(root);
-        String templateName=template.getTemplateName();
+        Scene scene = new Scene(root);
+        String templateName = template.getTemplateName();
         FlowPane flowPane = (FlowPane) scene.lookup("#functionPane");
-        CheckBox templateNameCheckBox= (CheckBox) scene.lookup("#templateName");
-        if(template instanceof AbstractHandleFunctionTemplate){
-            AbstractHandleFunctionTemplate HandlerTemplate= (AbstractHandleFunctionTemplate) template;
+        CheckBox templateNameCheckBox = (CheckBox) scene.lookup("#templateName");
+        if (template instanceof AbstractHandleFunctionTemplate) {
+            AbstractHandleFunctionTemplate HandlerTemplate = (AbstractHandleFunctionTemplate) template;
             Set<String> templateFunctionNameS = HandlerTemplate.getTemplateFunctionNameS();
-            templateFunctionNameS.forEach(templateFunction->{
-                CheckBox checkBox=new CheckBox(templateFunction);
+            templateFunctionNameS.forEach(templateFunction -> {
+                CheckBox checkBox = new CheckBox(templateFunction);
                 checkBox.setPadding(inserts);
                 List<String> functionNames = selectTemplateGroup.get(templateName);
-                if(null!=functionNames&&functionNames.contains(templateFunction)){
+                if (null != functionNames && functionNames.contains(templateFunction)) {
                     checkBox.setSelected(true);
                 }
-                addCheckBoxListen(checkBox,templateNameCheckBox,templateName,templateFunction);
+                addCheckBoxListen(checkBox, templateNameCheckBox, templateName, templateFunction);
                 flowPane.getChildren().add(checkBox);
             });
-        }else{
-            Label label=new Label(template.getTemplateName());
+        } else {
+            Label label = new Label(template.getTemplateName());
             flowPane.getChildren().add(label);
         }
-        if(selectTemplateGroup.containsKey(templateName)){
+        if (selectTemplateGroup.containsKey(templateName)) {
             templateNameCheckBox.setSelected(true);
         }
-        templateNameCheckBox.setText("模板名:"+templateName);
+        templateNameCheckBox.setText("模板名:" + templateName);
         templateNameCheckBox.setUserData(templateName);
         templateNameCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue){
-                selectTemplateGroup.putIfAbsent(templateName,new ArrayList<>());
-            }else{
-                selectTemplateGroup.remove(templateName);
-                if(template instanceof AbstractHandleFunctionTemplate) {
+            if (newValue) {
+                selectTemplateGroup.putIfAbsent(templateName, new ArrayList<>());
+            } else {
+                if (template instanceof AbstractHandleFunctionTemplate) {
                     flowPane.getChildren().forEach(node -> {
                         CheckBox checkBox = (CheckBox) node;
                         checkBox.setSelected(false);
                     });
                 }
+                selectTemplateGroup.remove(templateName);
             }
         });
 
-        TextArea projectUrlTextArea= (TextArea) scene.lookup("#projectUrl");
+        TextArea projectUrlTextArea = (TextArea) scene.lookup("#projectUrl");
         projectUrlTextArea.setText(template.getProjectUrl());
 
-        TextField moduleNameTextField= (TextField) scene.lookup("#moduleName");
+        TextField moduleNameTextField = (TextField) scene.lookup("#moduleName");
         moduleNameTextField.setText(template.getModule());
 
-        TextField sourcesRootTextField= (TextField) scene.lookup("#sourcesRoot");
-        sourcesRootTextField.setText(Utils.setIfNull(template.getSourcesRoot(),DEFAULT_SOURCES_ROOT));
+        TextField sourcesRootTextField = (TextField) scene.lookup("#sourcesRoot");
+        sourcesRootTextField.setText(Utils.setIfNull(template.getSourcesRoot(), DEFAULT_SOURCES_ROOT));
 
-        TextField srcPackageTextField= (TextField) scene.lookup("#srcPackage");
+        TextField srcPackageTextField = (TextField) scene.lookup("#srcPackage");
         srcPackageTextField.setText(template.getSrcPackage());
     }
 
     private void addCheckBoxListen(CheckBox checkBox, CheckBox templateNameCheckBox, String templateName, String templateFunction) {
         checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue){
-                if(!selectTemplateGroup.containsKey(templateName)){
+            if (newValue) {
+                if (!selectTemplateGroup.containsKey(templateName)) {
                     List<String> functionNames = new ArrayList<>();
                     functionNames.add(templateFunction);
-                    selectTemplateGroup.put(templateName,functionNames);
-                }else{
+                    selectTemplateGroup.put(templateName, functionNames);
+                } else {
                     List<String> functionNames = selectTemplateGroup.get(templateName);
-                    if(null==functionNames){
-                        functionNames=new ArrayList<>();
+                    if (null == functionNames) {
+                        functionNames = new ArrayList<>();
                     }
-                    if(!functionNames.contains(templateFunction)) {
+                    if (!functionNames.contains(templateFunction)) {
                         functionNames.add(templateFunction);
                     }
-                    selectTemplateGroup.put(templateName,functionNames);
+                    selectTemplateGroup.put(templateName, functionNames);
                 }
-                if(!templateNameCheckBox.isSelected()){
+                if (!templateNameCheckBox.isSelected()) {
                     templateNameCheckBox.setSelected(true);
                 }
-            }else{
+            } else {
                 List<String> functionNames = selectTemplateGroup.get(templateName);
-                if(null!=functionNames){
+                if (null != functionNames) {
                     functionNames.remove(templateFunction);
+                    selectTemplateGroup.put(templateName, functionNames);
                 }
-                if(null!=functionNames&&!functionNames.isEmpty()){
-                    functionNames.remove(templateName);
-                    if(templateNameCheckBox.isSelected()){
+                if (null == functionNames ||  functionNames.isEmpty()) {
+                    if (templateNameCheckBox.isSelected()) {
                         templateNameCheckBox.setSelected(false);
                     }
-                    selectTemplateGroup.put(templateName, functionNames);
-                }else {
                     selectTemplateGroup.remove(templateName);
                 }
             }
@@ -201,7 +201,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     }
 
     @FXML
-    public void saveConfig(){
+    public void saveConfig() {
         try {
             for (Node node : templates.getChildren()) {
                 VBox box = (VBox) node;
@@ -230,8 +230,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 getTemplateContext().getEnvironment().refreshPropertySourceSerialize(new GeneratePropertySource<>(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, JSON.toJSONString(selectTemplateGroup)));
             }
             AlertUtil.showInfo("保存成功");
-        }catch (CodeConfigException e){
-            AlertUtil.showError("save config error :"+e.getMessage());
+        } catch (CodeConfigException e) {
+            AlertUtil.showError("save config error :" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -239,12 +239,12 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     @FXML
     public void refreshTemplate() {
         try {
-            OperateTemplateBeanFactory operateTemplateBeanFactory= (OperateTemplateBeanFactory) getTemplateContext().getTemplateFactory();
+            OperateTemplateBeanFactory operateTemplateBeanFactory = (OperateTemplateBeanFactory) getTemplateContext().getTemplateFactory();
             MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(Main.userOperateCache.getTemplateNameSelected());
             operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate.getTemplateName());
             AlertUtil.showInfo("刷新成功");
         } catch (CodeConfigException e) {
-            AlertUtil.showError("refresh error :"+e.getMessage());
+            AlertUtil.showError("refresh error :" + e.getMessage());
             e.printStackTrace();
         }
     }

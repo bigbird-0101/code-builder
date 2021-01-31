@@ -1,83 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.net.*?>
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
-
-<VBox prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fx.controller.ComplexController">
-  <children>
-    <MenuBar VBox.vgrow="NEVER">
-      <menus>
-        <Menu mnemonicParsing="false" text="模板">
-          <items>
-            <Menu mnemonicParsing="false" text="新建">
-              <items>
-                <MenuItem mnemonicParsing="false" onAction="#addTemplate" text="模板" />
-                <MenuItem mnemonicParsing="false" text="组合模板" onAction="#addMultipleTemplate"/>
-              </items>
-            </Menu>
-            <MenuItem mnemonicParsing="false" text="Quit" />
-          </items>
-        </Menu>
-          <Menu mnemonicParsing="false" text="配置">
-              <items>
-                  <MenuItem mnemonicParsing="false" text="核心配置" onAction="#coreConfig"/>
-              </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="运行">
-              <items>
-                  <MenuItem mnemonicParsing="false" text="生成 CTRL+A" onAction="#doBuildCore"/>
-                  <MenuItem mnemonicParsing="false" text="在已有文件的末尾处生成 CTRL+空格" onAction="#doBuildCoreAfter" />
-              </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="帮助">
-              <items>
-                  <MenuItem mnemonicParsing="false" text="关于" onAction="#about"/>
-              </items>
-          </Menu>
-      </menus>
-    </MenuBar>
-    <SplitPane fx:id="splitPane" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-      <items>
-        <StackPane>
-          <Pane fx:id="pane">
-            <children>
-                    <ListView fx:id="listViewTemplate">
-                      <Label layoutX="166.0" layoutY="21.0" text="增加模板" textAlignment="CENTER" />
-                    </ListView>
-            </children>
-          </Pane>
-        </StackPane>
-        <StackPane>
-              <VBox fx:id="content">
-                <children>
-                </children>
-              </VBox>
-        </StackPane>
-      </items>
-    </SplitPane>
-    <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
-      <children>
-        <Label maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="Left status" HBox.hgrow="ALWAYS">
-          <font>
-            <Font size="11.0" fx:id="x3" />
-          </font>
-          <textFill>
-            <Color red="0.625" green="0.625" blue="0.625" fx:id="x4" />
-          </textFill>
-        </Label>
-        <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
-        <Label font="$x3" maxWidth="-1.0" text="Right status" textFill="$x4" HBox.hgrow="NEVER" />
-      </children>
-      <padding>
-        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-      </padding>
-    </HBox>
-  </children>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+<?import java.net.URL?>
+<?import com.sun.javafx.scene.control.skin.SplitPaneSkin.Content?>
+<VBox fx:id="mainBox" prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fx.controller.ComplexController">
   <stylesheets>
-    <URL value="@main.css" />
+    <URL value="@main.css"/>
   </stylesheets>
+  <MenuBar VBox.vgrow="NEVER">
+    <Menu mnemonicParsing="false" text="模板">
+      <Menu mnemonicParsing="false" text="新建">
+        <MenuItem mnemonicParsing="false" onAction="#addTemplate" text="模板"/>
+        <MenuItem mnemonicParsing="false" text="组合模板" onAction="#addMultipleTemplate"/>
+      </Menu>
+      <MenuItem mnemonicParsing="false" text="Quit"/>
+    </Menu>
+    <Menu mnemonicParsing="false" text="配置">
+      <MenuItem mnemonicParsing="false" text="核心配置" onAction="#coreConfig"/>
+    </Menu>
+    <Menu mnemonicParsing="false" text="运行">
+      <MenuItem mnemonicParsing="false" text="生成 CTRL+A" onAction="#doBuildCore"/>
+      <MenuItem mnemonicParsing="false" text="在已有文件的末尾处生成 CTRL+空格" onAction="#doBuildCoreAfter"/>
+    </Menu>
+    <Menu mnemonicParsing="false" text="帮助">
+      <MenuItem mnemonicParsing="false" text="关于" onAction="#about"/>
+    </Menu>
+  </MenuBar>
+  <SplitPane fx:id="splitPane" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <StackPane>
+      <Pane fx:id="pane">
+        <ListView fx:id="listViewTemplate">
+        </ListView>
+      </Pane>
+    </StackPane>
+    <StackPane>
+      <VBox fx:id="content">
+      </VBox>
+    </StackPane>
+  </SplitPane>
+  <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
+    <padding>
+      <Insets bottom="3.0" left="3.0" right="3.0" top="3.0"/>
+    </padding>
+    <Label maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="Left status" HBox.hgrow="ALWAYS">
+      <font>
+        <Font size="11.0" fx:id="x3"/>
+      </font>
+      <textFill>
+        <Color red="0.625" green="0.625" blue="0.625" fx:id="x4"/>
+      </textFill>
+    </Label>
+    <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS"/>
+    <Label font="$x3" maxWidth="-1.0" text="Right status" textFill="$x4" HBox.hgrow="NEVER"/>
+  </HBox>
 </VBox>

@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
@@ -46,6 +47,8 @@ public class TemplateController extends TemplateContextProvider implements Initi
     public TextField sourcesRootName;
     @FXML
     public Label fileName;
+    @FXML
+    public VBox vBox;
     @FXML
     private Stage primaryStage;
 
@@ -84,8 +87,7 @@ public class TemplateController extends TemplateContextProvider implements Initi
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Template files (*.template)", "*.template");
         fileChooser.getExtensionFilters().add(extFilter);
-        File file = fileChooser.showOpenDialog(primaryStage);
-        this.file=file;
+        this.file= fileChooser.showOpenDialog(vBox.getScene().getWindow());
         fileName.setText(this.file.getName());
     }
 

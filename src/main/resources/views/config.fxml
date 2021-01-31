@@ -3,14 +3,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fx.controller.ConfigController">
-   <children>
-      <Label layoutX="126.0" layoutY="40.0" prefHeight="15.0" prefWidth="46.0" text="数据源" />
-      <TextArea fx:id="url" layoutX="188.0" layoutY="24.0" prefHeight="46.0" prefWidth="307.0" />
-      <Label layoutX="130.0" layoutY="95.0" prefHeight="15.0" prefWidth="46.0" text="用户名" />
-      <TextField fx:id="userName" layoutX="188.0" layoutY="91.0" />
-      <Label layoutX="128.0" layoutY="128.0" prefHeight="15.0" prefWidth="36.0" text="密码" />
-      <TextField fx:id="password" layoutX="188.0" layoutY="124.0" />
-      <Button layoutX="221.0" layoutY="164.0" mnemonicParsing="false" text="保存" onAction="#save"/>
-   </children>
+<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fx.controller.ConfigController">
+   <Label layoutX="126.0" layoutY="40.0" prefHeight="15.0" prefWidth="46.0" text="数据源"/>
+   <TextArea fx:id="url" layoutX="188.0" layoutY="24.0" prefHeight="46.0" prefWidth="307.0"/>
+   <Label layoutX="130.0" layoutY="95.0" prefHeight="15.0" prefWidth="46.0" text="用户名"/>
+   <TextField fx:id="userName" layoutX="188.0" layoutY="91.0"/>
+   <Label layoutX="128.0" layoutY="128.0" prefHeight="15.0" prefWidth="36.0" text="密码"/>
+   <TextField fx:id="password" layoutX="188.0" layoutY="124.0"/>
+   <Button layoutX="221.0" layoutY="164.0" mnemonicParsing="false" text="保存" onAction="#save"/>
 </AnchorPane>

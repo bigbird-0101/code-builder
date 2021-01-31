@@ -1,5 +1,6 @@
 package com.fpp.code.core.factory;
 
+import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.factory.config.TemplateRegisty;
 import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
@@ -73,8 +74,13 @@ public class DefaultTemplateRegistry implements TemplateRegisty {
         return templateMap.put(template.getTemplateName(),template);
     }
 
-    public void removeTemplate(String templateName){
+    public void removeTemplate(String templateName) throws CodeConfigException {
         templateMap.remove(templateName);
         templateNameSets.remove(templateName);
+    }
+
+    public void removeMultipleTemplate(String templateName) throws CodeConfigException {
+        multipleTemplateMap.remove(templateName);
+        multipleTemplateNameSets.remove(templateName);
     }
 }

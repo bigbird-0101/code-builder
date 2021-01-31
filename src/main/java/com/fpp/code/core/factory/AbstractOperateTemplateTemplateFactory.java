@@ -54,8 +54,11 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     }
 
     @Override
-    public void removeTemplate(String templateName) {
+    public void removeTemplate(String templateName) throws CodeConfigException {
+        Template template = getTemplate(templateName);
         super.removeTemplate(templateName);
+        //刷新模板到配置文件中
+        getEnvironment().removePropertySourceSerialize(new GeneratePropertySource<>(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE,template));
     }
 
     @Override
@@ -85,5 +88,13 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
         if(null!=multipleTemplate){
             multipleTemplate.getTemplates().forEach(Template::refresh);
         }
+    }
+
+    @Override
+    public void removeMultipleTemplate(String templateName) throws CodeConfigException {
+        MultipleTemplate multipleTemplate = getMultipleTemplate(templateName);
+        super.removeMultipleTemplate(templateName);
+        //刷新模板到配置文件中
+        getEnvironment().removePropertySourceSerialize(new GeneratePropertySource<>(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE,multipleTemplate));
     }
 }

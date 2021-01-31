@@ -3,32 +3,30 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="500.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fx.controller.TemplateController">
-  <children>
+<VBox fx:id="vBox" prefHeight="500.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fx.controller.TemplateController">
     <AnchorPane prefHeight="500.0" prefWidth="640.0" VBox.vgrow="ALWAYS">
-         <children>
-            <Label layoutX="82.0" layoutY="60.0" text="项目地址:" />
-            <TextArea fx:id="projectUrl" layoutX="182.0" layoutY="49.0" prefHeight="52.0" prefWidth="315.0" />
-            <Label layoutX="82.0" layoutY="128.0" text="模块名:" />
-            <TextField fx:id="moduleName" layoutX="182.0" layoutY="124.0" />
-            <Label layoutX="82.0" layoutY="170.0" text="源码包根路径名:" />
-            <TextField fx:id="sourcesRootName" layoutX="182.0" layoutY="166.0" />
-            <Label layoutX="83.0" layoutY="206.0" prefHeight="15.0" prefWidth="67.0" text="源码包名:" />
-            <TextField fx:id="srcPackageName" layoutX="182.0" layoutY="202.0" />
-            <Label layoutX="70.0" layoutY="244.0" prefHeight="15.0" prefWidth="100.0" text="选择模板文件：" />
-            <Button layoutX="182.0" layoutY="241.0" mnemonicParsing="false" onAction="#selectTemplateFile" text="选择" />
-             <Label layoutX="88.0" layoutY="289.0" prefHeight="15.0" prefWidth="59.0" text="模板名:" />
-            <Label layoutX="72.0" layoutY="330.0" prefHeight="15.0" prefWidth="91.0" text="能否控制方法：" />
-            <RadioButton fx:id="trueHandleRadio" layoutX="182.0" layoutY="329.0" mnemonicParsing="false" text="是" />
-             <RadioButton fx:id="falseHandleRadio" layoutX="239.0" layoutY="329.0" mnemonicParsing="false" text="否" />
-            <TextField fx:id="templateName" layoutX="182.0" layoutY="284.0" />
-            <Label layoutX="72.0" layoutY="363.0" prefHeight="15.0" prefWidth="83.0" text="文件后缀名：" />
-            <TextField fx:id="fileSuffixName" layoutX="182.0" layoutY="361.0" />
-             <Label layoutX="70.0" layoutY="396.0" text="文件前缀名策略:" />
-             <FlowPane fx:id="filePrefixNameStrategy" layoutX="180.0" layoutY="396.0" />
-            <Button layoutX="185.0" layoutY="425.0" mnemonicParsing="false" onAction="#createTemplate" prefHeight="23.0" prefWidth="75.0" text="创建" />
-            <Label layoutX="240.0" fx:id="fileName" layoutY="245.0" prefHeight="15.0" prefWidth="176.0"/>
-         </children>
+        <Label layoutX="82.0" layoutY="60.0" text="项目地址:"/>
+        <TextArea fx:id="projectUrl" layoutX="182.0" layoutY="49.0" prefHeight="52.0" prefWidth="315.0"/>
+        <Label layoutX="82.0" layoutY="128.0" text="模块名:"/>
+        <TextField fx:id="moduleName" layoutX="182.0" layoutY="124.0"/>
+        <Label layoutX="82.0" layoutY="170.0" text="源码包根路径名:"/>
+        <TextField fx:id="sourcesRootName" layoutX="182.0" layoutY="166.0"/>
+        <Label layoutX="83.0" layoutY="206.0" prefHeight="15.0" prefWidth="67.0" text="源码包名:"/>
+        <TextField fx:id="srcPackageName" layoutX="182.0" layoutY="202.0"/>
+        <Label layoutX="70.0" layoutY="244.0" prefHeight="15.0" prefWidth="100.0" text="选择模板文件："/>
+        <Button layoutX="182.0" layoutY="241.0" mnemonicParsing="false" onAction="#selectTemplateFile" text="选择"/>
+        <Label layoutX="88.0" layoutY="289.0" prefHeight="15.0" prefWidth="59.0" text="模板名:"/>
+        <Label layoutX="72.0" layoutY="330.0" prefHeight="15.0" prefWidth="91.0" text="能否控制方法："/>
+        <RadioButton fx:id="trueHandleRadio" layoutX="182.0" layoutY="329.0" mnemonicParsing="false" text="是"/>
+        <RadioButton fx:id="falseHandleRadio" layoutX="239.0" layoutY="329.0" mnemonicParsing="false" text="否"/>
+        <TextField fx:id="templateName" layoutX="182.0" layoutY="284.0"/>
+        <Label layoutX="72.0" layoutY="363.0" prefHeight="15.0" prefWidth="83.0" text="文件后缀名："/>
+        <TextField fx:id="fileSuffixName" layoutX="182.0" layoutY="361.0"/>
+        <Label layoutX="70.0" layoutY="396.0" text="文件前缀名策略:"/>
+        <FlowPane fx:id="filePrefixNameStrategy" layoutX="180.0" layoutY="396.0"/>
+        <Button layoutX="185.0" layoutY="425.0" mnemonicParsing="false" onAction="#createTemplate" prefHeight="23.0"
+                prefWidth="75.0" text="创建"/>
+        <Label layoutX="240.0" fx:id="fileName" layoutY="245.0" prefHeight="15.0" prefWidth="176.0"/>
     </AnchorPane>
-  </children>
 </VBox>

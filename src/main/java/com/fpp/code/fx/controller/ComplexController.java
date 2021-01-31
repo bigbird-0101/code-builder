@@ -4,11 +4,13 @@ import com.fpp.code.Main;
 import com.fpp.code.common.AlertUtil;
 import com.fpp.code.common.DbUtil;
 import com.fpp.code.common.Utils;
+import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.config.CoreConfig;
 import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.domain.DataSourceConfig;
 import com.fpp.code.core.domain.DefinedFunctionDomain;
 import com.fpp.code.core.domain.ProjectTemplateInfoConfig;
+import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.filebuilder.DefaultFileBuilder;
 import com.fpp.code.core.filebuilder.FileAppendSuffixCodeBuilderStrategy;
 import com.fpp.code.core.filebuilder.FileBuilder;
@@ -16,7 +18,6 @@ import com.fpp.code.core.filebuilder.FileCodeBuilderStrategy;
 import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResolver;
 import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
 import com.fpp.code.fx.aware.TemplateContextProvider;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -45,7 +46,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
     private Logger logger = LogManager.getLogger(getClass());
 
     @FXML
-    private ListView listViewTemplate;
+    public ListView<Label> listViewTemplate;
 
     @FXML
     private Pane pane;
@@ -64,11 +65,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
     private List<String> tableSelected = new ArrayList<>(10);
     private static boolean isSelectedAllTable = false;
     private TextField selectedTable;
-    private final Insets insets=new Insets(0,10,10,0);
-
-    public ListView getListViewTemplate() {
-        return listViewTemplate;
-    }
+    private final Insets insets = new Insets(0, 10, 10, 0);
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -78,47 +75,56 @@ public class ComplexController extends TemplateContextProvider implements Initia
         listViewTemplate.prefWidthProperty().bind(pane.widthProperty());
         //高度绑定为Pane高度
         listViewTemplate.prefHeightProperty().bind(pane.heightProperty());
-        ObservableList<Label> apiList = FXCollections.observableArrayList();
+        ObservableList<Label> apiList = listViewTemplate.getItems();
         Set<String> multipleTemplateNames = getTemplateContext().getMultipleTemplateNames();
         multipleTemplateNames.forEach(multipleTemplateName -> {
             Label label = new Label(multipleTemplateName);
             label.setTextAlignment(TextAlignment.CENTER);
-            label.setOnMouseClicked(event -> {
-                Main.userOperateCache.setTemplateNameSelected((label.getText()));
-                try {
-                    Parent root = new FXMLLoader(getClass().getResource("/views/templates_operate.fxml")).load();
-                    Scene scene = new Scene(root);
-                    CheckBox checkBox = (CheckBox) scene.lookup("#isAllTable");
-                    checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                        isSelectedAllTable = newValue;
-                    });
-                    selectedTable = (TextField) scene.lookup("#targetTable");
-                    content.getChildren().clear();
-                    content.getChildren().add(root);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
             apiList.add(label);
         });
         listViewTemplate.setItems(apiList);
         listViewTemplate.getSelectionModel().select(0);
         listViewTemplate.requestFocus();
-        Main.userOperateCache.setTemplateNameSelected(((Label) listViewTemplate.getSelectionModel().getSelectedItem()).getText());
+        Main.userOperateCache.setTemplateNameSelected(listViewTemplate.getSelectionModel().getSelectedItem().getText());
+        doSelectMultiple();
+        listViewTemplate.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            Main.userOperateCache.setTemplateNameSelected((newValue.getText()));
+            if (logger.isInfoEnabled()) {
+                logger.info("select template name {}", newValue.getText());
+            }
+            doSelectMultiple();
+        });
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem register = new MenuItem("删除");
+        register.setOnAction(event ->{
+            if(ButtonType.OK.getButtonData()==AlertUtil.showConfirm("您确定删除该组合模板吗").getButtonData()){
+                DefaultListableTemplateFactory defaultListableTemplateFactory= (DefaultListableTemplateFactory) getTemplateContext().getTemplateFactory();
+                try {
+                    defaultListableTemplateFactory.removeMultipleTemplate(listViewTemplate.getSelectionModel().getSelectedItem().getText());
+                    listViewTemplate.getItems().remove(listViewTemplate.getSelectionModel().getSelectedIndex());
+                } catch (CodeConfigException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        contextMenu.getItems().add(register);
+        listViewTemplate.setContextMenu(contextMenu);
+    }
+
+    private void doSelectMultiple() {
         try {
             Parent root = new FXMLLoader(getClass().getResource("/views/templates_operate.fxml")).load();
-            Scene scene = new Scene(root);
-            CheckBox checkBox = (CheckBox) scene.lookup("#isAllTable");
-            checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                isSelectedAllTable = newValue;
+            CheckBox checkBox = (CheckBox) root.lookup("#isAllTable");
+            checkBox.selectedProperty().addListener((o, old, newVal) -> {
+                isSelectedAllTable = newVal;
             });
-            selectedTable = (TextField) scene.lookup("#targetTable");
+            selectedTable = (TextField) root.lookup("#targetTable");
+            content.getChildren().clear();
             content.getChildren().add(root);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
     /**
      * 初始化所有表格名
@@ -136,7 +142,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         FlowPane flowPane = (FlowPane) scene.lookup("#filePrefixNameStrategy");
         ServiceLoader<TemplateFilePrefixNameStrategy> load = ServiceLoader.load(TemplateFilePrefixNameStrategy.class);
         for (TemplateFilePrefixNameStrategy next : load) {
-            RadioButton radioButton=new RadioButton(String.valueOf(next.getTypeValue()));
+            RadioButton radioButton = new RadioButton(String.valueOf(next.getTypeValue()));
             radioButton.setPadding(insets);
             flowPane.getChildren().add(radioButton);
         }
@@ -223,8 +229,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
         return new ProjectTemplateInfoConfig(definedFunctionDomains, TemplatesOperateController.selectTemplateGroup);
     }
 
@@ -251,7 +255,10 @@ public class ComplexController extends TemplateContextProvider implements Initia
     @FXML
     public void addMultipleTemplate() throws IOException {
         Stage secondWindow = new Stage();
-        Parent root = new FXMLLoader(getClass().getResource("/views/new_multiple_template.fxml")).load();
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/new_multiple_template.fxml"));
+        Parent root = fxmlLoader.load();
+        MultipleTemplateController multipleTemplateController = fxmlLoader.getController();
+        multipleTemplateController.setListViewTemplate(listViewTemplate);
         Scene scene = new Scene(root);
         secondWindow.setTitle("新建组合模板");
         secondWindow.setScene(scene);
