@@ -1,5 +1,7 @@
 package com.fpp.code.core.factory;
 
+import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
+
 import java.io.File;
 import java.util.Objects;
 
@@ -20,7 +22,7 @@ public class GenericTemplateDefinition extends AbstractTemplateDefinition {
 
     private boolean isHandleFunction;
 
-    private int filePrefixNameStrategy;
+    private TemplateFilePrefixNameStrategy filePrefixNameStrategy;
 
     private File templateFile;
 
@@ -87,11 +89,11 @@ public class GenericTemplateDefinition extends AbstractTemplateDefinition {
     }
 
     @Override
-    public int getFilePrefixNameStrategy() {
+    public TemplateFilePrefixNameStrategy getFilePrefixNameStrategy() {
         return filePrefixNameStrategy;
     }
 
-    public void setFilePrefixNameStrategy(int filePrefixNameStrategy) {
+    public void setFilePrefixNameStrategy(TemplateFilePrefixNameStrategy filePrefixNameStrategy) {
         this.filePrefixNameStrategy = filePrefixNameStrategy;
     }
 

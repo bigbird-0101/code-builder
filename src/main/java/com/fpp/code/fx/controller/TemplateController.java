@@ -6,9 +6,12 @@ import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.context.GenericTemplateContext;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.GenericTemplateDefinition;
+import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
+import com.fpp.code.core.template.TemplateFilePrefixNameStrategyFactory;
 import com.fpp.code.fx.aware.TemplateContextProvider;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -22,6 +25,7 @@ import java.io.FileInputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
+import java.util.ServiceLoader;
 
 /**
  * @author Administrator
@@ -50,11 +54,11 @@ public class TemplateController extends TemplateContextProvider implements Initi
     @FXML
     public VBox vBox;
     @FXML
+    public TextField filePrefixNameStrategyPattern;
+    @FXML
+    public FlowPane filePrefixNameStrategyPane;
+    @FXML
     private Stage primaryStage;
-
-    private ToggleGroup toggleGroup;
-
-    private ToggleGroup filePrefixNameStrategyToggleGroup;
 
     private Boolean isHandleFunction;
 
@@ -62,16 +66,25 @@ public class TemplateController extends TemplateContextProvider implements Initi
 
     private File file;
 
+    private final Insets insets = new Insets(0, 10, 10, 0);
+
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        toggleGroup=new ToggleGroup();
+        ToggleGroup toggleGroup = new ToggleGroup();
         trueHandleRadio.setToggleGroup(toggleGroup);
         falseHandleRadio.setToggleGroup(toggleGroup);
         toggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             RadioButton radioButton= (RadioButton) newValue;
             this.isHandleFunction=radioButton==trueHandleRadio;
         });
-        filePrefixNameStrategyToggleGroup=new ToggleGroup();
+        ServiceLoader<TemplateFilePrefixNameStrategy> load = ServiceLoader.load(TemplateFilePrefixNameStrategy.class);
+        for (TemplateFilePrefixNameStrategy next : load) {
+            RadioButton radioButton = new RadioButton(String.valueOf(next.getTypeValue()));
+            radioButton.setPadding(insets);
+            filePrefixNameStrategy.getChildren().add(radioButton);
+        }
+        ToggleGroup filePrefixNameStrategyToggleGroup=new ToggleGroup();
         filePrefixNameStrategy.getChildren().forEach(node -> {
             RadioButton radioButton= (RadioButton) node;
             radioButton.setToggleGroup(filePrefixNameStrategyToggleGroup);
@@ -79,6 +92,11 @@ public class TemplateController extends TemplateContextProvider implements Initi
         filePrefixNameStrategyToggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             RadioButton radioButton= (RadioButton) newValue;
             this.filePrefixNameStrategyValue=Integer.valueOf(radioButton.getText());
+            if(filePrefixNameStrategyValue==3){
+                filePrefixNameStrategyPane.setVisible(true);
+            }else{
+                filePrefixNameStrategyPane.setVisible(false);
+            }
         });
     }
 
@@ -96,10 +114,12 @@ public class TemplateController extends TemplateContextProvider implements Initi
         if(!check()){
             return;
         }
+        TemplateFilePrefixNameStrategyFactory templateFilePrefixNameStrategyFactory=new TemplateFilePrefixNameStrategyFactory();
         try {
             GenericTemplateContext templateContext = (GenericTemplateContext) getTemplateContext();
             GenericTemplateDefinition genericTemplateDefinition = new GenericTemplateDefinition();
-            genericTemplateDefinition.setFilePrefixNameStrategy(Utils.setIfNull(filePrefixNameStrategyValue, 1));
+            TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy = templateFilePrefixNameStrategyFactory.getTemplateFilePrefixNameStrategy(Utils.setIfNull(filePrefixNameStrategyValue, 1));
+            genericTemplateDefinition.setFilePrefixNameStrategy(templateFilePrefixNameStrategy);
             genericTemplateDefinition.setFileSuffixName(fileSuffixName.getText());
             genericTemplateDefinition.setHandleFunction(Utils.setIfNull(isHandleFunction, true));
             genericTemplateDefinition.setModule(moduleName.getText());

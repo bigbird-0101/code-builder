@@ -125,11 +125,14 @@ public abstract class AbstractEnvironment implements Environment {
 
     public void loadCoreConfig(String fileName) throws IOException {
         Properties pss = new OrderedProperties();
-        Reader reader = new BufferedReader(new InputStreamReader(CommonFileUtils.getConfigFileInput(fileName)));
+        Reader reader = new BufferedReader(new InputStreamReader(CommonFileUtils.getConfigFileInput(fileName), StandardCharsets.UTF_8));
         try {
             pss.load(reader);
         } finally {
             reader.close();
+        }
+        if(logger.isInfoEnabled()){
+            logger.info("加载配置环境 {}",pss);
         }
         LinkedHashMap<String, String> properties = new LinkedHashMap<>(pss.size());
         pss.stringPropertyNames().forEach((k) -> {

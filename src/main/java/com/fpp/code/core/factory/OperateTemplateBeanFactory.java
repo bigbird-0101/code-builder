@@ -24,7 +24,7 @@ public interface OperateTemplateBeanFactory extends TemplateFactory {
      * @param templateName
      * @throws CodeConfigException
      */
-    void refreshTemplate(String templateName) throws CodeConfigException;
+    void refreshTemplate(String templateName) throws CodeConfigException, IOException;
 
     /**
      * 刷新容器中模板 将容器中的模板 并将模板写入到配置文件当中
@@ -36,7 +36,7 @@ public interface OperateTemplateBeanFactory extends TemplateFactory {
      * 删除模板
      * @param templateName
      */
-    void removeTemplate(String templateName) throws CodeConfigException;
+    void removeTemplate(String templateName) throws CodeConfigException, IOException;
 
     /**
      * 刷新容器中组合模板 将容器中的模板 从配置文件中重新刷新模板
@@ -48,12 +48,12 @@ public interface OperateTemplateBeanFactory extends TemplateFactory {
      * 刷新组合模板 将容器中的模板 并将模板写入到配置文件当中
      * @param templateName
      */
-    void refreshMultipleTemplate(String templateName) throws CodeConfigException;
+    void refreshMultipleTemplate(String templateName) throws CodeConfigException, IOException;
 
     /**
      * 删除组合模板
      * @param templateName 组合模板名
      */
-    void removeMultipleTemplate(String templateName) throws CodeConfigException;
+    void removeMultipleTemplate(String templateName) throws CodeConfigException, IOException;
 
 }

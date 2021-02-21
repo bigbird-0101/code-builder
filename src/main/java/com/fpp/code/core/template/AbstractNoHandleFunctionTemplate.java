@@ -6,6 +6,7 @@ import com.fpp.code.core.template.cache.Cache;
 import com.fpp.code.core.template.cache.CacheKey;
 import com.fpp.code.core.template.cache.impl.CacheLocalLruImpl;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -20,18 +21,18 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
 
     private Cache resolverResultCache=new CacheLocalLruImpl(156);
 
-    public AbstractNoHandleFunctionTemplate(String templeFileName, Environment environment) throws CodeConfigException {
+    public AbstractNoHandleFunctionTemplate(String templeFileName, Environment environment) throws CodeConfigException, IOException {
         super(templeFileName,environment);
         refresh();
     }
 
-    public AbstractNoHandleFunctionTemplate(String templeFileName) throws CodeConfigException {
+    public AbstractNoHandleFunctionTemplate(String templeFileName) throws CodeConfigException, IOException {
         super(templeFileName);
         refresh();
     }
 
     @Override
-    public void refresh() {
+    public void refresh() throws IOException {
         resolverResultCache.clear();
         this.templateContent = readTemplateFile();
     }

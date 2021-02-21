@@ -6,6 +6,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.fpp.code.common.Utils;
 import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.factory.config.TemplateDefinition;
+import com.fpp.code.core.template.PatternTemplateFilePrefixNameStrategy;
+import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
+import com.fpp.code.core.template.TemplateFilePrefixNameStrategyFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
@@ -110,6 +113,7 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
      */
     protected void analysisTemplateDefinition(String templatesFilePath, JSONArray templates, Set<TemplateDefinitionHolder> templateDefinitionHolders, Map<String, TemplateDefinition> templateDefinitionMapTemp) throws CodeConfigException {
         Collection<File> files = FileUtils.listFiles(new File(templatesFilePath), new SuffixFileFilter(DEFAULT_TEMPALTE_FILE_SUFFIX), null);
+        TemplateFilePrefixNameStrategyFactory templateFilePrefixNameStrategyFactory=new TemplateFilePrefixNameStrategyFactory();
         for(Object jsonObject:templates){
             JSONObject templateConfigInfo =(JSONObject) jsonObject;
             GenericTemplateDefinition genericTemplateDefinition =new GenericTemplateDefinition();
@@ -119,7 +123,11 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
             genericTemplateDefinition.setModule(templateConfigInfo.getString("module"));
             genericTemplateDefinition.setSourcesRoot(templateConfigInfo.getString("sourcesRoot"));
             genericTemplateDefinition.setSrcPackage(templateConfigInfo.getString("srcPackage"));
-            genericTemplateDefinition.setFilePrefixNameStrategy(templateConfigInfo.getIntValue("filePrefixNameStrategy"));
+            TemplateFilePrefixNameStrategy filePrefixNameStrategy = templateFilePrefixNameStrategyFactory.getTemplateFilePrefixNameStrategy(templateConfigInfo.getIntValue("filePrefixNameStrategy"));
+            if(filePrefixNameStrategy instanceof PatternTemplateFilePrefixNameStrategy){
+                ((PatternTemplateFilePrefixNameStrategy) filePrefixNameStrategy).setPattern(templateConfigInfo.getString("filePrefixNameStrategyPattern"));
+            }
+            genericTemplateDefinition.setFilePrefixNameStrategy(filePrefixNameStrategy);
             String templateName = templateConfigInfo.getString("name");
             if(Utils.isEmpty(templateName)){
                 throw new CodeConfigException("模板名字不允许为空");

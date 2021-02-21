@@ -16,13 +16,14 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
  * @author Administrator
  */
 public class Main extends Application {
-    public static final UserOperateCache userOperateCache=new UserOperateCache();
+    public static final UserOperateCache USER_OPERATE_CACHE=new UserOperateCache();
     private static Logger logger= LogManager.getLogger(Main.class);
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -46,10 +47,17 @@ public class Main extends Application {
     @Override
     public void init() throws Exception {
         Parameters parameters = getParameters();
+        List<String> raw = parameters.getRaw();
         JFramePageEnvironment environment=new JFramePageEnvironment();
-        environment.setCoreConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\conf\\code.properties");
-        environment.setTemplateConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\conf\\templates2.0.json");
-        environment.setTemplatesPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\data\\templates");
+        if(raw.isEmpty()) {
+            environment.setCoreConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\conf\\code.properties");
+            environment.setTemplateConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\conf\\templates.json");
+            environment.setTemplatesPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\data\\templates");
+        }else{
+            environment.setCoreConfigPath(raw.get(0));
+            environment.setTemplateConfigPath(raw.get(1));
+            environment.setTemplatesPath(raw.get(2));
+        }
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         TemplateContextProvider.setTemplateContext(genericTemplateContext);
     }

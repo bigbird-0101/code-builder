@@ -16,7 +16,6 @@ import com.fpp.code.core.filebuilder.FileAppendSuffixCodeBuilderStrategy;
 import com.fpp.code.core.filebuilder.FileBuilder;
 import com.fpp.code.core.filebuilder.FileCodeBuilderStrategy;
 import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResolver;
-import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
 import com.fpp.code.fx.aware.TemplateContextProvider;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -26,7 +25,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
@@ -37,7 +35,10 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 /**
  * @author fpp
@@ -85,10 +86,10 @@ public class ComplexController extends TemplateContextProvider implements Initia
         listViewTemplate.setItems(apiList);
         listViewTemplate.getSelectionModel().select(0);
         listViewTemplate.requestFocus();
-        Main.userOperateCache.setTemplateNameSelected(listViewTemplate.getSelectionModel().getSelectedItem().getText());
+        Main.USER_OPERATE_CACHE.setTemplateNameSelected(listViewTemplate.getSelectionModel().getSelectedItem().getText());
         doSelectMultiple();
         listViewTemplate.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            Main.userOperateCache.setTemplateNameSelected((newValue.getText()));
+            Main.USER_OPERATE_CACHE.setTemplateNameSelected((newValue.getText()));
             if (logger.isInfoEnabled()) {
                 logger.info("select template name {}", newValue.getText());
             }
@@ -102,7 +103,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 try {
                     defaultListableTemplateFactory.removeMultipleTemplate(listViewTemplate.getSelectionModel().getSelectedItem().getText());
                     listViewTemplate.getItems().remove(listViewTemplate.getSelectionModel().getSelectedIndex());
-                } catch (CodeConfigException e) {
+                } catch (CodeConfigException | IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -139,13 +140,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
         Parent root = new FXMLLoader(getClass().getResource("/views/new_template.fxml")).load();
         Scene scene = new Scene(root);
         secondWindow.setTitle("新建模板");
-        FlowPane flowPane = (FlowPane) scene.lookup("#filePrefixNameStrategy");
-        ServiceLoader<TemplateFilePrefixNameStrategy> load = ServiceLoader.load(TemplateFilePrefixNameStrategy.class);
-        for (TemplateFilePrefixNameStrategy next : load) {
-            RadioButton radioButton = new RadioButton(String.valueOf(next.getTypeValue()));
-            radioButton.setPadding(insets);
-            flowPane.getChildren().add(radioButton);
-        }
         secondWindow.setScene(scene);
         secondWindow.show();
     }
@@ -197,6 +191,9 @@ public class ComplexController extends TemplateContextProvider implements Initia
             }
             ProjectTemplateInfoConfig projectTemplateInfoConfig = getProjectTemplateInfoConfig();
             CoreConfig coreConfig = new CoreConfig(getDataSourceConfig(getTemplateContext().getEnvironment()), projectTemplateInfoConfig);
+            if(logger.isInfoEnabled()) {
+                logger.info("选中的模板名 {}", TemplatesOperateController.selectTemplateGroup.keySet());
+            }
             for (String tableName : tableSelected) {
                 for (String templateName : TemplatesOperateController.selectTemplateGroup.keySet()) {
                     fileBuilder.build(coreConfig, tableName, getTemplateContext().getTemplate(templateName));

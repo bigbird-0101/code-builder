@@ -7,6 +7,7 @@ import com.fpp.code.core.factory.config.MultipleTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.template.*;
 
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -16,17 +17,12 @@ import java.util.Set;
  */
 public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTemplateFactory implements OperateTemplateBeanFactory {
     @Override
-    public Template createTemplate(String templateName, TemplateDefinition templateDefinition) throws CodeConfigException {
+    public Template createTemplate(String templateName, TemplateDefinition templateDefinition) throws CodeConfigException, IOException {
         Template template;
         if(templateDefinition.isHandleFunction()){
             template=new DefaultHandleFunctionTemplate();
         }else{
             template=new DefaultNoHandleFunctionTemplate();
-        }
-        if (templateDefinition.getFilePrefixNameStrategy() == 1) {
-            template.setTemplateFilePrefixNameStrategy(new DefaultTemplateFilePrefixNameStrategy());
-        } else if (templateDefinition.getFilePrefixNameStrategy() == 2) {
-            template.setTemplateFilePrefixNameStrategy(new OnlySubFourTemplateFilePrefixNameStrategy());
         }
         template.setProjectUrl(templateDefinition.getProjectUrl());
         template.setModule(templateDefinition.getModule());
@@ -41,7 +37,7 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     }
 
     @Override
-    protected MultipleTemplate createMultipleTemplate(String templateName, MultipleTemplateDefinition multipleTemplateDefinition) throws CodeConfigException {
+    protected MultipleTemplate createMultipleTemplate(String templateName, MultipleTemplateDefinition multipleTemplateDefinition) throws CodeConfigException, IOException {
         MultipleTemplate multipleTemplate=new GenericMultipleTemplate();
         multipleTemplate.setTemplateName(templateName);
         Set<Template> templates=new LinkedHashSet<>();
@@ -54,7 +50,7 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     }
 
     @Override
-    public void removeTemplate(String templateName) throws CodeConfigException {
+    public void removeTemplate(String templateName) throws CodeConfigException, IOException {
         Template template = getTemplate(templateName);
         super.removeTemplate(templateName);
         //刷新模板到配置文件中
@@ -62,7 +58,7 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     }
 
     @Override
-    public void refreshTemplate(String templateName) throws CodeConfigException {
+    public void refreshTemplate(String templateName) throws CodeConfigException, IOException {
         getTemplate(templateName).refresh();
     }
 
@@ -83,15 +79,17 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     }
 
     @Override
-    public void refreshMultipleTemplate(String templateName) throws CodeConfigException {
+    public void refreshMultipleTemplate(String templateName) throws CodeConfigException, IOException {
         MultipleTemplate multipleTemplate = getMultipleTemplate(templateName);
         if(null!=multipleTemplate){
-            multipleTemplate.getTemplates().forEach(Template::refresh);
+            for(Template template:multipleTemplate.getTemplates()){
+                template.refresh();
+            }
         }
     }
 
     @Override
-    public void removeMultipleTemplate(String templateName) throws CodeConfigException {
+    public void removeMultipleTemplate(String templateName) throws CodeConfigException, IOException {
         MultipleTemplate multipleTemplate = getMultipleTemplate(templateName);
         super.removeMultipleTemplate(templateName);
         //刷新模板到配置文件中

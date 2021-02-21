@@ -6,6 +6,8 @@ import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.config.MultipleTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 
+import java.io.IOException;
+
 /**
  * @author fpp
  * @version 1.0
@@ -13,7 +15,7 @@ import com.fpp.code.core.factory.config.TemplateDefinition;
  */
 public class GenericTemplateContext extends AbstractTemplateContext {
     private DefaultListableTemplateFactory defaultListableTemplateFactory;
-    public GenericTemplateContext(Environment environment) throws CodeConfigException {
+    public GenericTemplateContext(Environment environment) throws CodeConfigException, IOException {
         super(environment);
         this.defaultListableTemplateFactory=new DefaultListableTemplateFactory();
         this.defaultListableTemplateFactory.setEnvironment(environment);

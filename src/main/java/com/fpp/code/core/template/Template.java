@@ -1,6 +1,7 @@
 package com.fpp.code.core.template;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -117,6 +118,7 @@ public interface Template{
 
     /**
      * 刷新当前模板 重新加载模板中的内容
+     * @throws IOException 模板文件不存在异常
      */
-    void refresh();
+    void refresh() throws IOException;
 }

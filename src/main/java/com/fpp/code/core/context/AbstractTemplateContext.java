@@ -4,16 +4,21 @@ import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.factory.*;
-import com.fpp.code.core.factory.config.*;
+import com.fpp.code.core.factory.config.MultipleTemplateDefinitionRegistry;
+import com.fpp.code.core.factory.config.TemplateDefinitionRegistry;
 import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.Set;
 
 /**
  * @author fpp
  */
 public abstract class AbstractTemplateContext implements ConfigurableTemplateContext, TemplateDefinitionRegistry, MultipleTemplateDefinitionRegistry {
+    private static Logger logger= LogManager.getLogger(AbstractTemplateContext.class);
 
     private Environment environment;
 
@@ -29,12 +34,12 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
     }
 
     @Override
-    public Template getTemplate(String templateName) throws CodeConfigException {
+    public Template getTemplate(String templateName) throws CodeConfigException, IOException {
         return getTemplateFactory().getTemplate(templateName);
     }
 
     @Override
-    public MultipleTemplate getMultipleTemplate(String templateName) throws CodeConfigException {
+    public MultipleTemplate getMultipleTemplate(String templateName) throws CodeConfigException, IOException {
         return getTemplateFactory().getMultipleTemplate(templateName);
     }
 
@@ -51,10 +56,13 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
     }
 
     @Override
-    public void refresh() throws CodeConfigException {
+    public void refresh() throws CodeConfigException, IOException {
         //do scan file package to get TemplateDefinition
         try {
             environment.parse();
+            if(logger.isInfoEnabled()) {
+                logger.info("Environment {}", environment);
+            }
             DefaultListableTemplateFactory templateFactory = (DefaultListableTemplateFactory) getTemplateFactory();
             AllTemplateDefinitionHolder allTemplateDefinitionHolder = allTypeTemplateScanner.scanner(environment.getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH), environment.getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH));
             //get TemplateFactory
@@ -62,12 +70,12 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
             registerTemplateDefinitionAndMultipleTemplateDefinition(allTemplateDefinitionHolder, templateFactory);
             //Instantiate all remaining template
             finishTemplateFactoryInitialization(templateFactory);
-        } catch (CodeConfigException e) {
+        } catch (CodeConfigException | IOException e) {
             throw e;
         }
     }
 
-    protected void finishTemplateFactoryInitialization(DefaultListableTemplateFactory templateFactory) throws CodeConfigException {
+    protected void finishTemplateFactoryInitialization(DefaultListableTemplateFactory templateFactory) throws CodeConfigException, IOException {
         templateFactory.preInstantiateTemplates();
     }
 

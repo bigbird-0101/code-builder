@@ -5,6 +5,7 @@ import com.fpp.code.core.factory.config.TemplateRegisty;
 import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -74,12 +75,12 @@ public class DefaultTemplateRegistry implements TemplateRegisty {
         return templateMap.put(template.getTemplateName(),template);
     }
 
-    public void removeTemplate(String templateName) throws CodeConfigException {
+    public void removeTemplate(String templateName) throws CodeConfigException, IOException {
         templateMap.remove(templateName);
         templateNameSets.remove(templateName);
     }
 
-    public void removeMultipleTemplate(String templateName) throws CodeConfigException {
+    public void removeMultipleTemplate(String templateName) throws CodeConfigException, IOException {
         multipleTemplateMap.remove(templateName);
         multipleTemplateNameSets.remove(templateName);
     }

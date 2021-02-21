@@ -6,12 +6,15 @@ import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.config.Environment;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -89,11 +92,12 @@ public abstract class AbstractTemplate implements Template {
      * @return 模板文件的内容
      * @throws IOException
      */
-    public String readTemplateFile(){
+    public String readTemplateFile() throws IOException {
         if(null==templateFile){
             return "";
         }
-        return AbstractEnvironment.getTemplateContent(templateFile.getAbsolutePath());
+        String result = IOUtils.toString(new FileInputStream(templateFile), StandardCharsets.UTF_8);
+        return AbstractEnvironment.putTemplateContent(templateFile.getAbsolutePath(),result);
     }
 
     @Override

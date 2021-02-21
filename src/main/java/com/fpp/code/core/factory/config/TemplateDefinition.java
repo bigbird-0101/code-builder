@@ -1,5 +1,7 @@
 package com.fpp.code.core.factory.config;
 
+import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
+
 import java.io.File;
 
 /**
@@ -41,7 +43,7 @@ public interface TemplateDefinition {
      * 文件前缀名命名策略
      * @return
      */
-    int getFilePrefixNameStrategy();
+    TemplateFilePrefixNameStrategy getFilePrefixNameStrategy();
 
     /**
      * 获取模板文件

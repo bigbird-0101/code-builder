@@ -7,6 +7,7 @@ import com.fpp.code.core.factory.config.MultipleTemplateDefinitionRegistry;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinitionRegistry;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class DefaultListableTemplateFactory extends AbstractOperateTemplateTempl
     }
 
     @Override
-    public void preInstantiateTemplates() throws CodeConfigException {
+    public void preInstantiateTemplates() throws CodeConfigException, IOException {
         //初始化 模板
         for (String templateName:templateDefinitionSets){
             getTemplate(templateName);

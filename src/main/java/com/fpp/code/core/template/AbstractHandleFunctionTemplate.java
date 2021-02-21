@@ -7,6 +7,7 @@ import com.fpp.code.core.template.cache.Cache;
 import com.fpp.code.core.template.cache.CacheKey;
 import com.fpp.code.core.template.cache.impl.CacheLocalLruImpl;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -24,19 +25,19 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
 
     protected ResolverStrategy resolverStrategy;
 
-    public AbstractHandleFunctionTemplate(String templeFileName) throws CodeConfigException {
+    public AbstractHandleFunctionTemplate(String templeFileName) throws CodeConfigException, IOException {
         super(templeFileName);
         refresh();
     }
 
 
-    public AbstractHandleFunctionTemplate(String templeFileName, Environment environment) throws CodeConfigException {
+    public AbstractHandleFunctionTemplate(String templeFileName, Environment environment) throws CodeConfigException, IOException {
         super(templeFileName,environment);
         refresh();
     }
 
     @Override
-    public void refresh() {
+    public void refresh() throws IOException {
         resolverResultCache.clear();
         if(null!=getTemplateFile()) {
             String templateFileContent = readTemplateFile();

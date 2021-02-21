@@ -64,7 +64,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             templates.prefWidthProperty().bind(box.widthProperty());
             templates.prefHeightProperty().bind(box.heightProperty());
             initTemplateConfig();
-            String templateNameSelected = Main.userOperateCache.getTemplateNameSelected();
+            String templateNameSelected = Main.USER_OPERATE_CACHE.getTemplateNameSelected();
             MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(templateNameSelected);
             if (null != multipleTemplate) {
                 int size = 1;
@@ -230,7 +230,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 getTemplateContext().getEnvironment().refreshPropertySourceSerialize(new GeneratePropertySource<>(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, JSON.toJSONString(selectTemplateGroup)));
             }
             AlertUtil.showInfo("保存成功");
-        } catch (CodeConfigException e) {
+        } catch (CodeConfigException | IOException e) {
             AlertUtil.showError("save config error :" + e.getMessage());
             e.printStackTrace();
         }
@@ -240,10 +240,10 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     public void refreshTemplate() {
         try {
             OperateTemplateBeanFactory operateTemplateBeanFactory = (OperateTemplateBeanFactory) getTemplateContext().getTemplateFactory();
-            MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(Main.userOperateCache.getTemplateNameSelected());
+            MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(Main.USER_OPERATE_CACHE.getTemplateNameSelected());
             operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate.getTemplateName());
             AlertUtil.showInfo("刷新成功");
-        } catch (CodeConfigException e) {
+        } catch (CodeConfigException | IOException e) {
             AlertUtil.showError("refresh error :" + e.getMessage());
             e.printStackTrace();
         }
