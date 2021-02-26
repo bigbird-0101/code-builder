@@ -2,7 +2,7 @@ package com.fpp.code.common;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fpp.code.template.TemplateResolveException;
+import com.fpp.code.core.template.TemplateResolveException;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +28,22 @@ public class Utils {
 	public static boolean isNotEmpty(String str) {
 		return !isEmpty(str);
 	}
+
+	public static <T> T setIfNull(T source,T defaultValue){
+	    if(null==source||(source instanceof String&&isEmpty((String)source))){
+	        return defaultValue;
+        }else{
+	        return source;
+        }
+    }
+
+	public static String convertTruePathIfNotNull(String source){
+		if(isNotEmpty(source)){
+			return source.replaceAll("//","/").replaceAll("\\\\","/");
+		}
+		return source;
+	}
+
 
 	public static String getSystemUpLoadFile(String state) {
 		String os = System.getProperty("os.name");
@@ -453,7 +469,8 @@ public class Utils {
 	 * @return
 	 */
 	public static String getFileNameByPath(String path,String pattern){
-		return Arrays.stream(path.split(pattern)).map(Utils::firstUpperCase).collect(Collectors.joining());
+		String[] split = path.split(pattern);
+		return Arrays.stream(split).map(Utils::firstUpperCase).skip(split.length-1).collect(Collectors.joining());
 	}
 
 	/**
@@ -530,9 +547,10 @@ public class Utils {
 //		AbstractTemplateLangResolver dd=new IfTemplateResolver(ab);
 //		TableInfo.ColumnInfo a=new TableInfo.ColumnInfo("id", "id", "Integer", "id", false, 10, false, false, "INTEGER");
 //		computeIfPostfixExpression(getIfPostfixExpression("!column.isNull==\"String\""),a,dd);
-		String a=" <<tool.firstUpper(id)>>\r\n   ";
-		String b=getLastNewLineNull(a);
-		System.out.println(b);
+//		String a=" <<tool.firstUpper(id)>>\r\n   ";
+//		String b=getLastNewLineNull(a);
+//		System.out.println(b);
+		System.out.println(getFileNameByPath("com/aa/bb","\\/"));
 	}
 
 }

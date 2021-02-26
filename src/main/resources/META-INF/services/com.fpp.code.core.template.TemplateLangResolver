@@ -1,0 +1,3 @@
+com.fpp.code.core.template.ForeachTemplateResolver
+com.fpp.code.core.template.IfTemplateResolver
+com.fpp.code.core.template.ToolTemplateResolver
