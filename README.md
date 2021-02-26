@@ -1,10 +1,10 @@
 ##### 前言
 
-Spring项目代码生成器.
+代码生成器.
 
 ###### 亮点 
 
-1.根据数据表格和自定义的模板，生成任意你想生成的代码，避免项目中重复写相似的，大大提高开发效率。
+1.根据数据表格或自定义变量,和自定义的模板，生成任意你想生成的代码，避免项目中重复写相似的，大大提高开发效率。
 
 2.动态操作模板中的每一个方法，生成你想生成目标文件的任意方法。
 
@@ -14,11 +14,11 @@ Spring项目代码生成器.
 
 ###### 1.通过代码直接启动
 
-启动StartMain main方法
+启动com.fpp.Main main方法
 
-###### 2.下载 spring-code压缩包 
+###### 2.下载 codebuilder压缩包 
 
-解压点击启动spring-code.bat
+解压点击启动bin/CodeBuilder.bat
 
 **参数详解**
 
@@ -27,8 +27,7 @@ Spring项目代码生成器.
 1. `code.datasource.url`  数据源地址
 2. `code.datasource.username` 数据源用户名
 3. `code.datasource.password` 数据源密码
-4. `code.project.file.project-complete-url` 项目的完整地址  项目地址+源码路径  
-5. `code.project.file.project-target-packageurl`  源码的实际路径
+4. `code.project.file.project-author`  项目的作者
 
 `2.templates.json 配置文件详解`
 
@@ -36,12 +35,14 @@ Spring项目代码生成器.
 
 1. `fileName`  模板文件名(必须与data/template文件名一致)
 2. `name` 模板的名字
-3. `path` 最终生成代码的路径(注意该路径是基于项目+代码路径的)
 4. `isHandleFunction`  是否是能够控制模板中的方法的模板 1-是 0-否
-5. `filePrefixNameStrategyType` 文件的前缀命令策略   （默认）0-从表格名第四个字符开始+path的首字母大写  1-从表格名的第四个字符开始
+5. `filePrefixNameStrategy` 文件的前缀命令策略   （默认）1-从表格名第四个字符开始+源码路径最后一个路径首字母大写  2-从表格名的第四个字符开始 3-根据前缀名表达式生成前缀名
+5. `filePrefixNameStrategyPattern`  当filePrefixNameStrategy=3 时 这个为最终生成文件的前缀名表达式  `*{tableInfo.domainName}*RpcImplService` 当 tableInfo.domainName ==你好时  此时文件前缀名为: `你好RpcImplService`
 6. `fileSuffixName` 文件的后缀名  默认 java
-
-点击启动`spring-code.bat`
+7. `ProjectUrl` 项目路径
+8. `Module` 模块路径
+9. `sourcesRoot` 源码根路径
+10. `srcPackage` 最终源码包路径
 
 与easy-code 对比
 
@@ -55,7 +56,11 @@ Spring项目代码生成器.
 
 1.比如如果一个类中你只想生成其中一个方法，或者在某个类中通过操作界面动态的添加代码。
 
-2.以某个方法作为模板，然后通过界面修改方法，加到其他模板类中
+   例如 选中Controller模板，如果Controller 模板已生成文件  选择在文件的末尾处生成 ，那么将在 Controller 模板已生成文件末尾添加一段代码。
+
+2.以某个方法作为模板，然后通过操作界面修改方法，加到其他模板类中
+
+  例如 以Controller模板 的getById 作为模板  填写字段 age,name ,因子为id,那么将在Controller 模板已生成文件末尾添加  getByAgeAndName方法的实现 （以getById模板为基础)
 
 ##### 如何自定义解析语法呢？
 
@@ -81,9 +86,7 @@ Spring项目代码生成器.
 
 ###### if语句
 
-column.size对应
-
-TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的属性 详情请查看代码
+column.size对应TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的属性 详情请查看代码
 
 例子
 
@@ -124,7 +127,12 @@ TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的属性 详情请�
 
 默认实现是 `ToolTemplateResolver` 的 `Function`
 
-
+1.  `*{tool.firstUpper(params)}*`  首字母大写  *{tool.firstUpper(ab)}* 首字母大写 Ab
+2. `*{tool.firstLower(params)}*`  首字母大写  *{tool.firstLower(Ab)}* 首字母大写 ab
+3. `*{tool.currentDateTime()}*` 当前系统日期时间
+4. `*{tool.author()}*` 获取code.properties 中配置的作者
+5. `*{tool.allSqlColumn()}*` 获取 当前数据表格的所有字段(用于拼接sql)
+6. `*{tool.upLevelPath(params)}*` 获取 上一级路径 比如包名 com.zzd 的上一级就是 com,com/zzd 为 com
 
 如有疑问请加群 `948896114`
 
