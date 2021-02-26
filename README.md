@@ -23,6 +23,8 @@
 ![image](https://github.com/bigbird-0101/code-builder/blob/master/images/projectfile.png)
 
 **可修改data中的模板(模板必须为.template 后缀名) 达到修改生成的内容**
+项目启动后
+![image](https://github.com/bigbird-0101/code-builder/blob/master/images/projectfile2.png)
 
 ###### **参数详解**
 
