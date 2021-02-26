@@ -37,7 +37,12 @@ public class DefaultTemplateResolver extends AbstractTemplateResolver{
     public String resolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
         String tempResult=this.replace(replaceKeyValue, doResolver(srcData,replaceKeyValue));
         Set<String>  templateVariableKeySet=getTemplateVariableKey(tempResult);
-        return analysisBody(templateVariableKeySet,"tableInfo",replaceKeyValue.get("tableInfo") ,tempResult);
+        Object tableInfo = replaceKeyValue.get("tableInfo");
+        if(null!=tableInfo) {
+            return analysisBody(templateVariableKeySet, "tableInfo", tableInfo, tempResult);
+        }else{
+            return tempResult;
+        }
     }
 
     private String doResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {

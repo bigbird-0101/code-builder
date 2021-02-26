@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,30 +27,20 @@ public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy 
     /**
      * 文件代码生成器策略
      *
-     * @param coreConfig   核心配置文件
-     * @param template 模板对象
-     * @param tableName 表名
-     * @param fileNameBuilder 文件名构建器
      * @return
      */
     @Override
-    public String done(CoreConfig coreConfig, Template template, String tableName, FileNameBuilder fileNameBuilder) throws SQLException, ClassNotFoundException, TemplateResolveException {
-        Objects.requireNonNull(template,"模板对象不允许为空!");
-        Map<String, Object> temp = new HashMap<>(10);
-        TableInfo tableInfo= DbUtil.getTableInfo(coreConfig.getDataSourceConfig(),tableName);
-        tableInfo.setSavePath(template.getSrcPackage().replaceAll("\\/","."));
-        temp.put("tableInfo", tableInfo);
-        this.setCoreConfig(coreConfig);
-        this.setTemplate(template);
-        this.setFileNameBuilder(fileNameBuilder);
+    public String doneCode() throws TemplateResolveException {
+        Objects.requireNonNull(getTemplate(),"模板对象不允许为空!");
+        Template template = getTemplate();
         if(template instanceof AbstractHandleFunctionTemplate){
             AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
             handleFunctionTemplate.setResolverStrategy(this);
-            return handleFunctionTemplate.getTempleResult(temp);
+            return handleFunctionTemplate.getTemplateResult();
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
-            return template.getTempleResult(temp);
+            return template.getTemplateResult();
         }else{
-            return template.getTempleResult(temp);
+            return template.getTemplateResult();
         }
     }
 
@@ -58,8 +49,8 @@ public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy 
      *  创建新的文件
      */
     @Override
-    public void fileWrite(String code,String tableName) throws IOException {
-        String filePath=getFilePath(tableName);
+    public void fileWrite(String code) throws IOException {
+        String filePath=getFilePath();
         File a = new File(filePath);
         if (a.exists()) {
             filePath = filePath + "_1.txt";
@@ -70,7 +61,7 @@ public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy 
         }
         FileUtils.forceMkdirParent(a);
         FileOutputStream fops = new FileOutputStream(a);
-        fops.write(code.getBytes("utf-8"));
+        fops.write(code.getBytes(StandardCharsets.UTF_8));
         fops.flush();
         fops.close();
     }

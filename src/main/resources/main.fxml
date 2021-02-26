@@ -34,8 +34,8 @@
   <SplitPane fx:id="splitPane" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
     <StackPane>
       <Pane fx:id="pane">
-        <ListView fx:id="listViewTemplate">
-        </ListView>
+        <TreeView fx:id="listViewTemplate">
+        </TreeView>
       </Pane>
     </StackPane>
     <StackPane>

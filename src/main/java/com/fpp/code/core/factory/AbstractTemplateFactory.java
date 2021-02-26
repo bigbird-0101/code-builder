@@ -7,6 +7,7 @@ import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author fpp
@@ -31,6 +32,7 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
         MultipleTemplate multipleTemplate = getSingletonMultipleTemplate(templateName);
         if (null == multipleTemplate) {
             MultipleTemplateDefinition multipleTemplateDefinition = getMultipleTemplateDefinition(templateName);
+            Objects.requireNonNull(multipleTemplateDefinition,"not found "+templateName+" multiple template definition");
             multipleTemplate = createMultipleTemplate(templateName, multipleTemplateDefinition);
         }
         return multipleTemplate;
@@ -40,16 +42,15 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
         Template template = getSingletonTemplate(templateName);
         if (null == template) {
             TemplateDefinition templateDefinition = getTemplateDefinition(templateName);
+            Objects.requireNonNull(templateDefinition,"not found "+templateName+" template definition");
             template = createTemplate(templateName, templateDefinition);
         }
         return template;
     }
-
     @Override
     public void removeMultipleTemplate(String templateName) throws CodeConfigException, IOException {
         super.removeMultipleTemplate(templateName);
     }
-
     /**
      * 获取组合模板定义
      *

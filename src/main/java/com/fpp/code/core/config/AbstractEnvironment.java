@@ -46,7 +46,6 @@ public abstract class AbstractEnvironment implements Environment {
     public <T> T getProperty(String propertyKey, Class<T> targetClass) {
         return propertySourcesPropertyResolver.getProperty(propertyKey, targetClass);
     }
-
     public static String getTemplateContent(String teplateFileUrl) {
         return tepmlateFileUrlContentMapping.get(teplateFileUrl);
     }
@@ -104,7 +103,6 @@ public abstract class AbstractEnvironment implements Environment {
     protected void loadCoreConfig() throws IOException {
         loadCoreConfig(coreConfigPath);
     }
-
     protected void loadTemplatesPath() {
         Collection<File> files = FileUtils.listFiles(new File(templatesPath), new SuffixFileFilter(DEFAULT_TEMPALTE_FILE_SUFFIX), null);
         files.forEach(file -> {
@@ -121,7 +119,6 @@ public abstract class AbstractEnvironment implements Environment {
             }
         });
     }
-
 
     public void loadCoreConfig(String fileName) throws IOException {
         Properties pss = new OrderedProperties();
@@ -168,14 +165,14 @@ public abstract class AbstractEnvironment implements Environment {
                 if (propertySource.getSource() instanceof Template) {
                     Template template = (Template) propertySource.getSource();
                     int index = IsHaveTemplate(templates, template.getTemplateName());
-                    if(index>0) {
+                    if(index>=0) {
                         templates.remove(index);
                     }
                     templates.add(JSON.toJSON(template));
                 } else if (propertySource.getSource() instanceof MultipleTemplate) {
                     MultipleTemplate template = (MultipleTemplate) propertySource.getSource();
                     int index = IsHaveTemplate(multipleTemplates, template.getTemplateName());
-                    if(index>0) {
+                    if(index>=0) {
                         multipleTemplates.remove(index);
                     }
                     JSONObject jsonObject = new JSONObject();

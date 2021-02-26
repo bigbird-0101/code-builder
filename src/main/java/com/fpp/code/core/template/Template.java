@@ -72,23 +72,35 @@ public interface Template{
     void setTemplateName(String templateName);
 
     /**
+     * 设置模板中的变量键值对
+     * @param templateVariables 设置模板中的变量键值对
+     */
+    void setTemplateVariables(Map<String, Object> templateVariables);
+
+    /**
+     * 获取模板中的变量键值对
+     * @return 模板中的变量键值对
+     */
+    Map<String, Object> getTemplateVariables();
+
+
+    /**
      * 获取根据模板中的变量表最终生成的模板内容
      *
-     * @param replaceKeyValue 模板中的变量表
      * @return 生成的模板内容
      * @throws TemplateResolveException 模板解析异常
      */
-    String getTempleResult(Map<String, Object> replaceKeyValue) throws TemplateResolveException;
+    String getTemplateResult() throws TemplateResolveException;
 
     /**
      * 获取模板最终生成文件的文件名命名策略
      * @return 生成文件的文件名命名策略
      */
-    TemplateFilePrefixNameStrategy getTemplateFileNameStrategy();
+    TemplateFilePrefixNameStrategy getTemplateFilePrefixNameStrategy();
 
     /**
-     * 设置 模板最终生成文件的文件名命名策略
-     * @param templateFileNameStrategy 模板命名策略
+     * 设置 模板最终生成文件的文件名前缀命名策略
+     * @param templateFileNameStrategy 模板最终生成文件的文件名前缀命名策略
      */
     void setTemplateFilePrefixNameStrategy(TemplateFilePrefixNameStrategy templateFileNameStrategy);
 

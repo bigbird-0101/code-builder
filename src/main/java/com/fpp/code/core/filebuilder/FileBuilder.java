@@ -44,9 +44,7 @@ public interface FileBuilder {
 
     /**
      * 文件生成器
-     * @param coreConfig 核心配置文件
-     * @param tableName 表名
      * @param template 模板
      */
-    void build(CoreConfig coreConfig, String tableName, Template template) throws IOException, ClassNotFoundException, SQLException, IllegalAccessException, NoSuchFieldException, TemplateResolveException;
+    void build(Template template) throws IOException, TemplateResolveException;
 }

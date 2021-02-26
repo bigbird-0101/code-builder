@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -39,6 +40,8 @@ public abstract class AbstractTemplate implements Template {
 
     private File templateFile;
 
+    private Map<String,Object> templateVariables;
+
     private TemplateResolver templateResolver;
 
     private TemplateFilePrefixNameStrategy templateFileNameStrategy=new DefaultTemplateFilePrefixNameStrategy();
@@ -46,7 +49,7 @@ public abstract class AbstractTemplate implements Template {
     private String templateFileSuffixName;
 
     @Override
-    public TemplateFilePrefixNameStrategy getTemplateFileNameStrategy() {
+    public TemplateFilePrefixNameStrategy getTemplateFilePrefixNameStrategy() {
         return templateFileNameStrategy;
     }
 
@@ -65,12 +68,18 @@ public abstract class AbstractTemplate implements Template {
         this.templateName = templateName;
     }
 
-    public TemplateResolver getTemplateResolver() {
-        return templateResolver;
+    @Override
+    public Map<String, Object> getTemplateVariables() {
+        return templateVariables;
     }
 
-    public void setTemplateResolver(TemplateResolver templateResolver) {
-        this.templateResolver = templateResolver;
+    @Override
+    public void setTemplateVariables(Map<String, Object> templateVariables) {
+        this.templateVariables = templateVariables;
+    }
+
+    public TemplateResolver getTemplateResolver() {
+        return templateResolver;
     }
 
     public AbstractTemplate(String templeFileName) throws CodeConfigException {
@@ -180,13 +189,13 @@ public abstract class AbstractTemplate implements Template {
                 Objects.equals(getSrcPackage(), that.getSrcPackage()) &&
                 Objects.equals(getTemplateFile(), that.getTemplateFile()) &&
                 Objects.equals(getTemplateResolver(), that.getTemplateResolver()) &&
-                Objects.equals(getTemplateFileNameStrategy(), that.getTemplateFileNameStrategy()) &&
+                Objects.equals(getTemplateFilePrefixNameStrategy(), that.getTemplateFilePrefixNameStrategy()) &&
                 Objects.equals(getTemplateFileSuffixName(), that.getTemplateFileSuffixName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTemplateName(), getProjectUrl(), getModule(), getSourcesRoot(), getSrcPackage(), getTemplateFile(),getTemplateResolver(), getTemplateFileNameStrategy(), getTemplateFileSuffixName());
+        return Objects.hash(getTemplateName(), getProjectUrl(), getModule(), getSourcesRoot(), getSrcPackage(), getTemplateFile(),getTemplateResolver(), getTemplateFilePrefixNameStrategy(), getTemplateFileSuffixName());
     }
 
     public static  class TemplateSerializer implements ObjectSerializer{
@@ -196,7 +205,12 @@ public abstract class AbstractTemplate implements Template {
             JSONObject jsonObject=new JSONObject();
             jsonObject.put("fileName",abstractTemplate.getTemplateFile().getName());
             jsonObject.put("name",abstractTemplate.getTemplateName());
-            jsonObject.put("filePrefixNameStrategy",abstractTemplate.getTemplateFileNameStrategy().getTypeValue());
+            int typeValue = abstractTemplate.getTemplateFilePrefixNameStrategy().getTypeValue();
+            jsonObject.put("filePrefixNameStrategy",typeValue);
+            if(abstractTemplate.getTemplateFilePrefixNameStrategy() instanceof PatternTemplateFilePrefixNameStrategy){
+                PatternTemplateFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy= (PatternTemplateFilePrefixNameStrategy) abstractTemplate.getTemplateFilePrefixNameStrategy();
+                jsonObject.put("filePrefixNameStrategyPattern",patternTemplateFilePrefixNameStrategy.getPattern());
+            }
             jsonObject.put("fileSuffixName",abstractTemplate.getTemplateFileSuffixName());
             jsonObject.put("projectUrl",abstractTemplate.getProjectUrl());
             jsonObject.put("module",abstractTemplate.getModule());

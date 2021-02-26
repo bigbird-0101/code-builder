@@ -1,5 +1,7 @@
 package com.fpp.code.core.template;
 
+import com.alibaba.fastjson.annotation.JSONType;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -8,6 +10,7 @@ import java.util.Set;
  * @version 1.0
  * @date 2021/1/7 14:03
  */
+@JSONType(serializer = AbstractMultipleTemplate.MultipleTemplateSerializer.class)
 public class GenericMultipleTemplate extends AbstractMultipleTemplate{
     private String templateName;
     private Set<Template> templates;
@@ -50,4 +53,5 @@ public class GenericMultipleTemplate extends AbstractMultipleTemplate{
             }
         });
     }
+
 }

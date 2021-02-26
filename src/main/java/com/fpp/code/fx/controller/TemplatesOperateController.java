@@ -14,6 +14,7 @@ import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
 import com.fpp.code.core.template.TemplateResolveException;
 import com.fpp.code.fx.aware.TemplateContextProvider;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -23,9 +24,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -44,19 +47,40 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     private static final String DEFAULT_USER_SAVE_TEMPLATE_CONFIG = "code.user.save.config";
 
     @FXML
+    public Label fileName;
+    @FXML
+    public Label currentTemplate;
+
+    @FXML
     private VBox box;
 
     @FXML
     private FlowPane templates;
 
-    public static Map<String, List<String>> selectTemplateGroup = new HashMap<>();
+    public FlowPane getTemplates() {
+        return templates;
+    }
 
-    public static List<DefinedFunctionDomain> definedFunctionDomainList = new ArrayList<>();
-
+    /**
+     * 变量文件
+     */
+    private File file;
+    private Map<String, List<String>> selectTemplateGroup = new HashMap<>();
     private final URL resource = getClass().getResource("/views/template_info.fxml");
     private final Insets inserts = new Insets(5, 5, 5, 0);
     public static final BorderWidths DEFAULT = new BorderWidths(1, 0, 0, 0, false, false, false, false);
     private final BorderStroke borderStroke = new BorderStroke(null, null, Color.BLACK, null, BorderStrokeStyle.SOLID, null, null, null, null, DEFAULT, new Insets(0, 0, 0, 0));
+
+    public File getFile() {
+        return file;
+    }
+
+    public Map<String, List<String>> getSelectTemplateGroup() {
+        return selectTemplateGroup;
+    }
+    public Label getCurrentTemplate() {
+        return currentTemplate;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -64,6 +88,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             templates.prefWidthProperty().bind(box.widthProperty());
             templates.prefHeightProperty().bind(box.heightProperty());
             initTemplateConfig();
+            templates.getChildren().clear();
             String templateNameSelected = Main.USER_OPERATE_CACHE.getTemplateNameSelected();
             MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(templateNameSelected);
             if (null != multipleTemplate) {
@@ -85,7 +110,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
 
     private void initTemplateConfig() {
         try {
-            if(selectTemplateGroup.isEmpty()) {
+            if (selectTemplateGroup.isEmpty()) {
                 String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
                 if (Utils.isNotEmpty(property)) {
                     selectTemplateGroup = JSON.toJavaObject((JSON) JSON.parse(property), Map.class);
@@ -190,7 +215,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                     functionNames.remove(templateFunction);
                     selectTemplateGroup.put(templateName, functionNames);
                 }
-                if (null == functionNames ||  functionNames.isEmpty()) {
+                if (null == functionNames || functionNames.isEmpty()) {
                     if (templateNameCheckBox.isSelected()) {
                         templateNameCheckBox.setSelected(false);
                     }
@@ -209,19 +234,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 CheckBox checkBox2 = (CheckBox) anchorPane.getChildren().get(0);
                 if (checkBox2.isSelected()) {
                     String templateName = (String) checkBox2.getUserData();
-                    TextArea textArea = (TextArea) anchorPane.getChildren().get(2);
-                    String projectUrl = textArea.getText();
-                    TextField textField = (TextField) anchorPane.getChildren().get(4);
-                    String moduleName = textField.getText();
-                    TextField textField2 = (TextField) anchorPane.getChildren().get(6);
-                    String sourcesRoot = textField2.getText();
-                    TextField textField3 = (TextField) anchorPane.getChildren().get(8);
-                    String srcPackage = textField3.getText();
                     Template template = getTemplateContext().getTemplate(templateName);
-                    template.setProjectUrl(Utils.convertTruePathIfNotNull(projectUrl));
-                    template.setModule(Utils.convertTruePathIfNotNull(moduleName));
-                    template.setSourcesRoot(Utils.convertTruePathIfNotNull(sourcesRoot));
-                    template.setSrcPackage(Utils.convertTruePathIfNotNull(srcPackage));
+                    doSetTemplate(template,anchorPane);
                     DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory) getTemplateContext().getTemplateFactory();
                     operateTemplateBeanFactory.refreshTemplate(template);
                 }
@@ -236,16 +250,41 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         }
     }
 
+    public void doSetTemplate(Template template,AnchorPane anchorPane){
+        TextArea textArea = (TextArea)anchorPane.getChildren().get(2);
+        String projectUrl = textArea.getText();
+        TextField textField = (TextField) anchorPane.getChildren().get(4);
+        String moduleName = textField.getText();
+        TextField textField2 = (TextField) anchorPane.getChildren().get(6);
+        String sourcesRoot = textField2.getText();
+        TextField textField3 = (TextField) anchorPane.getChildren().get(8);
+        String srcPackage = textField3.getText();
+        template.setProjectUrl(Utils.convertTruePathIfNotNull(projectUrl));
+        template.setModule(Utils.convertTruePathIfNotNull(moduleName));
+        template.setSourcesRoot(Utils.convertTruePathIfNotNull(sourcesRoot));
+        template.setSrcPackage(Utils.convertTruePathIfNotNull(srcPackage));
+    }
+
     @FXML
     public void refreshTemplate() {
         try {
             OperateTemplateBeanFactory operateTemplateBeanFactory = (OperateTemplateBeanFactory) getTemplateContext().getTemplateFactory();
             MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(Main.USER_OPERATE_CACHE.getTemplateNameSelected());
             operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate.getTemplateName());
+            initialize(null,null);
             AlertUtil.showInfo("刷新成功");
         } catch (CodeConfigException | IOException e) {
             AlertUtil.showError("refresh error :" + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    public void selectVariableFile() {
+        FileChooser fileChooser = new FileChooser();
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Template files (*.properties)", "*.properties");
+        fileChooser.getExtensionFilters().add(extFilter);
+        this.file = fileChooser.showOpenDialog(box.getScene().getWindow());
+        fileName.setText(this.file.getName());
     }
 }

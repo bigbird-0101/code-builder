@@ -27,16 +27,14 @@ public class DefaultFileBuilder extends AbstractFileBuilder {
 
     /**
      * 文件生成器
-     * @param coreConfig 核心配置文件
-     * @param tableName 表名
      * @param template 模板
      */
     @Override
-    public void build(CoreConfig coreConfig, String tableName, Template template) throws TemplateResolveException, IOException, SQLException, ClassNotFoundException {
-        FileCodeBuilderStrategy fileCodeBuilderStrategy=getFileCodeBuilderStrategy();
-        String code=fileCodeBuilderStrategy.done(coreConfig,template,tableName,getFileNameBuilder());
-        fileCodeBuilderStrategy.fileWrite(code,tableName);
+    public void build(Template template) throws IOException, TemplateResolveException {
+        AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy= (AbstractFileCodeBuilderStrategy) getFileCodeBuilderStrategy();
+        fileCodeBuilderStrategy.setTemplate(template);
+        fileCodeBuilderStrategy.setFileNameBuilder(getFileNameBuilder());
+        String code=fileCodeBuilderStrategy.doneCode();
+        fileCodeBuilderStrategy.fileWrite(code);
     }
-
-
 }

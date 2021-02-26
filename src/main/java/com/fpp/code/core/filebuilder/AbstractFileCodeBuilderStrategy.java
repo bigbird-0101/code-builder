@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,18 +31,8 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
 
     private DefinedFunctionResolver definedFunctionResolver;
 
-    private TableInfo tableInfo;
-
     public DefinedFunctionResolver getDefinedFunctionResolver() {
         return definedFunctionResolver;
-    }
-
-    public void setTableInfo(TableInfo tableInfo) {
-        this.tableInfo = tableInfo;
-    }
-
-    public TableInfo getTableInfo() {
-        return tableInfo;
     }
 
     public CoreConfig getCoreConfig() {
@@ -87,7 +78,7 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
                     if(Utils.isNotEmpty(srcFunctionBody)) {
                         DefinedFunctionDomain definedFunctionDomain = (DefinedFunctionDomain) item.clone();
                         definedFunctionDomain.setTemplateFunction(srcFunctionBody);
-                        definedFunctionDomain.setTableInfo(getTableInfo());
+                        definedFunctionDomain.setTableInfo((TableInfo) getTemplate().getTemplateVariables().get("tableInfo"));
                         String functionBody = this.definedFunctionResolver.doResolver(definedFunctionDomain);
                         newFunction.put(templateFunctionName + "DEFINEDFUNCTION", functionBody);
                     }
@@ -112,7 +103,7 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
         }
         file.setWritable(true, false);
         InputStream inputStream = new FileInputStream(file);
-        String result = IOUtils.toString(inputStream, "UTF-8");
+        String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         inputStream.close();
         return result;
     }
@@ -120,11 +111,10 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
     /**
      * 获取tableName对应的文件路径
      *
-     * @param tableName
      * @return
      */
-    public String getFilePath(String tableName) {
-        return this.getTemplate().getProjectUrl()+"/"+this.getTemplate().getModule() + "/" + this.getTemplate().getSourcesRoot() + "/"+this.getTemplate().getSrcPackage()+"/" + fileNameBuilder.nameBuilder(template, tableName);
+    public String getFilePath() {
+        return this.getTemplate().getProjectUrl()+"/"+this.getTemplate().getModule() + "/" + this.getTemplate().getSourcesRoot() + "/"+this.getTemplate().getSrcPackage()+"/" + getFileNameBuilder().nameBuilder(template);
     }
 
     @Override

@@ -39,11 +39,11 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
 
 
     @Override
-    public String getTempleResult(Map<String, Object> replaceKeyValue) throws TemplateResolveException {
-        CacheKey cacheKey=new CacheKey(getTemplateName(),replaceKeyValue);
+    public String getTemplateResult() throws TemplateResolveException {
+        CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
         Object result=resolverResultCache.get(cacheKey);
         if(null==result) {
-            result = getTemplateResolver().resolver(this.templateContent, replaceKeyValue);
+            result = getTemplateResolver().resolver(this.templateContent, getTemplateVariables());
             resolverResultCache.put(cacheKey,result);
         }
         return (String) result;

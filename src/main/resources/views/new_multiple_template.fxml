@@ -8,5 +8,5 @@
    <Label layoutX="142.0" layoutY="58.0" text="组合模板名:"/>
    <TextField layoutX="220.0" layoutY="54.0" fx:id="multipleTemplateName"/>
    <FlowPane fx:id="templates" layoutX="142.0" layoutY="88.0"/>
-   <Button layoutX="400.0" layoutY="54.0" mnemonicParsing="false" text="创建" onAction="#createMultipleTemplate"/>
+   <Button fx:id="button" layoutX="400.0" layoutY="54.0" mnemonicParsing="false" text="创建" onAction="#createMultipleTemplate"/>
 </AnchorPane>

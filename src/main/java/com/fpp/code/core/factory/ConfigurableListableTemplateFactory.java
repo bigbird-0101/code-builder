@@ -15,6 +15,4 @@ public interface ConfigurableListableTemplateFactory extends ConfigurableTemplat
      */
     void preInstantiateTemplates() throws CodeConfigException, IOException;
 
-
-
 }

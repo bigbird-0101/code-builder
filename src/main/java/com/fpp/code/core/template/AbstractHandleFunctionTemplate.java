@@ -49,12 +49,11 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     /**
      * 获取根据模板最终生成的模板内容
      *
-     * @param replaceKeyValue 需要替换的key和value
      * @return
      */
     @Override
-    public String getTempleResult(Map<String, Object> replaceKeyValue) throws TemplateResolveException {
-        CacheKey cacheKey=new CacheKey(getTemplateName(),replaceKeyValue);
+    public String getTemplateResult() throws TemplateResolveException {
+        CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
         TemplateFileClassInfo resultCache= (TemplateFileClassInfo) resolverResultCache.get(cacheKey);
         if(null==resultCache) {
             String resultPrefix = this.templateFileClassInfo.getTemplateClassPrefix();
@@ -63,8 +62,8 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
 
             Iterator<Map.Entry<String, String>> functionIterator = functionS.entrySet().iterator();
             //清除前缀和后缀的{{}}代码
-            resultPrefix = getTemplateResolver().resolver(resultPrefix, replaceKeyValue);
-            resultSuffix = getTemplateResolver().resolver(resultSuffix, replaceKeyValue);
+            resultPrefix = getTemplateResolver().resolver(resultPrefix, getTemplateVariables());
+            resultSuffix = getTemplateResolver().resolver(resultSuffix, getTemplateVariables());
 
             //清除方法名和方法体的{{}}代码
             Map<String, String> tempFunctionMap = new LinkedHashMap<>(functionS.size());
@@ -73,7 +72,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
                 String functionName = entry.getKey();
                 String functionBody = entry.getValue().replaceAll("\\" + AbstractTemplateResolver.FUNCTION_NAME_BETWEEN_SPLIT, "");
                 functionName = getNoResolverFunctionName(functionName);
-                functionBody = getTemplateResolver().resolver(functionBody, replaceKeyValue);
+                functionBody = getTemplateResolver().resolver(functionBody, getTemplateVariables());
                 if (!tempFunctionMap.containsKey(functionName)) {
                     tempFunctionMap.put(functionName, functionBody);
                 }

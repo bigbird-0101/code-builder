@@ -13,12 +13,6 @@ import java.io.IOException;
 public interface ConfigurableTemplateContext extends TemplateContext {
 
     /**
-     * 设置环境
-     * @param environment
-     */
-    void setEnvironment(Environment environment);
-
-    /**
      * 刷新 容器
      * @throws CodeConfigException
      */

@@ -72,6 +72,21 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver{
             }
         },
         /**
+         * 上一级路径 比如包名 com.zzd 的上一级就是 com,com/zzd 为 com
+         */
+        UP_LEVEL_PATH("upLevelPath"){
+            @Override
+            String done(String src) {
+                String result="";
+                if(src.indexOf(".")>0){
+                    result=src.substring(0,src.lastIndexOf("."));
+                }else if(src.indexOf("/")>0){
+                    result=src.substring(0,src.lastIndexOf("/"));
+                }
+                return result;
+            }
+        },
+        /**
          * 获取表的所有SQL字段
          */
         ALL_SQL_COLUMN("allSqlColumn"){

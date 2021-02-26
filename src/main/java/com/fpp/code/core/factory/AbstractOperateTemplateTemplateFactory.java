@@ -31,6 +31,7 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
         template.setTemplateName(templateName);
         template.setTemplateFile(templateDefinition.getTemplateFile());
         template.setTemplateFileSuffixName(templateDefinition.getFileSuffixName());
+        template.setTemplateFilePrefixNameStrategy(templateDefinition.getFilePrefixNameStrategy());
         template.refresh();
         registerTemplate(templateName,template);
         return template;

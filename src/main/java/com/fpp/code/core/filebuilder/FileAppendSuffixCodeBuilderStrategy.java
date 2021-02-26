@@ -26,38 +26,26 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
     private static Logger logger= LogManager.getLogger(FileAppendSuffixCodeBuilderStrategy.class);
 
     /**
-     * 文件代码生成器策略
      *
-     * @param coreConfig      核心配置文件
-     * @param template        模板对象
-     * @param tableName       表名
-     * @param fileNameBuilder 文件名构建器
      * @return
      */
     @Override
-    public String done(CoreConfig coreConfig, Template template, String tableName, FileNameBuilder fileNameBuilder) throws SQLException, ClassNotFoundException, IOException, TemplateResolveException {
-        Objects.requireNonNull(template,"模板对象不允许为空!");
-        Map<String, Object> temp = new HashMap<>(10);
-        TableInfo tableInfo= DbUtil.getTableInfo(coreConfig.getDataSourceConfig(),tableName);
-        tableInfo.setSavePath(template.getSrcPackage().replaceAll("\\/","."));
-        temp.put("tableInfo", tableInfo);
-        this.setCoreConfig(coreConfig);
-        this.setTemplate(template);
-        this.setFileNameBuilder(fileNameBuilder);
-        this.setTableInfo(tableInfo);
+    public String doneCode() throws TemplateResolveException, IOException {
+        Objects.requireNonNull(getTemplate(),"模板对象不允许为空!");
+        Template template = getTemplate();
         if(template instanceof AbstractHandleFunctionTemplate){
             AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
             handleFunctionTemplate.setResolverStrategy(this);
-            String templeResult=handleFunctionTemplate.getTempleResult(temp);
+            String templeResult=handleFunctionTemplate.getTemplateResult();
 
-            String srcFilePath=getFilePath(tableName);
+            String srcFilePath=getFilePath();
             String srcResult=getSrcFileCode(srcFilePath);
             String result = srcResult.substring(0, srcResult.lastIndexOf("}"));
             return result + templeResult + "\r}\r\n";
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
-            return template.getTempleResult(temp);
+            return template.getTemplateResult();
         }else{
-            return template.getTempleResult(temp);
+            return template.getTemplateResult();
         }
     }
 
@@ -65,11 +53,10 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * 文件写入的方式
      *  文件的末尾处写入
      * @param code
-     * @param tableName
      */
     @Override
-    public void fileWrite(String code, String tableName) throws IOException {
-        String filePath=getFilePath(tableName);
+    public void fileWrite(String code) throws IOException {
+        String filePath=getFilePath();
         File file = new File(filePath);
         logger.info("文件的路径 {} ",filePath);
         if (!file.exists()) {

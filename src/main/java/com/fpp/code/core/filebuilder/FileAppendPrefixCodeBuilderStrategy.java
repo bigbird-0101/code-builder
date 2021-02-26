@@ -17,38 +17,28 @@ import java.util.Objects;
  * @date 2020/7/1 19:34
  */
 public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy{
-    private String a;
     /**
      * 文件代码生成器策略
-     *
-     * @param coreConfig      核心配置文件
-     * @param template        模板对象
-     * @param tableName       表名
-     * @param fileNameBuilder 文件名构建器
      * @return
      */
     @Override
-    public String done(CoreConfig coreConfig, Template template, String tableName, FileNameBuilder fileNameBuilder) throws TemplateResolveException, IOException, SQLException, ClassNotFoundException {
+    public String doneCode() throws TemplateResolveException, IOException{
+        Template template = getTemplate();
         Objects.requireNonNull(template,"模板对象不允许为空!");
-        Map<String, Object> temp = new HashMap<>(10);
-        TableInfo tableInfo= DbUtil.getTableInfo(coreConfig.getDataSourceConfig(),tableName);
-        tableInfo.setSavePath(template.getSrcPackage().replaceAll("\\/","."));
-        temp.put("tableInfo", tableInfo);
-        this.setCoreConfig(coreConfig);
-        this.setTemplate(template);
+
         if(template instanceof AbstractHandleFunctionTemplate){
             AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
             handleFunctionTemplate.setResolverStrategy(this);
-            String templeResult=handleFunctionTemplate.getTempleResult(temp);
+            String templeResult=handleFunctionTemplate.getTemplateResult();
 
-            String srcFilePath=template.getProjectUrl()+template.getModule()+template.getSourcesRoot()+template.getSrcPackage()+fileNameBuilder.nameBuilder(template,tableName);
+            String srcFilePath=template.getProjectUrl()+template.getModule()+template.getSourcesRoot()+template.getSrcPackage()+getFileNameBuilder().nameBuilder(template);
             String srcResult=getSrcFileCode(srcFilePath);
             String result = srcResult.substring(0, srcResult.indexOf("{\r\n"));
             return result + templeResult + "}\r\n";
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
-            return template.getTempleResult(temp);
+            return template.getTemplateResult();
         }else{
-            return template.getTempleResult(temp);
+            return template.getTemplateResult();
         }
     }
 
@@ -56,10 +46,9 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * 文件写入的方式
      *
      * @param code
-     * @param tableName
      */
     @Override
-    public void fileWrite(String code, String tableName) throws IOException {
+    public void fileWrite(String code) {
 
     }
 
