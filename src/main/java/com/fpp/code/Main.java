@@ -31,7 +31,7 @@ public class Main extends Application {
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root);
         addKeyCodeCombination(scene,fxmlLoader.getController());
-        primaryStage.setTitle("spring-code");
+        primaryStage.setTitle("code-builder");
         primaryStage.setScene(scene);
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("icon.png"))));
         primaryStage.show();
