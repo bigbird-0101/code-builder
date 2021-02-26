@@ -16,11 +16,15 @@
 
 启动com.fpp.Main main方法
 
-###### 2.下载 codebuilder压缩包 
+###### 2.下载 [codebuilder压缩包](https://github.com/bigbird-0101/code-builder/blob/master/codebuilder.zip) 
 
 解压点击启动bin/CodeBuilder.bat
 
-**参数详解**
+![image](https://github.com/bigbird-0101/code-builder/blob/master/images/projectfile.png)
+
+**可修改data中的模板(模板必须为.template 后缀名) 达到修改生成的内容**
+
+###### **参数详解**
 
 1.`code.properties 配置文件详解`
 
@@ -35,14 +39,40 @@
 
 1. `fileName`  模板文件名(必须与data/template文件名一致)
 2. `name` 模板的名字
-4. `isHandleFunction`  是否是能够控制模板中的方法的模板 1-是 0-否
-5. `filePrefixNameStrategy` 文件的前缀命令策略   （默认）1-从表格名第四个字符开始+源码路径最后一个路径首字母大写  2-从表格名的第四个字符开始 3-根据前缀名表达式生成前缀名
+3. `isHandleFunction`  是否是能够控制模板中的方法的模板 1-是 0-否
+4. `filePrefixNameStrategy` 文件的前缀命令策略   （默认）1-从表格名第四个字符开始+源码路径最后一个路径首字母大写  2-从表格名的第四个字符开始 3-根据前缀名表达式生成前缀名
 5. `filePrefixNameStrategyPattern`  当filePrefixNameStrategy=3 时 这个为最终生成文件的前缀名表达式  `*{tableInfo.domainName}*RpcImplService` 当 tableInfo.domainName ==你好时  此时文件前缀名为: `你好RpcImplService`
 6. `fileSuffixName` 文件的后缀名  默认 java
 7. `ProjectUrl` 项目路径
 8. `Module` 模块路径
 9. `sourcesRoot` 源码根路径
 10. `srcPackage` 最终源码包路径
+
+###### 模板详解
+
+1. 可控制方法模板(DefaultHandleFunctionTemplate)
+
+   定义格式
+
+   ```java
+   *{prefix}*
+     模板前缀
+   *{/prefix}*
+   *{function}*
+       方法  
+        注意:方法名必须以$$包裹  例如  $getById$
+   *{/function}*    
+       .
+       .
+       .
+   *{suffix}*
+       模板后缀
+   *{/suffix}*    
+   ```
+
+2. 不可控制方法模板(DefaultNoHandleFunctionTemplate)
+
+   无格式
 
 与easy-code 对比
 
@@ -136,4 +166,4 @@ column.size对应TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的
 
 如有疑问请加群 `948896114`
 
-![image](https://github.com/bigbird-0101/spring-code/blob/master/quncode.png)
+![image](https://github.com/bigbird-0101/code-builder/blob/master/images/quncode.png)
