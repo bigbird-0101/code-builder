@@ -16,7 +16,7 @@
 
 启动com.fpp.Main main方法
 
-###### 2.下载 [codebuilder压缩包](https://github.com/bigbird-0101/code-builder/blob/master/codebuilder.zip) 
+###### 2.下载 [codebuilder压缩包](https://github.com/bigbird-0101/code-builder/raw/master/codebuilder.zip) 
 
 解压点击启动bin/CodeBuilder.bat
 
