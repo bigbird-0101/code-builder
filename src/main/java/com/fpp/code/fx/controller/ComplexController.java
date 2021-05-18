@@ -326,6 +326,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             }
             AlertUtil.showInfo("生成成功!");
         } catch (Exception e) {
+            this.tableSelected.clear();
             logger.error("build error {} ,{}", e.getMessage(), e);
             e.printStackTrace();
             AlertUtil.showError(e.getMessage());
