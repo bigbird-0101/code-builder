@@ -122,7 +122,8 @@ public abstract class AbstractEnvironment implements Environment {
 
     public void loadCoreConfig(String fileName) throws IOException {
         Properties pss = new OrderedProperties();
-        Reader reader = new BufferedReader(new InputStreamReader(CommonFileUtils.getConfigFileInput(fileName), StandardCharsets.UTF_8));
+        logger.info("加载配置环境文件名 {}",fileName);
+        Reader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(CommonFileUtils.getConfigFileInput(fileName)), StandardCharsets.UTF_8));
         try {
             pss.load(reader);
         } finally {

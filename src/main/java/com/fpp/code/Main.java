@@ -15,7 +15,11 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,17 +54,38 @@ public class Main extends Application {
         List<String> raw = parameters.getRaw();
         JFramePageEnvironment environment=new JFramePageEnvironment();
         if(raw.isEmpty()) {
-            environment.setCoreConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\conf\\code.properties");
-            environment.setTemplateConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\conf\\templates.json");
-            environment.setTemplatesPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\data\\templates");
+            environment.setCoreConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\code builder\\conf\\code.properties");
+            environment.setTemplateConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\code builder\\conf\\templates.json");
+            environment.setTemplatesPath("C:\\Users\\Administrator\\Desktop\\tool\\code builder\\data\\templates");
         }else{
+            logger.info("run params {},{}",raw.toString(),System.getProperty("exe.filePath"));
             environment.setCoreConfigPath(raw.get(0));
             environment.setTemplateConfigPath(raw.get(1));
             environment.setTemplatesPath(raw.get(2));
+            try {
+                String logFilePath = raw.get(3);
+                setLogFilePath(logFilePath);
+            }catch (Exception e){
+                logger.warn("load log file warning",e);
+            }
         }
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         TemplateContextProvider.setTemplateContext(genericTemplateContext);
     }
+
+    public void setLogFilePath(String logFilePath){
+        ConfigurationSource source;
+        File log4jFile = new File(logFilePath);
+        try {
+            if (log4jFile.exists()) {
+                source = new ConfigurationSource(new FileInputStream(log4jFile), log4jFile);
+                Configurator.initialize(null, source);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
