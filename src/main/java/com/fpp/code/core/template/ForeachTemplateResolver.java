@@ -29,8 +29,8 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
         this.resolverName=LANG_NAME;
     }
 
-    private static final Pattern templateFunctionBodyPattern= Pattern.compile("(\\s*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX + "\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\']" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX + ")(?<body>.*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX + "\\s*/"+LANG_NAME+"\\s*" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX + ")(\\s*?)", Pattern.DOTALL);
-    private static final Pattern templateGrammarPatternPrefix= Pattern.compile("(\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\'])", Pattern.DOTALL);
+    private static final Pattern templateFunctionBodyPattern= Pattern.compile("(\\s*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX + "\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\'](\\s*?)(trim=[\"|\'](?<trimValue>.*?)[\"|\'])?(\\s*?)" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX + ")(?<body>.*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX + "\\s*/"+LANG_NAME+"\\s*" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX + ")(\\s*?)", Pattern.DOTALL);
+    private static final Pattern templateGrammarPatternPrefix= Pattern.compile("(\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\'])(\\s*?)(trim=[\"|\'](?<trimValue>.*?)[\"|\'])?(\\s*?)", Pattern.DOTALL);
     private static final Pattern templateGrammarPatternSuffix= Pattern.compile("(\\s*/"+LANG_NAME+"\\s*)", Pattern.DOTALL);
     private Set<Pattern> excludeVariablePatten=new HashSet<>(Arrays.asList(templateGrammarPatternPrefix, templateGrammarPatternSuffix));
     /**
@@ -46,6 +46,7 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
         while (matcher.find()) {
             String forEachBody = matcher.group("body");
             String forEachTitle = matcher.group("title");
+            String trimValue = matcher.group("trimValue");
             String forEachAll=matcher.group(0);
             String[] titleArray=forEachTitle.split("in");
             if(!forEachTitle.contains("in")||titleArray.length!=2){
@@ -56,6 +57,13 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
             //校验字段是否存在,并返回最终的最后的对象 a.b.c 返回a对象中的b对象中的c对象
             Object temp=Utils.getTargetObject(replaceKeyValue,itemParentNode);
             String foreachResult=getLangBodyResult(temp,forEachBody,itemName);
+            //去除最后一个字符为逗号的字符串
+            if("true".equals(trimValue)){
+                int length = foreachResult.length();
+                if(",".equals(foreachResult.substring(length-1))) {
+                    foreachResult = foreachResult.substring(0, length - 1);
+                }
+            }
             result= Utils.isEmpty(result)?srcData.replace(forEachAll,foreachResult):result.replace(forEachAll,foreachResult);
         }
         return Utils.isEmpty(result)?srcData:result;

@@ -160,12 +160,14 @@ column.size对应TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的
 
 默认实现是 `ToolTemplateResolver` 的 `Function`
 
-1.  `*{tool.firstUpper(params)}*`  首字母大写  *{tool.firstUpper(ab)}* 首字母大写 Ab
-2. `*{tool.firstLower(params)}*`  首字母大写  *{tool.firstLower(Ab)}* 首字母大写 ab
-3. `*{tool.currentDateTime()}*` 当前系统日期时间
-4. `*{tool.author()}*` 获取code.properties 中配置的作者
-5. `*{tool.allSqlColumn()}*` 获取 当前数据表格的所有字段(用于拼接sql)
-6. `*{tool.upLevelPath(params)}*` 获取 上一级路径 比如包名 com.zzd 的上一级就是 com,com/zzd 为 com
+1. `*{tool.firstUpper(params)}*`  首字母大写  *{tool.firstUpper(ab)}* 首字母大写 Ab
+2. `*{tool.upper(params)}*`  首字母大写  *{tool.upper(ab)}* 大写 AB
+3. `*{tool.firstLower(params)}*`  首字母大写  *{tool.firstLower(Ab)}* 首字母大写 ab
+4. `*{tool.lower(params)}*`  首字母大写  *{tool.lower(Ab)}* 小写 ab
+5. `*{tool.currentDateTime()}*` 当前系统日期时间
+6. `*{tool.author()}*` 获取code.properties 中配置的作者
+7. `*{tool.allSqlColumn()}*` 获取 当前数据表格的所有字段(用于拼接sql)
+8. `*{tool.upLevelPath(params)}*` 获取 上一级路径 比如包名 com.zzd 的上一级就是 com,com/zzd 为 com
 
 如有疑问请加群 `948896114`
 

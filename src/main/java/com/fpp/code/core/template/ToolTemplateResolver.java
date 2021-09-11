@@ -39,12 +39,30 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver{
             }
         },
         /**
+         * 大写
+         */
+        UPPER("upper"){
+            @Override
+            String done(String src) {
+                return src.toUpperCase();
+            }
+        },
+        /**
          * 首字母小写
          */
         FISER_LOWER("firstLower") {
             @Override
             String done(String src) {
                 return Utils.firstLowerCase(src);
+            }
+        },
+        /**
+         * 小写
+         */
+        LOWER("lower") {
+            @Override
+            String done(String src) {
+                return src.toLowerCase();
             }
         },
         /**

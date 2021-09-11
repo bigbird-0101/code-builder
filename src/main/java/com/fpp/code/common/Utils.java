@@ -423,22 +423,23 @@ public class Utils {
 			String nodeName = itemParentNodeList.get(i);
 			if(i==0) {
 				if (!replaceKeyValue.containsKey(nodeName)) {
-					throw new TemplateResolveException("模板中语法异常:" + nodeName + "属性不存在");
+					logger.warn("模板中语法异常{}属性不存在",nodeName);
+					return null;
 				}
 				temp=replaceKeyValue.get(nodeName);
 			}else{
-				Field field;
+				Field field = null;
 				try {
 					field = temp.getClass().getField(nodeName);
 				} catch (NoSuchFieldException e) {
 					try {
 						field=temp.getClass().getDeclaredField(nodeName);
 					} catch (NoSuchFieldException ex) {
-						throw new TemplateResolveException("模板中语法异常:" + nodeName + "属性不存在");
+						logger.warn("模板中语法异常{}属性不存在",nodeName);
 					}
 				}
 				if(null==field){
-					throw new TemplateResolveException("模板中语法异常:"+nodeName+"属性不存在");
+					logger.warn("模板中语法异常{}属性不存在",nodeName);
 				}
 				field.setAccessible(true);
 				try {
