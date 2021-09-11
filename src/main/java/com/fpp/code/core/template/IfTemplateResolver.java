@@ -161,29 +161,17 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
             }else if(value.contains("!")){
                 String filed=stack.pop();
                 Object temp;
-                try {
-                    temp = Utils.getObjectFieldValue(filed,targetObject);
-                    if(temp instanceof Boolean){
-                        stack.push(String.valueOf(!(Boolean)temp));
-                    }
-                } catch (TemplateResolveException e) {
-                    stack.push(filed);
+                temp = Utils.getObjectFieldValue(filed,targetObject);
+                if(temp instanceof Boolean){
+                    stack.push(String.valueOf(!(Boolean)temp));
                 }
             }else if("==".equals(value)){
                 String value1=stack.pop();
                 String value3=stack.pop();
                 Object temp;
                 Object temp3;
-                try {
-                    temp = Utils.getObjectFieldValue(value1,targetObject);
-                } catch (TemplateResolveException e) {
-                    temp=value1;
-                }
-                try{
-                    temp3 = Utils.getObjectFieldValue(value3,targetObject);
-                } catch (TemplateResolveException e) {
-                    temp3=value3;
-                }
+                temp = Utils.getObjectFieldValue(value1,targetObject);
+                temp3 = Utils.getObjectFieldValue(value3,targetObject);
                 temp=null==temp?value1:temp;
                 temp3=null==temp3?value3:temp3;
                 if(temp.equals(temp3)){

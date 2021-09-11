@@ -4,6 +4,7 @@ import com.fpp.code.common.Utils;
 import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.config.Environment;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,14 +36,17 @@ public class DefaultTemplateResolver extends AbstractTemplateResolver{
      */
     @Override
     public String resolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
+        srcData=srcData.replaceAll(AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX,"");
         String tempResult=this.replace(replaceKeyValue, doResolver(srcData,replaceKeyValue));
         Set<String>  templateVariableKeySet=getTemplateVariableKey(tempResult);
-        Object tableInfo = replaceKeyValue.get("tableInfo");
-        if(null!=tableInfo) {
-            return analysisBody(templateVariableKeySet, "tableInfo", tableInfo, tempResult);
-        }else{
-            return tempResult;
+        Iterator<Map.Entry<String, Object>> iterator = replaceKeyValue.entrySet().iterator();
+        while(iterator.hasNext()){
+            Map.Entry<String, Object> next = iterator.next();
+            String key = next.getKey();
+            Object value = next.getValue();
+            tempResult=analysisBody(templateVariableKeySet, key, value, tempResult);
         }
+        return tempResult;
     }
 
     private String doResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {

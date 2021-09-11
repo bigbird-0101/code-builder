@@ -1,6 +1,7 @@
 package com.fpp.code.fx.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.fpp.code.Main;
 import com.fpp.code.common.AlertUtil;
 import com.fpp.code.common.Utils;
@@ -65,7 +66,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
      * 变量文件
      */
     private File file;
-    private Map<String, List<String>> selectTemplateGroup = new HashMap<>();
+    private Map<String,Map<String,List<String>>> selectTemplateGroup = new HashMap<>();
     private final URL resource = getClass().getResource("/views/template_info.fxml");
     private final Insets inserts = new Insets(5, 5, 5, 0);
     public static final BorderWidths DEFAULT = new BorderWidths(1, 0, 0, 0, false, false, false, false);
@@ -75,7 +76,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         return file;
     }
 
-    public Map<String, List<String>> getSelectTemplateGroup() {
+    public Map<String,Map<String,List<String>>> getSelectTemplateGroup() {
         return selectTemplateGroup;
     }
     public Label getCurrentTemplate() {
@@ -113,13 +114,14 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             if (selectTemplateGroup.isEmpty()) {
                 String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
                 if (Utils.isNotEmpty(property)) {
-                    selectTemplateGroup = JSON.toJavaObject((JSON) JSON.parse(property), Map.class);
+                    selectTemplateGroup = JSONObject.parseObject(property, Map.class);
                 }
                 if (!selectTemplateGroup.isEmpty()) {
                     if (logger.isInfoEnabled()) {
                         logger.info("user save config {}", property);
                     }
                 }
+                selectTemplateGroup.putIfAbsent(Main.USER_OPERATE_CACHE.getTemplateNameSelected(),new HashMap<>());
             }
         } catch (Exception e) {
             if (logger.isErrorEnabled()) {
@@ -140,15 +142,18 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         String templateName = template.getTemplateName();
         FlowPane flowPane = (FlowPane) scene.lookup("#functionPane");
         CheckBox templateNameCheckBox = (CheckBox) scene.lookup("#templateName");
+        Map<String, List<String>> stringListMap = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected());
         if (template instanceof AbstractHandleFunctionTemplate) {
             AbstractHandleFunctionTemplate HandlerTemplate = (AbstractHandleFunctionTemplate) template;
             Set<String> templateFunctionNameS = HandlerTemplate.getTemplateFunctionNameS();
             templateFunctionNameS.forEach(templateFunction -> {
                 CheckBox checkBox = new CheckBox(templateFunction);
                 checkBox.setPadding(inserts);
-                List<String> functionNames = selectTemplateGroup.get(templateName);
-                if (null != functionNames && functionNames.contains(templateFunction)) {
-                    checkBox.setSelected(true);
+                if(null!=stringListMap){
+                    List<String> functionNames = stringListMap.get(templateName);
+                    if (null != functionNames && functionNames.contains(templateFunction)) {
+                        checkBox.setSelected(true);
+                    }
                 }
                 addCheckBoxListen(checkBox, templateNameCheckBox, templateName, templateFunction);
                 flowPane.getChildren().add(checkBox);
@@ -157,14 +162,16 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             Label label = new Label(template.getTemplateName());
             flowPane.getChildren().add(label);
         }
-        if (selectTemplateGroup.containsKey(templateName)) {
+        if (null!=stringListMap&&stringListMap.containsKey(templateName)) {
             templateNameCheckBox.setSelected(true);
         }
         templateNameCheckBox.setText("模板名:" + templateName);
         templateNameCheckBox.setUserData(templateName);
         templateNameCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                selectTemplateGroup.putIfAbsent(templateName, new ArrayList<>());
+                Map<String, List<String>> kvHashMap = new HashMap<>();
+                kvHashMap.put(templateName, new ArrayList<>());
+                selectTemplateGroup.putIfAbsent(Main.USER_OPERATE_CACHE.getTemplateNameSelected(),kvHashMap);
             } else {
                 if (template instanceof AbstractHandleFunctionTemplate) {
                     flowPane.getChildren().forEach(node -> {
@@ -172,7 +179,9 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                         checkBox.setSelected(false);
                     });
                 }
-                selectTemplateGroup.remove(templateName);
+                if (null!=stringListMap) {
+                    stringListMap.remove(templateName);
+                }
             }
         });
 
@@ -192,34 +201,34 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     private void addCheckBoxListen(CheckBox checkBox, CheckBox templateNameCheckBox, String templateName, String templateFunction) {
         checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                if (!selectTemplateGroup.containsKey(templateName)) {
+                if (!selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).containsKey(templateName)) {
                     List<String> functionNames = new ArrayList<>();
                     functionNames.add(templateFunction);
-                    selectTemplateGroup.put(templateName, functionNames);
+                    selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).put(templateName, functionNames);
                 } else {
-                    List<String> functionNames = selectTemplateGroup.get(templateName);
+                    List<String> functionNames = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName);
                     if (null == functionNames) {
                         functionNames = new ArrayList<>();
                     }
                     if (!functionNames.contains(templateFunction)) {
                         functionNames.add(templateFunction);
                     }
-                    selectTemplateGroup.put(templateName, functionNames);
+                    selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).put(templateName, functionNames);
                 }
                 if (!templateNameCheckBox.isSelected()) {
                     templateNameCheckBox.setSelected(true);
                 }
             } else {
-                List<String> functionNames = selectTemplateGroup.get(templateName);
+                List<String> functionNames = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName);
                 if (null != functionNames) {
                     functionNames.remove(templateFunction);
-                    selectTemplateGroup.put(templateName, functionNames);
+                    selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).put(templateName, functionNames);
                 }
                 if (null == functionNames || functionNames.isEmpty()) {
                     if (templateNameCheckBox.isSelected()) {
                         templateNameCheckBox.setSelected(false);
                     }
-                    selectTemplateGroup.remove(templateName);
+                    selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).remove(templateName);
                 }
             }
         });

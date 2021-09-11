@@ -54,9 +54,9 @@ public class Main extends Application {
         List<String> raw = parameters.getRaw();
         JFramePageEnvironment environment=new JFramePageEnvironment();
         if(raw.isEmpty()) {
-            environment.setCoreConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\code builder\\conf\\code.properties");
-            environment.setTemplateConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\code builder\\conf\\templates.json");
-            environment.setTemplatesPath("C:\\Users\\Administrator\\Desktop\\tool\\code builder\\data\\templates");
+            environment.setCoreConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\conf\\code.properties");
+            environment.setTemplateConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\conf\\templates.json");
+            environment.setTemplatesPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\data\\templates");
         }else{
             logger.info("run params {},{}",raw.toString(),System.getProperty("exe.filePath"));
             environment.setCoreConfigPath(raw.get(0));

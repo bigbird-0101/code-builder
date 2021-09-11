@@ -3,7 +3,7 @@ package com.fpp.code.core.template;
 import com.fpp.code.common.Utils;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.HashMap;
 
 /**
  * 模板语言解析器
@@ -48,17 +48,20 @@ public abstract class AbstractTemplateLangResolver implements TemplateLangResolv
      */
     protected String getLangBodyResult(Object targetObject, String body, String targetObjectKey) throws TemplateResolveException {
         StringBuilder stringBuilder=new StringBuilder();
-        Set<String> set=this.templateResolver.getTemplateVariableKey(body);
         String tempStamp= Utils.getFirstNewLineNull(body);
         if(targetObject instanceof Collection){
             Collection collection= (Collection) targetObject;
             for(Object object:collection){
-                String replaceResult=this.templateResolver.analysisBody(set, targetObjectKey,object,body);
-                stringBuilder.append(tempStamp+replaceResult.trim());
+                HashMap<String,Object> replaceKey=new HashMap<>();
+                replaceKey.put(targetObjectKey,object);
+                String replaceResult=this.templateResolver.resolver(body,replaceKey);
+                stringBuilder.append(tempStamp).append(replaceResult.trim());
             }
         }else{
-            String replaceResult=this.templateResolver.analysisBody(set, targetObjectKey,targetObject,body);
-            stringBuilder.append(tempStamp+replaceResult.trim());
+            HashMap<String,Object> replaceKey=new HashMap<>();
+            replaceKey.put(targetObjectKey,targetObject);
+            String replaceResult=this.templateResolver.resolver(body,replaceKey);
+            stringBuilder.append(tempStamp).append(replaceResult.trim());
         }
         return stringBuilder.toString();
     }

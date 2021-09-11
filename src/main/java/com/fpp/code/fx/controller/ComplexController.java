@@ -319,7 +319,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 }
             }
             for (String tableName : tableSelected) {
-                for (String templateName : templatesOperateController.getSelectTemplateGroup().keySet()) {
+                for (String templateName : templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).keySet()) {
                     Template template=doGetTemplate(templateName,tableName,coreConfig,propertiesVariable,templatesOperateController);
                     fileBuilder.build(template);
                 }
@@ -359,11 +359,11 @@ public class ComplexController extends TemplateContextProvider implements Initia
         TextField representFactor = (TextField) scene.lookup("#representFactor");
         TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
         if (isDefinedFunction.isSelected()) {
-            templatesOperateController.getSelectTemplateGroup().forEach((k, v) -> {
-                v.forEach(s -> definedFunctionDomains.add(new DefinedFunctionDomain(fields.getText(), s, representFactor.getText())));
+            templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).forEach((k, v) -> {
+                v.forEach(s->definedFunctionDomains.add(new DefinedFunctionDomain(fields.getText(), s, representFactor.getText())));
             });
         }
-        return new ProjectTemplateInfoConfig(definedFunctionDomains, templatesOperateController.getSelectTemplateGroup());
+        return new ProjectTemplateInfoConfig(definedFunctionDomains, templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()));
     }
     /**
      * 获取数据源配置

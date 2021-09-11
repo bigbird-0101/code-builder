@@ -2,7 +2,10 @@ package com.fpp.code.common;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fpp.code.core.template.AbstractTemplateResolver;
 import com.fpp.code.core.template.TemplateResolveException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
  * @author Administrator
  */
 public class Utils {
+	private static Logger logger= LogManager.getLogger(Utils.class);
 
 	public static boolean isEmpty(String str) {
 		if(str==null|| "".equals(str.trim())) {
@@ -358,8 +362,8 @@ public class Utils {
 	 * @param object 源对象  比如:student
 	 * @return
 	 */
-	public static  Object getObjectFieldValue(String typeStr,Object object) throws TemplateResolveException {
-		Object temp=null;
+	public static  Object getObjectFieldValue(String typeStr,Object object) {
+		Field temp=null;
 		String[] typeArray=typeStr.split("\\.");
 		List<String> list=Arrays.stream(typeArray).filter(Utils::isNotEmpty).skip(1).collect(Collectors.toList());
 		Class clazz=object.getClass();
@@ -373,7 +377,7 @@ public class Utils {
 					try {
 						temp=clazz.getDeclaredField(list.get(i));
 					} catch (NoSuchFieldException ex) {
-						throw new TemplateResolveException("对象"+typeArray[0]+"中" + list.get(i) + "属性不存在");
+						logger.warn("对象{}中{}属性不存在",typeArray[0],list.get(i));
 					}
 				}
 				beforeTemp=object;
@@ -386,17 +390,17 @@ public class Utils {
 					try {
 						temp =tempClass.getDeclaredField(list.get(i));
 					} catch (NoSuchFieldException ex) {
-						throw new TemplateResolveException("对象"+list.get(i-1)+"中" + list.get(i) + "属性不存在");
+						logger.warn("对象{}中{}属性不存在",list.get(i-1),list.get(i));
 					}
 				}
 			}
 			if(i==list.size()-1){
-				Field field=(Field)temp;
-				field.setAccessible(true);
+				Field field= temp;
 				try {
+					field.setAccessible(true);
 					return field.get(beforeTemp);
 				}catch(IllegalAccessException e){
-					throw new TemplateResolveException(e);
+					logger.warn("获取一个对象的属性字段值异常 {} {}",field,beforeTemp);
 				}
 			}
 		}

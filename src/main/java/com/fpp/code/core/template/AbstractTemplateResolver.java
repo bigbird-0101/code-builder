@@ -147,12 +147,16 @@ public abstract class AbstractTemplateResolver implements TemplateResolver {
     }
 
     @Override
-    public String analysisBody(Set<String> variableSet, String targetObjectKey, Object targetObject, String body)throws TemplateResolveException {
+    public String analysisBody(Set<String> variableSet, String targetObjectKey, Object targetObject, String body) {
         Map<String, Object> templateVariableKV = new HashMap<>(10);
         for (String str : variableSet) {
             boolean isExclude = excludeCheckTemplateVariableKey(str);
+            if(Utils.isEmpty(str)){
+                templateVariableKV.put(str,str.trim());
+                continue;
+            }
             if (!isExclude && !str.split("\\.")[0].equals(targetObjectKey)) {
-                throw new TemplateResolveException(str + "属性在"+targetObject.getClass().getSimpleName()+"不存在");
+                logger.warn("{}属性在{}不存在",str,targetObject.getClass().getSimpleName());
             }
             if (!isExclude) {
                 templateVariableKV.put(str, Utils.getObjectFieldValue(str, targetObject));

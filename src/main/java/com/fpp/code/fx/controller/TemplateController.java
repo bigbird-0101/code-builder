@@ -17,6 +17,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +34,8 @@ import java.util.stream.Collectors;
  * @author Administrator
  */
 public class TemplateController extends TemplateContextProvider implements Initializable {
+    private static Logger logger= LogManager.getLogger(TemplateController.class);
+
     @FXML
     public TextArea projectUrl;
     @FXML
@@ -170,6 +174,7 @@ public class TemplateController extends TemplateContextProvider implements Initi
             AlertUtil.showInfo("Success!");
             ((Stage)vBox.getScene().getWindow()).close();
         } catch (Exception e) {
+            logger.error(e);
             AlertUtil.showError("failed:" + e.getMessage());
         }
     }
