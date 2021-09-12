@@ -56,20 +56,43 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
             try {
                 //是否满足if条件
                 String temp = Utils.getFirstNewLineNull(body);
-                String bodyResult = Boolean.parseBoolean(title) ? temp + body.trim() : "";
-                result = Utils.isEmpty(result) ? srcData.replace(all, bodyResult) : result.replace(all, bodyResult);
-            }catch(Exception e) {
-                List<String> targetKeyList=checkFiled(replaceKeyValue,title);
-                if(meetConditions(title,targetKeyList,replaceKeyValue)) {
-                    for (String targetKey : targetKeyList) {
-                        String bodyResult = getLangBodyResult(replaceKeyValue.get(targetKey), body, targetKey);
-                        result = Utils.isEmpty(result) ? srcData.replace(all, bodyResult) : result.replace(all, bodyResult);
-                    }
+                if("true".equals(title.toLowerCase())||"false".equals(title.toLowerCase())){
+                    String bodyResult = Boolean.parseBoolean(title) ? temp + body.trim() : "";
+                    result = Utils.isEmpty(result) ? srcData.replace(all, bodyResult) : result.replace(all, bodyResult);
+                }else{
+                    result=doSpecialExpression(replaceKeyValue,title,body,srcData,all);
                 }
+            }catch(Exception e) {
+                result=doSpecialExpression(replaceKeyValue,title,body,srcData,all);
             }
         }
         return Utils.isEmpty(result)?srcData:result;
     }
+
+    /**
+     * 处理特殊的表达式 包含变量
+     * @param replaceKeyValue
+     * @param title
+     * @param body
+     * @param srcData
+     * @param all
+     * @return
+     * @throws TemplateResolveException
+     */
+    public String doSpecialExpression(Map<String, Object> replaceKeyValue,String title,String body,String srcData,String all) throws TemplateResolveException {
+        String result="";
+        List<String> targetKeyList=checkFiled(replaceKeyValue,title);
+        if(meetConditions(title,targetKeyList,replaceKeyValue)) {
+            for (String targetKey : targetKeyList) {
+                String bodyResult = getLangBodyResult(replaceKeyValue.get(targetKey), body, targetKey);
+                result = Utils.isEmpty(result) ? srcData.replace(all, bodyResult) : result.replace(all, bodyResult);
+            }
+        }else{
+            result = Utils.isEmpty(result) ? srcData.replace(all, "") : result.replace(all, "");
+        }
+        return result;
+    }
+
     /**
      * 是否满足条件
      * @param title if条件
@@ -112,7 +135,8 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
         List<String> result=new ArrayList<>();
         String[] tempArray=str.split("&&");
         for (String content:tempArray) {
-            boolean hasSpecial=content.contains("!");
+            //查看第一个是不是!不等于号
+            boolean hasSpecial=content.trim().substring(0,1).equals("!");
             content=hasSpecial?content.substring(1):content;
             Set<String> tempSet = new HashSet<>();
             for (String special : specialSet) {
@@ -158,14 +182,14 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
         for(String value:postfixExpression){
             if(!specialSet.contains(value)&&!value.contains("!")){
                 stack.push(value);
-            }else if(value.contains("!")){
+            }else if("!".equals(value)){
                 String filed=stack.pop();
                 Object temp;
                 temp = Utils.getObjectFieldValue(filed,targetObject);
                 if(temp instanceof Boolean){
                     stack.push(String.valueOf(!(Boolean)temp));
                 }
-            }else if("==".equals(value)){
+            }else if("==".equals(value)||"!=".equals(value)){
                 String value1=stack.pop();
                 String value3=stack.pop();
                 Object temp;
@@ -174,10 +198,10 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
                 temp3 = Utils.getObjectFieldValue(value3,targetObject);
                 temp=null==temp?value1:temp;
                 temp3=null==temp3?value3:temp3;
-                if(temp.equals(temp3)){
-                    stack.push(String.valueOf(true));
-                }else{
-                    stack.push(String.valueOf(false));
+                if (temp.equals(temp3)) {
+                    stack.push(String.valueOf("==".equals(value)));
+                } else {
+                    stack.push(String.valueOf(!"==".equals(value)));
                 }
             }
         }
