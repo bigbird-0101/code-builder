@@ -2,10 +2,7 @@ package com.fpp.code.core.template;
 
 import com.fpp.code.common.Utils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +16,7 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
 
     private static final String LANG_NAME="foreach";
 
+    private static final List<String> specialCharacterList= Collections.singletonList(",");
     public ForeachTemplateResolver() {
         super();
         this.resolverName=LANG_NAME;
@@ -59,14 +57,33 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
             String foreachResult=getLangBodyResult(temp,forEachBody,itemName);
             //去除最后一个字符为逗号的字符串
             if("true".equals(trimValue)){
-                int length = foreachResult.length();
-                if(",".equals(foreachResult.substring(length-1))) {
-                    foreachResult = foreachResult.substring(0, length - 1);
-                }
+                foreachResult=doRemoveTrimCharacter(foreachResult);
             }
             result= Utils.isEmpty(result)?srcData.replace(forEachAll,foreachResult):result.replace(forEachAll,foreachResult);
         }
         return Utils.isEmpty(result)?srcData:result;
+    }
+
+    /**
+     * 去除字符串首尾两边的特殊符号
+     * @param foreachResult
+     * @return
+     */
+    private String doRemoveTrimCharacter(String foreachResult) {
+        String mendLastStr=Utils.getLastNewLineNull(foreachResult);
+        String mendFirstStr=Utils.getFirstNewLineNull(foreachResult);
+        String result = foreachResult.trim();
+        for(String special:specialCharacterList) {
+            int lengthTrim = result.length();
+            if (special.equals(result.substring(lengthTrim - 1))) {
+                result = result.substring(0, lengthTrim - 1);
+            }
+            int lengthTrim2 = result.length();
+            if (special.equals(result.substring(0, 1))) {
+                result = result.substring(1, lengthTrim2);
+            }
+        }
+        return mendFirstStr+result+mendLastStr;
     }
 
 
