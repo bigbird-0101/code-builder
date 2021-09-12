@@ -168,10 +168,9 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         templateNameCheckBox.setText("模板名:" + templateName);
         templateNameCheckBox.setUserData(templateName);
         templateNameCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            Map<String, List<String>> stringListMap2 = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected());
             if (newValue) {
-                Map<String, List<String>> kvHashMap = new HashMap<>();
-                kvHashMap.put(templateName, new ArrayList<>());
-                selectTemplateGroup.putIfAbsent(Main.USER_OPERATE_CACHE.getTemplateNameSelected(),kvHashMap);
+                stringListMap2.put(templateName, new ArrayList<>());
             } else {
                 if (template instanceof AbstractHandleFunctionTemplate) {
                     flowPane.getChildren().forEach(node -> {
@@ -179,8 +178,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                         checkBox.setSelected(false);
                     });
                 }
-                if (null!=stringListMap) {
-                    stringListMap.remove(templateName);
+                if (null!=stringListMap2) {
+                    stringListMap2.remove(templateName);
                 }
             }
         });
