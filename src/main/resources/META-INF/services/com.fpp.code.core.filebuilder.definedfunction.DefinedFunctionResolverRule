@@ -3,3 +3,4 @@ com.fpp.code.core.filebuilder.definedfunction.FunctionParamDefinedFunctionResolv
 com.fpp.code.core.filebuilder.definedfunction.JavaFunctionBodyOuterDefinedFunctionResolverRule
 com.fpp.code.core.filebuilder.definedfunction.FunctionInnerParamDefinedFunctionResolverRule
 com.fpp.code.core.filebuilder.definedfunction.MybatisSqlWhereDefinedFunctionResolverRule
+com.fpp.code.core.filebuilder.definedfunction.IbatisSqlWhereDefinedFunctionResolverRule
