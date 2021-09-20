@@ -54,9 +54,11 @@ public class Main extends Application {
         List<String> raw = parameters.getRaw();
         JFramePageEnvironment environment=new JFramePageEnvironment();
         if(raw.isEmpty()) {
-            environment.setCoreConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\conf\\code.properties");
-            environment.setTemplateConfigPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\conf\\templates.json");
-            environment.setTemplatesPath("C:\\Users\\Administrator\\Desktop\\tool\\codebuilder\\data\\templates");
+            String userHome = System.getProperty("user.home");
+            String projectHome=userHome+"\\Desktop\\tool\\";
+            environment.setCoreConfigPath(projectHome+"codebuilder\\conf\\code.properties");
+            environment.setTemplateConfigPath(projectHome+"codebuilder\\conf\\templates.json");
+            environment.setTemplatesPath(projectHome+"codebuilder\\data\\templates");
         }else{
             logger.info("run params {},{}",raw.toString(),System.getProperty("exe.filePath"));
             environment.setCoreConfigPath(raw.get(0));
@@ -71,6 +73,7 @@ public class Main extends Application {
         }
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         TemplateContextProvider.setTemplateContext(genericTemplateContext);
+        System.out.println(System.getProperty("user.home"));
     }
 
     public void setLogFilePath(String logFilePath){
