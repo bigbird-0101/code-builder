@@ -168,14 +168,14 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
         return functionNameS;
     }
 
-    public String getNoResolverFunctionName(String srcFunctionName) throws TemplateResolveException {
+    public String getNoResolverFunctionName(String srcFunctionName) {
         Matcher matcher=AbstractTemplateResolver.templateFunctionNamePefixSuffixPattern.matcher(srcFunctionName);
         if(matcher.find()){
             String prefix=matcher.group("bodyPrefix");
             String suffix=matcher.group("bodySuffix");
             return prefix+suffix;
         }else{
-            throw new TemplateResolveException("模板方法名解析异常,模板方法名为:"+srcFunctionName);
+            return srcFunctionName;
         }
     }
 }
