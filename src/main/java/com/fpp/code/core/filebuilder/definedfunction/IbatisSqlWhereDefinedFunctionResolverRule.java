@@ -3,6 +3,8 @@ package com.fpp.code.core.filebuilder.definedfunction;
 import com.fpp.code.common.Utils;
 import com.fpp.code.core.domain.DefinedFunctionDomain;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 /**
@@ -19,7 +21,12 @@ public class IbatisSqlWhereDefinedFunctionResolverRule  implements DefinedFuncti
         String srcFunctionBody=definedFunctionDomain.getTemplateFunction();
         String[] definedValues=definedValue.split("\\,");
         String oldSelectParamPattern=""+representFactor+"\\s*\\=\\s*\\#\\s*"+ Utils.getFieldName(representFactor) +"#";
-        String newSelectParam= Stream.of(definedValues).map(s->s+"=#"+Utils.getFieldName(s)+"#").collect(Collectors.joining(" and "));
-        return srcFunctionBody.replaceAll(oldSelectParamPattern,newSelectParam);
+        Matcher matcher =Utils.getIgnoreLowerUpperMather(srcFunctionBody,oldSelectParamPattern);;
+        return matcher.replaceAll(getNewSelectParam(definedValues,Utils.matherGroupIsLower(matcher)));
     }
+
+    private String getNewSelectParam(String[] definedValues,boolean isLower){
+        return Stream.of(definedValues).map(s->(isLower?s.toLowerCase():s.toUpperCase())+"=#"+Utils.firstLowerCase(Utils.underlineToHump(s))+"#").collect(Collectors.joining(isLower?" and ":" and ".toUpperCase()));
+    }
+
 }

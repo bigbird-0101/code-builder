@@ -28,29 +28,29 @@ public class JavaFunctionBodyOuterDefinedFunctionResolverRule implements Defined
         String representFactor=definedFunctionDomain.getRepresentFactor();
         String srcFunctionBody=definedFunctionDomain.getTemplateFunction();
         String[] definedValues=definedValue.split(",");
-        Matcher matcher2= Pattern.compile("(?<=\r\n)(?<prefix>.*?)"+representFactor+"(?<suffix>.*?)(?=\r\n)").matcher(srcFunctionBody);
+        Matcher matcher2= Pattern.compile("(?<=\r\n)(?<prefix>.*?)"+representFactor+"(?<suffix>.*?)(?=\r\n)", Pattern.CASE_INSENSITIVE).matcher(srcFunctionBody);
         while(matcher2.find()){
             String prefix=matcher2.group("prefix");
             String suffix=matcher2.group("suffix");
             if(!(prefix+representFactor+suffix).trim().equals("@Override")) {
                 String srcCompleteContentLine = prefix + representFactor + suffix;
                 if (prefix.contains("@param")) {
-                    String newCompleteContentParam = Stream.of(definedValues).map(Utils::getFieldName).map(s -> Utils.replaceIngoreCase(prefix, representFactor, s) + s + Utils.replaceIngoreCase(suffix, representFactor, s)).collect(Collectors.joining("\r\n"));
-                    srcFunctionBody = srcFunctionBody.replace(srcCompleteContentLine, newCompleteContentParam);
+                    String newCompleteContentParam = Stream.of(definedValues).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).map(s -> Utils.replaceIngoreCase(prefix, representFactor, s) + s + Utils.replaceIngoreCase(suffix, representFactor, s)).collect(Collectors.joining("\r\n"));
+                    srcFunctionBody =Utils.getIgnoreLowerUpperMather(srcFunctionBody,Utils.addSlashDoubleWhenSpecialCharacter(srcCompleteContentLine)).replaceAll(newCompleteContentParam);
                 }else if (prefix.contains("@ApiImplicitParam")) {
                     String newCompleteContentParam;
                     if (definedValues.length > 1) {
                         String prefixNull = Utils.getFirstNewLineNull(prefix);
-                        newCompleteContentParam = Stream.of(definedValues).map(Utils::getFieldName).map(s -> prefixNull + Utils.replaceIngoreCase(prefix, representFactor, s) + s + Utils.replaceIngoreCase(suffix, representFactor, s)).collect(Collectors.joining(",\r\n"));
+                        newCompleteContentParam = Stream.of(definedValues).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).map(s -> prefixNull + Utils.replaceIngoreCase(prefix, representFactor, s) + s + Utils.replaceIngoreCase(suffix, representFactor, s)).collect(Collectors.joining(",\r\n"));
                         newCompleteContentParam = prefixNull + "@ApiImplicitParams({\r\n" + newCompleteContentParam + "\r\n" + prefixNull + "})";
-                        srcFunctionBody = srcFunctionBody.replace(srcCompleteContentLine, newCompleteContentParam);
+                        srcFunctionBody =Utils.getIgnoreLowerUpperMather(srcFunctionBody,Utils.addSlashDoubleWhenSpecialCharacter(srcCompleteContentLine)).replaceAll(newCompleteContentParam);
                     }
                 }else if(prefix.trim().startsWith("*")){
-                    String newCompleteContentParam = srcCompleteContentLine.replaceAll(representFactor,Stream.of(definedValues).map(Utils::getFieldName).collect(Collectors.joining(",")));
-                    srcFunctionBody = srcFunctionBody.replace(srcCompleteContentLine, newCompleteContentParam);
+                    String newCompleteContentParam = srcCompleteContentLine.replaceAll(representFactor,Stream.of(definedValues).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).collect(Collectors.joining(",")));
+                    srcFunctionBody =Utils.getIgnoreLowerUpperMather(srcFunctionBody,Utils.addSlashDoubleWhenSpecialCharacter(srcCompleteContentLine)).replaceAll(newCompleteContentParam);
                 }else if(prefix.contains("@ApiOperation")){
-                    String newCompleteContentParam = prefix+Stream.of(definedValues).map(Utils::getFieldName).collect(Collectors.joining(","))+ suffix;
-                    srcFunctionBody = srcFunctionBody.replace(srcCompleteContentLine, newCompleteContentParam);
+                    String newCompleteContentParam = prefix+Stream.of(definedValues).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).collect(Collectors.joining(","))+ suffix;
+                    srcFunctionBody =Utils.getIgnoreLowerUpperMather(srcFunctionBody,Utils.addSlashDoubleWhenSpecialCharacter(srcCompleteContentLine)).replaceAll(newCompleteContentParam);
                 }
             }
         }

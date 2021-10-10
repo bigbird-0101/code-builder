@@ -27,18 +27,18 @@ public class FunctionParamDefinedFunctionResolverRule implements DefinedFunction
         String srcFunctionBody=definedFunctionDomain.getTemplateFunction();
         TableInfo tableInfo=definedFunctionDomain.getTableInfo();
         //解析方法体中的参数
-        String lowerRepresentFactor= Utils.firstLowerCase(representFactor);
+        String lowerRepresentFactor= Utils.firstLowerCase(Utils.underlineToHump(representFactor));
         Matcher matcher=rule.matcher(srcFunctionBody);
         while(matcher.find()){
             String paramContent=matcher.group("paramContent");
-            if(paramContent.contains(lowerRepresentFactor)) {
-                Matcher matcher2=Pattern.compile("(?<paramPrefix>.*?)\\s+"+lowerRepresentFactor+"\\s*").matcher(paramContent);
+            if(Pattern.compile(lowerRepresentFactor, Pattern.CASE_INSENSITIVE).matcher(paramContent).find()) {
+                Matcher matcher2=Pattern.compile("(?<paramPrefix>.*?)\\s+"+lowerRepresentFactor+"\\s*", Pattern.CASE_INSENSITIVE).matcher(paramContent);
                 try {
                     if(matcher2.find()) {
                         String paramPrefix = matcher2.group("paramPrefix");
                         String[] valueS=paramPrefix.split("\\s");
                         String paramPrefixReal=Stream.of(valueS).limit(valueS.length-1).collect(Collectors.joining());
-                        String newParamContent = Stream.of(definedValue.split(",")).map(Utils::getFieldName).map(s -> Utils.isEmpty(paramPrefixReal) ?getJavaType(s,tableInfo)+" " + s : paramPrefixReal.replaceAll(lowerRepresentFactor,s) + " " +getJavaType(s,tableInfo) +" "+ s).collect(Collectors.joining(","));
+                        String newParamContent = Stream.of(definedValue.split(",")).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).map(s -> Utils.isEmpty(paramPrefixReal) ?getJavaType(s,tableInfo)+" " + s : paramPrefixReal.replaceAll(lowerRepresentFactor,s) + " " +getJavaType(s,tableInfo) +" "+ s).collect(Collectors.joining(","));
                         srcFunctionBody = srcFunctionBody.replace(paramContent, newParamContent);
                     }
                 }catch (Exception e){
@@ -66,5 +66,10 @@ public class FunctionParamDefinedFunctionResolverRule implements DefinedFunction
         CharSequence charSequence = new TimeoutRegexCharSequence(stringToMatch, timeoutMillis, stringToMatch,
                 regularExpressionPattern.pattern());
         return regularExpressionPattern.matcher(charSequence);
+    }
+
+    public static void main(String[] args) {
+        boolean b = Pattern.compile("ab", Pattern.CASE_INSENSITIVE).matcher("ABc").find();
+        System.out.println(b);
     }
 }

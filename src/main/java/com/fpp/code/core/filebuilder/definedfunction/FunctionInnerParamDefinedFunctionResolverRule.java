@@ -27,9 +27,9 @@ public class FunctionInnerParamDefinedFunctionResolverRule implements DefinedFun
         String representFactor=definedFunctionDomain.getRepresentFactor();
         String srcFunctionBody=definedFunctionDomain.getTemplateFunction();
         String[] definedValues=definedValue.split("\\,");
-        Matcher matcher3= Pattern.compile("((?<=\\()("+representFactor+")(?=\\)))").matcher(srcFunctionBody);
+        Matcher matcher3= Pattern.compile("((?<=\\()("+representFactor+")(?=\\)))", Pattern.CASE_INSENSITIVE).matcher(srcFunctionBody);
         while(matcher3.find()){
-            srcFunctionBody=srcFunctionBody.replace("("+representFactor+")","("+ Stream.of(definedValues).map(Utils::getFieldName).collect(Collectors.joining(","))+")");
+            srcFunctionBody=srcFunctionBody.replace("("+representFactor+")","("+ Stream.of(definedValues).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).collect(Collectors.joining(","))+")");
         }
         return srcFunctionBody;
     }

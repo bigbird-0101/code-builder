@@ -27,14 +27,14 @@ public class FunctionNameDefinedFunctionResolverRule implements DefinedFunctionR
         String representFactor=definedFunctionDomain.getRepresentFactor();
         String srcFunctionBody=definedFunctionDomain.getTemplateFunction();
         String[] definedValues=definedValue.split(",");
-        String tempLessFunctionName=Stream.of(definedValues).map(Utils::getFieldName).map(Utils::firstUpperCase).collect(Collectors.joining("And"));
+        String tempLessFunctionName=Stream.of(definedValues).map(Utils::underlineToHump).collect(Collectors.joining("And"));
         //解析普通方法
-        Pattern rule=Pattern.compile("(.*)\\s+((?<functionNamePrefix>.*)"+Utils.firstUpperCase(representFactor)+"(?<functionNameSuffix>.*?)\\()(.*)(?=\\)\\s*\\{)",Pattern.DOTALL);
+        Pattern rule=Pattern.compile("(.*)\\s+((?<functionNamePrefix>.*)"+Utils.firstUpperCase(representFactor)+"(?<functionNameSuffix>.*?)\\()(.*)(?=\\)\\s*\\{)",Pattern.CASE_INSENSITIVE);
         String tempSrc=srcFunctionBody;
         srcFunctionBody=doRule(srcFunctionBody,rule,tempLessFunctionName,representFactor);
         //解析接口方法
         if(srcFunctionBody.equals(tempSrc)) {
-            Pattern ruleInterface = Pattern.compile("(.*)\\s+((?<functionNamePrefix>.*)" + Utils.firstUpperCase(representFactor) + "(?<functionNameSuffix>.*?)\\()(.*?)(?=\\)\\s*;)", Pattern.DOTALL);
+            Pattern ruleInterface = Pattern.compile("(.*)\\s+((?<functionNamePrefix>.*)" + Utils.firstUpperCase(representFactor) + "(?<functionNameSuffix>.*?)\\()(.*?)(?=\\)\\s*;)", Pattern.CASE_INSENSITIVE);
             srcFunctionBody = doRule(srcFunctionBody, ruleInterface, tempLessFunctionName, representFactor);
         }
         return srcFunctionBody;
@@ -46,15 +46,19 @@ public class FunctionNameDefinedFunctionResolverRule implements DefinedFunctionR
             String prefix=matcher.group("functionNamePrefix");
             String suffix=matcher.group("functionNameSuffix");
             String[] perfixs=prefix.split("\\s");
-            String oldFunctionNameCompletion=perfixs.length>0?(perfixs[perfixs.length-1]+Utils.firstUpperCase(representFactor)+suffix):Utils.firstUpperCase(representFactor)+suffix;
-            String newFunctionNameCompletion=perfixs.length>0?(perfixs[perfixs.length-1]+tempLessFunctionName+suffix):tempLessFunctionName+suffix;
+            String oldFunctionNameCompletion=getFunctionNameCompletion(perfixs,Utils.firstUpperCase(representFactor),suffix);
             try {
-                return srcFunctionBody.replaceAll(oldFunctionNameCompletion, newFunctionNameCompletion);
+                Matcher matcherTemp = Pattern.compile(oldFunctionNameCompletion, Pattern.CASE_INSENSITIVE).matcher(srcFunctionBody);
+                return matcherTemp.replaceAll(getFunctionNameCompletion(perfixs,tempLessFunctionName,suffix));
             }catch (Exception e){
                 return srcFunctionBody;
             }
         }
         return srcFunctionBody;
+    }
+
+    private String getFunctionNameCompletion(String[] perfixs,String realStr,String suffix){
+        return perfixs.length>0?(perfixs[perfixs.length-1]+realStr+suffix):realStr+suffix;
     }
 
     public static void main(String[] args) {
