@@ -314,11 +314,9 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 hideProgressBar();
                 return;
             }
-            Platform.runLater(()->{
-                this.showProgressBar();
-                templatesOperateController.getProgressBar().progressProperty().bind(service.progressProperty());
-                service.restart();
-            });
+            this.showProgressBar();
+            templatesOperateController.getProgressBar().progressProperty().bind(service.progressProperty());
+            service.restart();
             ProjectTemplateInfoConfig projectTemplateInfoConfig = getProjectTemplateInfoConfig();
             CoreConfig coreConfig = new CoreConfig(getDataSourceConfig(getTemplateContext().getEnvironment()), projectTemplateInfoConfig);
             AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy = (AbstractFileCodeBuilderStrategy) fileBuilder.getFileCodeBuilderStrategy();
@@ -335,7 +333,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    Platform.runLater(() -> templatesOperateController.getProgressBar().setProgress(0.1));
                 }
             });
 
@@ -345,9 +342,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     fileBuilder.build(template);
                 }
             }
-            System.out.println(templatesOperateController.getProgressBar().getProgress());
-            System.out.println(templatesOperateController.getProgressBar().isManaged());
-            System.out.println(templatesOperateController.getProgressBar().isVisible());
             Platform.runLater(this::hideProgressBar);
             AlertUtil.showInfo("生成成功!");
         } catch (Exception e) {
@@ -487,6 +481,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     int i = 0;
                     while (i++ < 100) {
                         updateProgress(i, 100);
+                        TimeUnit.MILLISECONDS.sleep(50);
                     }
                     return null;
                 };
