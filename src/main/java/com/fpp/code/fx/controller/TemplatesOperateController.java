@@ -51,7 +51,10 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     public Label fileName;
     @FXML
     public Label currentTemplate;
-
+    @FXML
+    public BorderPane progressBarParent;
+    @FXML
+    public ProgressBar progressBar;
     @FXML
     private VBox box;
 
@@ -60,6 +63,14 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
 
     public FlowPane getTemplates() {
         return templates;
+    }
+
+    public BorderPane getProgressBarParent() {
+        return progressBarParent;
+    }
+
+    public ProgressBar getProgressBar() {
+        return progressBar;
     }
 
     /**

@@ -28,6 +28,10 @@
         <TextField fx:id="representFactor" layoutX="430.0" />
         <TextField fx:id="fields" layoutX="162.0" layoutY="1.0" />
     </Pane>
+    <BorderPane fx:id="progressBarParent" focusTraversable="true" visible="false" managed="false">
+      <center>
+         <ProgressBar fx:id="progressBar" prefWidth="400.0" progress="1" managed="false" visible="false"  BorderPane.alignment="CENTER" />
+      </center></BorderPane>
     <ScrollPane prefHeight="530">
         <FlowPane fx:id="templates" prefWidth="-1.0" VBox.vgrow="NEVER" />
     </ScrollPane>

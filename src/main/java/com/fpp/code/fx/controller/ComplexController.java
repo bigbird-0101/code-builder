@@ -15,6 +15,9 @@ import com.fpp.code.core.filebuilder.*;
 import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResolver;
 import com.fpp.code.core.template.*;
 import com.fpp.code.fx.aware.TemplateContextProvider;
+import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -23,6 +26,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -36,6 +40,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 /**
  * @author fpp
@@ -63,6 +69,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
     private final Insets insets = new Insets(0, 10, 10, 0);
     private Parent templatesOperateNode;
     private FXMLLoader templatesOperateFxmlLoader;
+    private static ExecutorService executorService=Executors.newSingleThreadExecutor();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -275,16 +282,18 @@ public class ComplexController extends TemplateContextProvider implements Initia
 
     @FXML
     public void doBuildCore() {
-        doBuild(new DefaultFileBuilder());
+        Platform.runLater(()-> doBuild(new DefaultFileBuilder()));
     }
 
     @FXML
     public void doBuildCoreAfter() {
-        FileBuilder fileBuilder = new DefaultFileBuilder();
-        FileCodeBuilderStrategy fileCodeBuilderStrategy = new FileAppendSuffixCodeBuilderStrategy();
-        fileCodeBuilderStrategy.setDefinedFunctionResolver(new DefaultDefinedFunctionResolver());
-        fileBuilder.setFileCodeBuilderStrategy(fileCodeBuilderStrategy);
-        doBuild(fileBuilder);
+        Platform.runLater(()-> {
+            FileBuilder fileBuilder = new DefaultFileBuilder();
+            FileCodeBuilderStrategy fileCodeBuilderStrategy = new FileAppendSuffixCodeBuilderStrategy();
+            fileCodeBuilderStrategy.setDefinedFunctionResolver(new DefaultDefinedFunctionResolver());
+            fileBuilder.setFileCodeBuilderStrategy(fileCodeBuilderStrategy);
+            doBuild(fileBuilder);
+        });
     }
 
     public void doBuild(FileBuilder fileBuilder) {
@@ -302,8 +311,14 @@ public class ComplexController extends TemplateContextProvider implements Initia
             }
             if (this.tableSelected.isEmpty() && null == templatesOperateController.getFile()) {
                 AlertUtil.showWarning("请输入一个表名或者选择一个变量文件");
+                hideProgressBar();
                 return;
             }
+            Platform.runLater(()->{
+                this.showProgressBar();
+                templatesOperateController.getProgressBar().progressProperty().bind(service.progressProperty());
+                service.restart();
+            });
             ProjectTemplateInfoConfig projectTemplateInfoConfig = getProjectTemplateInfoConfig();
             CoreConfig coreConfig = new CoreConfig(getDataSourceConfig(getTemplateContext().getEnvironment()), projectTemplateInfoConfig);
             AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy = (AbstractFileCodeBuilderStrategy) fileBuilder.getFileCodeBuilderStrategy();
@@ -311,21 +326,32 @@ public class ComplexController extends TemplateContextProvider implements Initia
             if (logger.isInfoEnabled()) {
                 logger.info("选中的模板名 {}", templatesOperateController.getSelectTemplateGroup().keySet());
             }
-            Properties propertiesVariable = null;
-            if (null != templatesOperateController.getFile()) {
-                try (InputStreamReader fileInputStream = new InputStreamReader(new FileInputStream(templatesOperateController.getFile()), StandardCharsets.UTF_8)) {
-                    propertiesVariable = new Properties();
-                    propertiesVariable.load(fileInputStream);
+            AtomicReference<Properties> propertiesVariable = new AtomicReference<>();
+            executorService.submit(()->{
+                if (null != templatesOperateController.getFile()) {
+                    try (InputStreamReader fileInputStream = new InputStreamReader(new FileInputStream(templatesOperateController.getFile()), StandardCharsets.UTF_8)) {
+                        propertiesVariable.set(new Properties());
+                        propertiesVariable.get().load(fileInputStream);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Platform.runLater(() -> templatesOperateController.getProgressBar().setProgress(0.1));
                 }
-            }
+            });
+
             for (String tableName : tableSelected) {
                 for (String templateName : templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).keySet()) {
-                    Template template=doGetTemplate(templateName,tableName,coreConfig,propertiesVariable,templatesOperateController);
+                    Template template=doGetTemplate(templateName,tableName,coreConfig, propertiesVariable.get(),templatesOperateController);
                     fileBuilder.build(template);
                 }
             }
+            System.out.println(templatesOperateController.getProgressBar().getProgress());
+            System.out.println(templatesOperateController.getProgressBar().isManaged());
+            System.out.println(templatesOperateController.getProgressBar().isVisible());
+            Platform.runLater(this::hideProgressBar);
             AlertUtil.showInfo("生成成功!");
         } catch (Exception e) {
+            Platform.runLater(this::hideProgressBar);
             this.tableSelected.clear();
             logger.error("build error {} ,{}", e.getMessage(), e);
             e.printStackTrace();
@@ -335,19 +361,34 @@ public class ComplexController extends TemplateContextProvider implements Initia
 
     private Template doGetTemplate(String templateName, String tableName, CoreConfig coreConfig, Properties propertiesVariable, TemplatesOperateController templatesOperateController) throws SQLException, ClassNotFoundException, IOException, CodeConfigException {
         Template template = getTemplateContext().getTemplate(templateName);
-        Map<String, Object> temp = new HashMap<>(10);
-        TableInfo tableInfo = DbUtil.getTableInfo(coreConfig.getDataSourceConfig(), tableName);
-        tableInfo.setSavePath(template.getSrcPackage().replaceAll("\\/", "."));
-        temp.put("tableInfo", tableInfo);
-        if (null != propertiesVariable) {
-            propertiesVariable.forEach((k, v) -> temp.put((String) k, v));
+        Future<Map<String, Object>> tempValue = executorService.submit(() -> {
+            Map<String, Object> temp = new HashMap<>(10);
+            TableInfo tableInfo = null;
+            try {
+                tableInfo = DbUtil.getTableInfo(coreConfig.getDataSourceConfig(), tableName);
+            } catch (SQLException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            tableInfo.setSavePath(template.getSrcPackage().replaceAll("\\/", "."));
+            temp.put("tableInfo", tableInfo);
+            if (null != propertiesVariable) {
+                propertiesVariable.forEach((k, v) -> temp.put((String) k, v));
+            }
+            return temp;
+        });
+        try {
+            template.setTemplateVariables(tempValue.get());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
-        template.setTemplateVariables(temp);
-        //找到对应的模板checkbox
-        CheckBox checkBoxTarget = templatesOperateController.getTemplates().getChildren().stream().map(node -> (VBox) node).map(vBox -> (CheckBox) (((AnchorPane) vBox.getChildren().get(0)).getChildren().get(0))).filter(checkBox -> checkBox.getUserData().equals(template.getTemplateName())).findFirst().get();
-        AnchorPane anchorPane = (AnchorPane)checkBoxTarget.getParent();
-        //重新设置模板值但不持久化
-        templatesOperateController.doSetTemplate(template,anchorPane);
+
+        Platform.runLater(()->{
+            //找到对应的模板checkbox
+            CheckBox checkBoxTarget = templatesOperateController.getTemplates().getChildren().stream().map(node -> (VBox) node).map(vBox -> (CheckBox) (((AnchorPane) vBox.getChildren().get(0)).getChildren().get(0))).filter(checkBox -> checkBox.getUserData().equals(template.getTemplateName())).findFirst().get();
+            AnchorPane anchorPane = (AnchorPane)checkBoxTarget.getParent();
+            //重新设置模板值但不持久化
+            templatesOperateController.doSetTemplate(template,anchorPane);
+        });
         return template;
     }
 
@@ -414,4 +455,42 @@ public class ComplexController extends TemplateContextProvider implements Initia
         secondWindow.setScene(scene);
         secondWindow.show();
     }
+
+    void showProgressBar(){
+        TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
+        BorderPane progressBarParent = templatesOperateController.getProgressBarParent();
+        progressBarParent.setVisible(true);
+        progressBarParent.setManaged(true);
+        ProgressBar progressBar = templatesOperateController.getProgressBar();
+        progressBar.setVisible(true);
+        progressBar.setManaged(true);
+    }
+
+    void hideProgressBar(){
+        TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
+        BorderPane progressBarParent = templatesOperateController.getProgressBarParent();
+        progressBarParent.setVisible(false);
+        progressBarParent.setManaged(false);
+        ProgressBar progressBar = templatesOperateController.getProgressBar();
+        progressBar.setVisible(false);
+        progressBar.setManaged(false);
+    }
+
+
+    Service<Integer> service = new Service<Integer>() {
+
+        @Override
+        protected Task<Integer> createTask() {
+            return new Task<Integer>() {
+                @Override
+                protected Integer call() throws Exception {
+                    int i = 0;
+                    while (i++ < 100) {
+                        updateProgress(i, 100);
+                    }
+                    return null;
+                };
+            };
+        }
+    };
 }
