@@ -47,7 +47,6 @@ public class Main extends Application {
         KeyCodeCombination kc1 = new KeyCodeCombination(KeyCode.A, KeyCodeCombination.CONTROL_DOWN);
         KeyCodeCombination kc2 = new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCodeCombination.CONTROL_DOWN);
         scene.getAccelerators().put(kc1, controller::doBuildCore);
-
         scene.getAccelerators().put(kc2, controller::doBuildCoreAfter);
     }
 
@@ -56,7 +55,6 @@ public class Main extends Application {
         Parameters parameters = getParameters();
         List<String> raw = parameters.getRaw();
         JFramePageEnvironment environment=new JFramePageEnvironment();
-
         if(raw.isEmpty()) {
             String userHome = System.getProperty("user.home");
             String projectHome=userHome+"\\Desktop\\tool\\";
