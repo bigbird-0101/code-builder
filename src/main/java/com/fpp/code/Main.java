@@ -1,10 +1,12 @@
 package com.fpp.code;
 
+import com.fpp.code.common.Utils;
 import com.fpp.code.core.config.JFramePageEnvironment;
 import com.fpp.code.core.context.GenericTemplateContext;
 import com.fpp.code.fx.aware.TemplateContextProvider;
 import com.fpp.code.fx.cache.UserOperateCache;
 import com.fpp.code.fx.controller.ComplexController;
+import com.mysql.cj.util.StringUtils;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -45,6 +47,7 @@ public class Main extends Application {
         KeyCodeCombination kc1 = new KeyCodeCombination(KeyCode.A, KeyCodeCombination.CONTROL_DOWN);
         KeyCodeCombination kc2 = new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCodeCombination.CONTROL_DOWN);
         scene.getAccelerators().put(kc1, controller::doBuildCore);
+
         scene.getAccelerators().put(kc2, controller::doBuildCoreAfter);
     }
 
@@ -53,6 +56,7 @@ public class Main extends Application {
         Parameters parameters = getParameters();
         List<String> raw = parameters.getRaw();
         JFramePageEnvironment environment=new JFramePageEnvironment();
+
         if(raw.isEmpty()) {
             String userHome = System.getProperty("user.home");
             String projectHome=userHome+"\\Desktop\\tool\\";
@@ -66,7 +70,9 @@ public class Main extends Application {
             environment.setTemplatesPath(raw.get(2));
             try {
                 String logFilePath = raw.get(3);
-                setLogFilePath(logFilePath);
+                if(Utils.isNotEmpty(logFilePath)) {
+                    setLogFilePath(logFilePath);
+                }
             }catch (Exception e){
                 logger.warn("load log file warning",e);
             }
@@ -82,7 +88,7 @@ public class Main extends Application {
         try {
             if (log4jFile.exists()) {
                 source = new ConfigurationSource(new FileInputStream(log4jFile), log4jFile);
-                Configurator.initialize(null, source);
+                Configurator.reconfigure(source.getURI());
             }
         } catch (Exception e) {
             e.printStackTrace();
