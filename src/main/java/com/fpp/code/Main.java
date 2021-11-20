@@ -1,20 +1,27 @@
 package com.fpp.code;
 
+import com.fpp.code.common.AlertUtil;
 import com.fpp.code.common.Utils;
 import com.fpp.code.core.config.JFramePageEnvironment;
 import com.fpp.code.core.context.GenericTemplateContext;
+import com.fpp.code.fx.MinWindow;
 import com.fpp.code.fx.aware.TemplateContextProvider;
 import com.fpp.code.fx.cache.UserOperateCache;
 import com.fpp.code.fx.controller.ComplexController;
 import com.mysql.cj.util.StringUtils;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Stage;
+import jdk.nashorn.internal.codegen.types.BooleanType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
@@ -40,7 +47,19 @@ public class Main extends Application {
         primaryStage.setTitle("code-builder");
         primaryStage.setScene(scene);
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("icon.png"))));
+        primaryStage.setOnCloseRequest(event -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,"",new ButtonType("退出系统"),new ButtonType("最小化托盘", ButtonBar.ButtonData.YES));
+            alert.setTitle("提示");
+            alert.setHeaderText("");
+            ButtonBar.ButtonData buttonData = alert.showAndWait().get().getButtonData();
+            if(ButtonBar.ButtonData.YES.equals(buttonData)){
+                MinWindow.getInstance().hide(primaryStage);
+            }else{
+                System.exit(0);
+            }
+        });
         primaryStage.show();
+        MinWindow.getInstance().listen(primaryStage);
     }
 
     private void addKeyCodeCombination(Scene scene,ComplexController controller) {
@@ -77,7 +96,6 @@ public class Main extends Application {
         }
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         TemplateContextProvider.setTemplateContext(genericTemplateContext);
-        System.out.println(System.getProperty("user.home"));
     }
 
     public void setLogFilePath(String logFilePath){

@@ -20,7 +20,6 @@ public class AlertUtil {
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
-        alert.showAndWait();
         return alert.showAndWait().get();
     }
 
