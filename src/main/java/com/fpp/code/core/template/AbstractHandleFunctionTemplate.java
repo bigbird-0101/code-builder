@@ -150,6 +150,10 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
         return functions;
     }
 
+    public TemplateFileClassInfo getTemplateFileClassInfo() {
+        return templateFileClassInfo;
+    }
+
     /**
      * 设置模板解析策略
      * @param resolverStrategy 模板解析策略

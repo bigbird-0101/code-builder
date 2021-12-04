@@ -40,8 +40,9 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
 
             String srcFilePath=getFilePath();
             String srcResult=getSrcFileCode(srcFilePath);
-            String result = srcResult.substring(0, srcResult.lastIndexOf("}"));
-            return result + templeResult + "\r}\r\n";
+            String suffix = handleFunctionTemplate.getTemplateFileClassInfo().getTemplateClassSuffix();
+            String result = srcResult.substring(0, srcResult.lastIndexOf(suffix.trim()));
+            return result + templeResult + suffix;
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
             return template.getTemplateResult();
         }else{

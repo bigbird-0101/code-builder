@@ -331,7 +331,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                         propertiesVariable.set(new Properties());
                         propertiesVariable.get().load(fileInputStream);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        logger.error("error propertiesVariable",e);
                     }
                 }
             });
@@ -347,13 +347,12 @@ public class ComplexController extends TemplateContextProvider implements Initia
         } catch (Exception e) {
             Platform.runLater(this::hideProgressBar);
             this.tableSelected.clear();
-            logger.error("build error {} ,{}", e.getMessage(), e);
-            e.printStackTrace();
+            logger.error("build error",e);
             AlertUtil.showError(e.getMessage());
         }
     }
 
-    private Template doGetTemplate(String templateName, String tableName, CoreConfig coreConfig, Properties propertiesVariable, TemplatesOperateController templatesOperateController) throws SQLException, ClassNotFoundException, IOException, CodeConfigException {
+    private Template doGetTemplate(String templateName, String tableName, CoreConfig coreConfig, Properties propertiesVariable, TemplatesOperateController templatesOperateController) throws IOException, CodeConfigException {
         Template template = getTemplateContext().getTemplate(templateName);
         Future<Map<String, Object>> tempValue = executorService.submit(() -> {
             Map<String, Object> temp = new HashMap<>(10);
@@ -361,7 +360,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             try {
                 tableInfo = DbUtil.getTableInfo(coreConfig.getDataSourceConfig(), tableName);
             } catch (SQLException | ClassNotFoundException e) {
-                e.printStackTrace();
+                logger.error("doGetTemplate DbUtil.getTableInfo error",e);
             }
             tableInfo.setSavePath(template.getSrcPackage().replaceAll("\\/", "."));
             temp.put("tableInfo", tableInfo);
@@ -373,7 +372,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         try {
             template.setTemplateVariables(tempValue.get());
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            logger.error("setTemplateVariables",e);
         }
 
         Platform.runLater(()->{
