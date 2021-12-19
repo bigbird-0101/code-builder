@@ -14,7 +14,7 @@ import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.filebuilder.*;
 import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResolver;
 import com.fpp.code.core.template.*;
-import com.fpp.code.fx.aware.TemplateContextProvider;
+import com.fpp.code.core.context.aware.TemplateContextProvider;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -339,6 +339,8 @@ public class ComplexController extends TemplateContextProvider implements Initia
             for (String tableName : tableSelected) {
                 for (String templateName : templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).keySet()) {
                     Template template=doGetTemplate(templateName,tableName,coreConfig, propertiesVariable.get(),templatesOperateController);
+                    TemplateTraceContext.setCurrentTemplate(template);
+                    TemplateContextProvider.doPushEventTemplateContextAware();
                     fileBuilder.build(template);
                 }
             }
@@ -364,6 +366,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             }
             tableInfo.setSavePath(template.getSrcPackage().replaceAll("\\/", "."));
             temp.put("tableInfo", tableInfo);
+            temp.put("className",tableInfo.getSavePath()+"."+tableInfo.getDomainName());
             if (null != propertiesVariable) {
                 propertiesVariable.forEach((k, v) -> temp.put((String) k, v));
             }

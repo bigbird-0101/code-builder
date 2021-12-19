@@ -2,7 +2,7 @@ package com.fpp.code.fx.controller;
 
 import com.fpp.code.common.AlertUtil;
 import com.fpp.code.core.config.GeneratePropertySource;
-import com.fpp.code.fx.aware.TemplateContextProvider;
+import com.fpp.code.core.context.aware.TemplateContextProvider;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;

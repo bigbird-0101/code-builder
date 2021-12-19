@@ -6,7 +6,7 @@ import com.fpp.code.core.context.GenericTemplateContext;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.GenericTemplateDefinition;
 import com.fpp.code.core.template.*;
-import com.fpp.code.fx.aware.TemplateContextProvider;
+import com.fpp.code.core.context.aware.TemplateContextProvider;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -25,11 +25,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashSet;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 /**
  * @author Administrator
  */

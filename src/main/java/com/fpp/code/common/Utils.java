@@ -29,6 +29,13 @@ public class Utils {
         return false;
     }
 
+    public static boolean isEmpty(Set set) {
+        if (set == null || 0==set.size()) {
+            return true;
+        }
+        return false;
+    }
+
     public static boolean isNotEmpty(String str) {
         return !isEmpty(str);
     }

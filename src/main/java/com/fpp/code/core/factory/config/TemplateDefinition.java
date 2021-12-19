@@ -3,6 +3,7 @@ package com.fpp.code.core.factory.config;
 import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
 
 import java.io.File;
+import java.util.Set;
 
 /**
  * @author fpp
@@ -56,4 +57,8 @@ public interface TemplateDefinition {
      * @return
      */
     boolean isHandleFunction();
+
+
+    Set<String> getDependTemplates();
+
 }

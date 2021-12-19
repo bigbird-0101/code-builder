@@ -5,7 +5,7 @@ import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.context.GenericTemplateContext;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.GenericMultipleTemplateDefinition;
-import com.fpp.code.fx.aware.TemplateContextProvider;
+import com.fpp.code.core.context.aware.TemplateContextProvider;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -17,7 +17,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 

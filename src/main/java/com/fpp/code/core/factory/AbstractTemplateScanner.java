@@ -3,6 +3,7 @@ package com.fpp.code.core.factory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.fpp.code.common.Utils;
 import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.factory.config.TemplateDefinition;
@@ -123,6 +124,7 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
             genericTemplateDefinition.setModule(templateConfigInfo.getString("module"));
             genericTemplateDefinition.setSourcesRoot(templateConfigInfo.getString("sourcesRoot"));
             genericTemplateDefinition.setSrcPackage(templateConfigInfo.getString("srcPackage"));
+            genericTemplateDefinition.setDependTemplates(JSON.parseObject(Optional.ofNullable(templateConfigInfo.getString("dependTemplates")).orElse("[]"),new TypeReference<Set<String>>(){}));
             TemplateFilePrefixNameStrategy filePrefixNameStrategy = templateFilePrefixNameStrategyFactory.getTemplateFilePrefixNameStrategy(templateConfigInfo.getIntValue("filePrefixNameStrategy"));
             if(filePrefixNameStrategy instanceof PatternTemplateFilePrefixNameStrategy){
                 ((PatternTemplateFilePrefixNameStrategy) filePrefixNameStrategy).setPattern(templateConfigInfo.getString("filePrefixNameStrategyPattern"));

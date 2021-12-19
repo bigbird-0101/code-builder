@@ -1,16 +1,13 @@
 package com.fpp.code;
 
-import com.fpp.code.common.AlertUtil;
 import com.fpp.code.common.Utils;
 import com.fpp.code.core.config.JFramePageEnvironment;
 import com.fpp.code.core.context.GenericTemplateContext;
 import com.fpp.code.fx.MinWindow;
-import com.fpp.code.fx.aware.TemplateContextProvider;
+import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.fx.cache.UserOperateCache;
 import com.fpp.code.fx.controller.ComplexController;
-import com.mysql.cj.util.StringUtils;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -21,7 +18,6 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Stage;
-import jdk.nashorn.internal.codegen.types.BooleanType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.ConfigurationSource;

@@ -4,6 +4,7 @@ import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author fpp
@@ -25,6 +26,8 @@ public class GenericTemplateDefinition extends AbstractTemplateDefinition {
     private TemplateFilePrefixNameStrategy filePrefixNameStrategy;
 
     private File templateFile;
+
+    private Set<String> dependTemplates;
 
     public GenericTemplateDefinition() {
     }
@@ -82,6 +85,15 @@ public class GenericTemplateDefinition extends AbstractTemplateDefinition {
     @Override
     public boolean isHandleFunction() {
         return isHandleFunction;
+    }
+
+    public void setDependTemplates(Set<String> dependTemplates) {
+        this.dependTemplates = dependTemplates;
+    }
+
+    @Override
+    public Set<String> getDependTemplates() {
+        return dependTemplates;
     }
 
     public void setHandleFunction(boolean handleFunction) {

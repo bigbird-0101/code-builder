@@ -3,6 +3,9 @@ package com.fpp.code.core.template;
 import com.fpp.code.common.Utils;
 import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.config.Environment;
+import com.fpp.code.core.context.TemplateContext;
+import com.fpp.code.core.context.aware.TemplateContextAware;
+import com.fpp.code.core.context.aware.TemplateContextProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,7 +18,7 @@ import java.util.regex.Pattern;
  * @version 1.0
  * @date 2020/6/15 13:29
  */
-public abstract class AbstractTemplateResolver implements TemplateResolver {
+public abstract class AbstractTemplateResolver  extends TemplateContextProvider implements TemplateResolver {
 
     private static Logger logger= LogManager.getLogger(AbstractTemplateResolver.class);
 
@@ -116,6 +119,10 @@ public abstract class AbstractTemplateResolver implements TemplateResolver {
         ServiceLoader<TemplateLangResolver> serviceLoader=ServiceLoader.load(TemplateLangResolver.class);
         serviceLoader.forEach(item->{
             item.setTemplateResolver(this);
+            if(item instanceof TemplateContextAware){
+                TemplateContextAware temp=(TemplateContextAware)item;
+                temp.setTemplateContext(getTemplateContext());
+            }
             this.templateLangResolverList.add(item);
         });
         if(templateLangResolverList.size()==0&&logger.isWarnEnabled()){
@@ -156,7 +163,10 @@ public abstract class AbstractTemplateResolver implements TemplateResolver {
                 continue;
             }
             if (!isExclude && !str.split("\\.")[0].equals(targetObjectKey)) {
-                logger.warn("{}属性在{}不存在",str,targetObject.getClass().getSimpleName());
+                if(!(targetObject instanceof String)){
+                    logger.warn("{}属性在{}不存在",targetObjectKey,targetObject.getClass().getSimpleName());
+                }
+                continue;
             }
             if (!isExclude) {
                 templateVariableKV.put(str, Utils.getObjectFieldValue(str, targetObject));

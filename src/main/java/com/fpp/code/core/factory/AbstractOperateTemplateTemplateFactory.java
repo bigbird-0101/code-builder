@@ -1,5 +1,6 @@
 package com.fpp.code.core.factory;
 
+import com.fpp.code.common.Utils;
 import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.config.CodeConfigException;
 import com.fpp.code.core.config.GeneratePropertySource;
@@ -19,10 +20,16 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     @Override
     public Template createTemplate(String templateName, TemplateDefinition templateDefinition) throws CodeConfigException, IOException {
         Template template;
+        boolean noHaveDepend = Utils.isEmpty(templateDefinition.getDependTemplates());
         if(templateDefinition.isHandleFunction()){
-            template=new DefaultHandleFunctionTemplate();
+            template= noHaveDepend?new DefaultHandleFunctionTemplate():new HaveDependTemplateHandleFunctionTemplate();
         }else{
             template=new DefaultNoHandleFunctionTemplate();
+        }
+        if(!noHaveDepend){
+            assert template instanceof HaveDependTemplateHandleFunctionTemplate;
+            HaveDependTemplateHandleFunctionTemplate haveDependTemplateHandleFunctionTemplate=(HaveDependTemplateHandleFunctionTemplate)template;
+            haveDependTemplateHandleFunctionTemplate.setDependTemplates(templateDefinition.getDependTemplates());
         }
         template.setProjectUrl(templateDefinition.getProjectUrl());
         template.setModule(templateDefinition.getModule());
