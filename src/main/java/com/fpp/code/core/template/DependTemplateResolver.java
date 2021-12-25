@@ -70,6 +70,31 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
                 }
             }
         },
+        SRC_PACKAGE("srcPackage"){
+            @Override
+            String done(String index) throws TemplateResolveException {
+                Template currentTemplate = TemplateTraceContext.getCurrentTemplate();
+                if(currentTemplate instanceof HaveDependTemplateHandleFunctionTemplate){
+                    HaveDependTemplateHandleFunctionTemplate template=(HaveDependTemplateHandleFunctionTemplate)currentTemplate;
+                    int i;
+                    try {
+                        i = Integer.parseInt(index);
+                    }catch (Exception e){
+                        throw new TemplateResolveException(String.format("Integer.parseInt %s error to get template",index));
+                    }
+                    String templateName = getSetValue(template.getDependTemplates(), i);
+                    Template templateDepend;
+                    try {
+                        templateDepend = templateContext.getTemplate(templateName);
+                    } catch (CodeConfigException | IOException e) {
+                        throw new TemplateResolveException(e);
+                    }
+                    return templateDepend.getSrcPackage().replaceAll("\\/", ".");
+                }else{
+                    throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplateHandleFunctionTemplate",currentTemplate.getTemplateName()));
+                }
+            }
+        }
         ;
 
         private String value;

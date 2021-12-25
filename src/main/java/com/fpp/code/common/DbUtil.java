@@ -233,33 +233,7 @@ public class DbUtil {
      * @return String 字段名
      */
     private static String getDomainPropertyName(String columnName) {
-        if (columnName == null) {
-            return "";
-        }
-        StringBuilder fieldNameBuffer = new StringBuilder();
-
-        boolean nextUpperCase = false;
-        for (int i = 0; i < columnName.length(); i++) {
-            char c = columnName.charAt(i);
-
-            if (nextUpperCase) {
-                fieldNameBuffer.append(columnName.substring(i, i + 1).toUpperCase());
-            } else {
-                fieldNameBuffer.append(c);
-            }
-
-            if (c == '_') {
-                nextUpperCase = true;
-            } else {
-                nextUpperCase = false;
-            }
-        }
-
-        String fieldName = fieldNameBuffer.toString();
-        fieldName = fieldName.replaceAll("_", "");
-
-        fieldName = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1);
-        return fieldName;
+        return Utils.getFieldName(Utils.underlineToHump(columnName));
     }
 
     private static String getDomainName(String tableName) {
@@ -343,10 +317,12 @@ public class DbUtil {
 
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        String url = "jdbc:mysql://127.0.0.1:3306/xydj?useUnicode=true&characterEncoding=utf-8";
-        String quDongName = url.indexOf("mysql") > 0 ? "com.mysql.jdbc.Driver" : url.indexOf("oracle") > 0 ? "" : "";
-        DataSourceConfig a = new DataSourceConfig(quDongName, "root", url, "pttdata");
-        TableInfo tableInfo = getTableInfo(a, "tab_test");
-        System.out.println(tableInfo);
+//        String url = "jdbc:mysql://127.0.0.1:3306/xydj?useUnicode=true&characterEncoding=utf-8";
+//        String quDongName = url.indexOf("mysql") > 0 ? "com.mysql.jdbc.Driver" : url.indexOf("oracle") > 0 ? "" : "";
+//        DataSourceConfig a = new DataSourceConfig(quDongName, "root", url, "pttdata");
+//        TableInfo tableInfo = getTableInfo(a, "tab_test");
+//        System.out.println(tableInfo);
+        System.out.println(getDomainPropertyName("CONACT_ID"));
+        System.out.println(Utils.getFieldName("CONACT_ID"));
     }
 }

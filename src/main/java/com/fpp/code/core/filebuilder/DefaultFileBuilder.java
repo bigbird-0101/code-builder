@@ -34,7 +34,7 @@ public class DefaultFileBuilder extends AbstractFileBuilder {
         AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy= (AbstractFileCodeBuilderStrategy) getFileCodeBuilderStrategy();
         fileCodeBuilderStrategy.setTemplate(template);
         fileCodeBuilderStrategy.setFileNameBuilder(getFileNameBuilder());
-        String code=fileCodeBuilderStrategy.doneCode();
+        String code=fileCodeBuilderStrategy.doneCode().trim();
         fileCodeBuilderStrategy.fileWrite(code);
     }
 }

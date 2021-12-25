@@ -37,6 +37,11 @@ public class FunctionNameDefinedFunctionResolverRule implements DefinedFunctionR
             Pattern ruleInterface = Pattern.compile("(.*)\\s+((?<functionNamePrefix>.*)" + Utils.firstUpperCase(representFactor) + "(?<functionNameSuffix>.*?)\\()(.*?)(?=\\)\\s*;)", Pattern.CASE_INSENSITIVE);
             srcFunctionBody = doRule(srcFunctionBody, ruleInterface, tempLessFunctionName, representFactor);
         }
+        //解析xml当中的方法
+        if(srcFunctionBody.equals(tempSrc)) {
+            Pattern ruleXml=Pattern.compile("id\\s*=\\s*\"(?<functionNamePrefix>.*)"+Utils.firstUpperCase(representFactor)+"(?<functionNameSuffix>.*?)\\s*\"",Pattern.CASE_INSENSITIVE);
+            srcFunctionBody = doRule(srcFunctionBody, ruleXml, tempLessFunctionName, representFactor);
+        }
         return srcFunctionBody;
     }
 

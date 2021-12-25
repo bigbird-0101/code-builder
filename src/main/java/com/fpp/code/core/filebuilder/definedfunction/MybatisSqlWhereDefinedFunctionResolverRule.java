@@ -38,7 +38,7 @@ public class MybatisSqlWhereDefinedFunctionResolverRule extends DbTemplateWhereD
         String representFactor=definedFunctionDomain.getRepresentFactor();
         String srcFunctionBody=definedFunctionDomain.getTemplateFunction();
         String[] definedValues=definedValue.split("\\,");
-        String oldSelectParamPattern="("+representFactor+"\\s*)\\=\\s*\\#\\s*\\{"+ Utils.getFieldName(representFactor) +"(.*?)\\s*\\}\\s*";
+        String oldSelectParamPattern="("+representFactor+"\\s*)\\=\\s*\\#\\s*\\{"+ Utils.getFieldName(representFactor) +"(.*?)\\s*\\}";
         Matcher matcher = Utils.getIgnoreLowerUpperMather(srcFunctionBody,oldSelectParamPattern);
         boolean isIncludeJdbcType=false;
         boolean isLower=false;
