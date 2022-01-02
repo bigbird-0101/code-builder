@@ -1,3 +1,9 @@
+import com.fpp.code.common.Utils;
+
+import java.sql.Types;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -6,10 +12,29 @@ import java.util.stream.Stream;
 public class RegexDemo {
 
     public static void main(String[] args) {
+        Set<String> a=new HashSet<>();
+        a.addAll(Arrays.asList("1234","123","abc"));
+        String s = a.stream().skip(0).limit(1).findFirst().get();
+        System.out.println(s);
+//          String bcd="where ID=#id:BIGINT#";
+//        String abcd2="[.?*]";
+//        String abcd="ID\\s*=\\s*#\\s*id\\s*(.*)\\s*#";
+//        Stream.of(Types.class.getFields()).forEach(s-> System.out.println(s.getName()));
+//        Matcher ignoreLowerUpperMather = Utils.getIgnoreLowerUpperMather(bcd, abcd);
+//        String group1 = ignoreLowerUpperMather.group(1);
+//        System.out.println(group1);
+//        while(ignoreLowerUpperMather.find()){
+//            String group = ignoreLowerUpperMather.group(0);
+//
+//            String group2 = ignoreLowerUpperMather.group(1);
+//            System.out.println(group);
+//            System.out.println( ignoreLowerUpperMather.groupCount()+"====="+group2);
+//        }
+//        System.out.println(bcd.matches(abcd));
 //        //匹配邮箱
 //        String regex="^.+@.+(\\..+){1,}$";
 //        String str="fushb@163.com";
-////      System.out.println(str.matches(regex));
+//      System.out.println(str.matches(regex));
 //
 //        //匹配固定电话  4位区号-7位号码 或者 3位区号-8位号码
 //        String regex2="^\\d{4}-\\d{7}|\\d{3}-\\d{8}$";
@@ -91,15 +116,15 @@ public class RegexDemo {
 
 
 
-        Pattern ab = Pattern.compile("(?<paramPrefix>.*?)\\s+id\\s*");
-
-        Matcher matcher=ab.matcher("@Param(\"id\") int id");
-        while(matcher.find()){
-            String group=matcher.group("paramPrefix");
-            String[] valueS=group.split("\\s");
-            String a=Stream.of(valueS).limit(valueS.length-1).collect(Collectors.joining());
-            System.out.println(a);
-        }
+//        Pattern ab = Pattern.compile("(?<paramPrefix>.*?)\\s+id\\s*");
+//
+//        Matcher matcher=ab.matcher("@Param(\"id\") int id");
+//        while(matcher.find()){
+//            String group=matcher.group("paramPrefix");
+//            String[] valueS=group.split("\\s");
+//            String a=Stream.of(valueS).limit(valueS.length-1).collect(Collectors.joining());
+//            System.out.println(a);
+//        }
     }
 
 }

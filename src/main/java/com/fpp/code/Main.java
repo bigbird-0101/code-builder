@@ -87,7 +87,7 @@ public class Main extends Application {
                     setLogFilePath(logFilePath);
                 }
             }catch (Exception e){
-                logger.warn("load log file warning",e);
+                logger.warn("load log file warning not get config log file");
             }
         }
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
