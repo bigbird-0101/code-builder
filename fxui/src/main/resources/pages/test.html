@@ -1,0 +1,53 @@
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type='text/javascript' src="jquery-1.12.1.min.js"></script>
+    <script type='text/javascript' src="jquery-1.7.1.js"></script>
+    <script type='text/javascript' src="json2.js"></script>
+
+    <!-- Visibility toggle script -->
+    <script type="text/javascript">
+        function check(userName,password){
+            var result = employeeAction.checkPassword(userName,password);
+            document.getElementById("checkResult").value=result;
+        }
+
+        function updatePassword(){
+            var pass = document.getElementById("password").value;
+            document.getElementById("checkResult").value=pass;
+            var a = employeeAction.resetPassword("root",pass);
+            document.getElementById("password").value=a;
+        }
+        function insert(){
+            var userName = document.getElementById("userName").value;
+            var password = document.getElementById("userPassword").value;
+            var a = employeeAction.insertEmployee(userName,password);
+            document.getElementById("password").value=a;
+        }
+        function query(){
+            var str = employeeAction.queryAll();
+            var jsondata = JSON.parse(str);
+            alert(jsondata);
+            document.getElementById("password").value=jsondata[0].userName;
+        }
+    </script>
+</head>
+<body>
+<p>Employee</p>
+<input type="text" value="" id="checkResult">
+<input type="button" value="验证密码" onclick="check('root','root');">
+
+<input type="text" value="" id="password">
+<input type="button" value="重置" onclick="updatePassword();">
+
+<input type="text" value="" id="userName">
+<input type="text" value="" id="userPassword">
+<input type="button" value="添加" onclick="insert();">
+
+<br>
+<input type="button" value="查询" onclick="query();">
+
+
+</body>
+</html>

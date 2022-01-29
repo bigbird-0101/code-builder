@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" fx:controller="com.fpp.code.fxui.fx.controller.AboutController"
+      minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0"
+      xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+   <Label layoutX="100.0" layoutY="30.0" text="github 持续更新中...,期待您的Star" textOverrun="CLIP"/>
+   <Hyperlink layoutX="132.0" layoutY="95.0" text="https://github.com/bigbird-0101/spring-code" onAction="#goGithub"/>
+   <Label layoutX="100.0" layoutY="100.0" text="地址:"/>
+</Pane>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<SplitPane fx:id="splitPane" dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fx.TestUpdate">
+<!--    <ScrollPane prefHeight="400" prefWidth="600" hbarPolicy="NEVER">-->
+       <VBox fx:id="leftPane" prefHeight="200.0" prefWidth="200.0">
+           <ScrollPane prefHeight="400" prefWidth="300" vbarPolicy="NEVER">
+           <VBox fx:id="updateBefore">
+           </VBox>
+           </ScrollPane>
+       </VBox>
+       <VBox fx:id="rightPane" prefHeight="200.0" prefWidth="200.0">
+           <ScrollPane prefHeight="400" prefWidth="300" vbarPolicy="NEVER">
+           <VBox fx:id="updateAfter">
+               <Label>dd123213211111111111111111111111111111111111111</Label>
+           </VBox>
+           </ScrollPane>
+       </VBox>
+<!--    </ScrollPane>-->
+</SplitPane>
