@@ -135,8 +135,11 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
         GenericMultipleTemplateDefinition genericMultipleTemplateDefinition =isNotHave?
         new GenericMultipleTemplateDefinition(): (GenericMultipleTemplateDefinition) genericTemplateContext.getMultipleTemplateDefinition(sourceMultipleTemplateName);
         genericMultipleTemplateDefinition.setTemplateNames(selectTemplateNames);
-        if(isNotHave) {
+        if(isNotHave||!multipleTemplateName.getText().equals(sourceMultipleTemplateName)) {
             genericTemplateContext.registerMultipleTemplateDefinition(multipleTemplateName.getText(), genericMultipleTemplateDefinition);
+            if(!multipleTemplateName.getText().equals(sourceMultipleTemplateName)){
+                defaultListableTemplateFactory.removeTemplateDefinition(sourceMultipleTemplateName);
+            }
         }
         if(Utils.isNotEmpty(projectUrl.getText())){
             selectTemplateNames.forEach(templateName->{

@@ -214,11 +214,14 @@ public class TemplateController extends TemplateContextProvider implements Initi
         }
         genericTemplateDefinition.setTemplateFile(newFile);
         AbstractEnvironment.putTemplateContent(newFile.getAbsolutePath(), IOUtils.toString(new FileInputStream(newFile), StandardCharsets.UTF_8));
-        if(isNotHave) {
+        if(isNotHave||!templateName.getText().equals(sourceTemplateName)) {
             templateContext.registerTemplateDefinition(templateName.getText(), genericTemplateDefinition);
+            if(templateName.getText().equals(sourceTemplateName)){
+                defaultListableTemplateFactory.removeTemplateDefinition(sourceTemplateName);
+            }
         }
         defaultListableTemplateFactory.preInstantiateTemplates();
-        defaultListableTemplateFactory.refreshTemplate(templateName.getText());
+        defaultListableTemplateFactory.refreshTemplate(templateContext.getTemplate(templateName.getText()));
     }
 
     public boolean check() {

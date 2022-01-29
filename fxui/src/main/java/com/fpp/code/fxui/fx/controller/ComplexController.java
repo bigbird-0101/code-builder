@@ -241,6 +241,10 @@ public class ComplexController extends TemplateContextProvider implements Initia
             templateController.setFile(template.getTemplateFile());
             templateController.fileName.setText(template.getTemplateFile().getName());
             templateController.fileSuffixName.setText(template.getTemplateFileSuffixName());
+            if(template instanceof HaveDependTemplateHandleFunctionTemplate) {
+                HaveDependTemplateHandleFunctionTemplate haveDepend= (HaveDependTemplateHandleFunctionTemplate) template;
+                templateController.depends.setText(String.join(",", haveDepend.getDependTemplates()));
+            }
             TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy = template.getTemplateFilePrefixNameStrategy();
             int typeValue = templateFilePrefixNameStrategy.getTypeValue();
             RadioButton node = (RadioButton) templateController.filePrefixNameStrategy.getChildren().stream().filter(radio -> ((RadioButton) radio).getText().equals(String.valueOf(typeValue))).findFirst().get();
