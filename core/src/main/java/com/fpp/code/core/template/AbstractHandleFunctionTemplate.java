@@ -1,6 +1,5 @@
 package com.fpp.code.core.template;
 
-import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.exception.CodeBuilderException;
 import com.fpp.code.core.template.cache.Cache;
 import com.fpp.code.core.template.cache.CacheKey;
@@ -24,17 +23,6 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     private Cache resolverResultCache=new CacheLocalLruImpl(156);
 
     protected ResolverStrategy resolverStrategy;
-
-    public AbstractHandleFunctionTemplate(String templeFileName){
-        super(templeFileName);
-        refresh();
-    }
-
-
-    public AbstractHandleFunctionTemplate(String templeFileName, Environment environment){
-        super(templeFileName,environment);
-        refresh();
-    }
 
     @Override
     public void refresh(){
@@ -169,7 +157,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      * 获取所有的方法名
      * @return
      */
-    public Set<String> getTemplateFunctionNameS() throws TemplateResolveException {
+    public Set<String> getTemplateFunctionNameS() {
         Set<String> functionNameS=new HashSet<>(templateFileClassInfo.getFunctionS().keySet().size());
         for(String functionName:templateFileClassInfo.getFunctionS().keySet()){
             functionNameS.add(getNoResolverFunctionName(functionName));

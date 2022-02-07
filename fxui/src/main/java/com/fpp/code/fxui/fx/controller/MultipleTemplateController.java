@@ -5,7 +5,7 @@ import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.GenericMultipleTemplateDefinition;
-import com.fpp.code.core.factory.GenericTemplateDefinition;
+import com.fpp.code.core.factory.RootTemplateDefinition;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.util.Utils;
 import javafx.fxml.FXML;
@@ -143,7 +143,7 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
         }
         if(Utils.isNotEmpty(projectUrl.getText())){
             selectTemplateNames.forEach(templateName->{
-                GenericTemplateDefinition templateDefinition = (GenericTemplateDefinition)genericTemplateContext.getTemplateDefinition(templateName);
+                RootTemplateDefinition templateDefinition = (RootTemplateDefinition)genericTemplateContext.getTemplateDefinition(templateName);
                 templateDefinition.setProjectUrl(projectUrl.getText());
                 defaultListableTemplateFactory.removeTemplate(templateName);
             });

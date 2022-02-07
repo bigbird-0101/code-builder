@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox fx:id="box" prefWidth="1000" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fxui.fx.controller.TemplatesOperateController">
+<VBox fx:id="box" stylesheets="@../css/template_operate.css" prefWidth="1000" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fxui.fx.controller.TemplatesOperateController">
     <Pane prefHeight="25.0" prefWidth="1000.0">
           <Label fx:id="currentTemplate" alignment="CENTER" contentDisplay="CENTER" prefHeight="15.0" prefWidth="1000" textAlignment="JUSTIFY">
          <font>
@@ -28,10 +28,11 @@
         <TextField fx:id="representFactor" layoutX="430.0" />
         <TextField fx:id="fields" layoutX="162.0" layoutY="1.0" />
     </Pane>
-    <BorderPane fx:id="progressBarParent" focusTraversable="true" visible="false" managed="false">
+    <BorderPane fx:id="progressBarParent" focusTraversable="true">
       <center>
-         <ProgressBar fx:id="progressBar" prefWidth="400.0" progress="1" managed="false" visible="false"  BorderPane.alignment="CENTER" />
-      </center></BorderPane>
+         <ProgressBar fx:id="progressBar" prefWidth="400.0" progress="1" BorderPane.alignment="CENTER" />
+      </center>
+    </BorderPane>
     <ScrollPane prefHeight="530">
         <FlowPane fx:id="templates" prefWidth="-1.0" VBox.vgrow="NEVER" />
     </ScrollPane>

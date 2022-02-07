@@ -9,8 +9,4 @@ import com.alibaba.fastjson.annotation.JSONType;
  */
 @JSONType(serializer = AbstractTemplate.TemplateSerializer.class)
 public class DefaultNoHandleFunctionTemplate extends AbstractNoHandleFunctionTemplate {
-
-    public DefaultNoHandleFunctionTemplate() {
-        super(null);
-    }
 }

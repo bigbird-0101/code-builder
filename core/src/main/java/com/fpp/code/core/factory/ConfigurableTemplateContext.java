@@ -2,6 +2,7 @@ package com.fpp.code.core.factory;
 
 import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.context.TemplateContext;
+import com.fpp.code.core.factory.config.TemplateFactoryPostProcessor;
 
 import java.io.IOException;
 
@@ -16,4 +17,6 @@ public interface ConfigurableTemplateContext extends TemplateContext {
      * @throws CodeConfigException
      */
     void refresh() throws CodeConfigException, IOException;
+
+    void addTemplateFactoryPostProcessor(TemplateFactoryPostProcessor templateFactoryPostProcessor);
 }

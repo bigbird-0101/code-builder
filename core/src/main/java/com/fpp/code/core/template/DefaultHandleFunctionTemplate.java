@@ -1,9 +1,6 @@
 package com.fpp.code.core.template;
 
 import com.alibaba.fastjson.annotation.JSONType;
-import com.fpp.code.core.exception.CodeConfigException;
-
-import java.io.IOException;
 
 /**
  * @author fpp
@@ -12,11 +9,6 @@ import java.io.IOException;
  */
 @JSONType(serializer = AbstractTemplate.TemplateSerializer.class)
 public class DefaultHandleFunctionTemplate extends AbstractHandleFunctionTemplate {
-
-    public DefaultHandleFunctionTemplate(){
-        super(null);
-    }
-
 
     /**
      * 设置模板解析策略
@@ -27,4 +19,6 @@ public class DefaultHandleFunctionTemplate extends AbstractHandleFunctionTemplat
     public void setResolverStrategy(ResolverStrategy resolverStrategy) {
         this.resolverStrategy=resolverStrategy;
     }
+
+
 }

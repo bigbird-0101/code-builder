@@ -117,19 +117,20 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
         TemplateFilePrefixNameStrategyFactory templateFilePrefixNameStrategyFactory=new TemplateFilePrefixNameStrategyFactory();
         for(Object jsonObject:templates){
             JSONObject templateConfigInfo =(JSONObject) jsonObject;
-            GenericTemplateDefinition genericTemplateDefinition =new GenericTemplateDefinition();
-            genericTemplateDefinition.setFileSuffixName(Utils.setIfNull(templateConfigInfo.getString("fileSuffixName"),DEFAULT_FILE_SUFFIX_NAME));
-            genericTemplateDefinition.setHandleFunction(Utils.setIfNull(templateConfigInfo.getBoolean("isHandleFunction"),DEFAULT_IS_HANDLE_FUNCTION));
-            genericTemplateDefinition.setProjectUrl(templateConfigInfo.getString("projectUrl"));
-            genericTemplateDefinition.setModule(templateConfigInfo.getString("module"));
-            genericTemplateDefinition.setSourcesRoot(templateConfigInfo.getString("sourcesRoot"));
-            genericTemplateDefinition.setSrcPackage(templateConfigInfo.getString("srcPackage"));
-            genericTemplateDefinition.setDependTemplates(JSON.parseObject(Optional.ofNullable(templateConfigInfo.getString("dependTemplates")).orElse("[]"),new TypeReference<Set<String>>(){}));
+            RootTemplateDefinition rootTemplateDefinition =new RootTemplateDefinition();
+            rootTemplateDefinition.setTemplateFileSuffixName(Utils.setIfNull(templateConfigInfo.getString("fileSuffixName"),DEFAULT_FILE_SUFFIX_NAME));
+            rootTemplateDefinition.setHandleFunction(templateConfigInfo.getBoolean("isHandleFunction"));
+            rootTemplateDefinition.setProjectUrl(templateConfigInfo.getString("projectUrl"));
+            rootTemplateDefinition.setModule(templateConfigInfo.getString("module"));
+            rootTemplateDefinition.setTemplateClassName(templateConfigInfo.getString("templateClassName"));
+            rootTemplateDefinition.setSourcesRoot(templateConfigInfo.getString("sourcesRoot"));
+            rootTemplateDefinition.setSrcPackage(templateConfigInfo.getString("srcPackage"));
+            rootTemplateDefinition.setDependTemplates(JSON.parseObject(Optional.ofNullable(templateConfigInfo.getString("dependTemplates")).orElse("[]"),new TypeReference<Set<String>>(){}));
             TemplateFilePrefixNameStrategy filePrefixNameStrategy = templateFilePrefixNameStrategyFactory.getTemplateFilePrefixNameStrategy(templateConfigInfo.getIntValue("filePrefixNameStrategy"));
             if(filePrefixNameStrategy instanceof PatternTemplateFilePrefixNameStrategy){
                 ((PatternTemplateFilePrefixNameStrategy) filePrefixNameStrategy).setPattern(templateConfigInfo.getString("filePrefixNameStrategyPattern"));
             }
-            genericTemplateDefinition.setFilePrefixNameStrategy(filePrefixNameStrategy);
+            rootTemplateDefinition.setTemplateFilePrefixNameStrategy(filePrefixNameStrategy);
             String templateName = templateConfigInfo.getString("name");
             if(Utils.isEmpty(templateName)){
                 throw new CodeConfigException("模板名字不允许为空");
@@ -139,9 +140,9 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
                 throw new CodeConfigException("模板文件名不允许为空");
             }
             File templateFile = files.stream().filter(file -> templateFileName.equals(file.getName())).findFirst().orElseThrow(()->new CodeConfigException("模板名为"+templateName+",配置模板文件名为"+templateFileName+",在"+templatesFilePath+"中不存在"));
-            genericTemplateDefinition.setTemplateFile(templateFile);
-            TemplateDefinitionHolder templateDefinitionHolder=new TemplateDefinitionHolder(genericTemplateDefinition,templateName);
-            templateDefinitionMapTemp.put(templateName, genericTemplateDefinition);
+            rootTemplateDefinition.setTemplateFile(templateFile);
+            TemplateDefinitionHolder templateDefinitionHolder=new TemplateDefinitionHolder(rootTemplateDefinition,templateName);
+            templateDefinitionMapTemp.put(templateName, rootTemplateDefinition);
             templateDefinitionHolders.add(templateDefinitionHolder);
         }
     }

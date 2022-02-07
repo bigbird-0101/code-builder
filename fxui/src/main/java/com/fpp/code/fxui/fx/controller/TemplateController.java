@@ -4,7 +4,7 @@ import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.context.GenericTemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
-import com.fpp.code.core.factory.GenericTemplateDefinition;
+import com.fpp.code.core.factory.RootTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.template.*;
 import com.fpp.code.fxui.common.AlertUtil;
@@ -192,30 +192,30 @@ public class TemplateController extends TemplateContextProvider implements Initi
         TemplateFilePrefixNameStrategyFactory templateFilePrefixNameStrategyFactory = new TemplateFilePrefixNameStrategyFactory();
         TemplateDefinition templateDefinition = templateContext.getTemplateDefinition(sourceTemplateName);
         boolean isNotHave = null == templateDefinition;
-        GenericTemplateDefinition genericTemplateDefinition =isNotHave?new GenericTemplateDefinition(): (GenericTemplateDefinition) templateDefinition;
+        RootTemplateDefinition rootTemplateDefinition =isNotHave?new RootTemplateDefinition(): (RootTemplateDefinition) templateDefinition;
         TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy = templateFilePrefixNameStrategyFactory.getTemplateFilePrefixNameStrategy(Utils.setIfNull(filePrefixNameStrategyValue, 1));
         if(templateFilePrefixNameStrategy instanceof PatternTemplateFilePrefixNameStrategy){
             PatternTemplateFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy= (PatternTemplateFilePrefixNameStrategy) templateFilePrefixNameStrategy;
             patternTemplateFilePrefixNameStrategy.setPattern(filePrefixNameStrategyPattern.getText());
         }
-        genericTemplateDefinition.setFilePrefixNameStrategy(templateFilePrefixNameStrategy);
-        genericTemplateDefinition.setFileSuffixName(fileSuffixName.getText());
-        genericTemplateDefinition.setHandleFunction(Utils.setIfNull(isHandleFunction, true));
-        genericTemplateDefinition.setModule(moduleName.getText());
-        genericTemplateDefinition.setProjectUrl(projectUrl.getText());
-        genericTemplateDefinition.setSourcesRoot(sourcesRootName.getText());
-        genericTemplateDefinition.setSrcPackage(srcPackageName.getText());
-        genericTemplateDefinition.setDependTemplates(Utils.isNotEmpty(depends.getText())?Stream.of(depends.getText().split(",")).collect(Collectors.toSet()):genericTemplateDefinition.getDependTemplates());
+        rootTemplateDefinition.setTemplateFilePrefixNameStrategy(templateFilePrefixNameStrategy);
+        rootTemplateDefinition.setTemplateFileSuffixName(fileSuffixName.getText());
+        rootTemplateDefinition.setHandleFunction(Utils.setIfNull(isHandleFunction, true));
+        rootTemplateDefinition.setModule(moduleName.getText());
+        rootTemplateDefinition.setProjectUrl(projectUrl.getText());
+        rootTemplateDefinition.setSourcesRoot(sourcesRootName.getText());
+        rootTemplateDefinition.setSrcPackage(srcPackageName.getText());
+        rootTemplateDefinition.setDependTemplates(Utils.isNotEmpty(depends.getText())?Stream.of(depends.getText().split(",")).collect(Collectors.toSet()): rootTemplateDefinition.getDependTemplates());
 
         String newFileName = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + "/" + file.getName();
         File newFile = new File(newFileName);
         if(!this.file.getAbsolutePath().equals(newFile.getAbsolutePath())) {
             FileUtils.copyFile(this.file, newFile);
         }
-        genericTemplateDefinition.setTemplateFile(newFile);
+        rootTemplateDefinition.setTemplateFile(newFile);
         AbstractEnvironment.putTemplateContent(newFile.getAbsolutePath(), IOUtils.toString(new FileInputStream(newFile), StandardCharsets.UTF_8));
         if(isNotHave||!templateName.getText().equals(sourceTemplateName)) {
-            templateContext.registerTemplateDefinition(templateName.getText(), genericTemplateDefinition);
+            templateContext.registerTemplateDefinition(templateName.getText(), rootTemplateDefinition);
             if(templateName.getText().equals(sourceTemplateName)){
                 defaultListableTemplateFactory.removeTemplateDefinition(sourceTemplateName);
             }

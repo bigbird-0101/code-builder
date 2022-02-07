@@ -3,6 +3,7 @@ package com.fpp.code.core.factory;
 import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.factory.config.EnvironmentCapable;
 import com.fpp.code.core.factory.config.TemplateFactory;
+import com.fpp.code.core.factory.config.TemplatePostProcessor;
 
 import java.util.Set;
 
@@ -23,6 +24,8 @@ public interface ConfigurableTemplateFactory extends TemplateFactory,Environment
      * @return
      */
     Set<String> getMultipleTemplateNames();
+
+    void addPostProcessor(TemplatePostProcessor templatePostProcessor);
 
     /**
      * 设置环境

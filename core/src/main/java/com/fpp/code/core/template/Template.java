@@ -132,5 +132,5 @@ public interface Template{
      * 刷新当前模板 重新加载模板中的内容
      * @throws IOException 模板文件不存在异常
      */
-    void refresh() throws IOException;
+    void refresh();
 }

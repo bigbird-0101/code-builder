@@ -2,15 +2,20 @@ package com.fpp.code.core.factory;
 
 import com.fpp.code.core.factory.config.MultipleTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
+import com.fpp.code.core.factory.config.TemplatePostProcessor;
 import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author fpp
  */
 public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry implements ConfigurableTemplateFactory {
+    private final List<TemplatePostProcessor> templatePostProcessors=new CopyOnWriteArrayList<>();
+
     @Override
     public void removeTemplate(String templateName){
         super.removeTemplate(templateName);
@@ -45,6 +50,18 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
         }
         return template;
     }
+
+
+    @Override
+    public void addPostProcessor(TemplatePostProcessor templatePostProcessor) {
+        this.templatePostProcessors.remove(templatePostProcessor);
+        this.templatePostProcessors.remove(templatePostProcessor);
+    }
+
+    public List<TemplatePostProcessor> getTemplatePostProcessors() {
+        return templatePostProcessors;
+    }
+
     @Override
     public void removeMultipleTemplate(String templateName){
         super.removeMultipleTemplate(templateName);

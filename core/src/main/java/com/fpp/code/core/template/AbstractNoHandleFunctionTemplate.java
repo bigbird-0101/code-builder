@@ -19,11 +19,6 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
 
     private Cache resolverResultCache=new CacheLocalLruImpl(156);
 
-    public AbstractNoHandleFunctionTemplate(String templeFileName){
-        super(templeFileName);
-        refresh();
-    }
-
     @Override
     public void refresh(){
         resolverResultCache.clear();

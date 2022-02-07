@@ -82,6 +82,10 @@ public abstract class AbstractTemplate implements Template {
         return templateResolver;
     }
 
+    public AbstractTemplate() {
+        this(null);
+    }
+
     public AbstractTemplate(String templeFileName) throws CodeConfigException {
         this(templeFileName, new DefaultTemplateResolver());
     }
@@ -196,6 +200,24 @@ public abstract class AbstractTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(getTemplateName(), getProjectUrl(), getModule(), getSourcesRoot(), getSrcPackage(), getTemplateFile(),getTemplateResolver(), getTemplateFilePrefixNameStrategy(), getTemplateFileSuffixName());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        return stringBuilder.append("AbstractTemplate{")
+                .append("templateName='").append(templateName).append('\'')
+                .append(", projectUrl='").append(projectUrl).append('\'')
+                .append(", module='").append(module).append('\'')
+                .append(", sourcesRoot='").append(sourcesRoot).append('\'')
+                .append(", srcPackage='").append(srcPackage).append('\'')
+                .append(", templateFile=").append(templateFile)
+                .append(", templateVariables=").append(templateVariables)
+                .append(", templateResolver=").append(templateResolver)
+                .append(", templateFileNameStrategy=").append(templateFileNameStrategy)
+                .append(", templateFileSuffixName='").append(templateFileSuffixName).append('\'')
+                .append('}')
+                .toString();
     }
 
     public static  class TemplateSerializer implements ObjectSerializer{

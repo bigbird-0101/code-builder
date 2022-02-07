@@ -38,13 +38,13 @@ public interface TemplateDefinition {
      * 获取模板文件最终生成文件名后缀名
      * @return 模板文件最终生成文件名后缀名
      */
-    String getFileSuffixName();
+    String getTemplateFileSuffixName();
 
     /**
      * 文件前缀名命名策略
      * @return
      */
-    TemplateFilePrefixNameStrategy getFilePrefixNameStrategy();
+    TemplateFilePrefixNameStrategy getTemplateFilePrefixNameStrategy();
 
     /**
      * 获取模板文件
@@ -56,9 +56,25 @@ public interface TemplateDefinition {
      * 是否控制方法
      * @return
      */
+    @Deprecated
     boolean isHandleFunction();
 
 
+    /**
+     * 所依赖的模板名
+     * @return
+     */
     Set<String> getDependTemplates();
 
+    /**
+     * 模板实现的类名的全路径
+     * @return
+     */
+    String getTemplateClassName();
+
+    /**
+     * 设置模板的类名
+     * @param templateClassName
+     */
+    void setTemplateClassName(String templateClassName);
 }

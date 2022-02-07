@@ -49,6 +49,8 @@ import java.util.stream.Collectors;
  * @author fpp
  */
 public class ComplexController extends TemplateContextProvider implements Initializable {
+    @FXML
+    public VBox mainBox;
     private Logger logger = LogManager.getLogger(getClass());
     @FXML
     public TreeView<Label> listViewTemplate;
@@ -124,7 +126,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         item.setExpanded(true);
         try {
             List<TreeItem<Label>> collect = getTemplateContext().getMultipleTemplate(multipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, multipleTemplateName, item)).collect(Collectors.toList());
-            item.getChildren().addAll(collect);
+            item.getChildren().addAll(item.getChildren().size(),collect);
         } catch (CodeConfigException | IOException e) {
             e.printStackTrace();
         }
@@ -137,6 +139,8 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 DefaultListableTemplateFactory defaultListableTemplateFactory = (DefaultListableTemplateFactory) getTemplateContext().getTemplateFactory();
                 defaultListableTemplateFactory.removeMultipleTemplate(text);
                 listViewTemplate.getRoot().getChildren().remove(item);
+                Main.USER_OPERATE_CACHE.setTemplateNameSelected(defaultListableTemplateFactory.getMultipleTemplateNames().stream().findFirst().orElse(""));
+                doSelectMultiple();
             }
         });
         edit.setOnAction(event -> {
@@ -148,7 +152,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         });
         contextMenu.getItems().addAll(register, edit);
         label.setContextMenu(contextMenu);
-        root.getChildren().add(item);
+        root.getChildren().add(root.getChildren().size(),item);
     }
     /**
      * 初始化模板视图
@@ -172,7 +176,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 MultipleTemplate multipleTemplate = defaultListableTemplateFactory.getMultipleTemplate(multipleTemplateName);
                 multipleTemplate.getTemplates().remove(template);
                 defaultListableTemplateFactory.refreshMultipleTemplate(multipleTemplate);
-                doSelectMultiple();
                 item.getChildren().remove(labelTreeItem);
             }
         });
@@ -280,11 +283,13 @@ public class ComplexController extends TemplateContextProvider implements Initia
 
     @FXML
     public void doBuildCore() {
+        this.showProgressBar();
         Platform.runLater(()-> doBuild(new DefaultFileBuilder()));
     }
 
     @FXML
     public void doBuildCoreAfter() {
+        this.showProgressBar();
         Platform.runLater(()-> {
             FileBuilder fileBuilder = new DefaultFileBuilder();
             FileCodeBuilderStrategy fileCodeBuilderStrategy = new FileAppendSuffixCodeBuilderStrategy();
@@ -312,7 +317,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 hideProgressBar();
                 return;
             }
-            this.showProgressBar();
+
             templatesOperateController.getProgressBar().progressProperty().bind(service.progressProperty());
             service.restart();
             ProjectTemplateInfoConfig projectTemplateInfoConfig = getProjectTemplateInfoConfig();
@@ -463,20 +468,16 @@ public class ComplexController extends TemplateContextProvider implements Initia
         TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
         BorderPane progressBarParent = templatesOperateController.getProgressBarParent();
         progressBarParent.setVisible(true);
-        progressBarParent.setManaged(true);
         ProgressBar progressBar = templatesOperateController.getProgressBar();
         progressBar.setVisible(true);
-        progressBar.setManaged(true);
     }
 
     void hideProgressBar(){
         TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
         BorderPane progressBarParent = templatesOperateController.getProgressBarParent();
         progressBarParent.setVisible(false);
-        progressBarParent.setManaged(false);
         ProgressBar progressBar = templatesOperateController.getProgressBar();
         progressBar.setVisible(false);
-        progressBar.setManaged(false);
     }
 
 
@@ -500,6 +501,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
 
     @FXML
     public void doBuildCoreOverride() {
+        this.showProgressBar();
         Platform.runLater(()-> {
             FileBuilder fileBuilder = new DefaultFileBuilder();
             FileCodeBuilderStrategy fileCodeBuilderStrategy = new OverrideFileCodeBuilderStrategy();
