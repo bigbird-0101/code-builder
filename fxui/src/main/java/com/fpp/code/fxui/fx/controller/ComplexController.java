@@ -30,6 +30,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -261,7 +262,9 @@ public class ComplexController extends TemplateContextProvider implements Initia
         Scene scene = new Scene(root);
         secondWindow.setTitle(isEdit ? "编辑模板" : "新建模板");
         secondWindow.setScene(scene);
+        secondWindow.initModality(Modality.WINDOW_MODAL);
         secondWindow.show();
+        secondWindow.centerOnScreen();
     }
 
     @FXML
