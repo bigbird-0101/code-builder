@@ -8,6 +8,7 @@ import com.fpp.code.core.factory.RootTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.template.*;
 import com.fpp.code.fxui.common.AlertUtil;
+import com.fpp.code.fxui.common.ClassUtil;
 import com.fpp.code.util.Utils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -48,10 +49,6 @@ public class TemplateController extends TemplateContextProvider implements Initi
     @FXML
     public TextField fileSuffixName;
     @FXML
-    public RadioButton trueHandleRadio;
-    @FXML
-    public RadioButton falseHandleRadio;
-    @FXML
     public FlowPane filePrefixNameStrategy;
     @FXML
     public TextField sourcesRootName;
@@ -68,9 +65,7 @@ public class TemplateController extends TemplateContextProvider implements Initi
     @FXML
     public TextField depends;
     @FXML
-    private Stage primaryStage;
-
-    private Boolean isHandleFunction;
+    public ComboBox<String> selectTemplateClassName;
 
     private Integer filePrefixNameStrategyValue;
     private File file;
@@ -87,7 +82,6 @@ public class TemplateController extends TemplateContextProvider implements Initi
     }
 
     public TemplateController(Stage primaryStage) {
-        this.primaryStage = primaryStage;
     }
 
     public void setSourceTemplateName(String sourceTemplateName) {
@@ -108,13 +102,6 @@ public class TemplateController extends TemplateContextProvider implements Initi
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        ToggleGroup toggleGroup = new ToggleGroup();
-        trueHandleRadio.setToggleGroup(toggleGroup);
-        falseHandleRadio.setToggleGroup(toggleGroup);
-        toggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
-            RadioButton radioButton = (RadioButton) newValue;
-            this.isHandleFunction = radioButton == trueHandleRadio;
-        });
         ServiceLoader<TemplateFilePrefixNameStrategy> load = ServiceLoader.load(TemplateFilePrefixNameStrategy.class);
         for (TemplateFilePrefixNameStrategy next : load) {
             RadioButton radioButton = new RadioButton(String.valueOf(next.getTypeValue()));
@@ -135,6 +122,9 @@ public class TemplateController extends TemplateContextProvider implements Initi
                 filePrefixNameStrategyPane.setVisible(false);
             }
         });
+        ArrayList<Class<?>> allClassByInterface = ClassUtil.getAllClassByInterface(Template.class);
+        List<String> collect = allClassByInterface.stream().map(Class::getName).collect(Collectors.toList());
+        selectTemplateClassName.getItems().addAll(collect);
     }
 
     @FXML
@@ -198,9 +188,9 @@ public class TemplateController extends TemplateContextProvider implements Initi
             PatternTemplateFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy= (PatternTemplateFilePrefixNameStrategy) templateFilePrefixNameStrategy;
             patternTemplateFilePrefixNameStrategy.setPattern(filePrefixNameStrategyPattern.getText());
         }
+        rootTemplateDefinition.setTemplateClassName(selectTemplateClassName.getSelectionModel().getSelectedItem());
         rootTemplateDefinition.setTemplateFilePrefixNameStrategy(templateFilePrefixNameStrategy);
         rootTemplateDefinition.setTemplateFileSuffixName(fileSuffixName.getText());
-        rootTemplateDefinition.setHandleFunction(Utils.setIfNull(isHandleFunction, true));
         rootTemplateDefinition.setModule(moduleName.getText());
         rootTemplateDefinition.setProjectUrl(projectUrl.getText());
         rootTemplateDefinition.setSourcesRoot(sourcesRootName.getText());
@@ -229,8 +219,8 @@ public class TemplateController extends TemplateContextProvider implements Initi
             AlertUtil.showError("请输入模板名");
             return false;
         }
-        if (null == isHandleFunction) {
-            AlertUtil.showError("请选择是否控制方法");
+        if (selectTemplateClassName.getSelectionModel().isEmpty()) {
+            AlertUtil.showError("请选择模板实现类");
             return false;
         }
         if (null == file) {

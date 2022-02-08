@@ -228,20 +228,26 @@ public abstract class AbstractTemplate implements Template {
             jsonObject.put("fileName",abstractTemplate.getTemplateFile().getName());
             jsonObject.put("name",abstractTemplate.getTemplateName());
             int typeValue = abstractTemplate.getTemplateFilePrefixNameStrategy().getTypeValue();
-            jsonObject.put("filePrefixNameStrategy",typeValue);
+            JSONObject value=new JSONObject();
+            value.put("value",typeValue);
             if(abstractTemplate.getTemplateFilePrefixNameStrategy() instanceof PatternTemplateFilePrefixNameStrategy){
                 PatternTemplateFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy= (PatternTemplateFilePrefixNameStrategy) abstractTemplate.getTemplateFilePrefixNameStrategy();
-                jsonObject.put("filePrefixNameStrategyPattern",patternTemplateFilePrefixNameStrategy.getPattern());
+                value.put("pattern",patternTemplateFilePrefixNameStrategy.getPattern());
             }
+            jsonObject.put("filePrefixNameStrategy",value);
+            jsonObject.put("templateClassName",object.getClass().getName());
             jsonObject.put("fileSuffixName",abstractTemplate.getTemplateFileSuffixName());
             jsonObject.put("projectUrl",abstractTemplate.getProjectUrl());
             jsonObject.put("module",abstractTemplate.getModule());
             jsonObject.put("sourcesRoot",abstractTemplate.getSourcesRoot());
             jsonObject.put("srcPackage",abstractTemplate.getSrcPackage());
-            if(object instanceof AbstractHandleFunctionTemplate){
-                jsonObject.put("isHandleFunction",1);
-            }else if(object instanceof AbstractNoHandleFunctionTemplate){
-                jsonObject.put("isHandleFunction",0);
+            if(abstractTemplate instanceof HaveDependTemplateNoHandleFunctionTemplate) {
+                HaveDependTemplateNoHandleFunctionTemplate templateNoHandleFunctionTemplate=(HaveDependTemplateNoHandleFunctionTemplate)object;
+                jsonObject.put("dependTemplates",templateNoHandleFunctionTemplate.getDependTemplates());
+            }
+            if(abstractTemplate instanceof HaveDependTemplateHandleFunctionTemplate){
+                HaveDependTemplateHandleFunctionTemplate templateHandleFunctionTemplate=(HaveDependTemplateHandleFunctionTemplate)object;
+                jsonObject.put("dependTemplates",templateHandleFunctionTemplate.getDependTemplates());
             }
             if(logger.isInfoEnabled()){
                 logger.info(" JSON Serializer {}",jsonObject);

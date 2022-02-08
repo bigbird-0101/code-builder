@@ -3,13 +3,9 @@ package com.fpp.code.core.factory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
-import com.fpp.code.util.Utils;
 import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.factory.config.TemplateDefinition;
-import com.fpp.code.core.template.PatternTemplateFilePrefixNameStrategy;
-import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
-import com.fpp.code.core.template.TemplateFilePrefixNameStrategyFactory;
+import com.fpp.code.util.Utils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
@@ -31,7 +27,7 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
 
     private static final String DEFAULT_FILE_SUFFIX_NAME="java";
     private static final Boolean DEFAULT_IS_HANDLE_FUNCTION=true;
-    private static final String DEFAULT_TEMPALTE_FILE_SUFFIX = ".template";
+    private static final String DEFAULT_TEMPLATE_FILE_SUFFIX = ".template";
 
     public JSONObject getConfigContent(String templatesFilePath) throws CodeConfigException {
         String result;
@@ -113,24 +109,10 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
      * @throws CodeConfigException
      */
     protected void analysisTemplateDefinition(String templatesFilePath, JSONArray templates, Set<TemplateDefinitionHolder> templateDefinitionHolders, Map<String, TemplateDefinition> templateDefinitionMapTemp) throws CodeConfigException {
-        Collection<File> files = FileUtils.listFiles(new File(templatesFilePath), new SuffixFileFilter(DEFAULT_TEMPALTE_FILE_SUFFIX), null);
-        TemplateFilePrefixNameStrategyFactory templateFilePrefixNameStrategyFactory=new TemplateFilePrefixNameStrategyFactory();
+        Collection<File> files = FileUtils.listFiles(new File(templatesFilePath), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
         for(Object jsonObject:templates){
             JSONObject templateConfigInfo =(JSONObject) jsonObject;
-            RootTemplateDefinition rootTemplateDefinition =new RootTemplateDefinition();
-            rootTemplateDefinition.setTemplateFileSuffixName(Utils.setIfNull(templateConfigInfo.getString("fileSuffixName"),DEFAULT_FILE_SUFFIX_NAME));
-            rootTemplateDefinition.setHandleFunction(templateConfigInfo.getBoolean("isHandleFunction"));
-            rootTemplateDefinition.setProjectUrl(templateConfigInfo.getString("projectUrl"));
-            rootTemplateDefinition.setModule(templateConfigInfo.getString("module"));
-            rootTemplateDefinition.setTemplateClassName(templateConfigInfo.getString("templateClassName"));
-            rootTemplateDefinition.setSourcesRoot(templateConfigInfo.getString("sourcesRoot"));
-            rootTemplateDefinition.setSrcPackage(templateConfigInfo.getString("srcPackage"));
-            rootTemplateDefinition.setDependTemplates(JSON.parseObject(Optional.ofNullable(templateConfigInfo.getString("dependTemplates")).orElse("[]"),new TypeReference<Set<String>>(){}));
-            TemplateFilePrefixNameStrategy filePrefixNameStrategy = templateFilePrefixNameStrategyFactory.getTemplateFilePrefixNameStrategy(templateConfigInfo.getIntValue("filePrefixNameStrategy"));
-            if(filePrefixNameStrategy instanceof PatternTemplateFilePrefixNameStrategy){
-                ((PatternTemplateFilePrefixNameStrategy) filePrefixNameStrategy).setPattern(templateConfigInfo.getString("filePrefixNameStrategyPattern"));
-            }
-            rootTemplateDefinition.setTemplateFilePrefixNameStrategy(filePrefixNameStrategy);
+            RootTemplateDefinition rootTemplateDefinition =JSONObject.parseObject(templateConfigInfo.toJSONString(), RootTemplateDefinition.class);
             String templateName = templateConfigInfo.getString("name");
             if(Utils.isEmpty(templateName)){
                 throw new CodeConfigException("模板名字不允许为空");

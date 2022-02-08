@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox prefWidth="300" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-    <AnchorPane>
+    <AnchorPane >
         <CheckBox fx:id="templateName" layoutX="50.0" layoutY="22.0" maxWidth="200" prefHeight="15.0" text="模板名:"/>
         <Label layoutX="50.0" layoutY="60.0" text="项目地址:"/>
         <TextArea fx:id="projectUrl" layoutX="142.0" layoutY="49.0" prefHeight="52.0" prefWidth="161.0"/>

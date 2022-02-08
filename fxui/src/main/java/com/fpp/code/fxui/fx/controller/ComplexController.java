@@ -23,6 +23,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -233,10 +234,12 @@ public class ComplexController extends TemplateContextProvider implements Initia
             templateController.setComplexController(this);
             templateController.button.setText("编辑");
             templateController.templateName.setText(template.getTemplateName());
-            if (template instanceof AbstractHandleFunctionTemplate) {
-                templateController.trueHandleRadio.setSelected(true);
-            } else {
-                templateController.falseHandleRadio.setSelected(true);
+            if(template instanceof AbstractNoHandleFunctionTemplate) {
+                templateController.selectTemplateClassName.getSelectionModel()
+                        .select(DefaultNoHandleFunctionTemplate.class.getName());
+            }else if(template instanceof AbstractHandleFunctionTemplate){
+                templateController.selectTemplateClassName.getSelectionModel()
+                        .select(DefaultHandleFunctionTemplate.class.getName());
             }
             templateController.projectUrl.setText(template.getProjectUrl());
             templateController.moduleName.setText(template.getModule());
@@ -247,6 +250,9 @@ public class ComplexController extends TemplateContextProvider implements Initia
             templateController.fileSuffixName.setText(template.getTemplateFileSuffixName());
             if(template instanceof HaveDependTemplateHandleFunctionTemplate) {
                 HaveDependTemplateHandleFunctionTemplate haveDepend= (HaveDependTemplateHandleFunctionTemplate) template;
+                templateController.depends.setText(String.join(",", haveDepend.getDependTemplates()));
+            }else if(template instanceof HaveDependTemplateNoHandleFunctionTemplate){
+                HaveDependTemplateNoHandleFunctionTemplate haveDepend= (HaveDependTemplateNoHandleFunctionTemplate) template;
                 templateController.depends.setText(String.join(",", haveDepend.getDependTemplates()));
             }
             TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy = template.getTemplateFilePrefixNameStrategy();
@@ -388,16 +394,19 @@ public class ComplexController extends TemplateContextProvider implements Initia
 
         Platform.runLater(()->{
             //找到对应的模板checkbox
-            CheckBox checkBoxTarget = templatesOperateController.getTemplates().getChildren().stream()
-                    .map(node -> (VBox) node)
-                    .map(vBox -> (CheckBox) (((AnchorPane) vBox.getChildren().get(0)).getChildren().get(0)))
-                    .filter(checkBox -> checkBox.getUserData().equals(template.getTemplateName())).findFirst()
-                    .orElse(null);
-            logger.warn("not get checkBoxTarget error");
+            Set<Node> nodes = templatesOperateController.getTemplates().lookupAll("AnchorPane");
+            List<CheckBox> collect = nodes.stream().map(node -> (AnchorPane) node)
+                    .map(anchorPane -> anchorPane.lookup("CheckBox"))
+                    .map(node -> (CheckBox) node)
+                    .filter(checkBox -> checkBox.getUserData().equals(template.getTemplateName()))
+                    .collect(Collectors.toList());
+            CheckBox checkBoxTarget = collect.stream().findFirst().orElse(null);
             if(null!=checkBoxTarget) {
                 AnchorPane anchorPane = (AnchorPane) checkBoxTarget.getParent();
                 //重新设置模板值但不持久化
                 templatesOperateController.doSetTemplate(template, anchorPane);
+            }else{
+                logger.warn("checkBoxTarget not get {}",template.getTemplateName());
             }
         });
         return template;
@@ -464,6 +473,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         Scene scene = new Scene(root);
         secondWindow.setTitle(isEdit ? "编辑组合模板" : "新建组合模板");
         secondWindow.setScene(scene);
+        secondWindow.initOwner(mainBox.getScene().getWindow());
         secondWindow.show();
     }
 

@@ -1,5 +1,6 @@
 package com.fpp.code.core.factory;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 
 import java.io.File;
@@ -20,6 +21,7 @@ public abstract class AbstractTemplateDefinition implements TemplateDefinition {
 
     private File templateFile;
 
+    @JSONField(alternateNames = {"templateClassName"})
     private Object templateClass;
 
 
@@ -117,4 +119,5 @@ public abstract class AbstractTemplateDefinition implements TemplateDefinition {
     public int hashCode() {
         return Objects.hash(projectUrl, module, sourcesRoot, srcPackage, templateFile, templateClass);
     }
+
 }

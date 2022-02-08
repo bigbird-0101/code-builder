@@ -49,7 +49,7 @@ public class Main extends Application {
             ButtonType out = new ButtonType("退出");
             ButtonType cancel = new ButtonType("取消");
             Alert alert = new Alert(Alert.AlertType.NONE,"",restart,hide,out,cancel);
-            alert.setTitle("提示");
+            alert.setTitle("操作");
             alert.setHeaderText("");
             ButtonType buttonType = alert.showAndWait().orElse(new ButtonType("error"));
             if(buttonType.equals(hide)){
@@ -60,7 +60,7 @@ public class Main extends Application {
                 Platform.exit();
                 System.exit(0);
             }else{
-                return;
+                event.consume();
             }
             alert.setOnCloseRequest(ev->{
                 alert.close();
