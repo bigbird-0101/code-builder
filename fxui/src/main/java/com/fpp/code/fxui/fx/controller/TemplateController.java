@@ -81,9 +81,6 @@ public class TemplateController extends TemplateContextProvider implements Initi
     public TemplateController() {
     }
 
-    public TemplateController(Stage primaryStage) {
-    }
-
     public void setSourceTemplateName(String sourceTemplateName) {
         this.sourceTemplateName = sourceTemplateName;
     }
