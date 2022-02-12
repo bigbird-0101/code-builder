@@ -1,6 +1,8 @@
 package com.fpp.code.fxui.common;
 
 
+import com.fpp.code.core.common.ClassUtils;
+import com.fpp.code.core.common.CollectionUtils;
 import com.fpp.code.core.template.Template;
 import com.fpp.code.fxui.Main;
 import org.apache.logging.log4j.LogManager;
@@ -9,10 +11,7 @@ import java.io.File;
 import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -26,7 +25,14 @@ import java.util.stream.Stream;
 public class ClassUtil {
     private static org.apache.logging.log4j.Logger LOG = LogManager.getLogger(Main.class);
 
+    private static final Map<Class<?>,ArrayList<Class<?>>> cache=new HashMap<>();
+
     public static ArrayList<Class<?>> getAllClassByInterface(Class<?> clazz) {
+        ArrayList<Class<?>> objects = cache.get(clazz);
+        if(!CollectionUtils.isEmpty(objects)){
+            LOG.info("getAllClassByInterface cache {}",objects);
+            return objects;
+        }
         ArrayList<Class<?>> list = new ArrayList<>();
         // 判断是否是一个接口
         if (clazz.isInterface()) {
@@ -54,6 +60,7 @@ public class ClassUtil {
             }
         }
         LOG.info("class list size :" + list.size());
+        cache.put(clazz,list);
         return list;
     }
 
@@ -73,9 +80,8 @@ public class ClassUtil {
         for (String className : classNameList) {
             try {
                 list.add(Class.forName(className));
-            } catch (ClassNotFoundException e) {
-                LOG.error("load class from name failed :{} {}", e, className);
-                throw new RuntimeException("load class from name failed:" + className + e.getMessage());
+            } catch (Throwable e) {
+                LOG.warn("load class from name failed :{} {}", e, className);
             }
         }
         LOG.info("find list size :" + list.size());
@@ -91,8 +97,9 @@ public class ClassUtil {
     public static List<String> getClassName(String packageName) {
 
         List<String> fileNames = null;
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        ClassLoader loader = ClassUtils.getDefaultClassLoader();
         String packagePath = packageName.replace(".", "/");
+        LOG.info("getClassName packagePath {} ",packagePath);
         URL url = loader.getResource(packagePath);
         if (url != null) {
             String type = url.getProtocol();
@@ -159,7 +166,7 @@ public class ClassUtil {
             while (entrys.hasMoreElements()) {
                 JarEntry jarEntry = entrys.nextElement();
                 String entryName = jarEntry.getName();
-                LOG.info("entrys jarfile:{}",entryName);
+                LOG.debug("entrys jarfile:{}",entryName);
                 if (entryName.endsWith(".class")) {
                     entryName = entryName.replace("/", ".").substring(0, entryName.lastIndexOf("."));
                     myClassName.add(entryName);
@@ -171,6 +178,10 @@ public class ClassUtil {
             throw new RuntimeException("发生异常:" + e.getMessage());
         }
         return myClassName;
+    }
+
+    public void clearCache(){
+        cache.clear();
     }
 
     public static void main(String[] args) {

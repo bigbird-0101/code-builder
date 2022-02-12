@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.fpp.code.core.common.ObjectUtils;
 import com.fpp.code.core.template.PatternTemplateFilePrefixNameStrategy;
 import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
 import com.fpp.code.core.template.TemplateFilePrefixNameStrategyFactory;
@@ -82,6 +83,11 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
                 templateFileSuffixName.equals(that.templateFileSuffixName) &&
                 templateFilePrefixNameStrategy.equals(that.templateFilePrefixNameStrategy) &&
                 dependTemplates.equals(that.dependTemplates);
+    }
+
+    @Override
+    public Object clone() {
+        return ObjectUtils.deepClone(this);
     }
 
     @Override

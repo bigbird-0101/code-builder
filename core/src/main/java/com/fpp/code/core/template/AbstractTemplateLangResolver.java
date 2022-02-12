@@ -2,6 +2,7 @@ package com.fpp.code.core.template;
 
 import com.fpp.code.util.Utils;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -11,7 +12,7 @@ import java.util.HashMap;
  * @version 1.0
  * @date 2020/6/9 16:48
  */
-public abstract class AbstractTemplateLangResolver implements TemplateLangResolver{
+public abstract class AbstractTemplateLangResolver implements TemplateLangResolver, Serializable {
     protected String resolverName;
     private TemplateResolver templateResolver;
 

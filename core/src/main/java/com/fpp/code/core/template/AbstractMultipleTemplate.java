@@ -3,6 +3,7 @@ package com.fpp.code.core.template;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
+import com.fpp.code.core.common.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,6 +16,15 @@ import java.lang.reflect.Type;
  */
 public abstract class AbstractMultipleTemplate implements MultipleTemplate {
     private static Logger logger= LogManager.getLogger(AbstractMultipleTemplate.class);
+    @Override
+    public Object clone(){
+        return ObjectUtils.deepClone(this);
+    }
+
+    @Override
+    public String toString() {
+        return JSONObject.toJSONString(this);
+    }
 
     /**
      * 组合模板序列化

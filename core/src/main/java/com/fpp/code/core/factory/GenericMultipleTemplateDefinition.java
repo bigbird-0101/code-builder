@@ -1,5 +1,6 @@
 package com.fpp.code.core.factory;
 
+import com.fpp.code.core.common.ObjectUtils;
 import com.fpp.code.core.factory.config.MultipleTemplateDefinition;
 
 import java.util.Objects;
@@ -21,6 +22,11 @@ public class GenericMultipleTemplateDefinition implements MultipleTemplateDefini
 
     public void setTemplateNames(Set<String> templateNames) {
         this.templateNames = templateNames;
+    }
+
+    @Override
+    public Object clone() {
+        return ObjectUtils.deepClone(this);
     }
 
     @Override

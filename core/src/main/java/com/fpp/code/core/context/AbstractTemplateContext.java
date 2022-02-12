@@ -40,12 +40,12 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
     }
 
     @Override
-    public Template getTemplate(String templateName) throws CodeConfigException, IOException {
+    public Template getTemplate(String templateName){
         return getTemplateFactory().getTemplate(templateName);
     }
 
     @Override
-    public MultipleTemplate getMultipleTemplate(String templateName) throws CodeConfigException, IOException {
+    public MultipleTemplate getMultipleTemplate(String templateName){
         return getTemplateFactory().getMultipleTemplate(templateName);
     }
 

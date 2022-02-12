@@ -1,12 +1,11 @@
 package com.fpp.code.core.template;
 
-import com.fpp.code.util.Utils;
-import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.context.TemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextAware;
+import com.fpp.code.core.exception.CodeConfigException;
+import com.fpp.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,7 +57,7 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
                     Template templateDepend;
                     try {
                         templateDepend = templateContext.getTemplate(templateName);
-                    } catch (CodeConfigException | IOException e) {
+                    } catch (CodeConfigException e) {
                         throw new TemplateResolveException(e);
                     }
                     TableInfo tableInfo = (TableInfo) template.getTemplateVariables().get("tableInfo");
@@ -84,7 +83,7 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
                     Template templateDepend;
                     try {
                         templateDepend = templateContext.getTemplate(templateName);
-                    } catch (CodeConfigException | IOException e) {
+                    } catch (CodeConfigException e) {
                         throw new TemplateResolveException(e);
                     }
                     return templateDepend.getSrcPackage().replaceAll("\\/", ".");

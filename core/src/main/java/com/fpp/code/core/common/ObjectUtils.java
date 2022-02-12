@@ -16,9 +16,13 @@
 
 package com.fpp.code.core.common;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,6 +46,7 @@ import java.util.stream.Stream;
  * @since 19.03.2004
  */
 public abstract class ObjectUtils {
+    private static Logger logger= LogManager.getLogger(ObjectUtils.class);
 
     private static final int INITIAL_HASH = 7;
     private static final int MULTIPLIER = 31;
@@ -1085,5 +1090,40 @@ public abstract class ObjectUtils {
             }
         }
         return propertyDescriptorList;
+    }
+
+    public static Object deepClone(Object object){
+        ByteArrayOutputStream byteArrayOutputStream=null;
+        ObjectOutputStream objectOutputStream=null;
+        ByteArrayInputStream byteArrayInputStream =null;
+        ObjectInputStream objectInputStream=null;
+        try{
+            byteArrayOutputStream = new ByteArrayOutputStream();
+            objectOutputStream=new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(object);
+            byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+            objectInputStream=new ObjectInputStream(byteArrayInputStream);
+            return objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            logger.error("clone e",e);
+        }finally {
+            try {
+                if(null!=byteArrayOutputStream) {
+                    byteArrayOutputStream.close();
+                }
+                if(null!=objectOutputStream) {
+                    byteArrayOutputStream.close();
+                }
+                if(null!=byteArrayInputStream) {
+                    byteArrayOutputStream.close();
+                }
+                if(null!=objectInputStream) {
+                    byteArrayOutputStream.close();
+                }
+            } catch (IOException e) {
+                logger.error("clone e",e);
+            }
+        }
+        return null;
     }
 }

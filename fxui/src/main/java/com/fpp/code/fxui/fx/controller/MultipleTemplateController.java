@@ -82,6 +82,7 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
         Set<String> templateNames = getTemplateContext().getTemplateNames();
         templateNames.forEach(templateName->{
             CheckBox checkBox = new CheckBox(templateName);
+            checkBox.setText(templateName);
             checkBox.setPadding(insets);
             templates.getChildren().add(checkBox);
             checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -138,7 +139,7 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
         if(isNotHave||!multipleTemplateName.getText().equals(sourceMultipleTemplateName)) {
             genericTemplateContext.registerMultipleTemplateDefinition(multipleTemplateName.getText(), genericMultipleTemplateDefinition);
             if(!multipleTemplateName.getText().equals(sourceMultipleTemplateName)){
-                defaultListableTemplateFactory.removeTemplateDefinition(sourceMultipleTemplateName);
+                defaultListableTemplateFactory.removeMultipleTemplateDefinition(sourceMultipleTemplateName);
             }
         }
         if(Utils.isNotEmpty(projectUrl.getText())){

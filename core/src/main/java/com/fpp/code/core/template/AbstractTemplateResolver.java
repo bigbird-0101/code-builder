@@ -8,6 +8,7 @@ import com.fpp.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,7 +18,7 @@ import java.util.regex.Pattern;
  * @version 1.0
  * @date 2020/6/15 13:29
  */
-public abstract class AbstractTemplateResolver  extends TemplateContextProvider implements TemplateResolver {
+public abstract class AbstractTemplateResolver  extends TemplateContextProvider implements TemplateResolver, Serializable {
 
     private static Logger logger= LogManager.getLogger(AbstractTemplateResolver.class);
 

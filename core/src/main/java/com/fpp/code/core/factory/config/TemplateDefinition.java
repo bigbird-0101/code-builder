@@ -3,12 +3,13 @@ package com.fpp.code.core.factory.config;
 import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * @author fpp
  */
-public interface TemplateDefinition {
+public interface TemplateDefinition extends Cloneable, Serializable {
 
     /**
      * 项目地址

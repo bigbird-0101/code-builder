@@ -261,7 +261,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 getTemplateContext().getEnvironment().refreshPropertySourceSerialize(new StringPropertySource(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, JSON.toJSONString(selectTemplateGroup)));
             }
             AlertUtil.showInfo("保存成功");
-        } catch (CodeConfigException | IOException e) {
+        } catch (CodeConfigException e) {
             AlertUtil.showError("save config error :" + e.getMessage());
             e.printStackTrace();
         }

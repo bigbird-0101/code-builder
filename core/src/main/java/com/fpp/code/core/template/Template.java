@@ -2,6 +2,7 @@ package com.fpp.code.core.template;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2020/5/15 17:30
  */
-public interface Template{
+public interface Template extends Cloneable, Serializable {
 
     /**
      * 项目地址

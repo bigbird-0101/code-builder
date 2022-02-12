@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,7 +10,7 @@ import java.util.Set;
  * @version 1.0
  * @date 2020/6/15 18:19
  */
-public interface MultipleTemplate {
+public interface MultipleTemplate extends Cloneable, Serializable {
     /**
      * 获取模板名称
      * @return

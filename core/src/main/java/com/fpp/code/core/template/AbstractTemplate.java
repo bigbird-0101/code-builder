@@ -3,16 +3,15 @@ package com.fpp.code.core.template;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
+import com.fpp.code.core.common.ObjectUtils;
 import com.fpp.code.core.config.AbstractEnvironment;
-import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.config.Environment;
+import com.fpp.code.core.exception.CodeConfigException;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -178,6 +177,11 @@ public abstract class AbstractTemplate implements Template {
     }
 
     @Override
+    public Object clone(){
+        return ObjectUtils.deepClone(this);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -204,20 +208,7 @@ public abstract class AbstractTemplate implements Template {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        return stringBuilder.append("AbstractTemplate{")
-                .append("templateName='").append(templateName).append('\'')
-                .append(", projectUrl='").append(projectUrl).append('\'')
-                .append(", module='").append(module).append('\'')
-                .append(", sourcesRoot='").append(sourcesRoot).append('\'')
-                .append(", srcPackage='").append(srcPackage).append('\'')
-                .append(", templateFile=").append(templateFile)
-                .append(", templateVariables=").append(templateVariables)
-                .append(", templateResolver=").append(templateResolver)
-                .append(", templateFileNameStrategy=").append(templateFileNameStrategy)
-                .append(", templateFileSuffixName='").append(templateFileSuffixName).append('\'')
-                .append('}')
-                .toString();
+        return JSONObject.toJSONString(this);
     }
 
     public static  class TemplateSerializer implements ObjectSerializer{
@@ -225,7 +216,9 @@ public abstract class AbstractTemplate implements Template {
         public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) {
             AbstractTemplate abstractTemplate= (AbstractTemplate) object;
             JSONObject jsonObject=new JSONObject();
-            jsonObject.put("fileName",abstractTemplate.getTemplateFile().getName());
+            if(null!=abstractTemplate.getTemplateFile()) {
+                jsonObject.put("fileName", abstractTemplate.getTemplateFile().getName());
+            }
             jsonObject.put("name",abstractTemplate.getTemplateName());
             int typeValue = abstractTemplate.getTemplateFilePrefixNameStrategy().getTypeValue();
             JSONObject value=new JSONObject();

@@ -2,13 +2,14 @@ package com.fpp.code.core.template.cache.impl;
 
 import com.fpp.code.core.template.cache.Cache;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 
 /**
  * 本地缓存实现 默认LRU
  * @author fpp
  */
-public class CacheLocalLruImpl implements Cache {
+public class CacheLocalLruImpl implements Cache, Serializable {
 	private LinkedHashMap<Object,Object> cache;
 	
 	public CacheLocalLruImpl(int capacity){

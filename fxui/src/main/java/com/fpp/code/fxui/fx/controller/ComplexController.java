@@ -9,6 +9,9 @@ import com.fpp.code.core.domain.DefinedFunctionDomain;
 import com.fpp.code.core.domain.ProjectTemplateInfoConfig;
 import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
+import com.fpp.code.core.factory.GenericMultipleTemplateDefinition;
+import com.fpp.code.core.factory.RootTemplateDefinition;
+import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.filebuilder.*;
 import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResolver;
 import com.fpp.code.core.template.*;
@@ -33,9 +36,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -126,33 +131,64 @@ public class ComplexController extends TemplateContextProvider implements Initia
         label.prefWidthProperty().bind(listViewTemplate.widthProperty());
         TreeItem<Label> item = new TreeItem<>(label);
         item.setExpanded(true);
+        TemplateContext templateContext = getTemplateContext();
+        DefaultListableTemplateFactory defaultListableTemplateFactory = (DefaultListableTemplateFactory) templateContext.getTemplateFactory();
         try {
-            List<TreeItem<Label>> collect = getTemplateContext().getMultipleTemplate(multipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, multipleTemplateName, item)).collect(Collectors.toList());
+            List<TreeItem<Label>> collect = templateContext.getMultipleTemplate(multipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, multipleTemplateName, item)).collect(Collectors.toList());
             item.getChildren().addAll(item.getChildren().size(),collect);
-        } catch (CodeConfigException | IOException e) {
+        } catch (CodeConfigException e) {
             e.printStackTrace();
         }
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem register = new MenuItem("删除");
+        MenuItem delete = new MenuItem("删除");
         MenuItem edit = new MenuItem("编辑");
-        register.setOnAction(event -> {
+        MenuItem copy = new MenuItem("复制");
+
+        delete.setOnAction(event -> {
             if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm("您确定删除该组合模板吗").getButtonData()) {
                 String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
-                DefaultListableTemplateFactory defaultListableTemplateFactory = (DefaultListableTemplateFactory) getTemplateContext().getTemplateFactory();
+                logger.info("delete multiple template {}",text);
+                defaultListableTemplateFactory.removeMultipleTemplateDefinition(text);
                 defaultListableTemplateFactory.removeMultipleTemplate(text);
-                listViewTemplate.getRoot().getChildren().remove(item);
+                listViewTemplate.getRoot().getChildren().remove(listViewTemplate.getSelectionModel().getSelectedItem());
                 Main.USER_OPERATE_CACHE.setTemplateNameSelected(defaultListableTemplateFactory.getMultipleTemplateNames().stream().findFirst().orElse(""));
                 doSelectMultiple();
             }
         });
         edit.setOnAction(event -> {
+            String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
             try {
-                toNewMultipleTemplateView(multipleTemplateName);
+                toNewMultipleTemplateView(text);
             } catch (IOException | CodeConfigException e) {
                 e.printStackTrace();
             }
         });
-        contextMenu.getItems().addAll(register, edit);
+        copy.setOnAction(event -> {
+            String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
+            logger.info("multipleTemplateName {}",text);
+            final GenericMultipleTemplateDefinition multipleTemplateDefinition = (GenericMultipleTemplateDefinition) defaultListableTemplateFactory.getMultipleTemplateDefinition(text);
+            final GenericMultipleTemplateDefinition clone = (GenericMultipleTemplateDefinition) multipleTemplateDefinition.clone();
+            final String copyMultipleTemplateName = text + "Copy";
+            if(null!=defaultListableTemplateFactory.getMultipleTemplateDefinition(copyMultipleTemplateName)){
+                defaultListableTemplateFactory.removeMultipleTemplateDefinition(copyMultipleTemplateName);
+                defaultListableTemplateFactory.removeMultipleTemplate(copyMultipleTemplateName);
+            }
+            defaultListableTemplateFactory.registerMultipleTemplateDefinition(copyMultipleTemplateName,clone);
+            defaultListableTemplateFactory.preInstantiateTemplates();
+            defaultListableTemplateFactory.refreshMultipleTemplate(templateContext.getMultipleTemplate(copyMultipleTemplateName));
+            if(0==root.getChildren().filtered(s->s.getValue().getText().equals(copyMultipleTemplateName)).size()) {
+                Label copyLabel = new Label(copyMultipleTemplateName);
+                copyLabel.prefWidthProperty().bind(listViewTemplate.widthProperty());
+                TreeItem<Label> copyItem = new TreeItem<>(copyLabel);
+                copyItem.setExpanded(true);
+                List<TreeItem<Label>> collect = templateContext.getMultipleTemplate(copyMultipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, copyMultipleTemplateName, item)).collect(Collectors.toList());
+                copyItem.getChildren().addAll(copyItem.getChildren().size(), collect);
+                root.getChildren().add(root.getChildren().size(), copyItem);
+                copyLabel.setContextMenu(contextMenu);
+            }
+            AlertUtil.showInfo("复制成功");
+        });
+        contextMenu.getItems().addAll(delete, edit,copy);
         label.setContextMenu(contextMenu);
         root.getChildren().add(root.getChildren().size(),item);
     }
@@ -168,13 +204,13 @@ public class ComplexController extends TemplateContextProvider implements Initia
         ContextMenu contextMenu = new ContextMenu();
         MenuItem register = new MenuItem("删除");
         MenuItem edit = new MenuItem("编辑");
-
+        MenuItem copy = new MenuItem("复制");
+        TemplateContext templateContext = getTemplateContext();
+        DefaultListableTemplateFactory defaultListableTemplateFactory = (DefaultListableTemplateFactory) templateContext.getTemplateFactory();
         TreeItem<Label> labelTreeItem = new TreeItem<>(label);
         register.setOnAction(event -> {
             if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm("您确定删除" + multipleTemplateName + "中的" + template.getTemplateName() + "模板吗").getButtonData()) {
                 //删除组合模板中的模板
-                TemplateContext templateContext = getTemplateContext();
-                DefaultListableTemplateFactory defaultListableTemplateFactory = (DefaultListableTemplateFactory) templateContext.getTemplateFactory();
                 MultipleTemplate multipleTemplate = defaultListableTemplateFactory.getMultipleTemplate(multipleTemplateName);
                 multipleTemplate.getTemplates().remove(template);
                 defaultListableTemplateFactory.refreshMultipleTemplate(multipleTemplate);
@@ -188,7 +224,32 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 e.printStackTrace();
             }
         });
-        contextMenu.getItems().addAll(register, edit);
+
+        copy.setOnAction(event -> {
+            final RootTemplateDefinition templateDefinition = (RootTemplateDefinition)defaultListableTemplateFactory.getTemplateDefinition(template.getTemplateName());
+            TemplateDefinition clone = (TemplateDefinition) templateDefinition.clone();
+            final String copyTemplateName = template.getTemplateName() + "Copy";
+            final File templateFile = clone.getTemplateFile();
+            try {
+                final String absolutePath = templateFile.getAbsolutePath();
+                final File file = new File(absolutePath.replaceAll("\\.template","_Copy.template"));
+                FileUtils.copyFile(templateFile,file);
+                RootTemplateDefinition rootTemplateDefinition= (RootTemplateDefinition) clone;
+                rootTemplateDefinition.setTemplateFile(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if(null!=defaultListableTemplateFactory.getTemplateDefinition(copyTemplateName)) {
+                defaultListableTemplateFactory.removeTemplateDefinition(copyTemplateName);
+                defaultListableTemplateFactory.removeTemplate(copyTemplateName);
+            }
+            defaultListableTemplateFactory.registerTemplateDefinition(copyTemplateName,clone);
+            defaultListableTemplateFactory.preInstantiateTemplates();
+            defaultListableTemplateFactory.refreshTemplate(templateContext.getTemplate(copyTemplateName));
+            AlertUtil.showInfo("复制成功");
+        });
+
+        contextMenu.getItems().addAll(register, edit,copy);
         label.setContextMenu(contextMenu);
         return labelTreeItem;
     }
