@@ -1112,13 +1112,13 @@ public abstract class ObjectUtils {
                     byteArrayOutputStream.close();
                 }
                 if(null!=objectOutputStream) {
-                    byteArrayOutputStream.close();
+                    objectOutputStream.close();
                 }
                 if(null!=byteArrayInputStream) {
-                    byteArrayOutputStream.close();
+                    byteArrayInputStream.close();
                 }
                 if(null!=objectInputStream) {
-                    byteArrayOutputStream.close();
+                    objectInputStream.close();
                 }
             } catch (IOException e) {
                 logger.error("clone e",e);

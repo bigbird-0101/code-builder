@@ -214,20 +214,23 @@ public abstract class AbstractTemplate implements Template {
     public static  class TemplateSerializer implements ObjectSerializer{
         @Override
         public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) {
-            AbstractTemplate abstractTemplate= (AbstractTemplate) object;
-            JSONObject jsonObject=new JSONObject();
-            if(null!=abstractTemplate.getTemplateFile()) {
+            AbstractTemplate abstractTemplate = (AbstractTemplate) object;
+            JSONObject jsonObject = new JSONObject();
+            if (null != abstractTemplate.getTemplateFile()) {
                 jsonObject.put("fileName", abstractTemplate.getTemplateFile().getName());
             }
-            jsonObject.put("name",abstractTemplate.getTemplateName());
-            int typeValue = abstractTemplate.getTemplateFilePrefixNameStrategy().getTypeValue();
-            JSONObject value=new JSONObject();
-            value.put("value",typeValue);
-            if(abstractTemplate.getTemplateFilePrefixNameStrategy() instanceof PatternTemplateFilePrefixNameStrategy){
-                PatternTemplateFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy= (PatternTemplateFilePrefixNameStrategy) abstractTemplate.getTemplateFilePrefixNameStrategy();
-                value.put("pattern",patternTemplateFilePrefixNameStrategy.getPattern());
+            jsonObject.put("name", abstractTemplate.getTemplateName());
+            final TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy = abstractTemplate.getTemplateFilePrefixNameStrategy();
+            if (null != templateFilePrefixNameStrategy) {
+                int typeValue = templateFilePrefixNameStrategy.getTypeValue();
+                JSONObject value = new JSONObject();
+                value.put("value", typeValue);
+                if (abstractTemplate.getTemplateFilePrefixNameStrategy() instanceof PatternTemplateFilePrefixNameStrategy) {
+                    PatternTemplateFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy = (PatternTemplateFilePrefixNameStrategy) abstractTemplate.getTemplateFilePrefixNameStrategy();
+                    value.put("pattern", patternTemplateFilePrefixNameStrategy.getPattern());
+                }
+                jsonObject.put("filePrefixNameStrategy", value);
             }
-            jsonObject.put("filePrefixNameStrategy",value);
             jsonObject.put("templateClassName",object.getClass().getName());
             jsonObject.put("fileSuffixName",abstractTemplate.getTemplateFileSuffixName());
             jsonObject.put("projectUrl",abstractTemplate.getProjectUrl());

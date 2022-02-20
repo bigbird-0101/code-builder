@@ -143,6 +143,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         MenuItem delete = new MenuItem("删除");
         MenuItem edit = new MenuItem("编辑");
         MenuItem copy = new MenuItem("复制");
+        MenuItem deepCopy = new MenuItem("递归复制");
 
         delete.setOnAction(event -> {
             if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm("您确定删除该组合模板吗").getButtonData()) {
@@ -164,34 +165,67 @@ public class ComplexController extends TemplateContextProvider implements Initia
             }
         });
         copy.setOnAction(event -> {
-            String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
-            logger.info("multipleTemplateName {}",text);
-            final GenericMultipleTemplateDefinition multipleTemplateDefinition = (GenericMultipleTemplateDefinition) defaultListableTemplateFactory.getMultipleTemplateDefinition(text);
-            final GenericMultipleTemplateDefinition clone = (GenericMultipleTemplateDefinition) multipleTemplateDefinition.clone();
-            final String copyMultipleTemplateName = text + "Copy";
-            if(null!=defaultListableTemplateFactory.getMultipleTemplateDefinition(copyMultipleTemplateName)){
-                defaultListableTemplateFactory.removeMultipleTemplateDefinition(copyMultipleTemplateName);
-                defaultListableTemplateFactory.removeMultipleTemplate(copyMultipleTemplateName);
-            }
-            defaultListableTemplateFactory.registerMultipleTemplateDefinition(copyMultipleTemplateName,clone);
-            defaultListableTemplateFactory.preInstantiateTemplates();
-            defaultListableTemplateFactory.refreshMultipleTemplate(templateContext.getMultipleTemplate(copyMultipleTemplateName));
-            if(0==root.getChildren().filtered(s->s.getValue().getText().equals(copyMultipleTemplateName)).size()) {
-                Label copyLabel = new Label(copyMultipleTemplateName);
-                copyLabel.prefWidthProperty().bind(listViewTemplate.widthProperty());
-                TreeItem<Label> copyItem = new TreeItem<>(copyLabel);
-                copyItem.setExpanded(true);
-                List<TreeItem<Label>> collect = templateContext.getMultipleTemplate(copyMultipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, copyMultipleTemplateName, item)).collect(Collectors.toList());
-                copyItem.getChildren().addAll(copyItem.getChildren().size(), collect);
-                root.getChildren().add(root.getChildren().size(), copyItem);
-                copyLabel.setContextMenu(contextMenu);
-            }
+            copyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu);
             AlertUtil.showInfo("复制成功");
         });
-        contextMenu.getItems().addAll(delete, edit,copy);
+        deepCopy.setOnAction(event -> {
+            deepCopyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu);
+            AlertUtil.showInfo("复制成功");
+        });
+        contextMenu.getItems().addAll(delete, edit,copy,deepCopy);
         label.setContextMenu(contextMenu);
         root.getChildren().add(root.getChildren().size(),item);
     }
+
+    private void copyMultipleTemplate(TreeItem<Label> root, DefaultListableTemplateFactory defaultListableTemplateFactory, ContextMenu contextMenu) {
+        final GenericMultipleTemplateDefinition clone = getGenericMultipleTemplateDefinition(defaultListableTemplateFactory);
+        doCopyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu, clone);
+    }
+
+    private void deepCopyMultipleTemplate(TreeItem<Label> root, DefaultListableTemplateFactory defaultListableTemplateFactory, ContextMenu contextMenu) {
+        final GenericMultipleTemplateDefinition clone = getGenericMultipleTemplateDefinition(defaultListableTemplateFactory);
+        Set<String> oldTemplateNames = clone.getTemplateNames();
+        Set<String> newTemplateNames=new LinkedHashSet<>();
+        for(String templateName:oldTemplateNames){
+            Template newTemplate = copyTemplate(defaultListableTemplateFactory.getTemplate(templateName), defaultListableTemplateFactory);
+            newTemplateNames.add(newTemplate.getTemplateName());
+        }
+        oldTemplateNames.clear();
+        clone.setTemplateNames(newTemplateNames);
+        doCopyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu, clone);
+    }
+
+    private GenericMultipleTemplateDefinition getGenericMultipleTemplateDefinition(DefaultListableTemplateFactory defaultListableTemplateFactory) {
+        String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
+        logger.info("multipleTemplateName {}", text);
+        final GenericMultipleTemplateDefinition multipleTemplateDefinition = (GenericMultipleTemplateDefinition) defaultListableTemplateFactory.getMultipleTemplateDefinition(text);
+        final GenericMultipleTemplateDefinition clone = (GenericMultipleTemplateDefinition) multipleTemplateDefinition.clone();
+        final String copyMultipleTemplateName = text + "Copy";
+        if (null != defaultListableTemplateFactory.getMultipleTemplateDefinition(copyMultipleTemplateName)) {
+            defaultListableTemplateFactory.removeMultipleTemplateDefinition(copyMultipleTemplateName);
+            defaultListableTemplateFactory.removeMultipleTemplate(copyMultipleTemplateName);
+        }
+        return clone;
+    }
+
+    private void doCopyMultipleTemplate(TreeItem<Label> root, DefaultListableTemplateFactory defaultListableTemplateFactory, ContextMenu contextMenu, GenericMultipleTemplateDefinition clone) {
+        String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
+        final String copyMultipleTemplateName = text + "Copy";
+        defaultListableTemplateFactory.registerMultipleTemplateDefinition(copyMultipleTemplateName,clone);
+        defaultListableTemplateFactory.preInstantiateTemplates();
+        defaultListableTemplateFactory.refreshMultipleTemplate(defaultListableTemplateFactory.getMultipleTemplate(copyMultipleTemplateName));
+        if(0==root.getChildren().filtered(s->s.getValue().getText().equals(copyMultipleTemplateName)).size()) {
+            Label copyLabel = new Label(copyMultipleTemplateName);
+            copyLabel.prefWidthProperty().bind(listViewTemplate.widthProperty());
+            TreeItem<Label> copyItem = new TreeItem<>(copyLabel);
+            copyItem.setExpanded(true);
+            List<TreeItem<Label>> collect = defaultListableTemplateFactory.getMultipleTemplate(copyMultipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, copyMultipleTemplateName, copyItem)).collect(Collectors.toList());
+            copyItem.getChildren().addAll(copyItem.getChildren().size(), collect);
+            root.getChildren().add(root.getChildren().size(), copyItem);
+            copyLabel.setContextMenu(contextMenu);
+        }
+    }
+
     /**
      * 初始化模板视图
      *
@@ -226,26 +260,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         });
 
         copy.setOnAction(event -> {
-            final RootTemplateDefinition templateDefinition = (RootTemplateDefinition)defaultListableTemplateFactory.getTemplateDefinition(template.getTemplateName());
-            TemplateDefinition clone = (TemplateDefinition) templateDefinition.clone();
-            final String copyTemplateName = template.getTemplateName() + "Copy";
-            final File templateFile = clone.getTemplateFile();
-            try {
-                final String absolutePath = templateFile.getAbsolutePath();
-                final File file = new File(absolutePath.replaceAll("\\.template","_Copy.template"));
-                FileUtils.copyFile(templateFile,file);
-                RootTemplateDefinition rootTemplateDefinition= (RootTemplateDefinition) clone;
-                rootTemplateDefinition.setTemplateFile(file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if(null!=defaultListableTemplateFactory.getTemplateDefinition(copyTemplateName)) {
-                defaultListableTemplateFactory.removeTemplateDefinition(copyTemplateName);
-                defaultListableTemplateFactory.removeTemplate(copyTemplateName);
-            }
-            defaultListableTemplateFactory.registerTemplateDefinition(copyTemplateName,clone);
-            defaultListableTemplateFactory.preInstantiateTemplates();
-            defaultListableTemplateFactory.refreshTemplate(templateContext.getTemplate(copyTemplateName));
+            copyTemplate(template, defaultListableTemplateFactory);
             AlertUtil.showInfo("复制成功");
         });
 
@@ -253,6 +268,34 @@ public class ComplexController extends TemplateContextProvider implements Initia
         label.setContextMenu(contextMenu);
         return labelTreeItem;
     }
+
+    private Template copyTemplate(Template template, DefaultListableTemplateFactory defaultListableTemplateFactory) {
+        final RootTemplateDefinition templateDefinition = (RootTemplateDefinition)defaultListableTemplateFactory.getTemplateDefinition(template.getTemplateName());
+        TemplateDefinition clone = (TemplateDefinition) templateDefinition.clone();
+        final String copyTemplateName = template.getTemplateName() + "Copy";
+        final File templateFile = clone.getTemplateFile();
+        try {
+            final String absolutePath = templateFile.getAbsolutePath();
+            final File file = new File(absolutePath.replaceAll("\\.template","_Copy.template"));
+            if(!file.exists()) {
+                FileUtils.copyFile(templateFile, file);
+            }
+            RootTemplateDefinition rootTemplateDefinition= (RootTemplateDefinition) clone;
+            rootTemplateDefinition.setTemplateFile(file);
+        } catch (IOException e) {
+            logger.error(e);
+        }
+        if(null!=defaultListableTemplateFactory.getTemplateDefinition(copyTemplateName)) {
+            defaultListableTemplateFactory.removeTemplateDefinition(copyTemplateName);
+            defaultListableTemplateFactory.removeTemplate(copyTemplateName);
+        }
+        defaultListableTemplateFactory.registerTemplateDefinition(copyTemplateName,clone);
+        defaultListableTemplateFactory.preInstantiateTemplates();
+        Template newTemplate = defaultListableTemplateFactory.getTemplate(copyTemplateName);
+        defaultListableTemplateFactory.refreshTemplate(newTemplate);
+        return newTemplate;
+    }
+
     public void doSelectMultiple() {
         try {
             templatesOperateFxmlLoader = new FXMLLoader(getClass().getResource("/views/templates_operate.fxml"));
