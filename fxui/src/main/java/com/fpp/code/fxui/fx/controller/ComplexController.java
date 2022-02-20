@@ -20,6 +20,7 @@ import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.fxui.common.DbUtil;
 import com.fpp.code.util.Utils;
 import javafx.application.Platform;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -214,16 +215,21 @@ public class ComplexController extends TemplateContextProvider implements Initia
         defaultListableTemplateFactory.registerMultipleTemplateDefinition(copyMultipleTemplateName,clone);
         defaultListableTemplateFactory.preInstantiateTemplates();
         defaultListableTemplateFactory.refreshMultipleTemplate(defaultListableTemplateFactory.getMultipleTemplate(copyMultipleTemplateName));
-        if(0==root.getChildren().filtered(s->s.getValue().getText().equals(copyMultipleTemplateName)).size()) {
-            Label copyLabel = new Label(copyMultipleTemplateName);
-            copyLabel.prefWidthProperty().bind(listViewTemplate.widthProperty());
-            TreeItem<Label> copyItem = new TreeItem<>(copyLabel);
-            copyItem.setExpanded(true);
-            List<TreeItem<Label>> collect = defaultListableTemplateFactory.getMultipleTemplate(copyMultipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, copyMultipleTemplateName, copyItem)).collect(Collectors.toList());
-            copyItem.getChildren().addAll(copyItem.getChildren().size(), collect);
+        Label copyLabel = new Label(copyMultipleTemplateName);
+        copyLabel.prefWidthProperty().bind(listViewTemplate.widthProperty());
+        TreeItem<Label> copyItem = new TreeItem<>(copyLabel);
+        copyItem.setExpanded(true);
+        List<TreeItem<Label>> collect = defaultListableTemplateFactory.getMultipleTemplate(copyMultipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, copyMultipleTemplateName, copyItem)).collect(Collectors.toList());
+        copyItem.getChildren().addAll(copyItem.getChildren().size(), collect);
+        final FilteredList<TreeItem<Label>> filtered = root.getChildren().filtered(s -> s.getValue().getText().equals(copyMultipleTemplateName));
+        final int size = filtered.size();
+        if(0==size) {
             root.getChildren().add(root.getChildren().size(), copyItem);
-            copyLabel.setContextMenu(contextMenu);
+        }else if(1==size){
+            root.getChildren().remove(filtered.get(0));
+            root.getChildren().add(root.getChildren().size(), copyItem);
         }
+        copyLabel.setContextMenu(contextMenu);
     }
 
     /**
