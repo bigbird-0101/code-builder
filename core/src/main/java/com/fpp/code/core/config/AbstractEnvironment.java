@@ -26,7 +26,7 @@ import java.util.*;
  */
 public abstract class AbstractEnvironment implements Environment {
     private static Logger logger = LogManager.getLogger(AbstractEnvironment.class);
-    private static final String DEFAULT_TEMPALTE_FILE_SUFFIX = ".template";
+    public static final String DEFAULT_TEMPLATE_FILE_SUFFIX = ".template";
     public static final String DEFAULT_CORE_TEMPLATE_PATH = "code.template.config";
     public static final String DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE = "code.template.config.template";
     public static final String DEFAULT_CORE_TEMPLATE_FILES_PATH = "code.template.files";
@@ -105,7 +105,7 @@ public abstract class AbstractEnvironment implements Environment {
         loadCoreConfig(coreConfigPath);
     }
     protected void loadTemplatesPath() {
-        Collection<File> files = FileUtils.listFiles(new File(templatesPath), new SuffixFileFilter(DEFAULT_TEMPALTE_FILE_SUFFIX), null);
+        Collection<File> files = FileUtils.listFiles(new File(templatesPath), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
         files.forEach(file -> {
             String fileName = file.getName();
             tepmlateFileNameUrlMapping.put(fileName, file.getAbsolutePath());

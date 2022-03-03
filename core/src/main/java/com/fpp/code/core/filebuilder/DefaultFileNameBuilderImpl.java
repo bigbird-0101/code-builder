@@ -23,19 +23,6 @@ public class DefaultFileNameBuilderImpl implements FileNameBuilder {
             TableInfo tableInfo = (TableInfo) template.getTemplateVariables().get("tableInfo");
             String tableName=tableInfo.getTableName();
             result+=templateFilePrefixNameStrategy.prefixStrategy(template,tableName)+"."+template.getTemplateFileSuffixName();
-            if(templateFilePrefixNameStrategy instanceof PatternTemplateFilePrefixNameStrategy){
-                PatternTemplateFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy= (PatternTemplateFilePrefixNameStrategy) templateFilePrefixNameStrategy;
-                AbstractTemplate abstractTemplate= (AbstractTemplate) template;
-                TemplateResolver templateResolver = abstractTemplate.getTemplateResolver();
-                String resolver = null;
-                try {
-                    resolver = templateResolver.resolver(patternTemplateFilePrefixNameStrategy.getPattern(), template.getTemplateVariables());
-                } catch (TemplateResolveException e) {
-                    e.printStackTrace();
-                }
-                result="";
-                result+=resolver+"."+template.getTemplateFileSuffixName();
-            }
         }
         return result;
     }

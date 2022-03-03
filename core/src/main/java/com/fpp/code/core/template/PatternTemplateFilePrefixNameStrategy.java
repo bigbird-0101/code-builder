@@ -1,6 +1,14 @@
 package com.fpp.code.core.template;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * @author Administrator
+ */
 public class PatternTemplateFilePrefixNameStrategy implements TemplateFilePrefixNameStrategy {
+    private Logger logger = LogManager.getLogger(getClass());
+
     private static final int TYPE_VALUE=3;
 
     private String pattern;
@@ -31,6 +39,14 @@ public class PatternTemplateFilePrefixNameStrategy implements TemplateFilePrefix
      */
     @Override
     public String prefixStrategy(Template template, String srcSource) {
-        return null;
+        AbstractTemplate abstractTemplate= (AbstractTemplate) template;
+        TemplateResolver templateResolver = abstractTemplate.getTemplateResolver();
+        String resolver = null;
+        try {
+            resolver = templateResolver.resolver(getPattern(), template.getTemplateVariables());
+        } catch (TemplateResolveException e) {
+            logger.error(e);
+        }
+        return resolver;
     }
 }

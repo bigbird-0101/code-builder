@@ -11,7 +11,6 @@ public class TableInfo {
     private String tableName;
     private String tableComment;
     private String domainName;
-    private String savePath;
     private List<ColumnInfo> columnList;
 
     public String getTableName() {
@@ -44,14 +43,6 @@ public class TableInfo {
 
     public void setDomainName(String domainName) {
         this.domainName = domainName;
-    }
-
-    public String getSavePath() {
-        return savePath;
-    }
-
-    public void setSavePath(String savePath) {
-        this.savePath = savePath;
     }
 
     public TableInfo(String tableName, String tableComment, String domainName, List<ColumnInfo> columnList) {

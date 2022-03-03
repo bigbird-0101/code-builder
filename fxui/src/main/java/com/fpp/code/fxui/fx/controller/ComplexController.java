@@ -1,5 +1,7 @@
 package com.fpp.code.fxui.fx.controller;
 
+import com.fpp.code.core.common.CollectionUtils;
+import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.config.CoreConfig;
 import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.context.TemplateContext;
@@ -116,9 +118,10 @@ public class ComplexController extends TemplateContextProvider implements Initia
      */
     public void initMultipleTemplateViews(TreeItem<Label> root){
         Set<String> multipleTemplateNames = getTemplateContext().getMultipleTemplateNames();
-        multipleTemplateNames.forEach(multipleTemplateName -> {
-            initMultipleTemplateView(multipleTemplateName, root);
-        });
+        for (String multipleTemplateName : multipleTemplateNames) {
+            final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
+            root.getChildren().add(labelTreeItem);
+        }
     }
 
     /**
@@ -127,7 +130,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
      * @param multipleTemplateName 组合模板名
      * @param root                 根树节点
      */
-    public void initMultipleTemplateView(String multipleTemplateName, TreeItem<Label> root) {
+    public TreeItem<Label> initMultipleTemplateView(String multipleTemplateName, TreeItem<Label> root) {
         Label label = new Label(multipleTemplateName);
         label.prefWidthProperty().bind(listViewTemplate.widthProperty());
         TreeItem<Label> item = new TreeItem<>(label);
@@ -175,7 +178,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         });
         contextMenu.getItems().addAll(delete, edit,copy,deepCopy);
         label.setContextMenu(contextMenu);
-        root.getChildren().add(root.getChildren().size(),item);
+        return item;
     }
 
     private void copyMultipleTemplate(TreeItem<Label> root, DefaultListableTemplateFactory defaultListableTemplateFactory, ContextMenu contextMenu) {
@@ -238,7 +241,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
      * @param template
      * @param item
      */
-    private TreeItem<Label> getAndInitTemplateView(Template template, String multipleTemplateName, TreeItem<Label> item) {
+    public TreeItem<Label> getAndInitTemplateView(Template template, String multipleTemplateName, TreeItem<Label> item) {
         Label label = new Label(template.getTemplateName());
         label.prefWidthProperty().bind(listViewTemplate.widthProperty());
         ContextMenu contextMenu = new ContextMenu();
@@ -259,7 +262,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         });
         edit.setOnAction(event -> {
             try {
-                toNewTemplateView(template, multipleTemplateName);
+                toNewTemplateView(template);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -281,8 +284,8 @@ public class ComplexController extends TemplateContextProvider implements Initia
         final String copyTemplateName = template.getTemplateName() + "Copy";
         final File templateFile = clone.getTemplateFile();
         try {
-            final String absolutePath = templateFile.getAbsolutePath();
-            final File file = new File(absolutePath.replaceAll("\\.template","_Copy.template"));
+            String newFileName = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + "/" + copyTemplateName+AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
+            final File file = new File(newFileName);
             if(!file.exists()) {
                 FileUtils.copyFile(templateFile, file);
             }
@@ -329,10 +332,10 @@ public class ComplexController extends TemplateContextProvider implements Initia
 
     @FXML
     public void addTemplate() throws IOException {
-        toNewTemplateView(null, null);
+        toNewTemplateView(null);
     }
 
-    public void toNewTemplateView(Template template, String multipleTemplateName) throws IOException {
+    public void toNewTemplateView(Template template) throws IOException {
         Stage secondWindow = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/new_template.fxml"));
         Parent root = fxmlLoader.load();
@@ -344,26 +347,20 @@ public class ComplexController extends TemplateContextProvider implements Initia
             templateController.setComplexController(this);
             templateController.button.setText("编辑");
             templateController.templateName.setText(template.getTemplateName());
-            if(template instanceof AbstractNoHandleFunctionTemplate) {
-                templateController.selectTemplateClassName.getSelectionModel()
-                        .select(DefaultNoHandleFunctionTemplate.class.getName());
-            }else if(template instanceof AbstractHandleFunctionTemplate){
-                templateController.selectTemplateClassName.getSelectionModel()
-                        .select(DefaultHandleFunctionTemplate.class.getName());
-            }
-            templateController.projectUrl.setText(template.getProjectUrl());
-            templateController.moduleName.setText(template.getModule());
-            templateController.sourcesRootName.setText(template.getSourcesRoot());
-            templateController.srcPackageName.setText(template.getSrcPackage());
+            templateController.selectTemplateClassName.getSelectionModel()
+                    .select(template.getClass().getName());
+            templateController.projectUrl.setText(Utils.convertTruePathIfNotNull(template.getProjectUrl()));
+            templateController.moduleName.setText(Utils.convertTruePathIfNotNull(template.getModule()));
+            templateController.sourcesRootName.setText(Utils.convertTruePathIfNotNull(template.getSourcesRoot()));
+            templateController.srcPackageName.setText(Utils.convertTruePathIfNotNull(template.getSrcPackage()));
             templateController.setFile(template.getTemplateFile());
             templateController.fileName.setText(template.getTemplateFile().getName());
             templateController.fileSuffixName.setText(template.getTemplateFileSuffixName());
-            if(template instanceof HaveDependTemplateHandleFunctionTemplate) {
-                HaveDependTemplateHandleFunctionTemplate haveDepend= (HaveDependTemplateHandleFunctionTemplate) template;
-                templateController.depends.setText(String.join(",", haveDepend.getDependTemplates()));
-            }else if(template instanceof HaveDependTemplateNoHandleFunctionTemplate){
-                HaveDependTemplateNoHandleFunctionTemplate haveDepend= (HaveDependTemplateNoHandleFunctionTemplate) template;
-                templateController.depends.setText(String.join(",", haveDepend.getDependTemplates()));
+            if(template instanceof HaveDependTemplate) {
+                HaveDependTemplate haveDepend= (HaveDependTemplate) template;
+                if(!CollectionUtils.isEmpty(haveDepend.getDependTemplates())) {
+                    templateController.depends.setText(String.join(",", haveDepend.getDependTemplates()));
+                }
             }
             TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy = template.getTemplateFilePrefixNameStrategy();
             int typeValue = templateFilePrefixNameStrategy.getTypeValue();
@@ -487,9 +484,8 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 logger.error("doGetTemplate DbUtil.getTableInfo error",e);
                 throw e;
             }
-            tableInfo.setSavePath(template.getSrcPackage().replaceAll("\\/", "."));
             temp.put("tableInfo", tableInfo);
-            temp.put("className",tableInfo.getSavePath()+"."+tableInfo.getDomainName());
+            temp.put("packageName",Utils.pathToPackage(template.getSrcPackage()));
             if (null != propertiesVariable) {
                 propertiesVariable.forEach((k, v) -> temp.put((String) k, v));
             }
@@ -497,6 +493,22 @@ public class ComplexController extends TemplateContextProvider implements Initia
         });
         try {
             template.setTemplateVariables(tempValue.get());
+            final String simpleClassName = template.getTemplateFilePrefixNameStrategy().prefixStrategy(template, tableName);
+            template.getTemplateVariables().put("className",Utils.pathToPackage(template.getSrcPackage())+"."+simpleClassName);
+            template.getTemplateVariables().put("simpleClassName",simpleClassName);
+            if(template instanceof HaveDependTemplate){
+                HaveDependTemplate haveDependTemplate= (HaveDependTemplate) template;
+                haveDependTemplate.getDependTemplates()
+                        .forEach(s->{
+                            final Template templateDepend = getTemplateContext().getTemplate(s);
+                            Map<String, Object> templateVariables = templateDepend.getTemplateVariables();
+                            if(null==templateVariables){
+                                templateVariables=new HashMap<>();
+                            }
+                            templateVariables.put("tableInfo",template.getTemplateVariables().get("tableInfo"));
+                            templateDepend.setTemplateVariables(templateVariables);
+                        });
+            }
         } catch (InterruptedException | ExecutionException e) {
             logger.error("setTemplateVariables",e);
             throw e;

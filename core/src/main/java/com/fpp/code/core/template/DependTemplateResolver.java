@@ -5,6 +5,7 @@ import com.fpp.code.core.context.aware.TemplateContextAware;
 import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -16,13 +17,9 @@ import java.util.regex.Pattern;
  * @date 2020/6/12 17:49
  */
 public class DependTemplateResolver extends AbstractTemplateLangResolver implements TemplateContextAware {
-    private static org.apache.logging.log4j.Logger logger= LogManager.getLogger(DependTemplateResolver.class);
+    private static Logger logger= LogManager.getLogger(DependTemplateResolver.class);
 
-    private static TableInfo tableInfo;
-    private static TemplateResolver templateResolver;
-    private static TemplateContext templateContext;
-    private static String mendLastStr;
-    private static String mendFirstStr;
+    private TemplateContext templateContext;
 
     public DependTemplateResolver() {
         super();
@@ -39,75 +36,91 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
      */
     private enum Function{
         /**
-         * 所依赖的模板类名
+         * 所依赖的模板全类名
+         */
+        SIMPLE_CLASS_NAME("simpleClassName"){
+            @Override
+            String done(String index) throws TemplateResolveException {
+                Template currentTemplate = TemplateTraceContext.getCurrentTemplate();
+                if(currentTemplate instanceof HaveDependTemplate){
+                    Template templateDepend = getDependTemplate(index, (HaveDependTemplate) currentTemplate);
+                    TableInfo tableInfo = (TableInfo) currentTemplate.getTemplateVariables().get("tableInfo");
+                    return templateDepend.getTemplateFilePrefixNameStrategy().prefixStrategy(templateDepend,tableInfo.getTableName());
+                }else{
+                    throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplate,but it use  %s[%s].%s",currentTemplate.getTemplateName(),LANG_NAME,index,"className"));
+                }
+            }
+        },
+        /**
+         * 所依赖的模板全类名
          */
         CLASS_NAME("className"){
             @Override
             String done(String index) throws TemplateResolveException {
                 Template currentTemplate = TemplateTraceContext.getCurrentTemplate();
-                if(currentTemplate instanceof HaveDependTemplateHandleFunctionTemplate){
-                    HaveDependTemplateHandleFunctionTemplate template=(HaveDependTemplateHandleFunctionTemplate)currentTemplate;
-                    int i;
-                    try {
-                        i = Integer.parseInt(index);
-                    }catch (Exception e){
-                        throw new TemplateResolveException(String.format("Integer.parseInt %s error to get template",index));
-                    }
-                    String templateName = getSetValue(template.getDependTemplates(), i);
-                    Template templateDepend;
-                    try {
-                        templateDepend = templateContext.getTemplate(templateName);
-                    } catch (CodeConfigException e) {
-                        throw new TemplateResolveException(e);
-                    }
-                    TableInfo tableInfo = (TableInfo) template.getTemplateVariables().get("tableInfo");
-                    return templateDepend.getSrcPackage().replaceAll("\\/", ".") +"."+tableInfo.getDomainName();
+                if(currentTemplate instanceof HaveDependTemplate){
+                    Template templateDepend = getDependTemplate(index, (HaveDependTemplate) currentTemplate);
+                    TableInfo tableInfo = (TableInfo) currentTemplate.getTemplateVariables().get("tableInfo");
+                    return Utils.pathToPackage(templateDepend.getSrcPackage())+"."+
+                            templateDepend.getTemplateFilePrefixNameStrategy().prefixStrategy(templateDepend,tableInfo.getTableName());
                 }else{
-                    throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplateHandleFunctionTemplate",currentTemplate.getTemplateName()));
+                    throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplate,but it use  %s[%s].%s",currentTemplate.getTemplateName(),LANG_NAME,index,"className"));
                 }
             }
         },
-        SRC_PACKAGE("srcPackage"){
+        PACKAGE_NAME("packageName"){
             @Override
             String done(String index) throws TemplateResolveException {
                 Template currentTemplate = TemplateTraceContext.getCurrentTemplate();
-                if(currentTemplate instanceof HaveDependTemplateHandleFunctionTemplate){
-                    HaveDependTemplateHandleFunctionTemplate template=(HaveDependTemplateHandleFunctionTemplate)currentTemplate;
-                    int i;
-                    try {
-                        i = Integer.parseInt(index);
-                    }catch (Exception e){
-                        throw new TemplateResolveException(String.format("Integer.parseInt %s error to get template",index));
-                    }
-                    String templateName = getSetValue(template.getDependTemplates(), i);
-                    Template templateDepend;
-                    try {
-                        templateDepend = templateContext.getTemplate(templateName);
-                    } catch (CodeConfigException e) {
-                        throw new TemplateResolveException(e);
-                    }
-                    return templateDepend.getSrcPackage().replaceAll("\\/", ".");
+                if(currentTemplate instanceof HaveDependTemplate){
+                    Template templateDepend = getDependTemplate(index, (HaveDependTemplate) currentTemplate);
+                    return Utils.pathToPackage(templateDepend.getSrcPackage());
                 }else{
-                    throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplateHandleFunctionTemplate",currentTemplate.getTemplateName()));
+                    throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplate but it  %s[%s].%s",currentTemplate.getTemplateName(),LANG_NAME,index,"srcPackage"));
                 }
             }
         }
         ;
 
+        private TemplateContext templateContext;
         private String value;
         public String getValue() {
             return value;
+        }
+        public TemplateContext getTemplateContext() {
+            return templateContext;
+        }
+        public void setTemplateContext(TemplateContext templateContext) {
+            this.templateContext = templateContext;
         }
         Function(String value) {
             this.value = value;
         }
         abstract String done(String index) throws TemplateResolveException;
+
+
+        Template getDependTemplate(String index, HaveDependTemplate currentTemplate) throws TemplateResolveException {
+            int i;
+            try {
+                i = Integer.parseInt(index);
+            }catch (Exception e){
+                throw new TemplateResolveException(String.format("get index %s depend template error to get template",index));
+            }
+            String templateName = getSetValue(currentTemplate.getDependTemplates(), i);
+            Template templateDepend;
+            try {
+                templateDepend = getTemplateContext().getTemplate(templateName);
+            } catch (CodeConfigException e) {
+                throw new TemplateResolveException(e);
+            }
+            return templateDepend;
+        }
     }
 
     private static final String LANG_NAME="depend";
-    private static final Pattern templateFunctionBodyPattern= Pattern.compile("(\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\[\\s*(?<index>.*?)\\s*\\]\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*\\)\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
-    protected static final Pattern templateGrammarPatternSuffix= Pattern.compile("(\\s*"+LANG_NAME+"\\s*[\\s*.*?\\s*]\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*)", Pattern.DOTALL);
-    private Set<Pattern> excludeVariablePatten=new HashSet<>(Arrays.asList(templateGrammarPatternSuffix));
+    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\[\\s*(?<index>.*?)\\s*\\]\\s*\\.(?<function>.*?)(\\(\\s*(?<title>.*?)\\s*\\))?\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
+    protected static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*[\\s*.*?\\s*]\\s*\\.(?<function>.*?)(\\(\\s*(?<title>.*?)\\))?\\s*)", Pattern.DOTALL);
+    private Set<Pattern> excludeVariablePatten=new HashSet<>(Collections.singletonList(TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
 
     public DependTemplateResolver(TemplateResolver templateResolver) {
         super(templateResolver);
@@ -132,19 +145,18 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
      */
     @Override
     public String langResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
-        tableInfo= (TableInfo) replaceKeyValue.get("tableInfo");
-        templateResolver=this.getTemplateResolver();
-        Matcher matcher=templateFunctionBodyPattern.matcher(srcData);
+        Matcher matcher= TEMPLATE_FUNCTION_BODY_PATTERN.matcher(srcData);
         String result="";
         while(matcher.find()){
             String function = matcher.group("function");
             String index = matcher.group("index");
             String all=matcher.group(0);
             Function functionTemp=checkFunction(function);
-            mendLastStr=Utils.getLastNewLineNull(all);
-            mendFirstStr=Utils.getFirstNewLineNull(all);
+            functionTemp.setTemplateContext(templateContext);
+            String mendLastStr = Utils.getLastNewLineNull(all);
+            String mendFirstStr = Utils.getFirstNewLineNull(all);
             String bodyResult=functionTemp.done(index);
-            bodyResult=mendFirstStr+bodyResult+mendLastStr;
+            bodyResult= mendFirstStr +bodyResult+ mendLastStr;
             result = Utils.isEmpty(result) ? srcData.replace(all, bodyResult) : result.replace(all, bodyResult);
         }
         return Utils.isEmpty(result)?srcData:result;

@@ -237,13 +237,9 @@ public abstract class AbstractTemplate implements Template {
             jsonObject.put("module",abstractTemplate.getModule());
             jsonObject.put("sourcesRoot",abstractTemplate.getSourcesRoot());
             jsonObject.put("srcPackage",abstractTemplate.getSrcPackage());
-            if(abstractTemplate instanceof HaveDependTemplateNoHandleFunctionTemplate) {
-                HaveDependTemplateNoHandleFunctionTemplate templateNoHandleFunctionTemplate=(HaveDependTemplateNoHandleFunctionTemplate)object;
-                jsonObject.put("dependTemplates",templateNoHandleFunctionTemplate.getDependTemplates());
-            }
-            if(abstractTemplate instanceof HaveDependTemplateHandleFunctionTemplate){
-                HaveDependTemplateHandleFunctionTemplate templateHandleFunctionTemplate=(HaveDependTemplateHandleFunctionTemplate)object;
-                jsonObject.put("dependTemplates",templateHandleFunctionTemplate.getDependTemplates());
+            if(abstractTemplate instanceof HaveDependTemplate) {
+                HaveDependTemplate haveDependTemplate=(HaveDependTemplate)object;
+                jsonObject.put("dependTemplates",haveDependTemplate.getDependTemplates());
             }
             if(logger.isInfoEnabled()){
                 logger.info(" JSON Serializer {}",jsonObject);

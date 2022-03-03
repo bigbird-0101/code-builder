@@ -113,13 +113,16 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
         DefaultListableTemplateFactory defaultListableTemplateFactory = genericTemplateContext.getTemplateFactory();
         if (mode != 1) {
             defaultListableTemplateFactory.removeMultipleTemplate(sourceMultipleTemplateName);
-            listViewTemplate.getRoot().getChildren().stream()
-                    .filter(labelTreeItem -> labelTreeItem.getValue().getText().equals(sourceMultipleTemplateName))
-                    .findFirst().ifPresent(labelTreeItemLabel -> listViewTemplate.getRoot().getChildren().remove(labelTreeItemLabel));
         }
         buildNewMultipleTemplate(genericTemplateContext);
         //刷新组合模板ListView页面
-        complexController.initMultipleTemplateView(multipleTemplateName.getText(),listViewTemplate.getRoot());
+        listViewTemplate.getRoot().getChildren().stream()
+                .filter(labelTreeItem -> labelTreeItem.getValue().getText().equals(sourceMultipleTemplateName))
+                .findFirst().ifPresent(labelTreeItemOld->{
+            final TreeItem<Label> labelTreeItemNew = complexController.initMultipleTemplateView(multipleTemplateName.getText(), listViewTemplate.getRoot());
+            final int i = listViewTemplate.getRoot().getChildren().indexOf(labelTreeItemOld);
+            listViewTemplate.getRoot().getChildren().set(i,labelTreeItemNew);
+        });
         AlertUtil.showInfo("Success!");
         ((Stage)anchorPane.getScene().getWindow()).close();
     }

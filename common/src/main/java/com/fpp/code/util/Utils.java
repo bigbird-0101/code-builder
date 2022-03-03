@@ -53,6 +53,16 @@ public class Utils {
         return source;
     }
 
+    /**
+     * 路径转包
+     * @param path
+     * @return
+     */
+    public static String pathToPackage(String path){
+        return path.replaceAll("/",".")
+                .replaceAll("//",".").replaceAll("\\\\",".");
+    }
+
 
     public static String getSystemUpLoadFile(String state) {
         String os = System.getProperty("os.name");

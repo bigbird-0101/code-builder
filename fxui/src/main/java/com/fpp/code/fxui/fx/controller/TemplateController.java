@@ -1,5 +1,6 @@
 package com.fpp.code.fxui.fx.controller;
 
+import com.fpp.code.core.common.CollectionUtils;
 import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.context.GenericTemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextProvider;
@@ -142,6 +143,11 @@ public class TemplateController extends TemplateContextProvider implements Initi
         DefaultListableTemplateFactory defaultListableTemplateFactory = templateContext.getTemplateFactory();
         try {
             if (mode != 1) {
+                if (!templateName.getText().equals(sourceTemplateName)
+                        &&templateContext.getTemplateNames().contains(templateName.getText())) {
+                    AlertUtil.showError("模板名已存在");
+                    return;
+                }
                 defaultListableTemplateFactory.removeTemplate(sourceTemplateName);
             }
             buildTemplate(templateContext);
@@ -157,9 +163,16 @@ public class TemplateController extends TemplateContextProvider implements Initi
                         templates.add(newTemplate);
                         multipleTemplate.setTemplates(templates);
                         defaultListableTemplateFactory.refreshMultipleTemplate(multipleTemplate);
-                        TreeItem<Label> labelTreeItemLabel = root.getChildren().stream().filter(labelTreeItem -> labelTreeItem.getValue().getText().equals(multipleTemplate.getTemplateName())).findFirst().get();
-                        root.getChildren().remove(labelTreeItemLabel);
-                        complexController.initMultipleTemplateView(multipleTemplate.getTemplateName(), root);
+                        root.getChildren()
+                                .stream()
+                                .filter(labelTreeItem -> labelTreeItem.getValue().getText().equals(multipleTemplate.getTemplateName()))
+                                .findFirst()
+                                .ifPresent(s->{
+                                    final TreeItem<Label> labelTreeItem = s.getChildren().filtered(v -> v.getValue().getText().equals(sourceTemplateName)).stream().findFirst().get();
+                                    int i=s.getChildren().indexOf(labelTreeItem);
+                                    final TreeItem<Label> andInitTemplateView = complexController.getAndInitTemplateView(newTemplate, multipleTemplate.getTemplateName(), s);
+                                    s.getChildren().set(i,andInitTemplateView);
+                                });
                     }
                 }
             }
@@ -192,23 +205,38 @@ public class TemplateController extends TemplateContextProvider implements Initi
         rootTemplateDefinition.setProjectUrl(projectUrl.getText());
         rootTemplateDefinition.setSourcesRoot(sourcesRootName.getText());
         rootTemplateDefinition.setSrcPackage(srcPackageName.getText());
-        rootTemplateDefinition.setDependTemplates(Utils.isNotEmpty(depends.getText())?Stream.of(depends.getText().split(",")).collect(Collectors.toSet()): rootTemplateDefinition.getDependTemplates());
+        rootTemplateDefinition.setDependTemplates(Utils.isNotEmpty(depends.getText())?Stream.of(depends.getText().split(",")).collect(Collectors.toSet()):new HashSet<>());
 
-        String newFileName = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + "/" + file.getName();
+        String newFileName = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + "/" + templateName.getText()+AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
         File newFile = new File(newFileName);
-        if(!this.file.getAbsolutePath().equals(newFile.getAbsolutePath())) {
+        if(!this.file.equals(newFile)) {
             FileUtils.copyFile(this.file, newFile);
         }
         rootTemplateDefinition.setTemplateFile(newFile);
         AbstractEnvironment.putTemplateContent(newFile.getAbsolutePath(), IOUtils.toString(new FileInputStream(newFile), StandardCharsets.UTF_8));
         if(isNotHave||!templateName.getText().equals(sourceTemplateName)) {
             templateContext.registerTemplateDefinition(templateName.getText(), rootTemplateDefinition);
-            if(templateName.getText().equals(sourceTemplateName)){
+            if(!templateName.getText().equals(sourceTemplateName)){
                 defaultListableTemplateFactory.removeTemplateDefinition(sourceTemplateName);
             }
         }
         defaultListableTemplateFactory.preInstantiateTemplates();
         defaultListableTemplateFactory.refreshTemplate(templateContext.getTemplate(templateName.getText()));
+
+        //修改模板名也要修改此时依赖此模板的所依赖的模板名
+        defaultListableTemplateFactory.getTemplateNames()
+                .stream()
+                .map(defaultListableTemplateFactory::getTemplate)
+                .filter(s->s instanceof HaveDependTemplate)
+                .map(s->(HaveDependTemplate)s)
+                .forEach(s->{
+                    if(!CollectionUtils.isEmpty(s.getDependTemplates())){
+                        if(s.getDependTemplates().removeIf(oldTemplateName->oldTemplateName.equals(sourceTemplateName))){
+                            s.getDependTemplates().add(templateName.getText());
+                        }
+                    }
+                    defaultListableTemplateFactory.refreshTemplate(s);
+                });
     }
 
     public boolean check() {
@@ -227,6 +255,15 @@ public class TemplateController extends TemplateContextProvider implements Initi
         if (mode==1&&getTemplateContext().getTemplateNames().contains(templateName.getText())) {
             AlertUtil.showError("该模板名已存在,请填写其他模板名!");
             return false;
+        }
+        if(Utils.isNotEmpty(depends.getText())){
+            final Set<String> collect = Stream.of(depends.getText().split(",")).collect(Collectors.toSet());
+            for(String dependTemplateName:collect){
+                if(!getTemplateContext().getTemplateNames().contains(dependTemplateName)){
+                    AlertUtil.showError(String.format("所依赖的%s模板不存在",dependTemplateName));
+                    return false;
+                }
+            }
         }
         return true;
     }

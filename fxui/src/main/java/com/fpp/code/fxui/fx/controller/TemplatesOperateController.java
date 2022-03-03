@@ -2,6 +2,7 @@ package com.fpp.code.fxui.fx.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.fpp.code.core.config.StringPropertySource;
 import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.exception.CodeConfigException;
@@ -31,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author fpp
@@ -123,7 +125,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             if (selectTemplateGroup.isEmpty()) {
                 String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
                 if (Utils.isNotEmpty(property)) {
-                    selectTemplateGroup = JSONObject.parseObject(property, Map.class);
+                    selectTemplateGroup = JSONObject.parseObject(property, new TypeReference<Map<String,Map<String,List<String>>>>(){});
                 }
                 if (!selectTemplateGroup.isEmpty()) {
                     if (logger.isInfoEnabled()) {
@@ -131,6 +133,17 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                     }
                 }
                 selectTemplateGroup.putIfAbsent(Main.USER_OPERATE_CACHE.getTemplateNameSelected(),new HashMap<>());
+                selectTemplateGroup.forEach((k,v)->{
+                    final MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(k);
+                    final Set<String> templateNames = multipleTemplate.getTemplates().stream().map(Template::getTemplateName).collect(Collectors.toSet());
+                    final Set<String> strings = v.keySet();
+                    for(String templateName:strings){
+                        if(!templateNames.contains(templateName)){
+                            v.remove(templateName);
+                        }
+                    }
+
+                });
             }
         } catch (Exception e) {
             if (logger.isErrorEnabled()) {
@@ -194,16 +207,16 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         });
 
         TextArea projectUrlTextArea = (TextArea) scene.lookup("#projectUrl");
-        projectUrlTextArea.setText(template.getProjectUrl());
+        projectUrlTextArea.setText(Utils.convertTruePathIfNotNull(template.getProjectUrl()));
 
         TextField moduleNameTextField = (TextField) scene.lookup("#moduleName");
-        moduleNameTextField.setText(template.getModule());
+        moduleNameTextField.setText(Utils.isEmpty(template.getModule())?"/":Utils.convertTruePathIfNotNull(template.getModule()));
 
         TextField sourcesRootTextField = (TextField) scene.lookup("#sourcesRoot");
-        sourcesRootTextField.setText(Utils.setIfNull(template.getSourcesRoot(), DEFAULT_SOURCES_ROOT));
+        sourcesRootTextField.setText(Utils.convertTruePathIfNotNull(Utils.setIfNull(template.getSourcesRoot(), DEFAULT_SOURCES_ROOT)));
 
         TextField srcPackageTextField = (TextField) scene.lookup("#srcPackage");
-        srcPackageTextField.setText(template.getSrcPackage());
+        srcPackageTextField.setText(Utils.convertTruePathIfNotNull(template.getSrcPackage()));
     }
 
     private void addCheckBoxListen(CheckBox checkBox, CheckBox templateNameCheckBox, String templateName, String templateFunction) {
@@ -302,6 +315,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Template files (*.properties)", "*.properties");
         fileChooser.getExtensionFilters().add(extFilter);
         this.file = fileChooser.showOpenDialog(box.getScene().getWindow());
-        fileName.setText(this.file.getName());
+        if(null!=this.file) {
+            fileName.setText(this.file.getName());
+        }
     }
 }
