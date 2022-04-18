@@ -1,10 +1,13 @@
 package com.fpp.code.core.template;
 
+import com.fpp.code.core.common.ObjectUtils;
 import com.fpp.code.core.exception.CodeBuilderException;
 import com.fpp.code.core.template.cache.Cache;
 import com.fpp.code.core.template.cache.CacheKey;
 import com.fpp.code.core.template.cache.impl.CacheLocalLruImpl;
 import com.fpp.code.util.Utils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
@@ -17,6 +20,7 @@ import java.util.regex.Matcher;
  * @date 2020/6/9 17:44
  */
 public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
+    private static Logger logger= LogManager.getLogger(AbstractHandleFunctionTemplate.class);
 
     protected TemplateFileClassInfo templateFileClassInfo;
 
@@ -48,6 +52,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     public String getTemplateResult() throws TemplateResolveException {
         CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
         TemplateFileClassInfo resultCache= (TemplateFileClassInfo) resolverResultCache.get(cacheKey);
+        logger.info("cache is {}",resultCache);
         if(null==resultCache) {
             String resultPrefix = this.templateFileClassInfo.getTemplateClassPrefix();
             String resultSuffix = this.templateFileClassInfo.getTemplateClassSuffix();
@@ -71,7 +76,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
                 }
             }
             resultCache=new TemplateFileClassInfo(resultPrefix,resultSuffix,tempFunctionMap);
-            resolverResultCache.put(cacheKey,resultCache);
+            resolverResultCache.put(cacheKey, ObjectUtils.deepClone(resultCache));
         }
 
 
@@ -82,9 +87,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
 
         Map<String, String> tempFunctionMap =resultCache.getFunctionS();
         StringBuilder functionStr = new StringBuilder();
-        tempFunctionMap.forEach((k, v) -> {
-            functionStr.append(v);
-        });
+        tempFunctionMap.forEach((k, v) -> functionStr.append(v));
 
         return resultCache.getTemplateClassPrefix() + functionStr.toString() + resultCache.getTemplateClassSuffix();
     }

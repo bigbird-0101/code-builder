@@ -498,16 +498,18 @@ public class ComplexController extends TemplateContextProvider implements Initia
             template.getTemplateVariables().put("simpleClassName",simpleClassName);
             if(template instanceof HaveDependTemplate){
                 HaveDependTemplate haveDependTemplate= (HaveDependTemplate) template;
-                haveDependTemplate.getDependTemplates()
-                        .forEach(s->{
-                            final Template templateDepend = getTemplateContext().getTemplate(s);
-                            Map<String, Object> templateVariables = templateDepend.getTemplateVariables();
-                            if(null==templateVariables){
-                                templateVariables=new HashMap<>();
-                            }
-                            templateVariables.put("tableInfo",template.getTemplateVariables().get("tableInfo"));
-                            templateDepend.setTemplateVariables(templateVariables);
-                        });
+                if(!CollectionUtils.isEmpty(haveDependTemplate.getDependTemplates())) {
+                    haveDependTemplate.getDependTemplates()
+                            .forEach(s -> {
+                                final Template templateDepend = getTemplateContext().getTemplate(s);
+                                Map<String, Object> templateVariables = templateDepend.getTemplateVariables();
+                                if (null == templateVariables) {
+                                    templateVariables = new HashMap<>();
+                                }
+                                templateVariables.put("tableInfo", template.getTemplateVariables().get("tableInfo"));
+                                templateDepend.setTemplateVariables(templateVariables);
+                            });
+                }
             }
         } catch (InterruptedException | ExecutionException e) {
             logger.error("setTemplateVariables",e);

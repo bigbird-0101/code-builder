@@ -9,6 +9,7 @@ import com.fpp.code.core.template.HaveDependTemplateHandleFunctionTemplate;
 import com.fpp.code.core.template.Template;
 
 import java.io.IOException;
+import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,7 +30,7 @@ public class Test {
         templateDefinition.setProjectUrl("123123");
         templateDefinition.setModule("ddddd");
         templateDefinition.setTemplateFileSuffixName("java");
-        templateDefinition.setDependTemplates(Stream.of("123","1232").collect(Collectors.toSet()));
+        templateDefinition.setDependTemplates(Stream.of("123","1232").collect(Collectors.toCollection(LinkedHashSet::new)));
         ObjectUtils.copyProperties(templateDefinition,template);
         System.out.println(template);
     }

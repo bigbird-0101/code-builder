@@ -205,7 +205,8 @@ public class TemplateController extends TemplateContextProvider implements Initi
         rootTemplateDefinition.setProjectUrl(projectUrl.getText());
         rootTemplateDefinition.setSourcesRoot(sourcesRootName.getText());
         rootTemplateDefinition.setSrcPackage(srcPackageName.getText());
-        rootTemplateDefinition.setDependTemplates(Utils.isNotEmpty(depends.getText())?Stream.of(depends.getText().split(",")).collect(Collectors.toSet()):new HashSet<>());
+        final String text = depends.getText();
+        rootTemplateDefinition.setDependTemplates(Utils.isNotEmpty(text)?Stream.of(text.split(",")).collect(Collectors.toCollection(LinkedHashSet::new)):new LinkedHashSet<>());
 
         String newFileName = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + "/" + templateName.getText()+AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
         File newFile = new File(newFileName);
@@ -256,6 +257,16 @@ public class TemplateController extends TemplateContextProvider implements Initi
             AlertUtil.showError("该模板名已存在,请填写其他模板名!");
             return false;
         }
+        try {
+            if(Class.forName(selectTemplateClassName.getSelectionModel().getSelectedItem()).newInstance() instanceof HaveDependTemplate&&Utils.isEmpty(depends.getText())){
+                AlertUtil.showError("该模板为依赖型模板,请填写依赖模板名!");
+                return false;
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+
         if(Utils.isNotEmpty(depends.getText())){
             final Set<String> collect = Stream.of(depends.getText().split(",")).collect(Collectors.toSet());
             for(String dependTemplateName:collect){

@@ -158,7 +158,7 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
         Map<String, Object> templateVariableKV = new HashMap<>(10);
         for (String str : variableSet) {
             boolean isExclude = excludeCheckTemplateVariableKey(str);
-            if(Utils.isEmpty(str)){
+            if(null==targetObject || Utils.isEmpty(str)){
                 templateVariableKV.put(str,str.trim());
                 continue;
             }

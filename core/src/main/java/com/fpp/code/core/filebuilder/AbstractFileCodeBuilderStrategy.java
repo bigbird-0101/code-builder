@@ -1,11 +1,14 @@
 package com.fpp.code.core.filebuilder;
 
+import com.fpp.code.core.common.CollectionUtils;
 import com.fpp.code.core.config.CoreConfig;
 import com.fpp.code.core.domain.DefinedFunctionDomain;
 import com.fpp.code.core.filebuilder.definedfunction.DefinedFunctionResolver;
 import com.fpp.code.core.template.*;
 import com.fpp.code.util.Utils;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +25,8 @@ import java.util.Map;
  * @date 2020/7/1 19:15
  */
 public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilderStrategy, ResolverStrategy {
+
+    private static Logger logger= LogManager.getLogger(AbstractFileCodeBuilderStrategy.class);
 
     private CoreConfig coreConfig;
 
@@ -63,6 +68,11 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
         Map<String, List<String>> templateSelectedGroup = this.getCoreConfig().getProjectTemplateInfoConfig().getTemplateSelectedGroup();
         if (this.getTemplate() instanceof AbstractHandleFunctionTemplate) {
             List<String> jsonArrayFunction = templateSelectedGroup.get(this.template.getTemplateName());
+            if(CollectionUtils.isEmpty(jsonArrayFunction)){
+                logger.warn("{} jsonArrayFunction is empty",this.template.getTemplateName());
+                templateFileClassInfo.getFunctionS().clear();
+                return;
+            }
             Map<String, String> functionS = templateFileClassInfo.getFunctionS();
             Map<String, String> newFunction = new HashMap<>(10);
             functionS.forEach((k, v) -> jsonArrayFunction.forEach(data -> {
@@ -124,6 +134,6 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
 
     @Override
     public void resolverStrategy(TemplateFileClassInfo templateFileClassInfo) {
-
+       filterFunction(templateFileClassInfo);
     }
 }

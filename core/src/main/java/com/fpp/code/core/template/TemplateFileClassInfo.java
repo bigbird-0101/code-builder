@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2020/5/20 14:58
  */
-public class TemplateFileClassInfo {
+public class TemplateFileClassInfo implements Serializable {
 
     /**
      * 模板文件除了方法内容的前缀 包括属性

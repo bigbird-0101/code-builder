@@ -25,7 +25,7 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     @Override
     public Template createTemplate(String templateName, TemplateDefinition templateDefinition) {
         RootTemplateDefinition rootTemplateDefinition= (RootTemplateDefinition) templateDefinition;
-        Template template = createTemplateInstant(rootTemplateDefinition, templateName);
+        Template template = createTemplateInstant(rootTemplateDefinition);
         beforeInstantiation(template, templateName);
         initTemplatePropertyValues(templateName, template, rootTemplateDefinition);
         afterInstantiation(template, templateName);
@@ -51,7 +51,7 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
         }
     }
 
-    private Template createTemplateInstant(RootTemplateDefinition templateDefinition, String templateName) {
+    private Template createTemplateInstant(RootTemplateDefinition templateDefinition) {
         try {
             if(Utils.isEmpty(templateDefinition.getTemplateClassName())){
                 boolean noHaveDepend = Utils.isEmpty(templateDefinition.getDependTemplates());

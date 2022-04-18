@@ -4,7 +4,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 /**
  * 有依赖模板的项目模板
@@ -14,14 +14,14 @@ import java.util.Set;
 public class HaveDependTemplateHandleFunctionTemplate extends DefaultHandleFunctionTemplate implements HaveDependTemplate{
     private static Logger logger= LogManager.getLogger(HaveDependTemplateHandleFunctionTemplate.class);
 
-    private Set<String> dependTemplates;
+    private LinkedHashSet<String> dependTemplates;
 
     @Override
-    public Set<String> getDependTemplates() {
+    public LinkedHashSet<String> getDependTemplates() {
         return dependTemplates;
     }
 
-    public void setDependTemplates(Set<String> dependTemplates) {
+    public void setDependTemplates(LinkedHashSet<String> dependTemplates) {
         this.dependTemplates = dependTemplates;
     }
 

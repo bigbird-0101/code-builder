@@ -6,6 +6,7 @@ import com.fpp.code.core.template.GenericMultipleTemplate;
 import com.fpp.code.core.template.HaveDependTemplateHandleFunctionTemplate;
 import org.junit.Test;
 
+import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,7 +15,7 @@ public class TemplateCopyTest {
     public void testTemplateCopyTest() {
         HaveDependTemplateHandleFunctionTemplate haveDependTemplateHandleFunctionTemplate=new HaveDependTemplateHandleFunctionTemplate();
         haveDependTemplateHandleFunctionTemplate.setProjectUrl("123");
-        haveDependTemplateHandleFunctionTemplate.setDependTemplates(Stream.of("123","1234").collect(Collectors.toSet()));
+        haveDependTemplateHandleFunctionTemplate.setDependTemplates(Stream.of("123","1234").collect(Collectors.toCollection(LinkedHashSet::new)));
         HaveDependTemplateHandleFunctionTemplate clone =(HaveDependTemplateHandleFunctionTemplate)haveDependTemplateHandleFunctionTemplate.clone();
         System.out.println(haveDependTemplateHandleFunctionTemplate);
         System.out.println(clone);

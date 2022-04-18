@@ -414,7 +414,7 @@ public class Utils {
                 try {
                     field.setAccessible(true);
                     return field.get(beforeTemp);
-                } catch (IllegalAccessException e) {
+                } catch (IllegalAccessException | NullPointerException exception) {
                     logger.warn("获取一个对象的属性字段值异常 {} {}", field, beforeTemp);
                 }
             }

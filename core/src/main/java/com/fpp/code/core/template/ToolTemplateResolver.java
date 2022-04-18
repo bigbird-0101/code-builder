@@ -197,7 +197,7 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver{
             StringBuilder titleBuilder=new StringBuilder();
             while(matcherTitle.find()){
                 String titleGroup=matcherTitle.group();
-                Object objectTarget= null;
+                Object objectTarget;
                 try {
                     objectTarget = Utils.getTargetObject(replaceKeyValue,titleGroup);
                 } catch (IllegalAccessException e) {
@@ -206,6 +206,8 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver{
                 String realTitle;
                 if(objectTarget instanceof String){
                     realTitle= (String) objectTarget;
+                } else if(isMatchDependTemplate(titleGroup)){
+                    realTitle = getDependTemplateResolver().langResolver(title,replaceKeyValue);
                 }else {
                     realTitle = getLangBodyResult(objectTarget, title, titleGroup.split("\\.")[0]);
                 }
@@ -220,6 +222,22 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver{
             result = Utils.isEmpty(result) ? srcData.replace(all, bodyResult) : result.replace(all, bodyResult);
         }
         return Utils.isEmpty(result)?srcData:result;
+    }
+
+    private DependTemplateResolver getDependTemplateResolver(){
+        final AbstractTemplateResolver templateResolver = (AbstractTemplateResolver)getTemplateResolver();
+        return templateResolver.getTemplateLangResolverList()
+                .stream().filter(s->s instanceof DependTemplateResolver)
+                .map(s->(DependTemplateResolver)s)
+                .findFirst().orElse(null);
+    }
+
+    private boolean isMatchDependTemplate(String title){
+        final DependTemplateResolver dependTemplateResolver = getDependTemplateResolver();
+        if(null==dependTemplateResolver){
+            return false;
+        }
+        return dependTemplateResolver.getExcludeVariablePatten().stream().anyMatch(s->s.matcher(title).find());
     }
 
     private Function checkFunction(String functionName) {

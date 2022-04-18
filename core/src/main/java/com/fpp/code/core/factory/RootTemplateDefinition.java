@@ -12,8 +12,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Type;
+import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author fpp
@@ -29,7 +29,7 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
     private TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy;
 
     @JSONField(defaultValue = "[]")
-    private Set<String> dependTemplates;
+    private LinkedHashSet<String> dependTemplates;
 
 
     public RootTemplateDefinition() {
@@ -50,12 +50,12 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
         return isHandleFunction;
     }
 
-    public void setDependTemplates(Set<String> dependTemplates) {
+    public void setDependTemplates(LinkedHashSet<String> dependTemplates) {
         this.dependTemplates = dependTemplates;
     }
 
     @Override
-    public Set<String> getDependTemplates() {
+    public LinkedHashSet<String> getDependTemplates() {
         return dependTemplates;
     }
 
@@ -79,7 +79,7 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         RootTemplateDefinition that = (RootTemplateDefinition) o;
-        return isHandleFunction == that.isHandleFunction &&
+        return isHandleFunction.equals(that.isHandleFunction) &&
                 templateFileSuffixName.equals(that.templateFileSuffixName) &&
                 templateFilePrefixNameStrategy.equals(that.templateFilePrefixNameStrategy) &&
                 dependTemplates.equals(that.dependTemplates);
