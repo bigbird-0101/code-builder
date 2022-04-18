@@ -1,6 +1,7 @@
 package com.fpp.code.core.template;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author fpp
@@ -59,6 +60,23 @@ public class TableInfo {
         this.tableComment = tableComment;
         this.domainName = domainName;
         this.columnList = columnList;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TableInfo tableInfo = (TableInfo) o;
+        return Objects.equals(tableName, tableInfo.tableName) &&
+                Objects.equals(tableComment, tableInfo.tableComment) &&
+                Objects.equals(domainName, tableInfo.domainName) &&
+                Objects.equals(savePath, tableInfo.savePath) &&
+                Objects.equals(columnList, tableInfo.columnList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tableName, tableComment, domainName, savePath, columnList);
     }
 
     @Override
@@ -164,6 +182,27 @@ public class TableInfo {
             this.isPrimaryKey = isPrimaryKey;
             this.isUniqueKey = isUniqueKey;
             this.jdbcType = jdbcType;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ColumnInfo that = (ColumnInfo) o;
+            return isNull == that.isNull &&
+                    size == that.size &&
+                    isPrimaryKey == that.isPrimaryKey &&
+                    isUniqueKey == that.isUniqueKey &&
+                    Objects.equals(name, that.name) &&
+                    Objects.equals(comment, that.comment) &&
+                    Objects.equals(javaType, that.javaType) &&
+                    Objects.equals(domainPropertyName, that.domainPropertyName) &&
+                    Objects.equals(jdbcType, that.jdbcType);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, comment, javaType, domainPropertyName, isNull, size, isPrimaryKey, isUniqueKey, jdbcType);
         }
 
         @Override

@@ -52,6 +52,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     public String getTemplateResult() throws TemplateResolveException {
         CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
         TemplateFileClassInfo resultCache= (TemplateFileClassInfo) resolverResultCache.get(cacheKey);
+        logger.info("cacheKey is {}",cacheKey);
         logger.info("cache is {}",resultCache);
         if(null==resultCache) {
             String resultPrefix = this.templateFileClassInfo.getTemplateClassPrefix();
@@ -76,20 +77,20 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
                 }
             }
             resultCache=new TemplateFileClassInfo(resultPrefix,resultSuffix,tempFunctionMap);
-            resolverResultCache.put(cacheKey, ObjectUtils.deepClone(resultCache));
+            resolverResultCache.put(cacheKey,resultCache);
         }
 
+        TemplateFileClassInfo tempResultCache= (TemplateFileClassInfo) ObjectUtils.deepClone(resultCache);
 
         //解析策略
         if(null!=resolverStrategy) {
-            resolverStrategy.resolverStrategy(resultCache);
+            resolverStrategy.resolverStrategy(tempResultCache);
         }
-
-        Map<String, String> tempFunctionMap =resultCache.getFunctionS();
         StringBuilder functionStr = new StringBuilder();
+        Map<String, String> tempFunctionMap = tempResultCache.getFunctionS();
         tempFunctionMap.forEach((k, v) -> functionStr.append(v));
 
-        return resultCache.getTemplateClassPrefix() + functionStr.toString() + resultCache.getTemplateClassSuffix();
+        return tempResultCache.getTemplateClassPrefix() + functionStr.toString() + tempResultCache.getTemplateClassSuffix();
     }
 
 

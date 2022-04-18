@@ -66,4 +66,13 @@ public class CacheKey {
     public int hashCode() {
         return hashCode;
     }
+
+    @Override
+    public String toString() {
+        return "CacheKey{" +
+                "templateName='" + templateName + '\'' +
+                ", map=" + map +
+                ", hashCode=" + hashCode +
+                '}';
+    }
 }

@@ -1124,6 +1124,6 @@ public abstract class ObjectUtils {
                 logger.error("clone e",e);
             }
         }
-        return null;
+        throw new RuntimeException("deepClone error");
     }
 }
