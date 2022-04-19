@@ -465,6 +465,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             }
             Platform.runLater(this::hideProgressBar);
             AlertUtil.showInfo("生成成功!");
+            this.tableSelected.clear();
         } catch (Exception e) {
             Platform.runLater(this::hideProgressBar);
             this.tableSelected.clear();

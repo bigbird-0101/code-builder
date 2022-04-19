@@ -29,7 +29,7 @@ public class FunctionParamDefinedFunctionResolverRule implements DefinedFunction
         //解析方法体中的参数
         String lowerRepresentFactor= Utils.firstLowerCase(Utils.underlineToHump(representFactor));
         Matcher matcher=rule.matcher(srcFunctionBody);
-        while(matcher.find()){
+        if (matcher.find()){
             String paramContent=matcher.group("paramContent");
             if(Pattern.compile(lowerRepresentFactor, Pattern.CASE_INSENSITIVE).matcher(paramContent).find()) {
                 Matcher matcher2=Pattern.compile("(?<paramPrefix>.*?)\\s+"+lowerRepresentFactor+"\\s*", Pattern.CASE_INSENSITIVE).matcher(paramContent);

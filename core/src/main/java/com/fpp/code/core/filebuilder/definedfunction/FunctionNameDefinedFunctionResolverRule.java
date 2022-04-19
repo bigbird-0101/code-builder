@@ -27,7 +27,7 @@ public class FunctionNameDefinedFunctionResolverRule implements DefinedFunctionR
         String representFactor=definedFunctionDomain.getRepresentFactor();
         String srcFunctionBody=definedFunctionDomain.getTemplateFunction();
         String[] definedValues=definedValue.split(",");
-        String tempLessFunctionName=Stream.of(definedValues).map(Utils::underlineToHump).collect(Collectors.joining("And"));
+        String tempLessFunctionName=Stream.of(definedValues).map(Utils::underlineToHump).map(Utils::firstUpperCase).collect(Collectors.joining("And"));
         //解析普通方法
         Pattern rule=Pattern.compile("(.*)\\s+((?<functionNamePrefix>.*)"+Utils.firstUpperCase(representFactor)+"(?<functionNameSuffix>.*?)\\()(.*)(?=\\)\\s*\\{)",Pattern.CASE_INSENSITIVE);
         String tempSrc=srcFunctionBody;
