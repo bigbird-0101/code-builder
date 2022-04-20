@@ -200,9 +200,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                             checkBox.setSelected(true);
                         });
                     }
-                }else {
-                    stringListMap2.computeIfAbsent(templateName, k -> new ArrayList<>());
                 }
+                stringListMap2.computeIfAbsent(templateName, k -> new ArrayList<>());
             } else {
                 if (template instanceof AbstractHandleFunctionTemplate) {
                     flowPane.getChildren().forEach(node -> {
