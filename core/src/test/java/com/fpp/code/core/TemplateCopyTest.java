@@ -4,7 +4,7 @@ import com.fpp.code.core.template.DefaultHandleFunctionTemplate;
 import com.fpp.code.core.template.DefaultNoHandleFunctionTemplate;
 import com.fpp.code.core.template.GenericMultipleTemplate;
 import com.fpp.code.core.template.HaveDependTemplateHandleFunctionTemplate;
-import com.fpp.code.core.template.cache.CacheKey;
+import com.fpp.code.core.cache.CacheKey;
 import org.junit.Test;
 
 import java.util.HashMap;

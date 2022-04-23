@@ -1,13 +1,17 @@
 package com.fpp.code.core.domain;
 
 
+import com.fpp.code.core.common.ObjectUtils;
 import com.fpp.code.core.template.TableInfo;
+
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * 自定义方法domain
  * @author Administrator
  */
-public class DefinedFunctionDomain implements Cloneable{
+public class DefinedFunctionDomain implements Cloneable, Serializable {
     /**
      * 用户输入的自定义方法的条件
      */
@@ -83,12 +87,23 @@ public class DefinedFunctionDomain implements Cloneable{
 
     @Override
     public Object clone() {
-        DefinedFunctionDomain definedFunctionDomain = null;
-        try {
-            definedFunctionDomain = (DefinedFunctionDomain)super.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        return definedFunctionDomain;
+        return  ObjectUtils.deepClone(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DefinedFunctionDomain that = (DefinedFunctionDomain) o;
+        return Objects.equals(definedValue, that.definedValue) &&
+                Objects.equals(templateFunctionName, that.templateFunctionName) &&
+                Objects.equals(representFactor, that.representFactor) &&
+                Objects.equals(templateFunction, that.templateFunction) &&
+                Objects.equals(tableInfo, that.tableInfo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(definedValue, templateFunctionName, representFactor, templateFunction, tableInfo);
     }
 }

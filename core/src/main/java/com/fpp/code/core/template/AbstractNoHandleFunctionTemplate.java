@@ -1,9 +1,9 @@
 package com.fpp.code.core.template;
 
 import com.fpp.code.core.exception.CodeBuilderException;
-import com.fpp.code.core.template.cache.Cache;
-import com.fpp.code.core.template.cache.CacheKey;
-import com.fpp.code.core.template.cache.impl.CacheLocalLruImpl;
+import com.fpp.code.core.cache.Cache;
+import com.fpp.code.core.cache.CacheKey;
+import com.fpp.code.core.cache.impl.CacheLocalLruImpl;
 
 import java.io.IOException;
 

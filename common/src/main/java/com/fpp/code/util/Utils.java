@@ -643,6 +643,13 @@ public class Utils {
         return src.replaceAll("\\@","\\\\@").replaceAll("\\*","\\\\*");
     }
 
+    public static boolean isLower(String str){
+        return str.toLowerCase().equals(str);
+    }
+
+    public static boolean isUpper(String str){
+        return str.toUpperCase().equals(str);
+    }
 
     public static void main(String[] args) throws IllegalAccessException, IOException {
 //		AbstractTemplate ab=new ControllerFileTemplate("DoMainTemplate.txt");

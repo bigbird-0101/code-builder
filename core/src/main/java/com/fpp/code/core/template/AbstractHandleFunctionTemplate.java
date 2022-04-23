@@ -1,10 +1,11 @@
 package com.fpp.code.core.template;
 
+import com.fpp.code.core.cache.Cache;
+import com.fpp.code.core.cache.CacheKey;
+import com.fpp.code.core.cache.CachePool;
 import com.fpp.code.core.common.ObjectUtils;
+import com.fpp.code.core.domain.DefinedFunctionDomain;
 import com.fpp.code.core.exception.CodeBuilderException;
-import com.fpp.code.core.template.cache.Cache;
-import com.fpp.code.core.template.cache.CacheKey;
-import com.fpp.code.core.template.cache.impl.CacheLocalLruImpl;
 import com.fpp.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,13 +25,19 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
 
     protected TemplateFileClassInfo templateFileClassInfo;
 
-    private Cache resolverResultCache=new CacheLocalLruImpl(156);
+    private Cache<CacheKey,TemplateFileClassInfo> resolverResultCache= CachePool.build(156);
 
     protected ResolverStrategy resolverStrategy;
 
     @Override
     public void refresh(){
         resolverResultCache.clear();
+        //清除本模板的方法的自定义方法缓存
+        CachePool.clear(s->s.getKeys()
+                .stream()
+                .filter(b->b instanceof DefinedFunctionDomain)
+                .map(b->(DefinedFunctionDomain) b)
+                .anyMatch(b-> templateFileClassInfo.getFunctionS().containsKey(b.getTemplateFunctionName())));
         if(null!=getTemplateFile()) {
             String templateFileContent;
             try {
@@ -51,7 +58,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     @Override
     public String getTemplateResult() throws TemplateResolveException {
         CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
-        TemplateFileClassInfo resultCache= (TemplateFileClassInfo) resolverResultCache.get(cacheKey);
+        TemplateFileClassInfo resultCache= resolverResultCache.get(cacheKey);
         logger.info("cacheKey is {}",cacheKey);
         logger.info("cache is {}",resultCache);
         if(null==resultCache) {

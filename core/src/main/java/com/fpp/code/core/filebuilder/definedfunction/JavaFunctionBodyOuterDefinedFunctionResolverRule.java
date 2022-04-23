@@ -35,7 +35,7 @@ public class JavaFunctionBodyOuterDefinedFunctionResolverRule implements Defined
             if(!(prefix+representFactor+suffix).trim().equals("@Override")) {
                 String srcCompleteContentLine = prefix + representFactor + suffix;
                 if (prefix.contains("@param")) {
-                    String newCompleteContentParam = Stream.of(definedValues).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).map(s -> Utils.replaceIngoreCase(prefix, representFactor, s) + s + Utils.replaceIngoreCase(suffix, representFactor, s)).collect(Collectors.joining("\r\n"));
+                    String newCompleteContentParam=replace(srcCompleteContentLine,representFactor,definedValue);
                     srcFunctionBody =Utils.getIgnoreLowerUpperMather(srcFunctionBody,Utils.addSlashDoubleWhenSpecialCharacter(srcCompleteContentLine)).replaceAll(newCompleteContentParam);
                 }else if (prefix.contains("@ApiImplicitParam")) {
                     String newCompleteContentParam;
@@ -46,7 +46,7 @@ public class JavaFunctionBodyOuterDefinedFunctionResolverRule implements Defined
                         srcFunctionBody =Utils.getIgnoreLowerUpperMather(srcFunctionBody,Utils.addSlashDoubleWhenSpecialCharacter(srcCompleteContentLine)).replaceAll(newCompleteContentParam);
                     }
                 }else if(prefix.trim().startsWith("*")){
-                    String newCompleteContentParam = srcCompleteContentLine.replaceAll(representFactor,Stream.of(definedValues).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).collect(Collectors.joining(",")));
+                    String newCompleteContentParam = replace(srcCompleteContentLine,representFactor,definedValue);
                     srcFunctionBody =Utils.getIgnoreLowerUpperMather(srcFunctionBody,Utils.addSlashDoubleWhenSpecialCharacter(srcCompleteContentLine)).replaceAll(newCompleteContentParam);
                 }else if(prefix.contains("@ApiOperation")){
                     String newCompleteContentParam = prefix+Stream.of(definedValues).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).collect(Collectors.joining(","))+ suffix;

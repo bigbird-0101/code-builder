@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
@@ -8,7 +9,7 @@ import java.util.Objects;
  * @version 1.0
  * @date 2020/6/2 17:41
  */
-public class TableInfo {
+public class TableInfo implements Serializable {
     private String tableName;
     private String tableComment;
     private String domainName;
@@ -89,7 +90,7 @@ public class TableInfo {
                 '}';
     }
 
-    public static class ColumnInfo {
+    public static class ColumnInfo implements Serializable{
         private String name;
         private String comment;
         private String javaType;

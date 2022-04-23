@@ -1,4 +1,4 @@
-package com.fpp.code.core.template.cache;
+package com.fpp.code.core.cache;
 
 import com.fpp.code.core.template.AbstractHandleFunctionTemplate;
 import com.fpp.code.core.template.AbstractNoHandleFunctionTemplate;

@@ -13,7 +13,6 @@ import com.fpp.code.core.factory.config.TemplatePostProcessor;
 import com.fpp.code.core.template.*;
 import com.fpp.code.util.Utils;
 
-import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -98,7 +97,7 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     }
 
     @Override
-    public void refreshTemplate(String templateName) throws CodeConfigException, IOException {
+    public void refreshTemplate(String templateName) throws CodeConfigException {
         getTemplate(templateName).refresh();
     }
 
@@ -119,7 +118,7 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     }
 
     @Override
-    public void refreshMultipleTemplate(String templateName) throws CodeConfigException, IOException {
+    public void refreshMultipleTemplate(String templateName) throws CodeConfigException {
         MultipleTemplate multipleTemplate = getMultipleTemplate(templateName);
         if (null != multipleTemplate) {
             for (Template template : multipleTemplate.getTemplates()) {
