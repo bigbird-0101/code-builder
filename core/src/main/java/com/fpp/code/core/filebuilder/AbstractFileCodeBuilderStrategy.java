@@ -10,10 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -109,7 +106,7 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
     public String getSrcFileCode(String srcFilePath) throws IOException {
         File file = new File(srcFilePath);
         if (!file.exists()) {
-            throw new IOException("文件名不存在" + srcFilePath);
+            throw new FileNotFoundException("文件名不存在" + srcFilePath);
         }
         file.setWritable(true, false);
         InputStream inputStream = new FileInputStream(file);

@@ -1,5 +1,6 @@
 package com.fpp.code.fxui.fx.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -13,6 +14,7 @@ import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
 import com.fpp.code.fxui.Main;
 import com.fpp.code.fxui.common.AlertUtil;
+import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
 import com.fpp.code.util.Utils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -55,6 +57,16 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     public BorderPane progressBarParent;
     @FXML
     public ProgressBar progressBar;
+    @FXML
+    public TextField targetTable;
+    @FXML
+    public CheckBox isDefinedFunction;
+    @FXML
+    public TextField representFactor;
+    @FXML
+    public TextField fields;
+    @FXML
+    public CheckBox isAllTable;
     @FXML
     private VBox box;
 
@@ -125,7 +137,13 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             if (selectTemplateGroup.isEmpty()) {
                 String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
                 if (Utils.isNotEmpty(property)) {
-                    selectTemplateGroup = JSONObject.parseObject(property, new TypeReference<Map<String,Map<String,List<String>>>>(){});
+                    final PageInputSnapshot pageInputSnapshot = JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {});
+                    selectTemplateGroup =Optional.ofNullable(pageInputSnapshot.getSelectTemplateGroup()).orElse(new HashMap<>());
+                    fields.setText(Optional.ofNullable(pageInputSnapshot.getFields()).orElse(StrUtil.EMPTY));
+                    isDefinedFunction.setSelected(Optional.ofNullable(pageInputSnapshot.getDefinedFunction()).orElse(false));
+                    representFactor.setText(Optional.ofNullable(pageInputSnapshot.getRepresentFactor()).orElse(StrUtil.EMPTY));
+                    targetTable.setText(Optional.ofNullable(pageInputSnapshot.getTableNames()).orElse(StrUtil.EMPTY));
+                    isAllTable.setSelected(Optional.ofNullable(pageInputSnapshot.getSelectTableAll()).orElse(false));
                 }
                 if (!selectTemplateGroup.isEmpty()) {
                     if (logger.isInfoEnabled()) {
@@ -147,8 +165,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             }
         } catch (Exception e) {
             if (logger.isErrorEnabled()) {
-                logger.error("初始化用户配置异常: {} {} {} {} {}", DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
-                e.printStackTrace();
+                logger.error("初始化用户配置异常: {} {} {} {} {} {}",e, DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
             }
         }
     }
@@ -166,8 +183,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         CheckBox templateNameCheckBox = (CheckBox) scene.lookup("#templateName");
         Map<String, List<String>> stringListMap = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected());
         if (template instanceof AbstractHandleFunctionTemplate) {
-            AbstractHandleFunctionTemplate HandlerTemplate = (AbstractHandleFunctionTemplate) template;
-            Set<String> templateFunctionNameS = HandlerTemplate.getTemplateFunctionNameS();
+            AbstractHandleFunctionTemplate handlerTemplate = (AbstractHandleFunctionTemplate) template;
+            Set<String> templateFunctionNameS = handlerTemplate.getTemplateFunctionNameS();
             templateFunctionNameS.forEach(templateFunction -> {
                 CheckBox checkBox = new CheckBox(templateFunction);
                 checkBox.setPadding(inserts);
@@ -291,7 +308,16 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 }
             }
             if (!selectTemplateGroup.isEmpty()) {
-                getTemplateContext().getEnvironment().refreshPropertySourceSerialize(new StringPropertySource(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, JSON.toJSONString(selectTemplateGroup)));
+                final PageInputSnapshot build = PageInputSnapshot.PageInputSnapshotBuilder
+                        .aPageInputSnapshot()
+                        .withFields(fields.getText())
+                        .withRepresentFactor(representFactor.getText())
+                        .withSelectTemplateGroup(selectTemplateGroup)
+                        .withTableNames(targetTable.getText())
+                        .withDefinedFunction(isDefinedFunction.isSelected())
+                        .withSelectTableAll(isAllTable.isSelected())
+                        .build();
+                getTemplateContext().getEnvironment().refreshPropertySourceSerialize(new StringPropertySource(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, JSON.toJSONString(build)));
             }
             AlertUtil.showInfo("保存成功");
         } catch (CodeConfigException e) {

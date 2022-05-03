@@ -342,8 +342,12 @@ public class Utils {
      * @return
      */
     public static String getFirstNewLineNull(String str) {
-        String first = str.trim().substring(0, 1);
-        return str.substring(0, str.indexOf(first));
+        try {
+            String first = str.trim().substring(0, 1);
+            return str.substring(0, str.indexOf(first));
+        }catch (StringIndexOutOfBoundsException e){
+            return str;
+        }
     }
 
     /**

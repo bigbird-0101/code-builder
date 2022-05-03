@@ -5,9 +5,6 @@ import com.fpp.code.core.template.TableInfo;
 import com.fpp.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 
-import java.lang.reflect.Field;
-import java.sql.Types;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,12 +16,8 @@ import java.util.stream.Stream;
  * @date 2020/7/13 10:15
  */
 public class MybatisSqlWhereDefinedFunctionResolverRule extends DbTemplateWhereDefinedFunctionResolverRule {
+    private static final String JDBC_TYPE = "\\s*,\\s*jdbcType\\s*=\\s*";
     private static org.apache.logging.log4j.Logger logger= LogManager.getLogger(MybatisSqlWhereDefinedFunctionResolverRule.class);
-
-    private static List<String> types;
-    static {
-        types=Stream.of(Types.class.getFields()).map(Field::getName).collect(Collectors.toList());
-    }
     /**
      * 将模板方法根据规则解析成自定义方法
      *
@@ -33,10 +26,9 @@ public class MybatisSqlWhereDefinedFunctionResolverRule extends DbTemplateWhereD
      */
     @Override
     public String doRule(DefinedFunctionDomain definedFunctionDomain) {
-        String definedValue=definedFunctionDomain.getDefinedValue();
         String representFactor=definedFunctionDomain.getRepresentFactor();
         String srcFunctionBody=definedFunctionDomain.getTemplateFunction();
-        String[] definedValues=definedValue.split("\\,");
+        String definedValue=definedFunctionDomain.getDefinedValue();
         String oldSelectParamPattern="("+representFactor+"\\s*)\\=\\s*\\#\\s*\\{"+ Utils.getFieldName(representFactor) +"(.*?)\\s*\\}";
         Matcher matcher = Utils.getIgnoreLowerUpperMather(srcFunctionBody,oldSelectParamPattern);
         boolean isIncludeJdbcType=false;
@@ -48,17 +40,17 @@ public class MybatisSqlWhereDefinedFunctionResolverRule extends DbTemplateWhereD
                     isLower=true;
                 }
                 String groupType = matcher.group(2);
-                if(types.contains(groupType.replaceAll("\\s*,\\s*jdbcType\\s*=\\s*","").trim())){
+                if(MYSQL_TYPES.contains(groupType.replaceAll(JDBC_TYPE,"").trim())){
                     isIncludeJdbcType=true;
                 }
             }catch (Exception e){
                 logger.debug("IbatisSqlWhereDefinedFunctionResolverRule doRule error mather group(1)");
             }
         }
-        return matcher.replaceAll(getNewSelectParam(definedValues,isLower,definedFunctionDomain.getTableInfo(),isIncludeJdbcType));
+        return matcher.replaceAll(getNewSelectParam(definedValue,isLower,definedFunctionDomain.getTableInfo(),isIncludeJdbcType));
     }
-    private String getNewSelectParam(String[] definedValues, boolean isLower, TableInfo tableInfo, boolean isIncludeJdbcType){
-        return Stream.of(definedValues)
+    private String getNewSelectParam(String definedValue, boolean isLower, TableInfo tableInfo, boolean isIncludeJdbcType){
+        return Stream.of(definedValue.split("\\,"))
                 .map(s->(isLower?s.toLowerCase():s.toUpperCase())+
                         "=#{"+ Utils.firstLowerCase(Utils.underlineToHump(s))
                         +(!isIncludeJdbcType?"":",jdbcType="+tableInfo.getColumnList().stream().filter(v->v.getName().equals(s)).map(TableInfo.ColumnInfo::getJdbcType).findFirst().orElse("VARCHAR"))

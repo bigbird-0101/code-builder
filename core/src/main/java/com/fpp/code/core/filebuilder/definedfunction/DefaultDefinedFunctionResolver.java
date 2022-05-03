@@ -16,7 +16,14 @@ public class DefaultDefinedFunctionResolver extends AbstractDefinedFunctionResol
     private static Logger logger= LogManager.getLogger(DefaultDefinedFunctionResolver.class);
 
     public DefaultDefinedFunctionResolver() {
-        ServiceLoader.load(DefinedFunctionResolverRule.class).forEach(this::addResolverRule);
+        final DefaultRepresentFactorReplaceRuleResolver defaultRepresentFactorReplaceRuleResolver = new DefaultRepresentFactorReplaceRuleResolver();
+        ServiceLoader.load(DefinedFunctionResolverRule.class).forEach(rule->{
+            if(rule instanceof AbstractDefinedFunctionResolverRule){
+                AbstractDefinedFunctionResolverRule abstractDefinedFunctionResolverRule= (AbstractDefinedFunctionResolverRule) rule;
+                abstractDefinedFunctionResolverRule.setRepresentFactorReplaceRuleResolver(defaultRepresentFactorReplaceRuleResolver);
+            }
+            this.addResolverRule(rule);
+        });
         if(this.ruleList.size()==0&&logger.isWarnEnabled()){
             logger.warn("defined function resolver rule load failed");
         }

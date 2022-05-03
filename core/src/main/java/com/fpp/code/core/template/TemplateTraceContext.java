@@ -1,5 +1,9 @@
 package com.fpp.code.core.template;
 
+/**
+ * 模板交易容器 获取当前的模板
+ * @author Administrator
+ */
 public class TemplateTraceContext {
 
     private static Template currentTemplate;

@@ -54,7 +54,7 @@ public class CacheLocalLruImpl<K,C> implements Cache<K,C>, Serializable {
 
 	@Override
 	public void clear() {
-		StaticLog.info("clear {}",cache);
+		StaticLog.debug("clear {}",cache);
 		cache.clear();
 	}
 

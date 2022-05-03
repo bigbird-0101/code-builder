@@ -28,6 +28,7 @@ public abstract class AbstractTemplateLangResolver implements TemplateLangResolv
         return templateResolver;
     }
 
+    @Override
     public void setTemplateResolver(TemplateResolver templateResolver) {
         this.templateResolver = templateResolver;
     }

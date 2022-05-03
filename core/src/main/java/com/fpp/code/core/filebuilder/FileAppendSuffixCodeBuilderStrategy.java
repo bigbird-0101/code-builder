@@ -1,14 +1,12 @@
 package com.fpp.code.core.filebuilder;
 
 import com.fpp.code.core.template.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Objects;
 
 /**
@@ -32,12 +30,17 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
             AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
             handleFunctionTemplate.setResolverStrategy(this);
             String templeResult=handleFunctionTemplate.getTemplateResult();
-
             String srcFilePath=getFilePath();
-            String srcResult=getSrcFileCode(srcFilePath);
-            String suffix = handleFunctionTemplate.getTemplateFileClassInfo().getTemplateClassSuffix();
-            String result = srcResult.substring(0, srcResult.lastIndexOf(suffix.trim()));
-            return result + templeResult + suffix;
+            try {
+                String srcResult = getSrcFileCode(srcFilePath);
+                String suffix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassSuffix();
+                String result = srcResult.substring(0, srcResult.lastIndexOf(suffix.trim()));
+                return result + templeResult + suffix;
+            }catch (FileNotFoundException e){
+                String suffix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassSuffix();
+                String prefix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassPrefix();
+                return prefix + templeResult + suffix;
+            }
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
             return template.getTemplateResult();
         }else{
@@ -56,7 +59,8 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
         File file = new File(filePath);
         logger.info("文件的路径 {} ",filePath);
         if (!file.exists()) {
-            throw new IOException("文件名不存在" + filePath);
+            FileUtils.forceMkdirParent(file);
+            file.createNewFile();
         }
         file.setWritable(true, false);
         OutputStream outputStream = new FileOutputStream(file);

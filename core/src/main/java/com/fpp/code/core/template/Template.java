@@ -11,7 +11,7 @@ import java.util.Map;
  * @date 2020/5/15 17:30
  */
 public interface Template extends Cloneable, Serializable {
-
+    String TABLE_INFO_KEY="tableInfo";
     /**
      * 项目地址
      * @return

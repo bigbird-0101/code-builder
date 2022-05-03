@@ -3,6 +3,7 @@ package com.fpp.code.core.filebuilder.definedfunction;
 import com.fpp.code.core.domain.DefinedFunctionDomain;
 import com.fpp.code.core.filebuilder.TimeoutRegexCharSequence;
 import com.fpp.code.core.template.TableInfo;
+import com.fpp.code.core.template.TemplateTraceContext;
 import com.fpp.code.util.Utils;
 
 import java.util.regex.Matcher;
@@ -16,9 +17,7 @@ import java.util.stream.Stream;
  * @version 1.0
  * @date 2020/7/13 9:28
  */
-public class FunctionParamDefinedFunctionResolverRule implements DefinedFunctionResolverRule {
-
-    protected static final Pattern rule=Pattern.compile("(?<=\\()(?<paramContent>.*)(?=\\)\\s*\\{?)");
+public class FunctionParamDefinedFunctionResolverRule extends AbstractDefinedFunctionResolverRule {
 
     @Override
     public String doRule(DefinedFunctionDomain definedFunctionDomain) {
@@ -28,33 +27,30 @@ public class FunctionParamDefinedFunctionResolverRule implements DefinedFunction
         TableInfo tableInfo=definedFunctionDomain.getTableInfo();
         //解析方法体中的参数
         String lowerRepresentFactor= Utils.firstLowerCase(Utils.underlineToHump(representFactor));
-        Matcher matcher=rule.matcher(srcFunctionBody);
-        if (matcher.find()){
-            String paramContent=matcher.group("paramContent");
+        final boolean isInterface = isInterface(TemplateTraceContext.getCurrentTemplate());
+        Matcher matcherFunction=isInterface?INTERFACE_FUNCTION.matcher(srcFunctionBody):FUNCTION.matcher(srcFunctionBody);
+        while (matcherFunction.find()){
+            String paramContent=matcherFunction.group(FUNCTION_PARAM);
             if(Pattern.compile(lowerRepresentFactor, Pattern.CASE_INSENSITIVE).matcher(paramContent).find()) {
-                Matcher matcher2=Pattern.compile("(?<paramPrefix>.*?)\\s+"+lowerRepresentFactor+"\\s*", Pattern.CASE_INSENSITIVE).matcher(paramContent);
+                Matcher matcher2=Pattern.compile("(?<paramPrefix>.*?)\\s+"+lowerRepresentFactor+"\\s*",
+                        Pattern.CASE_INSENSITIVE).matcher(paramContent);
                 try {
                     if(matcher2.find()) {
                         String paramPrefix = matcher2.group("paramPrefix");
                         String[] valueS=paramPrefix.split("\\s");
                         String paramPrefixReal=Stream.of(valueS).limit(valueS.length-1).collect(Collectors.joining());
-                        String newParamContent = Stream.of(definedValue.split(",")).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).map(s -> Utils.isEmpty(paramPrefixReal) ?getJavaType(s,tableInfo)+" " + s : paramPrefixReal.replaceAll(lowerRepresentFactor,s) + " " +getJavaType(s,tableInfo) +" "+ s).collect(Collectors.joining(","));
+                        String newParamContent = Stream.of(definedValue.split(","))
+                                .map(s->Utils.firstLowerCase(Utils.underlineToHump(s)))
+                                .map(s -> Utils.isEmpty(paramPrefixReal) ?TableInfo.getJavaType(s,tableInfo)+" " + s
+                                        : paramPrefixReal.replaceAll(lowerRepresentFactor,s) + " " +TableInfo.getJavaType(s,tableInfo) +" "+ s)
+                                .collect(Collectors.joining(","));
                         srcFunctionBody = srcFunctionBody.replace(paramContent, newParamContent);
                     }
-                }catch (Exception e){
-
+                }catch (Exception ignored){
                 }
             }
         }
         return srcFunctionBody;
-    }
-
-    public String getJavaType(String columnName, TableInfo tableInfo) {
-        if(null!=tableInfo){
-             return tableInfo.getColumnList().stream().filter(item->item.getName().equals(columnName)).map(TableInfo.ColumnInfo::getJavaType).findFirst().orElse("String");
-        }else{
-            return "String";
-        }
     }
 
     public static Matcher createMatcherWithTimeout(String stringToMatch, String regularExpression, int timeoutMillis) {
@@ -69,7 +65,5 @@ public class FunctionParamDefinedFunctionResolverRule implements DefinedFunction
     }
 
     public static void main(String[] args) {
-        boolean b = Pattern.compile("ab", Pattern.CASE_INSENSITIVE).matcher("ABc").find();
-        System.out.println(b);
     }
 }

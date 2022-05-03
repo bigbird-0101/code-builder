@@ -211,10 +211,9 @@ public class DbUtil {
      *
      * @param dataSourceConfigPojo
      * @return
-     * @throws ClassNotFoundException
      * @throws SQLException
      */
-    private static Connection getConnection(DataSourceConfig dataSourceConfigPojo) throws ClassNotFoundException, SQLException {
+    private static Connection getConnection(DataSourceConfig dataSourceConfigPojo) throws SQLException {
         String quDongName = dataSourceConfigPojo.getQuDongName();
         String user = dataSourceConfigPojo.getUserName();
         String password = dataSourceConfigPojo.getPassword();
@@ -223,7 +222,6 @@ public class DbUtil {
         props.put("remarksReporting", "true");
         props.put("user", user);
         props.put("password", password);
-        Class.forName(quDongName);
         return DriverManager.getConnection(url, props);
     }
 
@@ -242,7 +240,7 @@ public class DbUtil {
         return Arrays.stream(valueClassNameS).map(Utils::firstUpperCase).reduce((s, b) -> s + b).map(s -> Utils.isEmpty(s) ? Utils.firstUpperCase(tableName) : s).get();
     }
 
-    public static TableInfo getTableInfo(DataSourceConfig dataSourceConfigPojo, String tableName) throws SQLException, ClassNotFoundException {
+    public static TableInfo getTableInfo(DataSourceConfig dataSourceConfigPojo, String tableName) throws SQLException {
         TableInfo tableInfo;
         Connection connection = DbUtil.getConnection(dataSourceConfigPojo);
         String dataBaseName = getDataBaseName(dataSourceConfigPojo.getUrl());

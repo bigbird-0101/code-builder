@@ -63,6 +63,27 @@ public class TableInfo implements Serializable {
         this.columnList = columnList;
     }
 
+    public static String getJavaType(String columnName, TableInfo tableInfo) {
+        if(null!=tableInfo){
+            return tableInfo.getColumnList().stream()
+                    .filter(item->item.getName().equals(columnName))
+                    .map(TableInfo.ColumnInfo::getJavaType).findFirst().orElse("String");
+        }else{
+            return "String";
+        }
+    }
+
+    public static String getJavaType(String columnName, Template template) {
+        final TableInfo tableInfo = (TableInfo) template.getTemplateVariables().get(Template.TABLE_INFO_KEY);
+        if(null!=tableInfo){
+            return tableInfo.getColumnList().stream()
+                    .filter(item->item.getName().equals(columnName))
+                    .map(TableInfo.ColumnInfo::getJavaType).findFirst().orElse("String");
+        }else{
+            return "String";
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

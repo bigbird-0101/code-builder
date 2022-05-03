@@ -481,7 +481,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             TableInfo tableInfo;
             try {
                 tableInfo = DbUtil.getTableInfo(coreConfig.getDataSourceConfig(), tableName);
-            } catch (SQLException | ClassNotFoundException e) {
+            } catch (SQLException e) {
                 logger.error("doGetTemplate DbUtil.getTableInfo error",e);
                 throw e;
             }

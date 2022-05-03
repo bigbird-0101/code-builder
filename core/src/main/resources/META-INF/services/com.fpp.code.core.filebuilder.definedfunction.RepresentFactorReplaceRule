@@ -1,0 +1,5 @@
+com.fpp.code.core.filebuilder.definedfunction.SingletonReplaceStringRepresentFactorReplaceRule
+com.fpp.code.core.filebuilder.definedfunction.JavaOriginalMultipleRepresentFactorReplaceRule
+com.fpp.code.core.filebuilder.definedfunction.LogMultipleRepresentFactorReplaceRule
+com.fpp.code.core.filebuilder.definedfunction.SpecialCharMultipleRepresentFactorReplaceRule
+com.fpp.code.core.filebuilder.definedfunction.Swagger2MultipleRepresentFactorReplaceRule

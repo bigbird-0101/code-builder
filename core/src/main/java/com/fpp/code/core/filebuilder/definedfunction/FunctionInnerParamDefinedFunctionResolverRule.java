@@ -1,6 +1,9 @@
 package com.fpp.code.core.filebuilder.definedfunction;
 
+import cn.hutool.core.util.ReUtil;
+import cn.hutool.core.util.StrUtil;
 import com.fpp.code.core.domain.DefinedFunctionDomain;
+import com.fpp.code.core.template.TemplateTraceContext;
 import com.fpp.code.util.Utils;
 
 import java.util.regex.Matcher;
@@ -15,10 +18,7 @@ import java.util.stream.Stream;
  * @version 1.0
  * @date 2020/7/13 9:47
  */
-public class FunctionInnerParamDefinedFunctionResolverRule implements DefinedFunctionResolverRule {
-    private static final Pattern FUNCTION = Pattern.compile("(?<functionPrefix>.*?)\\s*\\(\\s*(?<functionParam>.*?)\\s*\\)\\s*\\{\\s*(?<functionBody>.*{2,5})\\s*\\}", Pattern.DOTALL);
-    public static final String FUNCTION_BODY = "functionBody";
-
+public class FunctionInnerParamDefinedFunctionResolverRule extends AbstractDefinedFunctionResolverRule {
     /**
      * 将模板方法根据规则解析成自定义方法
      *
@@ -48,13 +48,17 @@ public class FunctionInnerParamDefinedFunctionResolverRule implements DefinedFun
             String result = Stream.of(definedValues).map(s -> group1 + group2 + Utils.firstUpperCase(Utils.underlineToHump(s)) + "(" + Utils.firstLowerCase(Utils.underlineToHump(s)) + ")").collect(Collectors.joining(";\r\n"));
             srcFunctionBody = srcFunctionBody.replace(group, result);
         }
-
-        matcher = FUNCTION.matcher(srcFunctionBody);
-        if (matcher.find()) {
+        final boolean isInterface = isInterface(TemplateTraceContext.getCurrentTemplate());
+        matcher = isInterface?INTERFACE_FUNCTION.matcher(srcFunctionBody):FUNCTION.matcher(srcFunctionBody);
+        if (matcher.find()&&!isInterface) {
             String functionBody = matcher.group(FUNCTION_BODY);
-            String oldFunctionBody = functionBody;
-            functionBody = replace(functionBody, representFactor, definedValue);
-            srcFunctionBody = srcFunctionBody.replace(oldFunctionBody, functionBody);
+            if(StrUtil.isNotBlank(functionBody)) {
+                final String[] splits = functionBody.split("\r\n|\n");
+                for(String line:splits){
+                    srcFunctionBody = Utils.getIgnoreLowerUpperMather(srcFunctionBody, ReUtil.escape(line))
+                            .replaceAll(ReUtil.escape(getRepresentFactorReplaceRuleResolver().doResolver(line,representFactor,definedValue)));
+                }
+            }
         }
         return srcFunctionBody;
     }

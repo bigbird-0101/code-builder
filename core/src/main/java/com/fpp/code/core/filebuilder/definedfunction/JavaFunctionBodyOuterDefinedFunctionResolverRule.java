@@ -1,20 +1,20 @@
 package com.fpp.code.core.filebuilder.definedfunction;
 
+import cn.hutool.core.util.ReUtil;
 import com.fpp.code.core.domain.DefinedFunctionDomain;
+import com.fpp.code.core.template.TemplateTraceContext;
 import com.fpp.code.util.Utils;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * java 方法体之外解析规则
+ *
  * @author fpp
  * @version 1.0
  * @date 2020/7/13 9:40
  */
-public class JavaFunctionBodyOuterDefinedFunctionResolverRule implements DefinedFunctionResolverRule {
+public class JavaFunctionBodyOuterDefinedFunctionResolverRule extends AbstractDefinedFunctionResolverRule {
 
     /**
      * 将模板方法根据规则解析成自定义方法
@@ -24,34 +24,17 @@ public class JavaFunctionBodyOuterDefinedFunctionResolverRule implements Defined
      */
     @Override
     public String doRule(DefinedFunctionDomain definedFunctionDomain) {
-        String definedValue=definedFunctionDomain.getDefinedValue();
-        String representFactor=definedFunctionDomain.getRepresentFactor();
-        String srcFunctionBody=definedFunctionDomain.getTemplateFunction();
-        String[] definedValues=definedValue.split(",");
-        Matcher matcher2= Pattern.compile("(?<=\r\n)(?<prefix>.*?)"+representFactor+"(?<suffix>.*?)(?=\r\n)", Pattern.CASE_INSENSITIVE).matcher(srcFunctionBody);
-        while(matcher2.find()){
-            String prefix=matcher2.group("prefix");
-            String suffix=matcher2.group("suffix");
-            if(!(prefix+representFactor+suffix).trim().equals("@Override")) {
-                String srcCompleteContentLine = prefix + representFactor + suffix;
-                if (prefix.contains("@param")) {
-                    String newCompleteContentParam=replace(srcCompleteContentLine,representFactor,definedValue);
-                    srcFunctionBody =Utils.getIgnoreLowerUpperMather(srcFunctionBody,Utils.addSlashDoubleWhenSpecialCharacter(srcCompleteContentLine)).replaceAll(newCompleteContentParam);
-                }else if (prefix.contains("@ApiImplicitParam")) {
-                    String newCompleteContentParam;
-                    if (definedValues.length > 1) {
-                        String prefixNull = Utils.getFirstNewLineNull(prefix);
-                        newCompleteContentParam = Stream.of(definedValues).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).map(s -> prefixNull + Utils.replaceIngoreCase(prefix, representFactor, s) + s + Utils.replaceIngoreCase(suffix, representFactor, s)).collect(Collectors.joining(",\r\n"));
-                        newCompleteContentParam = prefixNull + "@ApiImplicitParams({\r\n" + newCompleteContentParam + "\r\n" + prefixNull + "})";
-                        srcFunctionBody =Utils.getIgnoreLowerUpperMather(srcFunctionBody,Utils.addSlashDoubleWhenSpecialCharacter(srcCompleteContentLine)).replaceAll(newCompleteContentParam);
-                    }
-                }else if(prefix.trim().startsWith("*")){
-                    String newCompleteContentParam = replace(srcCompleteContentLine,representFactor,definedValue);
-                    srcFunctionBody =Utils.getIgnoreLowerUpperMather(srcFunctionBody,Utils.addSlashDoubleWhenSpecialCharacter(srcCompleteContentLine)).replaceAll(newCompleteContentParam);
-                }else if(prefix.contains("@ApiOperation")){
-                    String newCompleteContentParam = prefix+Stream.of(definedValues).map(s->Utils.firstLowerCase(Utils.underlineToHump(s))).collect(Collectors.joining(","))+ suffix;
-                    srcFunctionBody =Utils.getIgnoreLowerUpperMather(srcFunctionBody,Utils.addSlashDoubleWhenSpecialCharacter(srcCompleteContentLine)).replaceAll(newCompleteContentParam);
-                }
+        String definedValue = definedFunctionDomain.getDefinedValue();
+        String representFactor = definedFunctionDomain.getRepresentFactor();
+        String srcFunctionBody = definedFunctionDomain.getTemplateFunction();
+        final boolean isInterface = isInterface(TemplateTraceContext.getCurrentTemplate());
+        Matcher matcher =isInterface?INTERFACE_FUNCTION.matcher(srcFunctionBody):FUNCTION.matcher(srcFunctionBody);
+        if(matcher.find()){
+            final String group = matcher.group(FUNCTION_BODY_OUTER);
+            final String[] splits = group.split("\r\n|\n");
+            for(String line:splits){
+                srcFunctionBody = Utils.getIgnoreLowerUpperMather(srcFunctionBody, ReUtil.escape(line))
+                    .replaceAll(ReUtil.escape(getRepresentFactorReplaceRuleResolver().doResolver(line,representFactor,definedValue)));
             }
         }
         return srcFunctionBody;

@@ -23,7 +23,8 @@ import java.util.regex.Matcher;
 public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     private static Logger logger= LogManager.getLogger(AbstractHandleFunctionTemplate.class);
 
-    protected TemplateFileClassInfo templateFileClassInfo;
+    protected TemplateFileClassInfo templateFileClassInfoNoResolve;
+    protected TemplateFileClassInfo templateFileClassInfoResolved;
 
     private Cache<CacheKey,TemplateFileClassInfo> resolverResultCache= CachePool.build(156);
 
@@ -37,7 +38,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
                 .stream()
                 .filter(b->b instanceof DefinedFunctionDomain)
                 .map(b->(DefinedFunctionDomain) b)
-                .anyMatch(b-> templateFileClassInfo.getFunctionS().containsKey(b.getTemplateFunctionName())));
+                .anyMatch(b-> templateFileClassInfoNoResolve.getFunctionS().containsKey(b.getTemplateFunctionName())));
         if(null!=getTemplateFile()) {
             String templateFileContent;
             try {
@@ -45,7 +46,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
             } catch (IOException e) {
                 throw new CodeBuilderException(e);
             }
-            this.templateFileClassInfo = new TemplateFileClassInfo(getPrefix(templateFileContent), getSuffix(templateFileContent), getFunctionS(templateFileContent));
+            this.templateFileClassInfoNoResolve = new TemplateFileClassInfo(getPrefix(templateFileContent), getSuffix(templateFileContent), getFunctionS(templateFileContent));
         }
     }
 
@@ -62,9 +63,9 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
         logger.info("cacheKey is {}",cacheKey);
         logger.info("cache is {}",resultCache);
         if(null==resultCache) {
-            String resultPrefix = this.templateFileClassInfo.getTemplateClassPrefix();
-            String resultSuffix = this.templateFileClassInfo.getTemplateClassSuffix();
-            Map<String, String> functionS = this.templateFileClassInfo.getFunctionS();
+            String resultPrefix = this.templateFileClassInfoNoResolve.getTemplateClassPrefix();
+            String resultSuffix = this.templateFileClassInfoNoResolve.getTemplateClassSuffix();
+            Map<String, String> functionS = this.templateFileClassInfoNoResolve.getFunctionS();
 
             Iterator<Map.Entry<String, String>> functionIterator = functionS.entrySet().iterator();
             //清除前缀和后缀的{{}}代码
@@ -84,11 +85,12 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
                 }
             }
             resultCache=new TemplateFileClassInfo(resultPrefix,resultSuffix,tempFunctionMap);
+            this.templateFileClassInfoResolved =resultCache;
             resolverResultCache.put(cacheKey,resultCache);
         }
 
+        //这里深度克隆一下对象 如果不克隆 直接传递引用 缓存将会被修改
         TemplateFileClassInfo tempResultCache= (TemplateFileClassInfo) ObjectUtils.deepClone(resultCache);
-
         //解析策略
         if(null!=resolverStrategy) {
             resolverStrategy.resolverStrategy(tempResultCache);
@@ -154,8 +156,8 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
         return functions;
     }
 
-    public TemplateFileClassInfo getTemplateFileClassInfo() {
-        return templateFileClassInfo;
+    public TemplateFileClassInfo getTemplateFileClassInfoWhenResolved() {
+        return templateFileClassInfoResolved;
     }
 
     /**
@@ -169,8 +171,8 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      * @return
      */
     public Set<String> getTemplateFunctionNameS() {
-        Set<String> functionNameS=new HashSet<>(templateFileClassInfo.getFunctionS().keySet().size());
-        for(String functionName:templateFileClassInfo.getFunctionS().keySet()){
+        Set<String> functionNameS=new HashSet<>(templateFileClassInfoNoResolve.getFunctionS().keySet().size());
+        for(String functionName: templateFileClassInfoNoResolve.getFunctionS().keySet()){
             functionNameS.add(getNoResolverFunctionName(functionName));
         }
         return functionNameS;
