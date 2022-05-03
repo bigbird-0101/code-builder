@@ -21,7 +21,7 @@
         <junit-version>4.13.1</junit-version>
         <fastjson-version>1.2.68</fastjson-version>
         <common-io-version>2.8.0</common-io-version>
-        <log4j-version>2.17.0</log4j-version>
+        <log4j-version>2.17.1</log4j-version>
         <hutool-version>5.7.22</hutool-version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
