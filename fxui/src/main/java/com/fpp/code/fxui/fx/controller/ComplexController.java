@@ -1,5 +1,10 @@
 package com.fpp.code.fxui.fx.controller;
 
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.log.StaticLog;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.fpp.code.core.common.CollectionUtils;
 import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.config.CoreConfig;
@@ -20,11 +25,10 @@ import com.fpp.code.core.template.*;
 import com.fpp.code.fxui.Main;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.fxui.common.DbUtil;
+import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
 import com.fpp.code.util.Utils;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -51,7 +55,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -83,7 +90,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
     private final Insets insets = new Insets(0, 10, 10, 0);
     private Parent templatesOperateNode;
     private FXMLLoader templatesOperateFxmlLoader;
-    private static ExecutorService executorService=Executors.newSingleThreadExecutor();
+    private static ExecutorService executorService=Executors.newFixedThreadPool(2);
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -97,7 +104,15 @@ public class ComplexController extends TemplateContextProvider implements Initia
         listViewTemplate.setRoot(root);
         listViewTemplate.setShowRoot(false);
         initMultipleTemplateViews(root);
-        listViewTemplate.getSelectionModel().select(0);
+        final String defaultMultipleTemplate = getDefaultMultipleTemplate();
+        if(StrUtil.isNotBlank(defaultMultipleTemplate)){
+            final TreeItem<Label> labelTreeItem = root.getChildren()
+                    .filtered(s -> s.getValue().getText().equals(defaultMultipleTemplate))
+                    .get(0);
+            listViewTemplate.getSelectionModel().select(labelTreeItem);
+        }else{
+            listViewTemplate.getSelectionModel().select(0);
+        }
         listViewTemplate.requestFocus();
         Main.USER_OPERATE_CACHE.setTemplateNameSelected(listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText());
         doSelectMultiple();
@@ -110,6 +125,14 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 doSelectMultiple();
             }
         });
+    }
+
+    public String getDefaultMultipleTemplate(){
+        String property = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
+        if (Utils.isNotEmpty(property)) {
+            return JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {}).getCurrentMultipleTemplate();
+        }
+        return null;
     }
 
     /**
@@ -400,13 +423,13 @@ public class ComplexController extends TemplateContextProvider implements Initia
     @FXML
     public void doBuildCore() {
         this.showProgressBar();
-        Platform.runLater(()-> doBuild(new DefaultFileBuilder()));
+        executorService.submit(()-> doBuild(new DefaultFileBuilder()));
     }
 
     @FXML
     public void doBuildCoreAfter() {
         this.showProgressBar();
-        Platform.runLater(()-> {
+        executorService.submit(()-> {
             FileBuilder fileBuilder = new DefaultFileBuilder();
             FileCodeBuilderStrategy fileCodeBuilderStrategy = new FileAppendSuffixCodeBuilderStrategy();
             fileCodeBuilderStrategy.setDefinedFunctionResolver(new DefaultDefinedFunctionResolver());
@@ -433,9 +456,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 hideProgressBar();
                 return;
             }
-
-            templatesOperateController.getProgressBar().progressProperty().bind(service.progressProperty());
-            service.restart();
             ProjectTemplateInfoConfig projectTemplateInfoConfig = getProjectTemplateInfoConfig();
             CoreConfig coreConfig = new CoreConfig(getDataSourceConfig(getTemplateContext().getEnvironment()), projectTemplateInfoConfig);
             AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy = (AbstractFileCodeBuilderStrategy) fileBuilder.getFileCodeBuilderStrategy();
@@ -454,14 +474,22 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     }
                 }
             });
-
+            final Set<String> strings = templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).keySet();
+            int all=strings.size()*tableSelected.size();
+            int i=1;
             for (String tableName : tableSelected) {
-                for (String templateName : templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).keySet()) {
+                for (String templateName : strings) {
+                    final long l = System.currentTimeMillis();
+                    System.out.println();
                     Template template=doGetTemplate(templateName,tableName,coreConfig, propertiesVariable.get(),templatesOperateController);
                     TemplateTraceContext.setCurrentTemplate(template);
                     TemplateContextProvider.doPushEventTemplateContextAware();
                     fileBuilder.build(template);
-                }
+                    final long e= System.currentTimeMillis();
+                    StaticLog.debug("{} 耗时: {}",template.getTemplateName(),(e - l) / 1000);
+                    final double div = NumberUtil.div(i++, all);
+                    StaticLog.debug("进度条 {}",div);
+                    Platform.runLater(()-> templatesOperateController.getProgressBar().setProgress(div));                }
             }
             Platform.runLater(this::hideProgressBar);
             AlertUtil.showInfo("生成成功!");
@@ -618,29 +646,10 @@ public class ComplexController extends TemplateContextProvider implements Initia
         progressBar.setVisible(false);
     }
 
-
-    Service<Integer> service = new Service<Integer>() {
-
-        @Override
-        protected Task<Integer> createTask() {
-            return new Task<Integer>() {
-                @Override
-                protected Integer call() throws Exception {
-                    int i = 0;
-                    while (i++ < 100) {
-                        updateProgress(i, 100);
-                        TimeUnit.MILLISECONDS.sleep(50);
-                    }
-                    return null;
-                };
-            };
-        }
-    };
-
     @FXML
     public void doBuildCoreOverride() {
         this.showProgressBar();
-        Platform.runLater(()-> {
+        executorService.submit(()-> {
             FileBuilder fileBuilder = new DefaultFileBuilder();
             FileCodeBuilderStrategy fileCodeBuilderStrategy = new OverrideFileCodeBuilderStrategy();
             fileCodeBuilderStrategy.setDefinedFunctionResolver(new DefaultDefinedFunctionResolver());

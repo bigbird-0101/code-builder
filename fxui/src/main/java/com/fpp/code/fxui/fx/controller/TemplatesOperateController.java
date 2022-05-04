@@ -308,8 +308,9 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 }
             }
             if (!selectTemplateGroup.isEmpty()) {
-                final PageInputSnapshot build = PageInputSnapshot.PageInputSnapshotBuilder
-                        .aPageInputSnapshot()
+                final PageInputSnapshot build = PageInputSnapshot.Builder
+                        .builder()
+                        .withCurrentMultipleTemplate(Main.USER_OPERATE_CACHE.getTemplateNameSelected())
                         .withFields(fields.getText())
                         .withRepresentFactor(representFactor.getText())
                         .withSelectTemplateGroup(selectTemplateGroup)

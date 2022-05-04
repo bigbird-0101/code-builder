@@ -8,6 +8,7 @@ import java.util.Map;
  */
 public class PageInputSnapshot {
 
+    private String currentMultipleTemplate;
     private String tableNames;
     private Boolean selectTableAll;
     private Boolean definedFunction;
@@ -63,50 +64,58 @@ public class PageInputSnapshot {
         this.selectTemplateGroup = selectTemplateGroup;
     }
 
+    public String getCurrentMultipleTemplate() {
+        return currentMultipleTemplate;
+    }
 
-    public static final class PageInputSnapshotBuilder {
+    public void setCurrentMultipleTemplate(String currentMultipleTemplate) {
+        this.currentMultipleTemplate = currentMultipleTemplate;
+    }
+
+    public static final class Builder {
         private PageInputSnapshot pageInputSnapshot;
 
-        private PageInputSnapshotBuilder() {
+        private Builder() {
             pageInputSnapshot = new PageInputSnapshot();
         }
 
-        public static PageInputSnapshotBuilder aPageInputSnapshot() {
-            return new PageInputSnapshotBuilder();
+        public static Builder builder() {
+            return new Builder();
         }
 
-        public PageInputSnapshotBuilder withTableNames(String tableNames) {
+        public Builder withCurrentMultipleTemplate(String currentMultipleTemplate) {
+            pageInputSnapshot.setCurrentMultipleTemplate(currentMultipleTemplate);
+            return this;
+        }
+
+        public Builder withTableNames(String tableNames) {
             pageInputSnapshot.setTableNames(tableNames);
             return this;
         }
 
-        public PageInputSnapshotBuilder withSelectTableAll(Boolean selectTableAll) {
+        public Builder withSelectTableAll(Boolean selectTableAll) {
             pageInputSnapshot.setSelectTableAll(selectTableAll);
             return this;
         }
 
-        public PageInputSnapshotBuilder withDefinedFunction(Boolean definedFunction) {
+        public Builder withDefinedFunction(Boolean definedFunction) {
             pageInputSnapshot.setDefinedFunction(definedFunction);
             return this;
         }
 
-        public PageInputSnapshotBuilder withRepresentFactor(String representFactor) {
+        public Builder withRepresentFactor(String representFactor) {
             pageInputSnapshot.setRepresentFactor(representFactor);
             return this;
         }
 
-        public PageInputSnapshotBuilder withFields(String fields) {
+        public Builder withFields(String fields) {
             pageInputSnapshot.setFields(fields);
             return this;
         }
 
-        public PageInputSnapshotBuilder withSelectTemplateGroup(Map<String, Map<String, List<String>>> selectTemplateGroup) {
+        public Builder withSelectTemplateGroup(Map<String, Map<String, List<String>>> selectTemplateGroup) {
             pageInputSnapshot.setSelectTemplateGroup(selectTemplateGroup);
             return this;
-        }
-
-        public PageInputSnapshotBuilder but() {
-            return aPageInputSnapshot().withTableNames(pageInputSnapshot.getTableNames()).withSelectTableAll(pageInputSnapshot.getSelectTableAll()).withDefinedFunction(pageInputSnapshot.getDefinedFunction()).withRepresentFactor(pageInputSnapshot.getRepresentFactor()).withFields(pageInputSnapshot.getFields()).withSelectTemplateGroup(pageInputSnapshot.getSelectTemplateGroup());
         }
 
         public PageInputSnapshot build() {

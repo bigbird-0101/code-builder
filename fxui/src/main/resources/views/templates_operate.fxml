@@ -30,7 +30,7 @@
     </Pane>
     <BorderPane fx:id="progressBarParent" focusTraversable="true">
       <center>
-         <ProgressBar fx:id="progressBar" prefWidth="400.0" progress="1" BorderPane.alignment="CENTER" />
+         <ProgressBar fx:id="progressBar" prefWidth="400.0" progress="0.01" BorderPane.alignment="CENTER" />
       </center>
     </BorderPane>
     <ScrollPane prefHeight="530">

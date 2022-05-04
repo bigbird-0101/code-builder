@@ -106,4 +106,15 @@ public class DefinedFunctionDomain implements Cloneable, Serializable {
     public int hashCode() {
         return Objects.hash(definedValue, templateFunctionName, representFactor, templateFunction, tableInfo);
     }
+
+    @Override
+    public String toString() {
+        return "DefinedFunctionDomain{" +
+                "definedValue='" + definedValue + '\'' +
+                ", templateFunctionName='" + templateFunctionName + '\'' +
+                ", representFactor='" + representFactor + '\'' +
+                ", templateFunction='" + templateFunction + '\'' +
+                ", tableInfo=" + tableInfo +
+                '}';
+    }
 }

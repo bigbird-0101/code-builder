@@ -29,7 +29,7 @@ public class FunctionParamDefinedFunctionResolverRule extends AbstractDefinedFun
         String lowerRepresentFactor= Utils.firstLowerCase(Utils.underlineToHump(representFactor));
         final boolean isInterface = isInterface(TemplateTraceContext.getCurrentTemplate());
         Matcher matcherFunction=isInterface?INTERFACE_FUNCTION.matcher(srcFunctionBody):FUNCTION.matcher(srcFunctionBody);
-        while (matcherFunction.find()){
+        if (matcherFunction.find()){
             String paramContent=matcherFunction.group(FUNCTION_PARAM);
             if(Pattern.compile(lowerRepresentFactor, Pattern.CASE_INSENSITIVE).matcher(paramContent).find()) {
                 Matcher matcher2=Pattern.compile("(?<paramPrefix>.*?)\\s+"+lowerRepresentFactor+"\\s*",

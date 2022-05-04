@@ -1,9 +1,9 @@
 package com.fpp.code.core.template;
 
+import com.fpp.code.core.cache.impl.SimpleCacheImpl;
 import com.fpp.code.core.exception.CodeBuilderException;
 import com.fpp.code.core.cache.Cache;
 import com.fpp.code.core.cache.CacheKey;
-import com.fpp.code.core.cache.impl.CacheLocalLruImpl;
 
 import java.io.IOException;
 
@@ -17,7 +17,7 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
 
     private String templateContent;
 
-    private Cache resolverResultCache=new CacheLocalLruImpl(156);
+    private Cache resolverResultCache=new SimpleCacheImpl(156);
 
     @Override
     public void refresh(){

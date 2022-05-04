@@ -28,12 +28,16 @@ public abstract class AbstractDefinedFunctionResolver implements DefinedFunction
     public String doResolver(DefinedFunctionDomain definedFunctionDomain) {
         final String cache = definedFunctionDomainStringCache.get(definedFunctionDomain);
         if(StrUtil.isNotBlank(cache)){
-            StaticLog.info("AbstractDefinedFunctionResolver doResolver get cache {}",cache);
+            StaticLog.debug("AbstractDefinedFunctionResolver doResolver get cache {}",cache);
             return cache;
         }
+        StaticLog.debug("AbstractDefinedFunctionResolver doResolver not get cache {}",definedFunctionDomain);
         final DefinedFunctionDomain clone = (DefinedFunctionDomain) definedFunctionDomain.clone();
         for(DefinedFunctionResolverRule rule:ruleList){
+            final long l = System.currentTimeMillis();
             definedFunctionDomain.setTemplateFunction(rule.doRule(definedFunctionDomain));
+            final long e = System.currentTimeMillis();
+            StaticLog.debug("AbstractDefinedFunctionResolver rule {} {}",rule,(e-l)/1000);
         }
         final String templateFunction = definedFunctionDomain.getTemplateFunction();
         definedFunctionDomainStringCache.put(clone, templateFunction);

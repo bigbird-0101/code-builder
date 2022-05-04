@@ -27,6 +27,7 @@ import java.util.*;
 public abstract class AbstractEnvironment implements Environment {
     private static Logger logger = LogManager.getLogger(AbstractEnvironment.class);
     public static final String DEFAULT_TEMPLATE_FILE_SUFFIX = ".template";
+    public static final String DEFAULT_USER_SAVE_TEMPLATE_CONFIG = "code.user.save.config";
     public static final String DEFAULT_CORE_TEMPLATE_PATH = "code.template.config";
     public static final String DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE = "code.template.config.template";
     public static final String DEFAULT_CORE_TEMPLATE_FILES_PATH = "code.template.files";

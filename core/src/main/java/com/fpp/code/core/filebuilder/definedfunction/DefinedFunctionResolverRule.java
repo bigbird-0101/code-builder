@@ -32,15 +32,16 @@ public interface DefinedFunctionResolverRule {
     String FUNCTION_RETURN_VALUE = "functionReturnValue";
     String FUNCTION_NAME = "functionName";
     String FUNCTION_PARAM = "functionParam";
+    String FUNCTION_THROW_ERROR = "functionThrowError";
     /**
      * 方法正则
      */
-    Pattern FUNCTION = Pattern.compile("(?<" + FUNCTION_BODY_OUTER + ">.*)(?:private|public|protected)\\s+(?<" + FUNCTION_RETURN_VALUE + ">.*?)\\s+(?<" + FUNCTION_NAME + ">.*?)\\s*\\(\\s*(?<" + FUNCTION_PARAM + ">.*)\\s*\\)\\s*\\{\\s*(?<" + FUNCTION_BODY + ">(.*){2,5})\\s*\\}",
+    Pattern FUNCTION = Pattern.compile("(?<" + FUNCTION_BODY_OUTER + ">.*)(?:private|public|protected)?\\s+(?<" + FUNCTION_RETURN_VALUE + ">.*?)\\s+(?<" + FUNCTION_NAME + ">.*?)\\s*\\(\\s*(?<" + FUNCTION_PARAM + ">.*)\\s*\\)\\s*(?<" + FUNCTION_THROW_ERROR + ">.*?)\\s*\\{\\s*(?<" + FUNCTION_BODY + ">(.*){2,5})\\s*\\}",
             Pattern.DOTALL|Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE);
     /**
      * 接口方法正则
      */
-    Pattern INTERFACE_FUNCTION = Pattern.compile("(?<" + FUNCTION_BODY_OUTER + ">.*)(?:public)?\\s+(?<" + FUNCTION_RETURN_VALUE + ">.*?)\\s+(?<" + FUNCTION_NAME + ">.*?)\\s*\\(\\s*(?<" + FUNCTION_PARAM + ">.*)\\s*\\)\\s*;\\s*",
+    Pattern INTERFACE_FUNCTION = Pattern.compile("(?<" + FUNCTION_BODY_OUTER + ">.*)(?:public)?\\s+(?<" + FUNCTION_RETURN_VALUE + ">.*?)\\s+(?<" + FUNCTION_NAME + ">.*?)\\s*\\(\\s*(?<" + FUNCTION_PARAM + ">.*)\\s*\\)\\s*(?<" + FUNCTION_THROW_ERROR + ">.*?)\\s*;\\s*",
             Pattern.DOTALL|Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE);
     /**
      * 将模板方法根据规则解析成自定义方法

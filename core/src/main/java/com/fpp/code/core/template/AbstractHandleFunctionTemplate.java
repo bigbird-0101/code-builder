@@ -32,13 +32,6 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
 
     @Override
     public void refresh(){
-        resolverResultCache.clear();
-        //清除本模板的方法的自定义方法缓存
-        CachePool.clear(s->s.getKeys()
-                .stream()
-                .filter(b->b instanceof DefinedFunctionDomain)
-                .map(b->(DefinedFunctionDomain) b)
-                .anyMatch(b-> templateFileClassInfoNoResolve.getFunctionS().containsKey(b.getTemplateFunctionName())));
         if(null!=getTemplateFile()) {
             String templateFileContent;
             try {
@@ -48,6 +41,13 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
             }
             this.templateFileClassInfoNoResolve = new TemplateFileClassInfo(getPrefix(templateFileContent), getSuffix(templateFileContent), getFunctionS(templateFileContent));
         }
+        resolverResultCache.clear();
+        //清除本模板的方法的自定义方法缓存
+        CachePool.clear(s->s.getKeys()
+                .stream()
+                .filter(b->b instanceof DefinedFunctionDomain)
+                .map(b->(DefinedFunctionDomain) b)
+                .anyMatch(b-> getTemplateFunctionNameS().contains(b.getTemplateFunctionName())));
     }
 
 

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,7 +116,7 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
     }
 
     public void init(){
-        this.templateLangResolverList=new ArrayList<>(16);
+        this.templateLangResolverList=new CopyOnWriteArrayList<>();
         ServiceLoader<TemplateLangResolver> serviceLoader=ServiceLoader.load(TemplateLangResolver.class);
         serviceLoader.forEach(item->{
             item.setTemplateResolver(this);
