@@ -1,8 +1,8 @@
 package com.fpp.code.core.filebuilder;
 
+import cn.hutool.core.util.StrUtil;
 import com.fpp.code.core.template.*;
 
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -17,7 +17,7 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * @return
      */
     @Override
-    public String doneCode() throws TemplateResolveException, IOException{
+    public String doneCode() throws TemplateResolveException{
         Template template = getTemplate();
         Objects.requireNonNull(template,"模板对象不允许为空!");
 
@@ -28,8 +28,14 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
 
             String srcFilePath=template.getProjectUrl()+template.getModule()+template.getSourcesRoot()+template.getSrcPackage()+getFileNameBuilder().nameBuilder(template);
             String srcResult=getSrcFileCode(srcFilePath);
-            String result = srcResult.substring(0, srcResult.indexOf("{\r\n"));
-            return result + templeResult + "}\r\n";
+            if(StrUtil.isNotBlank(srcResult)) {
+                String result = srcResult.substring(0, srcResult.indexOf("{\r\n"));
+                return result + templeResult + "}\r\n";
+            }else{
+                String suffix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassSuffix();
+                String prefix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassPrefix();
+                return prefix + templeResult + suffix;
+            }
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
             return template.getTemplateResult();
         }else{

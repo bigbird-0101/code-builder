@@ -1,5 +1,6 @@
 package com.fpp.code.core.filebuilder;
 
+import cn.hutool.log.StaticLog;
 import com.fpp.code.core.template.AbstractHandleFunctionTemplate;
 import com.fpp.code.core.template.AbstractNoHandleFunctionTemplate;
 import com.fpp.code.core.template.Template;
@@ -11,15 +12,18 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+/**
+ * 覆盖已有文件
+ * @author Administrator
+ */
 public class OverrideFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy  {
     private static Logger logger= LogManager.getLogger(OverrideFileCodeBuilderStrategy.class);
 
     @Override
-    public String doneCode() throws TemplateResolveException, IOException {
+    public String doneCode() throws TemplateResolveException {
         Objects.requireNonNull(getTemplate(),"模板对象不允许为空!");
         Template template = getTemplate();
         if(template instanceof AbstractHandleFunctionTemplate){
@@ -34,22 +38,26 @@ public class OverrideFileCodeBuilderStrategy extends AbstractFileCodeBuilderStra
     }
 
     @Override
-    public void fileWrite(String code) throws IOException {
-        String filePath=getFilePath();
-        File a = new File(filePath);
-        if (a.exists()) {
-            FileWriter fileWriter =new FileWriter(a);
-            fileWriter.write("");
-            fileWriter.flush();
-            fileWriter.close();
+    public void fileWrite(String code){
+        try {
+            String filePath = getFilePath();
+            File a = new File(filePath);
+            if (a.exists()) {
+                FileWriter fileWriter = new FileWriter(a);
+                fileWriter.write("");
+                fileWriter.flush();
+                fileWriter.close();
+            }
+            if (logger.isInfoEnabled()) {
+                logger.info("最终的生成文件的路径 {} ", filePath);
+            }
+            FileUtils.forceMkdirParent(a);
+            FileOutputStream fops = new FileOutputStream(a);
+            fops.write(code.getBytes(StandardCharsets.UTF_8));
+            fops.flush();
+            fops.close();
+        }catch (Exception e){
+            StaticLog.error(e);
         }
-        if(logger.isInfoEnabled()) {
-            logger.info("最终的生成文件的路径 {} ", filePath);
-        }
-        FileUtils.forceMkdirParent(a);
-        FileOutputStream fops = new FileOutputStream(a);
-        fops.write(code.getBytes(StandardCharsets.UTF_8));
-        fops.flush();
-        fops.close();
     }
 }

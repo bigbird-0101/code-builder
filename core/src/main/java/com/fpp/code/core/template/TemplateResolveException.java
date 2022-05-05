@@ -8,7 +8,7 @@ import java.security.PrivilegedActionException;
  * @version 1.0
  * @date 2020/7/10 11:01
  */
-public class TemplateResolveException extends Exception{
+public class TemplateResolveException extends RuntimeException{
     /**
      * Constructs a new exception with the specified detail message.  The
      * cause is not initialized, and may subsequently be initialized by

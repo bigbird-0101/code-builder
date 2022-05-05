@@ -4,8 +4,6 @@ package com.fpp.code.core.filebuilder;
 import com.fpp.code.core.filebuilder.definedfunction.DefinedFunctionResolver;
 import com.fpp.code.core.template.TemplateResolveException;
 
-import java.io.IOException;
-
 /**
  * @author fpp
  * @version 1.0
@@ -23,10 +21,10 @@ public interface FileCodeBuilderStrategy {
      * 文件代码生成器策略
      * @return
      */
-    String doneCode() throws TemplateResolveException, IOException;
+    String doneCode() throws TemplateResolveException;
 
     /**
      * 文件写入的方式
      */
-    void fileWrite(String code) throws IOException;
+    void fileWrite(String code);
 }

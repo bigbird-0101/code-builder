@@ -55,10 +55,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -90,7 +88,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
     private final Insets insets = new Insets(0, 10, 10, 0);
     private Parent templatesOperateNode;
     private FXMLLoader templatesOperateFxmlLoader;
-    private static ExecutorService executorService=Executors.newFixedThreadPool(2);
+    private static ExecutorService executorService=Executors.newFixedThreadPool(4);
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -423,24 +421,21 @@ public class ComplexController extends TemplateContextProvider implements Initia
     @FXML
     public void doBuildCore() {
         this.showProgressBar();
-        executorService.submit(()-> doBuild(new DefaultFileBuilder()));
+        executorService.submit(()-> doBuild(FileBuilderEnum.NEW));
     }
 
     @FXML
     public void doBuildCoreAfter() {
         this.showProgressBar();
         executorService.submit(()-> {
-            FileBuilder fileBuilder = new DefaultFileBuilder();
-            FileCodeBuilderStrategy fileCodeBuilderStrategy = new FileAppendSuffixCodeBuilderStrategy();
-            fileCodeBuilderStrategy.setDefinedFunctionResolver(new DefaultDefinedFunctionResolver());
-            fileBuilder.setFileCodeBuilderStrategy(fileCodeBuilderStrategy);
-            doBuild(fileBuilder);
+            doBuild(FileBuilderEnum.SUFFIX);
         });
     }
 
-    public void doBuild(FileBuilder fileBuilder) {
+    public void doBuild(FileBuilderEnum fileBuilderEnum) {
         try {
             TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
+            Platform.runLater(() -> templatesOperateController.getProgressBar().setProgress(0.01));
             if (isSelectedAllTable) {
                 initTableAll();
                 this.tableSelected = this.tableAll;
@@ -458,8 +453,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
             }
             ProjectTemplateInfoConfig projectTemplateInfoConfig = getProjectTemplateInfoConfig();
             CoreConfig coreConfig = new CoreConfig(getDataSourceConfig(getTemplateContext().getEnvironment()), projectTemplateInfoConfig);
-            AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy = (AbstractFileCodeBuilderStrategy) fileBuilder.getFileCodeBuilderStrategy();
-            fileCodeBuilderStrategy.setCoreConfig(coreConfig);
             if (logger.isInfoEnabled()) {
                 logger.info("选中的模板名 {}", templatesOperateController.getSelectTemplateGroup().keySet());
             }
@@ -474,26 +467,10 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     }
                 }
             });
-            final Set<String> strings = templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).keySet();
-            int all=strings.size()*tableSelected.size();
-            int i=1;
-            for (String tableName : tableSelected) {
-                for (String templateName : strings) {
-                    final long l = System.currentTimeMillis();
-                    System.out.println();
-                    Template template=doGetTemplate(templateName,tableName,coreConfig, propertiesVariable.get(),templatesOperateController);
-                    TemplateTraceContext.setCurrentTemplate(template);
-                    TemplateContextProvider.doPushEventTemplateContextAware();
-                    fileBuilder.build(template);
-                    final long e= System.currentTimeMillis();
-                    StaticLog.debug("{} 耗时: {}",template.getTemplateName(),(e - l) / 1000);
-                    final double div = NumberUtil.div(i++, all);
-                    StaticLog.debug("进度条 {}",div);
-                    Platform.runLater(()-> templatesOperateController.getProgressBar().setProgress(div));                }
-            }
-            Platform.runLater(this::hideProgressBar);
-            AlertUtil.showInfo("生成成功!");
-            this.tableSelected.clear();
+            final long l = System.currentTimeMillis();
+            concurrentDoBuild(fileBuilderEnum, templatesOperateController, coreConfig, propertiesVariable);
+            final long e = System.currentTimeMillis();
+            StaticLog.info("done..... {}", (e - l) / 1000);
         } catch (Exception e) {
             Platform.runLater(this::hideProgressBar);
             this.tableSelected.clear();
@@ -502,7 +479,42 @@ public class ComplexController extends TemplateContextProvider implements Initia
         }
     }
 
-    private Template doGetTemplate(String templateName, String tableName, CoreConfig coreConfig, Properties propertiesVariable, TemplatesOperateController templatesOperateController) throws IOException, CodeConfigException, ExecutionException, InterruptedException {
+    public void concurrentDoBuild(FileBuilderEnum fileBuilderEnum, TemplatesOperateController templatesOperateController, CoreConfig coreConfig, AtomicReference<Properties> propertiesVariable) {
+        final Set<String> strings = templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).keySet();
+        int all=strings.size()*tableSelected.size();
+        AtomicInteger i= new AtomicInteger(1);
+        List<CompletableFuture<Void>> task=new ArrayList<>();
+        for (String tableName : tableSelected) {
+            for (String templateName : strings) {
+                final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
+                    final long l = System.currentTimeMillis();
+                    final FileBuilder fileBuilder = FileBuilderFactory.getFileBuilder(fileBuilderEnum);
+                    AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy = (AbstractFileCodeBuilderStrategy) fileBuilder.getFileCodeBuilderStrategy();
+                    fileCodeBuilderStrategy.setCoreConfig(coreConfig);
+                    Template template = doGetTemplate(templateName, tableName, coreConfig, propertiesVariable.get(), templatesOperateController);
+                    TemplateTraceContext.setCurrentTemplate(template);
+                    TemplateContextProvider.doPushEventTemplateContextAware();
+                    fileBuilder.build(template);
+                    final long e = System.currentTimeMillis();
+                    StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
+                }).whenCompleteAsync((v, e) -> {
+                    final double div = NumberUtil.div(i.getAndIncrement(), all);
+                    Platform.runLater(() -> templatesOperateController.getProgressBar().setProgress(div));
+                });
+                task.add(voidCompletableFuture);
+            }
+        }
+        StaticLog.debug("do get task {}",task.size());
+        CompletableFuture.allOf(task.toArray(new CompletableFuture[]{})).whenCompleteAsync((v,e)->{
+            if(e==null){
+                AlertUtil.showInfo("生成成功!");
+            }
+            Platform.runLater(this::hideProgressBar);
+            this.tableSelected.clear();
+        }).join();
+    }
+
+    private Template doGetTemplate(String templateName, String tableName, CoreConfig coreConfig, Properties propertiesVariable, TemplatesOperateController templatesOperateController){
         Template template = getTemplateContext().getTemplate(templateName);
         Future<Map<String, Object>> tempValue = executorService.submit(() -> {
             Map<String, Object> temp = new HashMap<>(10);
@@ -541,8 +553,8 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("setTemplateVariables",e);
-            throw e;
+            StaticLog.error(e);
+            throw new TemplateResolveException(e);
         }
 
         Platform.runLater(()->{
@@ -654,7 +666,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             FileCodeBuilderStrategy fileCodeBuilderStrategy = new OverrideFileCodeBuilderStrategy();
             fileCodeBuilderStrategy.setDefinedFunctionResolver(new DefaultDefinedFunctionResolver());
             fileBuilder.setFileCodeBuilderStrategy(fileCodeBuilderStrategy);
-            doBuild(fileBuilder);
+            doBuild(FileBuilderEnum.OVERRIDE);
         });
     }
 }

@@ -103,15 +103,17 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
      * @return
      * @throws IOException
      */
-    public String getSrcFileCode(String srcFilePath) throws IOException {
+    public String getSrcFileCode(String srcFilePath){
+        String result ="";
         File file = new File(srcFilePath);
         if (!file.exists()) {
-            throw new FileNotFoundException("文件名不存在" + srcFilePath);
+            return result;
         }
         file.setWritable(true, false);
-        InputStream inputStream = new FileInputStream(file);
-        String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-        inputStream.close();
+        try(InputStream inputStream = new FileInputStream(file)){
+            result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+        }catch (Exception ignored){
+        }
         return result;
     }
 

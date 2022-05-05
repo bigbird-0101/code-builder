@@ -6,13 +6,13 @@ package com.fpp.code.core.template;
  */
 public class TemplateTraceContext {
 
-    private static Template currentTemplate;
+    private static ThreadLocal<Template> currentTemplate=new ThreadLocal<>();
 
     public static Template getCurrentTemplate() {
-        return currentTemplate;
+        return currentTemplate.get();
     }
 
     public static void setCurrentTemplate(Template currentTemplate) {
-        TemplateTraceContext.currentTemplate = currentTemplate;
+        TemplateTraceContext.currentTemplate.set(currentTemplate);
     }
 }

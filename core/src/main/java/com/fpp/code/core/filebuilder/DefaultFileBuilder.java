@@ -4,8 +4,6 @@ import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResol
 import com.fpp.code.core.template.Template;
 import com.fpp.code.core.template.TemplateResolveException;
 
-import java.io.IOException;
-
 /**
  * 默认文件生成器
  * @author fpp
@@ -28,7 +26,7 @@ public class DefaultFileBuilder extends AbstractFileBuilder {
      * @param template 模板
      */
     @Override
-    public void build(Template template) throws IOException, TemplateResolveException {
+    public void build(Template template) throws TemplateResolveException {
         AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy= (AbstractFileCodeBuilderStrategy) getFileCodeBuilderStrategy();
         fileCodeBuilderStrategy.setTemplate(template);
         fileCodeBuilderStrategy.setFileNameBuilder(getFileNameBuilder());

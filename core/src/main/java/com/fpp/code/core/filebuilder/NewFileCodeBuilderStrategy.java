@@ -1,13 +1,16 @@
 package com.fpp.code.core.filebuilder;
 
-import com.fpp.code.core.template.*;
+import cn.hutool.log.StaticLog;
+import com.fpp.code.core.template.AbstractHandleFunctionTemplate;
+import com.fpp.code.core.template.AbstractNoHandleFunctionTemplate;
+import com.fpp.code.core.template.Template;
+import com.fpp.code.core.template.TemplateResolveException;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -44,20 +47,24 @@ public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy 
      *  创建新的文件
      */
     @Override
-    public void fileWrite(String code) throws IOException {
-        String filePath=getFilePath();
-        File a = new File(filePath);
-        if (a.exists()) {
-            filePath = filePath + "_1.txt";
-            a = new File(filePath);
+    public void fileWrite(String code){
+        try {
+            String filePath = getFilePath();
+            File a = new File(filePath);
+            if (a.exists()) {
+                filePath = filePath + "_1.txt";
+                a = new File(filePath);
+            }
+            if (logger.isInfoEnabled()) {
+                logger.info("最终的生成文件的路径 {} ", filePath);
+            }
+            FileUtils.forceMkdirParent(a);
+            try(FileOutputStream fops = new FileOutputStream(a)){
+                fops.write(code.getBytes(StandardCharsets.UTF_8));
+                fops.flush();
+            }
+        }catch (Exception e){
+            StaticLog.error(e);
         }
-        if(logger.isInfoEnabled()) {
-            logger.info("最终的生成文件的路径 {} ", filePath);
-        }
-        FileUtils.forceMkdirParent(a);
-        FileOutputStream fops = new FileOutputStream(a);
-        fops.write(code.getBytes(StandardCharsets.UTF_8));
-        fops.flush();
-        fops.close();
     }
 }

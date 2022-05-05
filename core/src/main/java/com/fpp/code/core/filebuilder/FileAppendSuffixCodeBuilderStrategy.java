@@ -1,5 +1,7 @@
 package com.fpp.code.core.filebuilder;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.log.StaticLog;
 import com.fpp.code.core.template.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -23,7 +25,7 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * @return
      */
     @Override
-    public String doneCode() throws TemplateResolveException, IOException {
+    public String doneCode() throws TemplateResolveException {
         Objects.requireNonNull(getTemplate(),"模板对象不允许为空!");
         Template template = getTemplate();
         if(template instanceof AbstractHandleFunctionTemplate){
@@ -31,16 +33,17 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
             handleFunctionTemplate.setResolverStrategy(this);
             String templeResult=handleFunctionTemplate.getTemplateResult();
             String srcFilePath=getFilePath();
-            try {
                 String srcResult = getSrcFileCode(srcFilePath);
-                String suffix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassSuffix();
-                String result = srcResult.substring(0, srcResult.lastIndexOf(suffix.trim()));
-                return result + templeResult + suffix;
-            }catch (FileNotFoundException e){
-                String suffix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassSuffix();
-                String prefix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassPrefix();
-                return prefix + templeResult + suffix;
-            }
+                if(StrUtil.isNotBlank(srcResult)) {
+                    String suffix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassSuffix();
+                    StaticLog.debug("{} suffix {},srcResult {}", Thread.currentThread().getName(), suffix, srcResult);
+                    String result = srcResult.substring(0, srcResult.lastIndexOf(suffix.trim()));
+                    return result + templeResult + suffix;
+                }else {
+                    String suffix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassSuffix();
+                    String prefix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassPrefix();
+                    return prefix + templeResult + suffix;
+                }
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
             return template.getTemplateResult();
         }else{
@@ -54,19 +57,23 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * @param code
      */
     @Override
-    public void fileWrite(String code) throws IOException {
-        String filePath=getFilePath();
-        File file = new File(filePath);
-        logger.info("文件的路径 {} ",filePath);
-        if (!file.exists()) {
-            FileUtils.forceMkdirParent(file);
-            file.createNewFile();
+    public void fileWrite(String code){
+        try {
+            String filePath = getFilePath();
+            File file = new File(filePath);
+            logger.info("文件的路径 {} ", filePath);
+            if (!file.exists()) {
+                FileUtils.forceMkdirParent(file);
+                file.createNewFile();
+            }
+            file.setWritable(true, false);
+            try (OutputStream outputStream = new FileOutputStream(file)) {
+                IOUtils.write(code, outputStream, "UTF-8");
+                outputStream.flush();
+            }
+        }catch (Exception e){
+            StaticLog.error(e);
         }
-        file.setWritable(true, false);
-        OutputStream outputStream = new FileOutputStream(file);
-        IOUtils.write(code, outputStream, "UTF-8");
-        outputStream.flush();
-        outputStream.close();
     }
 
     /**

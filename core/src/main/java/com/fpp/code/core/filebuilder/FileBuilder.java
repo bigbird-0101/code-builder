@@ -3,8 +3,6 @@ package com.fpp.code.core.filebuilder;
 import com.fpp.code.core.template.Template;
 import com.fpp.code.core.template.TemplateResolveException;
 
-import java.io.IOException;
-
 /**
  * 文件生成器
  * @author fpp
@@ -44,5 +42,5 @@ public interface FileBuilder {
      * 文件生成器
      * @param template 模板
      */
-    void build(Template template) throws IOException, TemplateResolveException;
+    void build(Template template) throws TemplateResolveException;
 }
