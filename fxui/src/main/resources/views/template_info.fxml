@@ -2,23 +2,37 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
 <VBox prefWidth="300" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-    <AnchorPane >
-        <CheckBox fx:id="templateName" layoutX="50.0" layoutY="22.0" maxWidth="200" prefHeight="15.0" text="模板名:"/>
-        <Label layoutX="50.0" layoutY="60.0" text="项目地址:"/>
-        <TextArea fx:id="projectUrl" layoutX="142.0" layoutY="49.0" prefHeight="52.0" prefWidth="161.0"/>
-        <Label layoutX="50.0" layoutY="128.0" text="模块名:"/>
-        <TextField fx:id="moduleName" layoutX="142.0" layoutY="124.0"/>
-        <Label layoutX="50.0" layoutY="170.0" text="源码包根路径:"/>
-        <TextField fx:id="sourcesRoot" layoutX="142.0" layoutY="166.0"/>
-        <Label layoutX="50.0" layoutY="210.0" prefHeight="15.0" prefWidth="67.0" text="源码包路径:"/>
-        <TextField fx:id="srcPackage" layoutX="142.0" layoutY="206.0"/>
+    <AnchorPane>
+        <BorderPane layoutX="43.0" layoutY="6.0">
+            <center>
+                <CheckBox fx:id="templateName" layoutX="50.0" layoutY="22.0" maxWidth="200" prefHeight="15.0" text="模板名:" />
+            </center>
+            <right>
+                <ImageView fx:id="editTemplate" fitHeight="20.0" fitWidth="20.0" layoutX="4.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="TOP_RIGHT">
+                    <Image url="@/images/edit.png" />
+                </ImageView>
+            </right>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+        </BorderPane>
+        <Label layoutX="50.0" layoutY="60.0" text="项目地址:" />
+        <TextArea fx:id="projectUrl" layoutX="142.0" layoutY="49.0" prefHeight="52.0" prefWidth="161.0" />
+        <Label layoutX="50.0" layoutY="128.0" text="模块名:" />
+        <TextField fx:id="moduleName" layoutX="142.0" layoutY="124.0" />
+        <Label layoutX="50.0" layoutY="170.0" text="源码包根路径:" />
+        <TextField fx:id="sourcesRoot" layoutX="142.0" layoutY="166.0" />
+        <Label layoutX="50.0" layoutY="210.0" prefHeight="15.0" prefWidth="67.0" text="源码包路径:" />
+        <TextField fx:id="srcPackage" layoutX="142.0" layoutY="206.0" />
+
     </AnchorPane>
     <FlowPane fx:id="functionPane" layoutY="22" prefWrapLength="184.0">
         <padding>
-            <Insets left="50.0" right="20.0" top="20.0"/>
+            <Insets left="50.0" right="20.0" top="20.0" />
         </padding>
     </FlowPane>
 </VBox>
