@@ -1,5 +1,7 @@
 package com.fpp.code.fxui.fx.controller;
 
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
@@ -89,7 +91,10 @@ public class ComplexController extends TemplateContextProvider implements Initia
     private Parent templatesOperateNode;
     private FXMLLoader templatesOperateFxmlLoader;
     private static ExecutorService executorService=Executors.newFixedThreadPool(4);
-
+    final ThreadPoolExecutor DO_ANALYSIS_TEMPLATE = ExecutorBuilder.create()
+            .setCorePoolSize(5)
+            .setThreadFactory(ThreadFactoryBuilder.create().setNamePrefix("DO_ANALYSIS_TEMPLATE").build())
+            .build();
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         splitPane.setDividerPosition(0, 0.15);
@@ -497,10 +502,10 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     fileBuilder.build(template);
                     final long e = System.currentTimeMillis();
                     StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
-                }).whenCompleteAsync((v, e) -> {
+                },DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> {
                     final double div = NumberUtil.div(i.getAndIncrement(), all);
                     Platform.runLater(() -> templatesOperateController.getProgressBar().setProgress(div));
-                });
+                },DO_ANALYSIS_TEMPLATE);
                 task.add(voidCompletableFuture);
             }
         }
@@ -511,7 +516,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             }
             Platform.runLater(this::hideProgressBar);
             this.tableSelected.clear();
-        }).join();
+        },DO_ANALYSIS_TEMPLATE).join();
     }
 
     private Template doGetTemplate(String templateName, String tableName, CoreConfig coreConfig, Properties propertiesVariable, TemplatesOperateController templatesOperateController){
@@ -567,7 +572,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     .collect(Collectors.toList());
             CheckBox checkBoxTarget = collect.stream().findFirst().orElse(null);
             if(null!=checkBoxTarget) {
-                AnchorPane anchorPane = (AnchorPane) checkBoxTarget.getParent();
+                AnchorPane anchorPane = (AnchorPane) checkBoxTarget.getParent().getParent();
                 //重新设置模板值但不持久化
                 templatesOperateController.doSetTemplate(template, anchorPane);
             }else{
