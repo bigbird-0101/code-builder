@@ -3,6 +3,8 @@ package com.fpp.code.fxui;
 import com.fpp.code.core.config.JFramePageEnvironment;
 import com.fpp.code.core.context.GenericTemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextProvider;
+import com.fpp.code.core.template.Template;
+import com.fpp.code.fxui.common.ClassUtil;
 import com.fpp.code.fxui.fx.MinWindow;
 import com.fpp.code.fxui.fx.cache.UserOperateCache;
 import com.fpp.code.fxui.fx.controller.ComplexController;
@@ -27,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Administrator
@@ -117,6 +120,7 @@ public class Main extends Application {
         }
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         TemplateContextProvider.setTemplateContext(genericTemplateContext);
+        CompletableFuture.runAsync(()-> ClassUtil.getAllClassByInterface(Template.class));
     }
 
     public void setLogFilePath(String logFilePath){

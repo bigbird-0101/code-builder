@@ -317,7 +317,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             for (Node node : templates.getChildren()) {
                 VBox box = (VBox) node;
                 AnchorPane anchorPane = (AnchorPane) box.getChildren().get(0);
-                CheckBox checkBox2 = (CheckBox) anchorPane.getChildren().get(0);
+                BorderPane borderPane = (BorderPane) anchorPane.getChildren().get(0);
+                final CheckBox checkBox2 = (CheckBox) borderPane.getCenter();
                 if (checkBox2.isSelected()) {
                     String templateName = (String) checkBox2.getUserData();
                     Template template = getTemplateContext().getTemplate(templateName);
