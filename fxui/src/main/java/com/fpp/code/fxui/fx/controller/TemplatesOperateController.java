@@ -1,5 +1,6 @@
 package com.fpp.code.fxui.fx.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -161,12 +162,10 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                     final MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(k);
                     final Set<String> templateNames = multipleTemplate.getTemplates().stream().map(Template::getTemplateName).collect(Collectors.toSet());
                     final Set<String> strings = v.keySet();
-                    for(String templateName:strings){
-                        if(!templateNames.contains(templateName)){
-                            v.remove(templateName);
-                        }
+                    final Collection<String> subtract = CollUtil.subtract(strings, templateNames);
+                    for(String templateName:subtract){
+                       v.remove(templateName);
                     }
-
                 });
             }
         } catch (Exception e) {

@@ -12,6 +12,7 @@ import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -21,11 +22,12 @@ import java.util.stream.Stream;
  * 获取接口的所有实现类 理论上也可以用来获取类的所有子类
  * 查询路径有限制，只局限于接口所在模块下，比如pandora-gateway,而非整个pandora（会递归搜索该文件夹下所以的实现类）
  * 路径中不可含中文，否则会异常。若要支持中文路径，需对该模块代码中url.getPath() 返回值进行urldecode.
+ * @author Administrator
  */
 public class ClassUtil {
     private static org.apache.logging.log4j.Logger LOG = LogManager.getLogger(Main.class);
 
-    private static final Map<Class<?>,ArrayList<Class<?>>> cache=new HashMap<>();
+    private static final Map<Class<?>,ArrayList<Class<?>>> cache=new ConcurrentHashMap<>();
 
     public static ArrayList<Class<?>> getAllClassByInterface(Class<?> clazz) {
         ArrayList<Class<?>> objects = cache.get(clazz);

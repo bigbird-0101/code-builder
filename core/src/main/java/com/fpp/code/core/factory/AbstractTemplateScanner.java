@@ -88,7 +88,8 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
                     String templateName= (String)o;
                     TemplateDefinition templateDefinition=templateDefinitionMapTemp.get(templateName);
                     if(null==templateDefinition){
-                        throw new CodeConfigException("组合模板中的模板名为"+templateName+"不存在");
+                        logger.warn("{}组合模板中的模板名为{}不存在",name,templateName);
+                        continue;
                     }
                     templateNames.add(templateName);
                 }
