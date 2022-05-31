@@ -7,6 +7,7 @@ import com.fpp.code.core.template.Template;
 import com.fpp.code.fxui.common.ClassUtil;
 import com.fpp.code.fxui.fx.MinWindow;
 import com.fpp.code.fxui.fx.cache.UserOperateCache;
+import com.fpp.code.fxui.fx.component.FxApp;
 import com.fpp.code.fxui.fx.controller.ComplexController;
 import com.fpp.code.util.Utils;
 import javafx.application.Application;
@@ -36,6 +37,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class Main extends Application {
     public static final UserOperateCache USER_OPERATE_CACHE=new UserOperateCache();
+    public static final String ICON_PNG = "icon.png";
     private static Logger logger= LogManager.getLogger(Main.class);
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -45,7 +47,7 @@ public class Main extends Application {
         addKeyCodeCombination(scene,fxmlLoader.getController());
         primaryStage.setTitle("code-builder");
         primaryStage.setScene(scene);
-        primaryStage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("icon.png"))));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(ICON_PNG))));
         primaryStage.setOnCloseRequest(event -> {
             ButtonType restart = new ButtonType("重启");
             ButtonType hide = new ButtonType("最小化托盘");
@@ -70,6 +72,7 @@ public class Main extends Application {
             });
         });
         primaryStage.show();
+        FxApp.init(primaryStage,ICON_PNG);
         MinWindow.getInstance().listen(primaryStage);
     }
 

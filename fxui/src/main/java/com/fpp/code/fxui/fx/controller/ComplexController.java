@@ -2,7 +2,6 @@ package com.fpp.code.fxui.fx.controller;
 
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.thread.ThreadFactoryBuilder;
-import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson.JSONObject;
@@ -28,6 +27,9 @@ import com.fpp.code.fxui.Main;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.fxui.common.DbUtil;
 import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
+import com.fpp.code.fxui.fx.component.FxAlerts;
+import com.fpp.code.fxui.fx.component.FxProgressDialog;
+import com.fpp.code.fxui.fx.component.ProgressTask;
 import com.fpp.code.util.Utils;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
@@ -39,12 +41,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,6 +60,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -68,13 +69,15 @@ import java.util.stream.Collectors;
 public class ComplexController extends TemplateContextProvider implements Initializable {
     @FXML
     public VBox mainBox;
+    @FXML
+    public StackPane contentParent;
     private Logger logger = LogManager.getLogger(getClass());
     @FXML
     public TreeView<Label> listViewTemplate;
     @FXML
     private Pane pane;
     @FXML
-    private VBox content;
+    private AnchorPane content;
     @FXML
     private SplitPane splitPane;
     /**
@@ -88,7 +91,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
     private static boolean isSelectedAllTable = false;
     private TextField selectedTable;
     private final Insets insets = new Insets(0, 10, 10, 0);
-    private Parent templatesOperateNode;
+    private VBox templatesOperateNode;
     private FXMLLoader templatesOperateFxmlLoader;
     private static ExecutorService executorService=Executors.newFixedThreadPool(4);
     final ThreadPoolExecutor DO_ANALYSIS_TEMPLATE = ExecutorBuilder.create()
@@ -97,12 +100,13 @@ public class ComplexController extends TemplateContextProvider implements Initia
             .build();
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        content.prefWidthProperty().bind(contentParent.widthProperty());
         splitPane.setDividerPosition(0, 0.15);
         splitPane.setDividerPosition(1, 1.0);
         //宽度绑定为Pane宽度
         listViewTemplate.prefWidthProperty().bind(pane.widthProperty());
         //高度绑定为Pane高度
-        listViewTemplate.prefHeightProperty().bind(pane.heightProperty());
+        listViewTemplate.prefHeightProperty().bind(splitPane.heightProperty());
         TreeItem<Label> root = new TreeItem<>(new Label("根节点"));
         listViewTemplate.setRoot(root);
         listViewTemplate.setShowRoot(false);
@@ -310,14 +314,15 @@ public class ComplexController extends TemplateContextProvider implements Initia
         final String copyTemplateName = template.getTemplateName() + "Copy";
         final File templateFile = clone.getTemplateFile();
         try {
-            String newFileName = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + "/" + copyTemplateName+AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
+            String newFileName = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + File.separator + copyTemplateName+AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
             final File file = new File(newFileName);
             if(!file.exists()) {
                 FileUtils.copyFile(templateFile, file);
+                Thread.sleep(100);
             }
             RootTemplateDefinition rootTemplateDefinition= (RootTemplateDefinition) clone;
             rootTemplateDefinition.setTemplateFile(file);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error(e);
         }
         if(null!=defaultListableTemplateFactory.getTemplateDefinition(copyTemplateName)) {
@@ -335,6 +340,8 @@ public class ComplexController extends TemplateContextProvider implements Initia
         try {
             templatesOperateFxmlLoader = new FXMLLoader(getClass().getResource("/views/templates_operate.fxml"));
             templatesOperateNode = templatesOperateFxmlLoader.load();
+            templatesOperateNode.prefHeightProperty().bind(contentParent.heightProperty());
+            templatesOperateNode.prefWidthProperty().bind(contentParent.widthProperty());
             TemplatesOperateController templatesOperateController=templatesOperateFxmlLoader.getController();
             templatesOperateController.getCurrentTemplate().setText("当前组合模板:"+Main.USER_OPERATE_CACHE.getTemplateNameSelected());
             CheckBox checkBox = (CheckBox) templatesOperateNode.lookup("#isAllTable");
@@ -425,22 +432,17 @@ public class ComplexController extends TemplateContextProvider implements Initia
 
     @FXML
     public void doBuildCore() {
-        this.showProgressBar();
-        executorService.submit(()-> doBuild(FileBuilderEnum.NEW));
+         doBuild(FileBuilderEnum.NEW);
     }
 
     @FXML
     public void doBuildCoreAfter() {
-        this.showProgressBar();
-        executorService.submit(()-> {
-            doBuild(FileBuilderEnum.SUFFIX);
-        });
+        doBuild(FileBuilderEnum.SUFFIX);
     }
 
     public void doBuild(FileBuilderEnum fileBuilderEnum) {
         try {
             TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
-            Platform.runLater(() -> templatesOperateController.getProgressBar().setProgress(0.01));
             if (isSelectedAllTable) {
                 initTableAll();
                 this.tableSelected = this.tableAll;
@@ -453,7 +455,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
             }
             if (this.tableSelected.isEmpty() && null == templatesOperateController.getFile()) {
                 AlertUtil.showWarning("请输入一个表名或者选择一个变量文件");
-                hideProgressBar();
                 return;
             }
             ProjectTemplateInfoConfig projectTemplateInfoConfig = getProjectTemplateInfoConfig();
@@ -472,19 +473,41 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     }
                 }
             });
+
             final long l = System.currentTimeMillis();
-            concurrentDoBuild(fileBuilderEnum, templatesOperateController, coreConfig, propertiesVariable);
+            ProgressTask progressTask = new ProgressTask() {
+                @Override
+                protected void execute() {
+                    ComplexController.this.concurrentDoBuild(
+                            fileBuilderEnum, templatesOperateController, coreConfig, propertiesVariable, (total, current) -> updateProgress(current, total)
+                    );
+                }
+            };
+            Window controllerWindow = mainBox.getScene().getWindow();
+            FxProgressDialog dialog = FxProgressDialog.create(controllerWindow, progressTask, "正在生成中...");
+            progressTask.setOnCancelled(event -> {
+                throw new IllegalArgumentException("生成被取消。");
+            });
+            progressTask.setOnFailed(event -> {
+                Throwable e = event.getSource().getException();
+                if (e != null) {
+                    logger.error("生成失败", e);
+                    FxAlerts.error(controllerWindow, "生成失败", e);
+                } else {
+                    FxAlerts.error(controllerWindow, "生成失败", event.getSource().getMessage());
+                }
+            });
+            dialog.showAndWait();
             final long e = System.currentTimeMillis();
             StaticLog.info("done..... {}", (e - l) / 1000);
         } catch (Exception e) {
-            Platform.runLater(this::hideProgressBar);
             this.tableSelected.clear();
             logger.error("build error",e);
             AlertUtil.showError(e.getMessage());
         }
     }
 
-    public void concurrentDoBuild(FileBuilderEnum fileBuilderEnum, TemplatesOperateController templatesOperateController, CoreConfig coreConfig, AtomicReference<Properties> propertiesVariable) {
+    public void concurrentDoBuild(FileBuilderEnum fileBuilderEnum, TemplatesOperateController templatesOperateController, CoreConfig coreConfig, AtomicReference<Properties> propertiesVariable, BiConsumer<Integer, Integer> onProgressUpdate) {
         final Set<String> strings = templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).keySet();
         int all=strings.size()*tableSelected.size();
         AtomicInteger i= new AtomicInteger(1);
@@ -502,10 +525,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     fileBuilder.build(template);
                     final long e = System.currentTimeMillis();
                     StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
-                },DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> {
-                    final double div = NumberUtil.div(i.getAndIncrement(), all);
-                    Platform.runLater(() -> templatesOperateController.getProgressBar().setProgress(div));
-                },DO_ANALYSIS_TEMPLATE);
+                },DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> onProgressUpdate.accept(all,i.getAndIncrement()),DO_ANALYSIS_TEMPLATE);
                 task.add(voidCompletableFuture);
             }
         }
@@ -514,7 +534,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
             if(e==null){
                 AlertUtil.showInfo("生成成功!");
             }
-            Platform.runLater(this::hideProgressBar);
             this.tableSelected.clear();
         },DO_ANALYSIS_TEMPLATE).join();
     }
@@ -647,31 +666,12 @@ public class ComplexController extends TemplateContextProvider implements Initia
         secondWindow.show();
     }
 
-    void showProgressBar(){
-        TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
-        BorderPane progressBarParent = templatesOperateController.getProgressBarParent();
-        progressBarParent.setVisible(true);
-        ProgressBar progressBar = templatesOperateController.getProgressBar();
-        progressBar.setVisible(true);
-    }
-
-    void hideProgressBar(){
-        TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
-        BorderPane progressBarParent = templatesOperateController.getProgressBarParent();
-        progressBarParent.setVisible(false);
-        ProgressBar progressBar = templatesOperateController.getProgressBar();
-        progressBar.setVisible(false);
-    }
-
     @FXML
     public void doBuildCoreOverride() {
-        this.showProgressBar();
-        executorService.submit(()-> {
-            FileBuilder fileBuilder = new DefaultFileBuilder();
-            FileCodeBuilderStrategy fileCodeBuilderStrategy = new OverrideFileCodeBuilderStrategy();
-            fileCodeBuilderStrategy.setDefinedFunctionResolver(new DefaultDefinedFunctionResolver());
-            fileBuilder.setFileCodeBuilderStrategy(fileCodeBuilderStrategy);
-            doBuild(FileBuilderEnum.OVERRIDE);
-        });
+        FileBuilder fileBuilder = new DefaultFileBuilder();
+        FileCodeBuilderStrategy fileCodeBuilderStrategy = new OverrideFileCodeBuilderStrategy();
+        fileCodeBuilderStrategy.setDefinedFunctionResolver(new DefaultDefinedFunctionResolver());
+        fileBuilder.setFileCodeBuilderStrategy(fileCodeBuilderStrategy);
+        doBuild(FileBuilderEnum.OVERRIDE);
     }
 }

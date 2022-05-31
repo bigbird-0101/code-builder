@@ -1,39 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox fx:id="box" stylesheets="@../css/template_operate.css" prefWidth="1000" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fxui.fx.controller.TemplatesOperateController">
-    <Pane prefHeight="25.0" prefWidth="1000.0">
+<VBox fx:id="box" stylesheets="@../css/template_operate.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fxui.fx.controller.TemplatesOperateController">
+    <VBox>
           <Label fx:id="currentTemplate" alignment="CENTER" contentDisplay="CENTER" prefHeight="15.0" prefWidth="1000" textAlignment="JUSTIFY">
          <font>
             <Font name="System Bold" size="17.0" />
-         </font></Label>
-    </Pane>
-    <AnchorPane>
-        <CheckBox fx:id="isAllTable" layoutX="57.0" layoutY="20.0" mnemonicParsing="false" text="全库生成" />
-        <Label layoutX="166.0" layoutY="21.0" text="目标表名" />
-        <TextField fx:id="targetTable" layoutX="229.0" layoutY="18.0" />
-        <Button layoutX="575.0" layoutY="17.0" mnemonicParsing="false" onAction="#refreshTemplate" text="刷新模板" />
-        <Button layoutX="667.0" layoutY="17.0" mnemonicParsing="false" onAction="#saveConfig" prefHeight="23.0" prefWidth="90.0" text="持久化配置" />
-         <Label layoutX="415.0" layoutY="22.0" text="变量文件:" />
-        <Button layoutX="479.0" layoutY="17.0" mnemonicParsing="false" onAction="#selectVariableFile" text="选择" />
-      <Label fx:id="fileName" layoutX="415.0" layoutY="44.0" prefHeight="15.0" prefWidth="161.0" />
-    </AnchorPane>
-    <Pane prefHeight="60.0" prefWidth="1000.0">
-        <CheckBox fx:id="isDefinedFunction" layoutX="56.0" layoutY="37.0" mnemonicParsing="false" text="生成以模板方法体为模板的方法" />
-        <Label layoutX="57.0" layoutY="7.0" text="字段名(多个,分开)" />
-        <Label layoutX="362.0" layoutY="6.0" text="代表因子" />
-        <TextField fx:id="representFactor" layoutX="430.0" />
-        <TextField fx:id="fields" layoutX="162.0" layoutY="1.0" />
-    </Pane>
-    <BorderPane fx:id="progressBarParent" focusTraversable="true">
-      <center>
-         <ProgressBar fx:id="progressBar" prefWidth="400.0" progress="0.01" BorderPane.alignment="CENTER" />
-      </center>
-    </BorderPane>
-    <ScrollPane prefHeight="530">
-        <FlowPane fx:id="templates" prefWidth="-1.0" VBox.vgrow="NEVER" />
-    </ScrollPane>
+         </font>
+          </Label>
+    </VBox>
+    <VBox>
+        <FlowPane hgap="15.0">
+            <CheckBox fx:id="isAllTable" mnemonicParsing="false" text="全库生成" />
+            <Label text="目标表名" />
+            <TextField fx:id="targetTable" />
+            <Label text="变量文件:" />
+            <Button mnemonicParsing="false" onAction="#selectVariableFile" text="选择" />
+            <Label fx:id="fileName" prefHeight="15.0" prefWidth="161.0" />
+            <Button mnemonicParsing="false" onAction="#refreshTemplate" text="刷新模板" />
+            <Button mnemonicParsing="false" onAction="#saveConfig" prefHeight="23.0" prefWidth="90.0" text="持久化配置" />
+            <VBox.margin>
+                <Insets bottom="10.0" left="55.0" top="10.0" />
+            </VBox.margin>
+        </FlowPane>
+    </VBox>
+    <VBox>
+        <FlowPane hgap="15.0">
+            <Label text="字段名(多个,分开)" />
+            <TextField fx:id="fields" />
+            <Label text="代表因子" />
+            <TextField fx:id="representFactor" alignment="TOP_LEFT" />
+         <VBox.margin>
+            <Insets left="55.0" />
+         </VBox.margin>
+        </FlowPane>
+        <Pane>
+            <CheckBox fx:id="isDefinedFunction" mnemonicParsing="false" text="生成以模板方法体为模板的方法" />
+         <VBox.margin>
+            <Insets left="55.0" top="10.0" />
+         </VBox.margin>
+        </Pane>
+    </VBox>
+    <VBox>
+        <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true">
+            <FlowPane fx:id="templates">
+            </FlowPane>
+        </ScrollPane>
+    </VBox>
 </VBox>

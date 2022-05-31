@@ -38,9 +38,9 @@
         </TreeView>
       </Pane>
     </StackPane>
-    <StackPane>
-      <VBox fx:id="content">
-      </VBox>
+    <StackPane fx:id="contentParent">
+      <AnchorPane  fx:id="content">
+      </AnchorPane>
     </StackPane>
   </SplitPane>
   <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">

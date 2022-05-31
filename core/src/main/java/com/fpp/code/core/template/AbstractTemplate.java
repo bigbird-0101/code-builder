@@ -109,7 +109,8 @@ public abstract class AbstractTemplate implements Template {
             return "";
         }
         String result = IOUtils.toString(new FileInputStream(templateFile), StandardCharsets.UTF_8);
-        return AbstractEnvironment.putTemplateContent(templateFile.getAbsolutePath(),result);
+        AbstractEnvironment.putTemplateContent(templateFile.getAbsolutePath(), result);
+        return AbstractEnvironment.getTemplateContent(templateFile.getAbsolutePath());
     }
 
     @Override

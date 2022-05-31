@@ -24,6 +24,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
@@ -61,10 +62,6 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     @FXML
     public Label currentTemplate;
     @FXML
-    public BorderPane progressBarParent;
-    @FXML
-    public ProgressBar progressBar;
-    @FXML
     public TextField targetTable;
     @FXML
     public CheckBox isDefinedFunction;
@@ -75,6 +72,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     @FXML
     public CheckBox isAllTable;
     @FXML
+    public ScrollPane scrollPane;
+    @FXML
     private VBox box;
 
     @FXML
@@ -82,14 +81,6 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
 
     public FlowPane getTemplates() {
         return templates;
-    }
-
-    public BorderPane getProgressBarParent() {
-        return progressBarParent;
-    }
-
-    public ProgressBar getProgressBar() {
-        return progressBar;
     }
 
     /**
@@ -116,10 +107,9 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            templates.prefWidthProperty().bind(box.widthProperty());
-            templates.prefHeightProperty().bind(box.heightProperty());
             initTemplateConfig();
             templates.getChildren().clear();
+            templates.autosize();
             String templateNameSelected = Main.USER_OPERATE_CACHE.getTemplateNameSelected();
             MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(templateNameSelected);
             if (null != multipleTemplate) {

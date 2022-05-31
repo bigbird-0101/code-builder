@@ -6,6 +6,8 @@ import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.GenericMultipleTemplateDefinition;
 import com.fpp.code.core.factory.RootTemplateDefinition;
+import com.fpp.code.core.template.MultipleTemplate;
+import com.fpp.code.fxui.Main;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.util.Utils;
 import javafx.fxml.FXML;
@@ -125,15 +127,19 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
         });
         AlertUtil.showInfo("Success!");
         ((Stage)anchorPane.getScene().getWindow()).close();
+        if(Main.USER_OPERATE_CACHE.getTemplateNameSelected().equals(multipleTemplateName.getText())||
+                sourceMultipleTemplateName.equals(Main.USER_OPERATE_CACHE.getTemplateNameSelected())){
+            Main.USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateName.getText());
+            complexController.doSelectMultiple();
+        }
     }
 
     /**
      * 创建新的组合模板
      * @param genericTemplateContext 模板容器
-     * @throws IOException
      * @throws CodeConfigException
      */
-    private void buildNewMultipleTemplate(GenericTemplateContext genericTemplateContext) throws IOException, CodeConfigException {
+    private void buildNewMultipleTemplate(GenericTemplateContext genericTemplateContext) throws CodeConfigException {
         DefaultListableTemplateFactory defaultListableTemplateFactory = genericTemplateContext.getTemplateFactory();
         boolean isNotHave = null == genericTemplateContext.getMultipleTemplateDefinition(sourceMultipleTemplateName);
         GenericMultipleTemplateDefinition genericMultipleTemplateDefinition =isNotHave?
@@ -153,6 +159,8 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
             });
         }
         defaultListableTemplateFactory.preInstantiateTemplates();
-        defaultListableTemplateFactory.refreshMultipleTemplate(genericTemplateContext.getMultipleTemplate(multipleTemplateName.getText()));
+        final MultipleTemplate multipleTemplate = genericTemplateContext.getMultipleTemplate(multipleTemplateName.getText());
+        defaultListableTemplateFactory.refreshMultipleTemplate(multipleTemplate);
+        multipleTemplate.getTemplates().forEach(defaultListableTemplateFactory::refreshTemplate);
     }
 }
