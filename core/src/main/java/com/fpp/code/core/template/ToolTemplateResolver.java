@@ -177,6 +177,11 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver{
         return excludeVariablePatten;
     }
 
+    @Override
+    public boolean matchLangResolver(String srcData) {
+        return templateFunctionBodyPattern.matcher(srcData).find();
+    }
+
     /**
      * 模板语言解析方法
      *

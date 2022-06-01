@@ -183,13 +183,15 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
                         }
                         if (!title.contains("==")) {
                             Object titleValue = Utils.getObjectFieldValue(title, targetObject);
-                            String result = "";
-                            if (title.contains("!")) {
-                                result = String.valueOf(!(Boolean) titleValue);
-                            } else {
-                                result = String.valueOf(titleValue);
+                            if(null!=titleValue) {
+                                String result = "";
+                                if (title.contains("!")) {
+                                    result = String.valueOf(!(Boolean) titleValue);
+                                } else {
+                                    result = String.valueOf(titleValue);
+                                }
+                                templateVariableKV.put(str, str.replaceAll(title, result));
                             }
-                            templateVariableKV.put(str, str.replaceAll(title, result));
                         } else {
                             try {
                                 String[] array = title.split("==");

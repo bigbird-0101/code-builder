@@ -31,6 +31,12 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
     private static final Pattern templateGrammarPatternPrefix= Pattern.compile("(\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\'])(\\s*?)(trim=[\"|\'](?<trimValue>.*?)[\"|\'])?(\\s*?)", Pattern.DOTALL);
     private static final Pattern templateGrammarPatternSuffix= Pattern.compile("(\\s*/"+LANG_NAME+"\\s*)", Pattern.DOTALL);
     private Set<Pattern> excludeVariablePatten=new HashSet<>(Arrays.asList(templateGrammarPatternPrefix, templateGrammarPatternSuffix));
+
+    @Override
+    public boolean matchLangResolver(String srcData) {
+        return templateFunctionBodyPattern.matcher(srcData).find();
+    }
+
     /**
      * 模板语言解析方法
      *

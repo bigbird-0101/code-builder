@@ -41,7 +41,7 @@
         <Pane>
             <CheckBox fx:id="isDefinedFunction" mnemonicParsing="false" text="生成以模板方法体为模板的方法" />
          <VBox.margin>
-            <Insets left="55.0" top="10.0" />
+            <Insets left="55.0" top="10.0" bottom="25"/>
          </VBox.margin>
         </Pane>
     </VBox>

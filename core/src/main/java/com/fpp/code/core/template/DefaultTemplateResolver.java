@@ -1,8 +1,7 @@
 package com.fpp.code.core.template;
 
-import com.fpp.code.util.Utils;
-import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.config.Environment;
+import com.fpp.code.core.exception.CodeConfigException;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -50,9 +49,11 @@ public class DefaultTemplateResolver extends AbstractTemplateResolver{
     }
 
     private String doResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
-         String tempResult="";
+         String tempResult=srcData;
         for (TemplateLangResolver resolver:getTemplateLangResolverList()){
-            tempResult=resolver.langResolver(Utils.isEmpty(tempResult)?srcData:tempResult,replaceKeyValue);
+            if(resolver.matchLangResolver(tempResult)){
+                tempResult= resolver.langResolver(tempResult, replaceKeyValue);
+            }
         }
         return tempResult;
     }

@@ -39,6 +39,11 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
     private static final Pattern templateGrammarPatternPrefix= Pattern.compile("(\\s*"+LANG_NAME+"\\s*v-if=[\"|\'](?<title>.*?)[\"|\'])", Pattern.DOTALL);
     private static final Pattern templateGrammarPatternSuffix= Pattern.compile("(\\s*/"+LANG_NAME+"\\s*)", Pattern.DOTALL);
 
+    @Override
+    public boolean matchLangResolver(String srcData) {
+        return templateFunctionBodyPattern.matcher(srcData).find();
+    }
+
     /**
      * 模板语言解析方法
      *
@@ -66,7 +71,7 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
                 result=doSpecialExpression(replaceKeyValue,title,body,srcData,all);
             }
         }
-        return Utils.isEmpty(result)?srcData:result;
+        return result;
     }
 
     /**
@@ -198,7 +203,7 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
                 temp3 = Utils.getObjectFieldValue(value3,targetObject);
                 temp=null==temp?value1:temp;
                 temp3=null==temp3?value3:temp3;
-                if (temp.equals(temp3)) {
+                if (String.valueOf(temp).equals(String.valueOf(temp3))) {
                     stack.push(String.valueOf("==".equals(value)));
                 } else {
                     stack.push(String.valueOf(!"==".equals(value)));

@@ -10,6 +10,14 @@ import java.util.Map;
  * @date 2020/6/9 16:43
  */
 public interface TemplateLangResolver extends Rule {
+
+    /**
+     * 是否匹配当前语言解析器
+     * @param srcData
+     * @return
+     */
+    boolean matchLangResolver(String srcData);
+
     /**
      * 模板语言解析方法
      *

@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import cn.hutool.core.util.StrUtil;
 import com.fpp.code.util.Utils;
 
 import java.io.Serializable;
@@ -57,13 +58,17 @@ public abstract class AbstractTemplateLangResolver implements TemplateLangResolv
                 HashMap<String,Object> replaceKey=new HashMap<>();
                 replaceKey.put(targetObjectKey,object);
                 String replaceResult=this.templateResolver.resolver(body,replaceKey);
-                stringBuilder.append(tempStamp).append(replaceResult.trim());
+                if(StrUtil.isNotBlank(replaceResult.trim())) {
+                    stringBuilder.append(tempStamp).append(replaceResult.trim());
+                }
             }
         }else{
             HashMap<String,Object> replaceKey=new HashMap<>();
             replaceKey.put(targetObjectKey,targetObject);
             String replaceResult=this.templateResolver.resolver(body,replaceKey);
-            stringBuilder.append(tempStamp).append(replaceResult.trim());
+            if(StrUtil.isNotBlank(replaceResult.trim())) {
+                stringBuilder.append(tempStamp).append(replaceResult.trim());
+            }
         }
         return stringBuilder.toString();
     }
