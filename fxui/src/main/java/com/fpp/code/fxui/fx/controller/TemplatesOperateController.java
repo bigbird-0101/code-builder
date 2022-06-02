@@ -79,6 +79,18 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     @FXML
     private FlowPane templates;
 
+    public CheckBox getIsDefinedFunction() {
+        return isDefinedFunction;
+    }
+
+    public TextField getRepresentFactor() {
+        return representFactor;
+    }
+
+    public TextField getFields() {
+        return fields;
+    }
+
     public FlowPane getTemplates() {
         return templates;
     }

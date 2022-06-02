@@ -1,5 +1,6 @@
 package com.fpp.code.fxui;
 
+import cn.hutool.system.UserInfo;
 import com.fpp.code.core.config.JFramePageEnvironment;
 import com.fpp.code.core.context.GenericTemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextProvider;
@@ -108,7 +109,7 @@ public class Main extends Application {
             environment.setTemplateConfigPath(projectHome+"codebuilder\\conf\\templates.json");
             environment.setTemplatesPath(projectHome+"codebuilder\\data\\templates");
         }else{
-            logger.info("run params {},{}",raw.toString(),System.getProperty("exe.filePath"));
+            logger.info("run params {},{}",raw.toString(),new UserInfo().getCurrentDir());
             environment.setCoreConfigPath(raw.get(0));
             environment.setTemplateConfigPath(raw.get(1));
             environment.setTemplatesPath(raw.get(2));

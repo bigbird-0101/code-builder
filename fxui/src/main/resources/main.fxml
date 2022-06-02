@@ -29,6 +29,8 @@
     </Menu>
     <Menu mnemonicParsing="false" text="帮助">
       <MenuItem mnemonicParsing="false" text="关于" onAction="#about"/>
+      <Menu fx:id="showLog" mnemonicParsing="false" text="日志">
+      </Menu>
     </Menu>
   </MenuBar>
   <SplitPane fx:id="splitPane" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">

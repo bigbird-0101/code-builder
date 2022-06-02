@@ -4,6 +4,7 @@ import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
+import cn.hutool.system.UserInfo;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.fpp.code.core.common.CollectionUtils;
@@ -40,15 +41,26 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -56,6 +68,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -71,6 +84,8 @@ public class ComplexController extends TemplateContextProvider implements Initia
     public VBox mainBox;
     @FXML
     public StackPane contentParent;
+    @FXML
+    public Menu showLog;
     private Logger logger = LogManager.getLogger(getClass());
     @FXML
     public TreeView<Label> listViewTemplate;
@@ -130,6 +145,34 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     logger.info("select template name {}", newValue.getValue().getText());
                 }
                 doSelectMultiple();
+            }
+        });
+        Platform.runLater(()->{
+            final String property = new UserInfo().getCurrentDir();
+            logger.info("property {}",property);
+            if(StrUtil.isNotBlank(property)){
+                final String logPath = property + File.separator + "log";
+                final File file = new File(logPath);
+                logger.info("logPath {}",logPath);
+                if(file.exists()){
+                    FileFilterUtils.filterList(FileFileFilter.FILE, file.listFiles())
+                            .stream().map(File::getName)
+                            .map(MenuItem::new)
+                            .forEach(s->{
+                                logger.info("MenuItem {}",s.getText());
+                                s.setOnAction(event -> {
+                                    Desktop desktop = Desktop.getDesktop();
+                                    File logFile=new File(logPath+File.separator+s.getText());
+                                    if(logFile.exists()) {
+                                        try {
+                                            desktop.open(logFile);
+                                        } catch (IOException ignored) {
+                                        }
+                                    }
+                                });
+                                showLog.getItems().add(s);
+                            });
+                }
             }
         });
     }
@@ -443,6 +486,13 @@ public class ComplexController extends TemplateContextProvider implements Initia
     public void doBuild(FileBuilderEnum fileBuilderEnum) {
         try {
             TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
+            final CheckBox isDefinedFunction = templatesOperateController.getIsDefinedFunction();
+            final TextField representFactor = templatesOperateController.getRepresentFactor();
+            final TextField fields = templatesOperateController.getFields();
+            if(isDefinedFunction.isSelected()&&(StrUtil.isBlank(representFactor.getText())||StrUtil.isBlank(fields.getText()))){
+                FxAlerts.warn("告警","请输入字段名或者代表因子");
+                return;
+            }
             if (isSelectedAllTable) {
                 initTableAll();
                 this.tableSelected = this.tableAll;
