@@ -1,5 +1,7 @@
 package com.fpp.code.fxui.common;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.db.meta.TableType;
 import com.fpp.code.core.domain.DataSourceConfig;
 import com.fpp.code.core.template.TableInfo;
 import com.fpp.code.util.Utils;
@@ -94,6 +96,7 @@ public class DbUtil {
                     return "Integer";
                 }
                 return "Short";
+            case "integer":
             case "int":
                 if (isUnsign) {
                     return "Long";
@@ -198,15 +201,6 @@ public class DbUtil {
 
 
     /**
-     * 根据连接获取数据库名
-     */
-    public static String getDataBaseName(String url) {
-        String beforeValue = url.substring(0, url.indexOf("?"));
-        beforeValue = beforeValue.replace("//", "*");
-        return beforeValue.substring(beforeValue.indexOf("/") + 1);
-    }
-
-    /**
      * 获取数据库连接
      *
      * @param dataSourceConfigPojo
@@ -243,43 +237,45 @@ public class DbUtil {
     public static TableInfo getTableInfo(DataSourceConfig dataSourceConfigPojo, String tableName) throws SQLException {
         TableInfo tableInfo;
         Connection connection = DbUtil.getConnection(dataSourceConfigPojo);
-        String dataBaseName = getDataBaseName(dataSourceConfigPojo.getUrl());
-        PreparedStatement pStemt = connection.prepareStatement("Select *  from INFORMATION_SCHEMA.COLUMNS Where table_schema = '" + dataBaseName + "' and table_name ='" + tableName + "'");
-        ResultSet rs = pStemt.executeQuery();
         List<TableInfo.ColumnInfo> columnInfoList = new ArrayList<>(16);
-        while (rs.next()) {
-            String name = rs.getString("COLUMN_NAME");
-            String comment = rs.getString("COLUMN_COMMENT");
-            boolean isNull = "yes".equalsIgnoreCase(rs.getString("IS_NULLABLE"));
-            int size = rs.getInt("CHARACTER_MAXIMUM_LENGTH") == 0 ? rs.getInt("NUMERIC_PRECISION") : rs.getInt("CHARACTER_MAXIMUM_LENGTH");
-            boolean isUnsigned = rs.getString("COLUMN_TYPE").contains("unsigned");
-            String javaType = getJavaTypeByJdbcType(rs.getString("DATA_TYPE"), isUnsigned, size);
-            String domainPropertyName = getDomainPropertyName(name);
-            String jdbcType = rs.getString("DATA_TYPE").toUpperCase();
-            jdbcType = "INT".equals(jdbcType) ? "INTEGER" : jdbcType;
-            jdbcType = "DATETIME".equals(jdbcType) ? "TIMESTAMP" : jdbcType;
-            boolean isPrimaryKey = false;
-            boolean isUniqueKey = false;
-            String key = rs.getString("COLUMN_KEY");
-            if (Utils.isNotEmpty(key)) {
-                isPrimaryKey = "PRI".equalsIgnoreCase(key);
-                isUniqueKey = "UNI".equalsIgnoreCase(key);
+        try(ResultSet rs = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), tableName, null)) {
+            while (rs.next()) {
+                String name = rs.getString("COLUMN_NAME");
+                String comment = rs.getString("REMARKS");
+                boolean isNull = rs.getBoolean("NULLABLE");
+                int size = rs.getInt("COLUMN_SIZE");
+                String javaType = getJavaType(rs.getInt("DATA_TYPE"));
+                String domainPropertyName = getDomainPropertyName(name);
+                String jdbcType = getMybatisJdbcType(rs.getInt("DATA_TYPE"));
+                jdbcType = "INT".equals(jdbcType) ? "INTEGER" : jdbcType;
+                jdbcType = "DATETIME".equals(jdbcType) ? "TIMESTAMP" : jdbcType;
+                boolean isPrimaryKey = false;
+                boolean isUniqueKey = false;
+                // 获得主键
+                try (ResultSet rs2 = connection.getMetaData().getPrimaryKeys(connection.getCatalog(), connection.getSchema(), tableName)) {
+                    if (null != rs2) {
+                        while (rs2.next()) {
+                            final String primaryKeysName = rs.getString("COLUMN_NAME");
+                            if(name.equals(primaryKeysName)){
+                                isPrimaryKey=true;
+                            }
+                        }
+                    }
+                }
+                TableInfo.ColumnInfo columnInfo = new TableInfo.ColumnInfo(name, comment, javaType, domainPropertyName, isNull, size, isPrimaryKey, isUniqueKey, jdbcType);
+                columnInfoList.add(columnInfo);
             }
-            TableInfo.ColumnInfo columnInfo = new TableInfo.ColumnInfo(name, comment, javaType, domainPropertyName, isNull, size, isPrimaryKey, isUniqueKey, jdbcType);
-            columnInfoList.add(columnInfo);
+            if (columnInfoList.isEmpty()) {
+                throw new IllegalArgumentException("表" + tableName + "不存在");
+            }
         }
-        if (columnInfoList.isEmpty()) {
-            throw new IllegalArgumentException("表" + tableName + "不存在");
-        }
-        PreparedStatement pStemtTables = connection.prepareStatement("Select table_name,TABLE_COMMENT  from INFORMATION_SCHEMA.TABLES Where table_schema = '" + dataBaseName + "' and table_name ='" + tableName + "'");
-        rs = pStemtTables.executeQuery();
         String tableComment = "";
-        while (rs.next()) {
-            String tableNameTemp = rs.getString(1);
-            String tableCommentTemp = rs.getString(2);
-            if (tableName.equals(tableNameTemp)) {
-                int index = tableCommentTemp.lastIndexOf("表");
-                tableComment = index > 0 ? tableCommentTemp.substring(0, index) : tableCommentTemp;
+        try (ResultSet rs = connection.getMetaData().getTables(connection.getCatalog(), connection.getSchema(), tableName, new String[]{TableType.TABLE.value()})) {
+            if (null != rs) {
+                if (rs.next()) {
+                    String tableCommentTemp=rs.getString("REMARKS");
+                    tableComment = StrUtil.removeSuffix(tableCommentTemp,"表");
+                }
             }
         }
         tableInfo = new TableInfo(tableName, tableComment, getDomainName(tableName), columnInfoList);
