@@ -111,6 +111,9 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
             if(logger.isInfoEnabled()){
                 logger.info(" if语句满足条件目标对象 {}",targetObject.toString());
             }
+            if(null==targetObject){
+                throw new IllegalArgumentException("if 语句中 由于源对象为空 不能解析条件语句 "+title);
+            }
             return computeIfPostfixExpression(getIfPostfixExpression(title),targetObject);
         }
         return false;
@@ -141,7 +144,7 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
         String[] tempArray=str.split("&&");
         for (String content:tempArray) {
             //查看第一个是不是!不等于号
-            boolean hasSpecial=content.trim().substring(0,1).equals("!");
+            boolean hasSpecial= content.trim().charAt(0) == '!';
             content=hasSpecial?content.substring(1):content;
             Set<String> tempSet = new HashSet<>();
             for (String special : specialSet) {

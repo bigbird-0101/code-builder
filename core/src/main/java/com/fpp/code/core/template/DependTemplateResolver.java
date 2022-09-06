@@ -43,8 +43,16 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
             String done(String index) throws TemplateResolveException {
                 Template currentTemplate = TemplateTraceContext.getCurrentTemplate();
                 if(currentTemplate instanceof HaveDependTemplate){
-                    Template templateDepend = getDependTemplate(index, (HaveDependTemplate) currentTemplate);
+                    final HaveDependTemplate currentTemplateWithDepend = (HaveDependTemplate) currentTemplate;
+                    Template templateDepend = getDependTemplate(index, currentTemplateWithDepend);
+                    if(null==templateDepend){
+                        final String templateDependName = new ArrayList<>(currentTemplateWithDepend.getDependTemplates()).get(Integer.parseInt(index));
+                        throw new IllegalArgumentException("depend "+templateDependName+" template is not exists ");
+                    }
                     TableInfo tableInfo = (TableInfo) currentTemplate.getTemplateVariables().get("tableInfo");
+                    if(null==templateDepend.getTemplateVariables()||templateDepend.getTemplateVariables().isEmpty()){
+                        templateDepend.setTemplateVariables(currentTemplateWithDepend.getTemplateVariables());
+                    }
                     return templateDepend.getTemplateFilePrefixNameStrategy().prefixStrategy(templateDepend,tableInfo.getTableName());
                 }else{
                     throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplate,but it use  %s[%s].%s",currentTemplate.getTemplateName(),LANG_NAME,index,"className"));

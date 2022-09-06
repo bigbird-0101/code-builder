@@ -1,10 +1,12 @@
 package com.fpp.code.core.factory;
 
+import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.factory.config.MultipleTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.factory.config.TemplatePostProcessor;
 import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
+import com.fpp.code.core.template.TemplateTraceContext;
 
 import java.util.List;
 import java.util.Objects;
@@ -48,14 +50,15 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
             Objects.requireNonNull(templateDefinition,"not found "+templateName+" template definition");
             template = createTemplate(templateName, templateDefinition);
         }
+        TemplateTraceContext.setCurrentTemplate(template);
+        TemplateContextProvider.doPushEventTemplateContextAware();
         return template;
     }
 
 
     @Override
     public void addPostProcessor(TemplatePostProcessor templatePostProcessor) {
-        this.templatePostProcessors.remove(templatePostProcessor);
-        this.templatePostProcessors.remove(templatePostProcessor);
+        this.templatePostProcessors.add(templatePostProcessor);
     }
 
     public List<TemplatePostProcessor> getTemplatePostProcessors() {

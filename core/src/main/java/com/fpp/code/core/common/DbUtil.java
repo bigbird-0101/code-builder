@@ -1,4 +1,4 @@
-package com.fpp.code.fxui.common;
+package com.fpp.code.core.common;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.meta.TableType;

@@ -16,9 +16,9 @@
 
 启动com.fpp.Main main方法
 
-###### 2.下载 [codebuilder压缩包](https://github.com/bigbird-0101/code-builder/releases/download/1.0.0/codebuilder.zip) 
+###### 2.下载 [codebuilder压缩包](https://github.com/bigbird-0101/code-builder/releases) 
 
-解压点击启动bin/CodeBuilder.bat
+解压点击启动**codebuilder.exe**
 
 ![image](https://github.com/bigbird-0101/code-builder/blob/master/images/projectfile.png)
 
@@ -160,10 +160,10 @@ column.size对应TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的
 
 默认实现是 `ToolTemplateResolver` 的 `Function`
 
-1. `*{tool.firstUpper(params)}*`  首字母大写  *{tool.firstUpper(ab)}* 首字母大写 Ab
-2. `*{tool.upper(params)}*`  首字母大写  *{tool.upper(ab)}* 大写 AB
-3. `*{tool.firstLower(params)}*`  首字母大写  *{tool.firstLower(Ab)}* 首字母大写 ab
-4. `*{tool.lower(params)}*`  首字母大写  *{tool.lower(Ab)}* 小写 ab
+1. `*{tool.firstUpper(params)}*`  首字母大写  \*{tool.firstUpper(ab)}\* 首字母大写 Ab
+2. `*{tool.upper(params)}*`  首字母大写  \*{tool.upper(ab)}\* 大写 AB
+3. `*{tool.firstLower(params)}*`  首字母大写  \*{tool.firstLower(Ab)}\* 首字母大写 ab
+4. `*{tool.lower(params)}*`  首字母大写  \*{tool.lower(Ab)}\* 小写 ab
 5. `*{tool.currentDateTime()}*` 当前系统日期时间
 6. `*{tool.author()}*` 获取code.properties 中配置的作者
 7. `*{tool.allSqlColumn()}*` 获取 当前数据表格的所有字段(用于拼接sql)

@@ -26,7 +26,7 @@ import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResol
 import com.fpp.code.core.template.*;
 import com.fpp.code.fxui.Main;
 import com.fpp.code.fxui.common.AlertUtil;
-import com.fpp.code.fxui.common.DbUtil;
+import com.fpp.code.core.common.DbUtil;
 import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
 import com.fpp.code.fxui.fx.component.FxAlerts;
 import com.fpp.code.fxui.fx.component.FxProgressDialog;
@@ -570,8 +570,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy = (AbstractFileCodeBuilderStrategy) fileBuilder.getFileCodeBuilderStrategy();
                     fileCodeBuilderStrategy.setCoreConfig(coreConfig);
                     Template template = doGetTemplate(templateName, tableName, coreConfig, propertiesVariable.get(), templatesOperateController);
-                    TemplateTraceContext.setCurrentTemplate(template);
-                    TemplateContextProvider.doPushEventTemplateContextAware();
                     fileBuilder.build(template);
                     final long e = System.currentTimeMillis();
                     StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
@@ -600,7 +598,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 throw e;
             }
             temp.put("tableInfo", tableInfo);
-            temp.put("packageName",Utils.pathToPackage(template.getSrcPackage()));
             if (null != propertiesVariable) {
                 propertiesVariable.forEach((k, v) -> temp.put((String) k, v));
             }

@@ -25,6 +25,10 @@ public interface ConfigurableTemplateFactory extends TemplateFactory,Environment
      */
     Set<String> getMultipleTemplateNames();
 
+    /**
+     * 添加拦截器
+     * @param templatePostProcessor
+     */
     void addPostProcessor(TemplatePostProcessor templatePostProcessor);
 
     /**

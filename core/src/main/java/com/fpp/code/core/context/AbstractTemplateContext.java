@@ -2,6 +2,7 @@ package com.fpp.code.core.context;
 
 import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.config.Environment;
+import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.factory.*;
 import com.fpp.code.core.factory.config.MultipleTemplateDefinitionRegistry;
@@ -37,6 +38,7 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
     public AbstractTemplateContext(Environment environment, TemplateScanner allTypeTemplateScanner) {
         this.environment = environment;
         this.allTypeTemplateScanner = allTypeTemplateScanner;
+        TemplateContextProvider.setTemplateContext(this);
     }
 
     @Override
@@ -62,7 +64,7 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
     }
 
     @Override
-    public void refresh() throws CodeConfigException, IOException {
+    public void refresh(){
         //do scan file package to get TemplateDefinition
         try {
             environment.parse();
@@ -79,7 +81,7 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
             //Instantiate all remaining template
             finishTemplateFactoryInitialization(templateFactory);
         } catch (CodeConfigException | IOException e) {
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 

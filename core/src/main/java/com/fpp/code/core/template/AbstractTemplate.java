@@ -7,6 +7,7 @@ import com.fpp.code.core.common.ObjectUtils;
 import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.exception.CodeConfigException;
+import com.fpp.code.util.Utils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -210,6 +212,16 @@ public abstract class AbstractTemplate implements Template {
     @Override
     public String toString() {
         return JSONObject.toJSONString(this);
+    }
+
+    /**
+     * 初始化模板参数并且构建一些基础的参数
+     */
+    protected void initTemplateVariables() {
+        if(null==getTemplateVariables()||getTemplateVariables().isEmpty()){
+            setTemplateVariables(new HashMap<>());
+        }
+        getTemplateVariables().put("packageName", Utils.pathToPackage(getSrcPackage()));
     }
 
     public static  class TemplateSerializer implements ObjectSerializer{
