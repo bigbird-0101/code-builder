@@ -50,9 +50,7 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
                         throw new IllegalArgumentException("depend "+templateDependName+" template is not exists ");
                     }
                     TableInfo tableInfo = (TableInfo) currentTemplate.getTemplateVariables().get("tableInfo");
-                    if(null==templateDepend.getTemplateVariables()||templateDepend.getTemplateVariables().isEmpty()){
-                        templateDepend.setTemplateVariables(currentTemplateWithDepend.getTemplateVariables());
-                    }
+                    templateDepend.getTemplateVariables().putAll(currentTemplateWithDepend.getTemplateVariables());
                     return templateDepend.getTemplateFilePrefixNameStrategy().prefixStrategy(templateDepend,tableInfo.getTableName());
                 }else{
                     throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplate,but it use  %s[%s].%s",currentTemplate.getTemplateName(),LANG_NAME,index,"className"));

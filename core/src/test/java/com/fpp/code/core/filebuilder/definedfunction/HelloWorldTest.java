@@ -27,7 +27,7 @@ public class HelloWorldTest {
         DataSourceConfig dataSourceConfig=new DataSourceConfig(null,"postgres","jdbc:postgresql://localhost:5432/postgres","password");
         TableInfo tableInfo = DbUtil.getTableInfo(dataSourceConfig, "tab_test");
         temp.put("tableInfo", tableInfo);
-        dao.setTemplateVariables(temp);
+        dao.getTemplateVariables().putAll(temp);
         final String templateResult = dao.getTemplateResult();
         System.out.println(templateResult);
     }

@@ -1,6 +1,8 @@
 package com.fpp.code.core.template;
 
 import com.fpp.code.core.config.Environment;
+import com.fpp.code.core.context.TemplateContext;
+import com.fpp.code.core.context.aware.TemplateContextAware;
 import com.fpp.code.util.Utils;
 
 import java.util.*;
@@ -12,17 +14,22 @@ import java.util.regex.Pattern;
  * @version 1.0
  * @date 2020/6/12 17:49
  */
-public class ToolTemplateResolver extends AbstractTemplateLangResolver{
+public class ToolTemplateResolver extends AbstractTemplateLangResolver implements TemplateContextAware {
 
     private static TableInfo tableInfo;
-    private static TemplateResolver templateResolver;
-
     private static String mendLastStr;
     private static String mendFirstStr;
+
+    private static TemplateContext templateContext;
 
     public ToolTemplateResolver() {
         super();
         this.resolverName=LANG_NAME;
+    }
+
+    @Override
+    public void setTemplateContext(TemplateContext templateContext) {
+        ToolTemplateResolver.templateContext =templateContext;
     }
 
     /**
@@ -81,9 +88,9 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver{
             @Override
             String done(String src) {
                 String result=System.getProperty("user.name");
-                if(templateResolver instanceof AbstractTemplateResolver&&null!=((AbstractTemplateResolver) templateResolver).getEnvironment()) {
-                    Environment environment = ((AbstractTemplateResolver) templateResolver).getEnvironment();
-                    String author = environment.getProperty("project-author");
+                Environment environment = templateContext.getEnvironment();
+                if(null!=environment) {
+                    String author = environment.getProperty("code.project.file.project-author");
                     result=Utils.isEmpty(author)?result:author;
                 }
                 return result;
@@ -191,7 +198,6 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver{
     @Override
     public String langResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
         tableInfo= (TableInfo) replaceKeyValue.get("tableInfo");
-        templateResolver=this.getTemplateResolver();
         Matcher matcher=templateFunctionBodyPattern.matcher(srcData);
         String result="";
         while(matcher.find()){

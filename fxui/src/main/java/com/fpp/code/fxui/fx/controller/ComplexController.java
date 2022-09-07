@@ -604,7 +604,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             return temp;
         });
         try {
-            template.setTemplateVariables(tempValue.get());
+            template.getTemplateVariables().putAll(tempValue.get());
             final String simpleClassName = template.getTemplateFilePrefixNameStrategy().prefixStrategy(template, tableName);
             template.getTemplateVariables().put("className",Utils.pathToPackage(template.getSrcPackage())+"."+simpleClassName);
             template.getTemplateVariables().put("simpleClassName",simpleClassName);
@@ -614,12 +614,9 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     haveDependTemplate.getDependTemplates()
                             .forEach(s -> {
                                 final Template templateDepend = getTemplateContext().getTemplate(s);
-                                Map<String, Object> templateVariables = templateDepend.getTemplateVariables();
-                                if (null == templateVariables) {
-                                    templateVariables = new HashMap<>();
-                                }
+                                Map<String, Object> templateVariables =new HashMap<>();
                                 templateVariables.put("tableInfo", template.getTemplateVariables().get("tableInfo"));
-                                templateDepend.setTemplateVariables(templateVariables);
+                                templateDepend.getTemplateVariables().putAll(templateVariables);
                             });
                 }
             }

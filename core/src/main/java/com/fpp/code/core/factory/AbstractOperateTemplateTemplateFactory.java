@@ -25,29 +25,37 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     public Template createTemplate(String templateName, TemplateDefinition templateDefinition) {
         RootTemplateDefinition rootTemplateDefinition= (RootTemplateDefinition) templateDefinition;
         Template template = createTemplateInstant(rootTemplateDefinition);
-        beforeInstantiation(template, templateName);
-        initTemplatePropertyValues(templateName, template, rootTemplateDefinition);
-        afterInstantiation(template, templateName);
-        registerTemplate(templateName, template);
+        Template templateWrapper=beforeInstantiation(template, templateName);
+        initTemplatePropertyValues(templateName, templateWrapper, rootTemplateDefinition);
+        templateWrapper=afterInstantiation(templateWrapper, templateName);
+        registerTemplate(templateName, templateWrapper);
         return template;
     }
 
-    private void afterInstantiation(Template existingTemplate, String templateName) {
+    private Template afterInstantiation(Template existingTemplate, String templateName) {
+        Template result=existingTemplate;
         for (TemplatePostProcessor templatePostProcessor : getTemplatePostProcessors()) {
             Template current = templatePostProcessor.postProcessAfterInstantiation(existingTemplate, templateName);
             if (null == current) {
-                return;
+                return result;
+            }else{
+                result=current;
             }
         }
+        return result;
     }
 
-    private void beforeInstantiation(Template existingTemplate, String templateName) {
+    private Template beforeInstantiation(Template existingTemplate, String templateName) {
+        Template result=existingTemplate;
         for (TemplatePostProcessor templatePostProcessor : getTemplatePostProcessors()) {
-            Template current = templatePostProcessor.postProcessBeforeInstantiation(existingTemplate, templateName);
+            Template current = templatePostProcessor.postProcessBeforeInstantiation(result, templateName);
             if (null == current) {
-                return;
+                return result;
+            }else{
+                result=current;
             }
         }
+        return result;
     }
 
     private Template createTemplateInstant(RootTemplateDefinition templateDefinition) {

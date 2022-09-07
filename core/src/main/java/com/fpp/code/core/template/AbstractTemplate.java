@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
@@ -98,6 +99,7 @@ public abstract class AbstractTemplate implements Template {
     public AbstractTemplate(String templeFileName, TemplateResolver templateResolver) {
         this.setTemplateName(templeFileName);
         this.templateResolver = templateResolver;
+        this.initTemplateVariables();
     }
 
     /**
@@ -221,7 +223,9 @@ public abstract class AbstractTemplate implements Template {
         if(null==getTemplateVariables()||getTemplateVariables().isEmpty()){
             setTemplateVariables(new HashMap<>());
         }
-        getTemplateVariables().put("packageName", Utils.pathToPackage(getSrcPackage()));
+        if(StrUtil.isNotBlank(getSrcPackage())) {
+            getTemplateVariables().put("packageName", Utils.pathToPackage(getSrcPackage()));
+        }
     }
 
     public static  class TemplateSerializer implements ObjectSerializer{

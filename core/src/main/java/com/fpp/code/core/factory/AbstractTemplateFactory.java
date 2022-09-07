@@ -1,5 +1,6 @@
 package com.fpp.code.core.factory;
 
+import cn.hutool.core.util.ServiceLoaderUtil;
 import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.factory.config.MultipleTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
@@ -17,6 +18,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry implements ConfigurableTemplateFactory {
     private final List<TemplatePostProcessor> templatePostProcessors=new CopyOnWriteArrayList<>();
+    {
+        templatePostProcessors.addAll(ServiceLoaderUtil.loadList(TemplatePostProcessor.class));
+    }
 
     @Override
     public void removeTemplate(String templateName){
@@ -58,6 +62,7 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
 
     @Override
     public void addPostProcessor(TemplatePostProcessor templatePostProcessor) {
+        this.templatePostProcessors.remove(templatePostProcessor);
         this.templatePostProcessors.add(templatePostProcessor);
     }
 
@@ -96,6 +101,9 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
 
     /**
      * 创建模板
+     * @param templateName 模板名
+     * @param templateDefinition 模板定义
+     * @return 返回的模板对象
      */
     protected abstract Template createTemplate(String templateName, TemplateDefinition templateDefinition);
 }

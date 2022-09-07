@@ -58,7 +58,6 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      */
     @Override
     public String getTemplateResult() throws TemplateResolveException {
-        initTemplateVariables();
         CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
         TemplateFileClassInfo resultCache= resolverResultCache.get(cacheKey);
         logger.info("cacheKey is {}",cacheKey);

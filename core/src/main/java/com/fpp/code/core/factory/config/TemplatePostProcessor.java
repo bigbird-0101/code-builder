@@ -7,6 +7,7 @@ import com.fpp.code.core.template.Template;
  * template post processor
  * when BeforeInstantiation will invoke  com.fpp.code.core.factory.config.TemplatePostProcessor#postProcessBeforeInstantiation(com.fpp.code.core.template.Template, java.lang.String)
  * when AfterInstantiation will invoke com.fpp.code.core.factory.config.TemplatePostProcessor#postProcessAfterInstantiation(com.fpp.code.core.template.Template, java.lang.String)
+ * @author fpp
  * @see AbstractOperateTemplateTemplateFactory
  */
 public interface TemplatePostProcessor {
