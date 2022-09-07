@@ -219,7 +219,7 @@ public abstract class AbstractTemplate implements Template {
     /**
      * 初始化模板参数并且构建一些基础的参数
      */
-    protected void initTemplateVariables() {
+    public void initTemplateVariables() {
         if(null==getTemplateVariables()||getTemplateVariables().isEmpty()){
             setTemplateVariables(new HashMap<>());
         }

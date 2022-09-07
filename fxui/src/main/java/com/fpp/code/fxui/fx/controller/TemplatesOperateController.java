@@ -11,6 +11,7 @@ import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.OperateTemplateBeanFactory;
 import com.fpp.code.core.template.AbstractHandleFunctionTemplate;
+import com.fpp.code.core.template.AbstractTemplate;
 import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
 import com.fpp.code.fxui.Main;
@@ -361,6 +362,10 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         template.setModule(Utils.convertTruePathIfNotNull(moduleName));
         template.setSourcesRoot(Utils.convertTruePathIfNotNull(sourcesRoot));
         template.setSrcPackage(Utils.convertTruePathIfNotNull(srcPackage));
+        if(template instanceof AbstractTemplate){
+            AbstractTemplate abstractTemplate= (AbstractTemplate) template;
+            abstractTemplate.initTemplateVariables();
+        }
     }
 
     @FXML
