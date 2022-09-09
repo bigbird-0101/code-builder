@@ -80,6 +80,8 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
             invokeTemplateFactory(templateFactory);
             //Instantiate all remaining template
             finishTemplateFactoryInitialization(templateFactory);
+            //fire refresh end event
+            TemplateContextProvider.doPushEventTemplateContextAware();
         } catch (CodeConfigException | IOException e) {
             throw new RuntimeException(e);
         }

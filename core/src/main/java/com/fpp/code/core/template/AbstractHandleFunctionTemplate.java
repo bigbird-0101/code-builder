@@ -42,6 +42,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
             this.templateFileClassInfoNoResolve = new TemplateFileClassInfo(getPrefix(templateFileContent), getSuffix(templateFileContent), getFunctionS(templateFileContent));
         }
         resolverResultCache.clear();
+        this.initTemplateVariables();
         //清除本模板的方法的自定义方法缓存
         CachePool.clear(s->s.getKeys()
                 .stream()

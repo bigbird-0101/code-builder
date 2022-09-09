@@ -5,6 +5,7 @@ import com.fpp.code.core.config.JFramePageEnvironment;
 import com.fpp.code.core.context.GenericTemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.template.Template;
+import com.fpp.code.core.template.TemplateTraceContext;
 import com.fpp.code.fxui.common.ClassUtil;
 import com.fpp.code.fxui.fx.MinWindow;
 import com.fpp.code.fxui.fx.cache.UserOperateCache;
@@ -28,7 +29,7 @@ import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -98,7 +99,7 @@ public class Main extends Application {
     }
 
     @Override
-    public void init() throws Exception {
+    public void init() {
         Parameters parameters = getParameters();
         List<String> raw = parameters.getRaw();
         JFramePageEnvironment environment=new JFramePageEnvironment();
@@ -132,12 +133,17 @@ public class Main extends Application {
         File log4jFile = new File(logFilePath);
         try {
             if (log4jFile.exists()) {
-                source = new ConfigurationSource(new FileInputStream(log4jFile), log4jFile);
+                source = new ConfigurationSource(Files.newInputStream(log4jFile.toPath()), log4jFile);
                 Configurator.reconfigure(source.getURI());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void stop() {
+        TemplateTraceContext.clear();
     }
 
     public static void main(String[] args) {

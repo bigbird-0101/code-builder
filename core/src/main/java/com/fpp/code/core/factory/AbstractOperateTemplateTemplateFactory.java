@@ -112,6 +112,10 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     @Override
     public Template refreshTemplate(Template template) {
         Template templateNew = replaceTemplate(template);
+        if(template instanceof AbstractTemplate){
+            AbstractTemplate abstractTemplate= (AbstractTemplate) template;
+            abstractTemplate.initTemplateVariables();
+        }
         //刷新模板到配置文件中
         getEnvironment().refreshPropertySourceSerialize(new TemplatePropertySource(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE, template));
         return templateNew;

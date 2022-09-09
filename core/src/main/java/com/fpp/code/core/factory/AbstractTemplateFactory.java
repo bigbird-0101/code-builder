@@ -1,7 +1,6 @@
 package com.fpp.code.core.factory;
 
 import cn.hutool.core.util.ServiceLoaderUtil;
-import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.factory.config.MultipleTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.factory.config.TemplatePostProcessor;
@@ -55,7 +54,7 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
             template = createTemplate(templateName, templateDefinition);
         }
         TemplateTraceContext.setCurrentTemplate(template);
-        TemplateContextProvider.doPushEventTemplateContextAware();
+
         return template;
     }
 
