@@ -1,12 +1,14 @@
 package com.fpp.code.core.config;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  *
+ * @author Administrator
  * @param <T>
  */
-public abstract class PropertySource<T> {
+public abstract class PropertySource<T> implements Serializable {
 
     private String name;
     private T source;

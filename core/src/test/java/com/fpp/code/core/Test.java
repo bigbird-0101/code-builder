@@ -8,21 +8,20 @@ import com.fpp.code.core.template.DefaultNoHandleFunctionTemplate;
 import com.fpp.code.core.template.HaveDependTemplateHandleFunctionTemplate;
 import com.fpp.code.core.template.Template;
 
-import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Test {
-    @org.junit.Test
-    public void test() throws IOException, CodeConfigException {
+    @org.junit.jupiter.api.Test
+    public void test() throws CodeConfigException {
         Template handleFunctionTemplate = new DefaultNoHandleFunctionTemplate();
         if(handleFunctionTemplate instanceof HaveDependTemplateHandleFunctionTemplate){
             System.out.println(handleFunctionTemplate);
         }
     }
 
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testCopyProperties(){
         Template template=new HaveDependTemplateHandleFunctionTemplate();
         RootTemplateDefinition templateDefinition=new RootTemplateDefinition();
@@ -35,7 +34,7 @@ public class Test {
         System.out.println(template);
     }
 
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testDefinition(){
         String s="{\n" +
                 "\"fileName\":\"DaoFileTemplate_04.template\",\n" +

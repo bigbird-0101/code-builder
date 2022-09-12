@@ -16,16 +16,14 @@
 
 package com.fpp.code.core.common;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.UndeclaredThrowableException;
+import cn.hutool.core.util.ReflectUtil;
+
+import java.lang.reflect.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 /**
@@ -786,6 +784,32 @@ public abstract class ReflectionUtils {
 				!Modifier.isPublic(field.getDeclaringClass().getModifiers()) ||
 				Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
 			field.setAccessible(true);
+		}
+	}
+
+	/**
+	 * invoke enum method
+	 * @param clazz
+	 * @param enumClassName
+	 * @param enumName
+	 * @param methodName
+	 * @param param
+	 * @return
+	 */
+	public static Object invokeEnumMethod(Class<?> clazz,String enumClassName,String enumName,String methodName,Object... param){
+		final Class<?>[] declaredClasses = clazz.getDeclaredClasses();
+		final Class<?> function = Stream.of(declaredClasses).filter(s -> s.getSimpleName().equals(enumClassName)).findFirst().orElse(null);
+		final Method done = ReflectUtil.getMethod(function,methodName,Stream.of(param).map(Object::getClass).toArray(Class<?>[]::new));
+		assert function != null;
+		final Object o = Stream.of(function.getEnumConstants()).filter(s -> {
+			final String name = (String) ReflectUtil.getFieldValue(s, "name");
+			return name.equalsIgnoreCase(enumName);
+		}).findFirst().orElse(null);
+		try {
+			done.setAccessible(true);
+			return done.invoke(o, param);
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

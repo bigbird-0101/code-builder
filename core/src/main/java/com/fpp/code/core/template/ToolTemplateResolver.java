@@ -1,5 +1,7 @@
 package com.fpp.code.core.template;
 
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
 import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.context.TemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextAware;
@@ -8,6 +10,8 @@ import com.fpp.code.util.Utils;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author fpp
@@ -37,9 +41,50 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
      */
     private enum Function{
         /**
+         * 只允许
+         * tool.sub(1,abc)  截取index 从1开始到末尾的字符串 bc
+         * tool.sub(abc,2)  截取index 从开始到末尾倒数2的字符串 a
+         * tool.sub(abc,1,2) 截取startIndex 从开始1到2的字符串 这三种语法  b
+         * Params:
+         * str – String
+         * fromIndexInclude – 开始的index（包括）
+         * toIndexExclude – 结束的index（不包括）
+         */
+        SUB("sub"){
+            @Override
+            String done(String src) {
+                final LinkedList<String> collect = Stream.of(src.split(",")).collect(Collectors.toCollection(LinkedList::new));
+                final int size = collect.size();
+                //只允许 tool.sub(1,abc)  tool.sub(abc,2)  tool.sub(abc,1,2) 这三种语法
+                final int i1 = 3;
+                if(size <=1||collect.size()> i1){
+                    throw new TemplateResolveException("tool sub method not support [{}],src split , is less than 1 or more than 3 ",src);
+                }
+                final int i = 2;
+                final String s = collect.get(0);
+                final String s1 = collect.get(1);
+                if(i ==collect.size()){
+                    if(!NumberUtil.isInteger(s)&&!NumberUtil.isInteger(s1)){
+                        throw new TemplateResolveException("tool sub method not support [{}] src all is not number,should example tool.sub(1,abc)  tool.sub(abc,2) ",src);
+                    }
+                    if(NumberUtil.isInteger(s)){
+                         return StrUtil.sub(s1,Integer.parseInt(s),s1.length());
+                    }else{
+                        return StrUtil.sub(s,0,s.length()-Integer.parseInt(s1));
+                    }
+                }else{
+                    final String s2 = collect.get(2);
+                    if(!NumberUtil.isInteger(s1)&&!NumberUtil.isInteger(s2)){
+                        throw new TemplateResolveException("tool sub method not support [{}] src suffix all must is number,example tool.sub(abc,1,2) ",src);
+                    }
+                    return StrUtil.sub(s,Integer.parseInt(s1),Integer.parseInt(s2));
+                }
+            }
+        },
+        /**
          * 首字母大写
          */
-        FISER_UPPER("firstUpper"){
+        FIRST_UPPER("firstUpper"){
             @Override
             String done(String src) {
                 return Utils.firstUpperCase(src);
@@ -57,7 +102,7 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
         /**
          * 首字母小写
          */
-        FISER_LOWER("firstLower") {
+        FIRST_LOWER("firstLower") {
             @Override
             String done(String src) {
                 return Utils.firstLowerCase(src);
@@ -216,7 +261,7 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
                 }
                 String realTitle;
                 if(objectTarget instanceof String){
-                    realTitle= (String) objectTarget;
+                    realTitle= title.replaceAll(AbstractTemplateResolver.getTemplateVariableFormat(titleGroup),(String) objectTarget);
                 } else if(isMatchDependTemplate(titleGroup)){
                     realTitle = getDependTemplateResolver().langResolver(title,replaceKeyValue);
                 }else {

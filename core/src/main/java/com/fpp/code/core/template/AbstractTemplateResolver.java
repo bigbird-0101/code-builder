@@ -286,5 +286,8 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
         return replaceTargetS;
     }
 
+    public static String getTemplateVariableFormat(String str){
+        return TEMPLATE_VARIABLE_PREFIX+str+TEMPLATE_VARIABLE_SUFFIX;
+    }
 
 }

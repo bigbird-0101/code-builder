@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<VBox fx:id="main" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fxui.fx.controller.AddEditConfigController">
+      <stylesheets>
+         <URL value="@../css/config.css"/>
+      </stylesheets>
+      <HBox>
+         <Label  prefHeight="15.0" prefWidth="46.0" text="数据源名"/>
+         <TextField fx:id="dataSourceName"/>
+      </HBox>
+      <HBox>
+         <Label  prefHeight="15.0" prefWidth="46.0" text="数据源"/>
+         <TextArea fx:id="url"  prefHeight="46.0" prefWidth="307.0"/>
+      </HBox>
+      <HBox>
+         <Label  prefHeight="15.0" prefWidth="46.0" text="用户名"/>
+         <TextField fx:id="userName" />
+      </HBox>
+      <HBox>
+         <Label  prefHeight="15.0" prefWidth="36.0" text="密码"/>
+         <TextField fx:id="password" />
+      </HBox>
+      <HBox>
+         <Button fx:id="button" mnemonicParsing="false" text="操作" onAction="#operate"/>
+      </HBox>
+</VBox>

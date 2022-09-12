@@ -1,8 +1,8 @@
 package com.fpp.code.core.template;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.fpp.code.core.context.TemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextAware;
-import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -112,13 +112,12 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
             }catch (Exception e){
                 throw new TemplateResolveException(String.format("get index %s depend template error to get template",index));
             }
-            String templateName = getSetValue(currentTemplate.getDependTemplates(), i);
-            Template templateDepend;
-            try {
-                templateDepend = getTemplateContext().getTemplate(templateName);
-            } catch (CodeConfigException e) {
-                throw new TemplateResolveException(e);
+            if(CollectionUtil.isEmpty(currentTemplate.getDependTemplates())){
+                throw new TemplateResolveException(String.format("have depend template [ %s ] not to get depend template config",currentTemplate.getTemplateName()));
             }
+            Template templateDepend;
+            String templateName = getSetValue(currentTemplate.getDependTemplates(), i);
+            templateDepend = getTemplateContext().getTemplate(templateName);
             return templateDepend;
         }
     }

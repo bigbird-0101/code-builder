@@ -1,5 +1,9 @@
 package com.fpp.code.core.domain;
 
+import cn.hutool.core.util.StrUtil;
+import com.fpp.code.core.config.Environment;
+import com.fpp.code.core.exception.CodeConfigException;
+
 /**
  * @author Administrator
  */
@@ -56,5 +60,30 @@ public class DataSourceConfig {
                 ", url='" + url + '\'' +
                 ", password='" + password + '\'' +
                 '}';
+    }
+
+    /**
+     * 获取数据源配置
+     *
+     * @return
+     */
+    public static DataSourceConfig getDataSourceConfig(Environment environment) {
+        final String selectDataSource = environment.getProperty("code.datasource");
+        if (StrUtil.isNotBlank(selectDataSource)) {
+            String url = environment.getProperty(StrUtil.format("code.datasource.{}.url", selectDataSource));
+            String userName = environment.getProperty(StrUtil.format("code.datasource.{}.username", selectDataSource));
+            String password = environment.getProperty(StrUtil.format("code.datasource.{}.password", selectDataSource));
+            if (!StrUtil.isAllNotBlank(url, userName, password)) {
+                throw new CodeConfigException("datasource config error ，not get url or userName or password");
+            }
+            return new DataSourceConfig(null, userName, url, password);
+        }
+        String url = environment.getProperty("code.datasource.url");
+        String userName = environment.getProperty("code.datasource.username");
+        String password = environment.getProperty("code.datasource.password");
+        if (!StrUtil.isAllNotBlank(url, userName, password)) {
+            throw new CodeConfigException("datasource config error ，not get url or userName or password");
+        }
+        return new DataSourceConfig(null, userName, url, password);
     }
 }

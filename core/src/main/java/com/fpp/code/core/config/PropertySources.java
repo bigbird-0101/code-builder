@@ -1,9 +1,13 @@
 package com.fpp.code.core.config;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Properties;
 
-public interface PropertySources {
+/**
+ * @author Administrator
+ */
+public interface PropertySources extends Serializable {
     /**
      * 获取属性
      * @param name
@@ -41,9 +45,14 @@ public interface PropertySources {
      */
     <T> Iterator<PropertySource<?>> iterator();
 
-    default Properties convertProperties(PropertySources propertySources){
-        Iterator<PropertySource<?>> iterable = propertySources.iterator();
-        Properties properties=new Properties();
+    /**
+     * convert Properties
+     * @param propertySources
+     * @return
+     */
+    default Properties convertProperties(){
+        Iterator<PropertySource<?>> iterable = this.iterator();
+        Properties properties=new LinkedProperties();
         while(iterable.hasNext()){
             PropertySource<Object> next = (PropertySource<Object>) iterable.next();
             String name = next.getName();

@@ -2,13 +2,14 @@ package com.fpp.code.core.common;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.meta.TableType;
+import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.domain.DataSourceConfig;
 import com.fpp.code.core.template.TableInfo;
+import com.fpp.code.spi.NewInstanceServiceLoader;
 import com.fpp.code.util.Utils;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -18,6 +19,9 @@ import java.util.Properties;
  * @date 2020/6/2 18:54
  */
 public class DbUtil {
+    static{
+        NewInstanceServiceLoader.register(TableNameToDomainName.class);
+    }
     /**
      * 将数据库列类型转换为java数据类型
      *
@@ -229,12 +233,13 @@ public class DbUtil {
         return Utils.getFieldName(Utils.underlineToHump(columnName));
     }
 
-    private static String getDomainName(String tableName) {
-        String[] valueClassNameS = tableName.substring(4).split("_");
-        return Arrays.stream(valueClassNameS).map(Utils::firstUpperCase).reduce((s, b) -> s + b).map(s -> Utils.isEmpty(s) ? Utils.firstUpperCase(tableName) : s).get();
+    private static String getDomainName(String tableName, Environment environment) {
+        final String propertyOrDefault = environment.getPropertyOrDefault("code.table_name_to_domain_name", TableNameToDomainName.DEFAULT);
+        final Properties properties = environment.getPropertySources().convertProperties();
+        return new TableNameToDomainNameServiceLoader(TableNameToDomainName.class).newService(propertyOrDefault,properties).buildDomainName(tableName);
     }
 
-    public static TableInfo getTableInfo(DataSourceConfig dataSourceConfigPojo, String tableName) throws SQLException {
+    public static TableInfo getTableInfo(DataSourceConfig dataSourceConfigPojo, String tableName, Environment environment) throws SQLException {
         TableInfo tableInfo;
         Connection connection = DbUtil.getConnection(dataSourceConfigPojo);
         List<TableInfo.ColumnInfo> columnInfoList = new ArrayList<>(16);
@@ -278,7 +283,7 @@ public class DbUtil {
                 }
             }
         }
-        tableInfo = new TableInfo(tableName, tableComment, getDomainName(tableName), columnInfoList);
+        tableInfo = new TableInfo(tableName, tableComment, getDomainName(tableName,environment), columnInfoList);
         return tableInfo;
     }
 
@@ -286,7 +291,7 @@ public class DbUtil {
     /**
      * 通过数据库来得到所有表名
      */
-    public static List<String> getAllTableName(DataSourceConfig dataSourceConfigPojo) throws SQLException, ClassNotFoundException {
+    public static List<String> getAllTableName(DataSourceConfig dataSourceConfigPojo) throws SQLException {
         List<String> tableNameS;
         Connection connection = DbUtil.getConnection(dataSourceConfigPojo);
         try {

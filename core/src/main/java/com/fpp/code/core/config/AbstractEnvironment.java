@@ -17,6 +17,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -25,16 +27,16 @@ import java.util.*;
  * @date 2020/12/22 11:16
  */
 public abstract class AbstractEnvironment implements Environment {
-    private static Logger logger = LogManager.getLogger(AbstractEnvironment.class);
+    private static final Logger logger = LogManager.getLogger(AbstractEnvironment.class);
     public static final String DEFAULT_TEMPLATE_FILE_SUFFIX = ".template";
     public static final String DEFAULT_USER_SAVE_TEMPLATE_CONFIG = "code.user.save.config";
     public static final String DEFAULT_CORE_TEMPLATE_PATH = "code.template.config";
     public static final String DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE = "code.template.config.template";
     public static final String DEFAULT_CORE_TEMPLATE_FILES_PATH = "code.template.files";
-    private final MultiplePropertySources DEFAULT_MULTIPLE = new MultiplePropertySources();
-    private final PropertySourcesPropertyResolver propertySourcesPropertyResolver = new PropertySourcesPropertyResolver(DEFAULT_MULTIPLE);
-    private static Map<String, String> tepmlateFileUrlContentMapping = new HashMap<>();
-    private static Map<String, String> tepmlateFileNameUrlMapping = new HashMap<>();
+    private transient final MultiplePropertySources DEFAULT_MULTIPLE = new MultiplePropertySources();
+    private transient final PropertySourcesPropertyResolver propertySourcesPropertyResolver = new PropertySourcesPropertyResolver(DEFAULT_MULTIPLE);
+    private static final Map<String, String> TEMPLATE_FILE_URL_CONTENT_MAPPING = new HashMap<>();
+    private static final Map<String, String> TEMPLATE_FILE_NAME_URL_MAPPING = new HashMap<>();
     private String coreConfigPath;
     private String templateConfigPath;
     private String templatesPath;
@@ -48,16 +50,16 @@ public abstract class AbstractEnvironment implements Environment {
     public <T> T getProperty(String propertyKey, Class<T> targetClass) {
         return propertySourcesPropertyResolver.getProperty(propertyKey, targetClass);
     }
-    public static String getTemplateContent(String teplateFileUrl) {
-        return tepmlateFileUrlContentMapping.get(teplateFileUrl);
+    public static String getTemplateContent(String templateFileUrl) {
+        return TEMPLATE_FILE_URL_CONTENT_MAPPING.get(templateFileUrl);
     }
 
-    public static String putTemplateContent(String teplateFileUrl,String content) {
-        return tepmlateFileUrlContentMapping.put(teplateFileUrl,content);
+    public static String putTemplateContent(String templateFileUrl,String content) {
+        return TEMPLATE_FILE_URL_CONTENT_MAPPING.put(templateFileUrl,content);
     }
 
-    public static String getTemplateFileUrl(String teplateFileName) {
-        return tepmlateFileNameUrlMapping.get(teplateFileName);
+    public static String getTemplateFileUrl(String templateFileName) {
+        return TEMPLATE_FILE_NAME_URL_MAPPING.get(templateFileName);
     }
 
     public void setCoreConfigPath(String coreConfigPath) {
@@ -109,13 +111,14 @@ public abstract class AbstractEnvironment implements Environment {
         Collection<File> files = FileUtils.listFiles(new File(templatesPath), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
         files.forEach(file -> {
             String fileName = file.getName();
-            tepmlateFileNameUrlMapping.put(fileName, file.getAbsolutePath());
+            TEMPLATE_FILE_NAME_URL_MAPPING.put(fileName, file.getAbsolutePath());
             try (FileInputStream fileInputStream = new FileInputStream(file)) {
-                tepmlateFileUrlContentMapping.put(file.getAbsolutePath(), IOUtils.toString(fileInputStream, StandardCharsets.UTF_8));
+                TEMPLATE_FILE_URL_CONTENT_MAPPING.put(file.getAbsolutePath(), IOUtils.toString(fileInputStream, StandardCharsets.UTF_8));
             } catch (IOException e) {
                 InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(templatesPath);
                 try {
-                    tepmlateFileUrlContentMapping.put(file.getAbsolutePath(), IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8));
+                    assert resourceAsStream != null;
+                    TEMPLATE_FILE_URL_CONTENT_MAPPING.put(file.getAbsolutePath(), IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8));
                 } catch (IOException ignored) {
                 }
             }
@@ -125,11 +128,8 @@ public abstract class AbstractEnvironment implements Environment {
     public void loadCoreConfig(String fileName) throws IOException {
         Properties pss = new OrderedProperties();
         logger.info("加载配置环境文件名 {}",fileName);
-        Reader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(CommonFileUtils.getConfigFileInput(fileName)), StandardCharsets.UTF_8));
-        try {
+        try (Reader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(CommonFileUtils.getConfigFileInput(fileName)), StandardCharsets.UTF_8))) {
             pss.load(reader);
-        } finally {
-            reader.close();
         }
         if(logger.isInfoEnabled()){
             logger.info("加载配置环境 {}",pss);
@@ -148,8 +148,9 @@ public abstract class AbstractEnvironment implements Environment {
         parse();
     }
 
+    @SafeVarargs
     @Override
-    public <T> void refreshPropertySourceSerialize(PropertySource<T>... propertySources) {
+    public final <T> void refreshPropertySourceSerialize(PropertySource<T>... propertySources) {
         boolean isTemplateCorePath = false;
         if (propertySources.length > 0) {
             isTemplateCorePath = propertySources[0].getName().equals(DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE);
@@ -184,7 +185,7 @@ public abstract class AbstractEnvironment implements Environment {
                     multipleTemplates.add(jsonObject);
                 }
             });
-            try (FileOutputStream fileOutputStream = new FileOutputStream(new File(templateConfigPath))) {
+            try (FileOutputStream fileOutputStream = new FileOutputStream(templateConfigPath)) {
                 CommonFileUtils.clearFileContent(templateConfigPath);
                 String result = JSON.toJSONString(configContent, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue,
                         SerializerFeature.WriteDateUseDateFormat);
@@ -193,17 +194,15 @@ public abstract class AbstractEnvironment implements Environment {
                 e.printStackTrace();
             }
         } else {
-            Arrays.stream(propertySources).forEach(propertySource -> {
-                getPropertySources().updatePropertySource(propertySource.getName(), propertySource.getSource());
-            });
-            Properties properties = getPropertySources().convertProperties(getPropertySources());
+            Arrays.stream(propertySources).forEach(propertySource -> getPropertySources().updatePropertySource(propertySource.getName(), propertySource.getSource()));
+            Properties properties = getPropertySources().convertProperties();
             StringBuilder stringBuilder = new StringBuilder();
             properties.forEach((k, v) -> {
                 if (!k.equals(DEFAULT_CORE_TEMPLATE_PATH) && !k.equals(DEFAULT_CORE_TEMPLATE_FILES_PATH)) {
                     stringBuilder.append(k).append("=").append(v).append("\r\n");
                 }
             });
-            try (FileOutputStream fileOutputStream = new FileOutputStream(new File(coreConfigPath))) {
+            try (FileOutputStream fileOutputStream = new FileOutputStream(coreConfigPath)) {
                 CommonFileUtils.clearFileContent(coreConfigPath);
                 IOUtils.write(stringBuilder.toString().getBytes(StandardCharsets.UTF_8), fileOutputStream);
             } catch (IOException e) {
@@ -212,8 +211,9 @@ public abstract class AbstractEnvironment implements Environment {
         }
     }
 
+    @SafeVarargs
     @Override
-    public <T> void removePropertySourceSerialize(PropertySource<T>... propertySources) {
+    public final <T> void removePropertySourceSerialize(PropertySource<T>... propertySources) {
         boolean isTemplateCorePath = false;
         if (propertySources.length > 0) {
             isTemplateCorePath = propertySources[0].getName().equals(DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE);
@@ -243,7 +243,7 @@ public abstract class AbstractEnvironment implements Environment {
                     }
                 }
             });
-            try (FileOutputStream fileOutputStream = new FileOutputStream(new File(templateConfigPath))) {
+            try (FileOutputStream fileOutputStream = new FileOutputStream(templateConfigPath)) {
                 CommonFileUtils.clearFileContent(templateConfigPath);
                 String result = JSON.toJSONString(configContent, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue,
                         SerializerFeature.WriteDateUseDateFormat);
@@ -252,17 +252,15 @@ public abstract class AbstractEnvironment implements Environment {
                 e.printStackTrace();
             }
         } else {
-            Arrays.stream(propertySources).forEach(propertySource -> {
-                getPropertySources().removeIfPresent(propertySource);
-            });
-            Properties properties = getPropertySources().convertProperties(getPropertySources());
+            Arrays.stream(propertySources).forEach(propertySource -> getPropertySources().removeIfPresent(propertySource));
+            Properties properties = getPropertySources().convertProperties();
             StringBuilder stringBuilder = new StringBuilder();
             properties.forEach((k, v) -> {
                 if (!k.equals(DEFAULT_CORE_TEMPLATE_PATH) && !k.equals(DEFAULT_CORE_TEMPLATE_FILES_PATH)) {
                     stringBuilder.append(k).append("=").append(v).append("\r\n");
                 }
             });
-            try (FileOutputStream fileOutputStream = new FileOutputStream(new File(coreConfigPath))) {
+            try (FileOutputStream fileOutputStream = new FileOutputStream(coreConfigPath)) {
                 CommonFileUtils.clearFileContent(coreConfigPath);
                 IOUtils.write(stringBuilder.toString().getBytes(StandardCharsets.UTF_8), fileOutputStream);
             } catch (IOException e) {
@@ -286,7 +284,7 @@ public abstract class AbstractEnvironment implements Environment {
     public JSONObject getConfigContent(String templatesFilePath) throws CodeConfigException {
         String result;
         try {
-            result = IOUtils.toString(new FileInputStream(templatesFilePath), StandardCharsets.UTF_8);
+            result = IOUtils.toString(Files.newInputStream(Paths.get(templatesFilePath)), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new CodeConfigException(e);
         }

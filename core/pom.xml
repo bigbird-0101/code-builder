@@ -19,9 +19,8 @@
             <artifactId>common</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>spi</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
@@ -46,6 +45,17 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

@@ -8,9 +8,9 @@ import cn.hutool.system.UserInfo;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.fpp.code.core.common.CollectionUtils;
+import com.fpp.code.core.common.DbUtil;
 import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.config.CoreConfig;
-import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.context.TemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.domain.DataSourceConfig;
@@ -26,7 +26,6 @@ import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResol
 import com.fpp.code.core.template.*;
 import com.fpp.code.fxui.Main;
 import com.fpp.code.fxui.common.AlertUtil;
-import com.fpp.code.core.common.DbUtil;
 import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
 import com.fpp.code.fxui.fx.component.FxAlerts;
 import com.fpp.code.fxui.fx.component.FxProgressDialog;
@@ -44,7 +43,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
@@ -403,7 +401,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
      * 初始化所有表格名
      */
     private void initTableAll() throws SQLException, ClassNotFoundException {
-        this.tableAll = DbUtil.getAllTableName(getDataSourceConfig(getTemplateContext().getEnvironment()));
+        this.tableAll = DbUtil.getAllTableName(DataSourceConfig.getDataSourceConfig(getTemplateContext().getEnvironment()));
     }
 
     @FXML
@@ -461,13 +459,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
         Stage secondWindow = new Stage();
         Parent root = new FXMLLoader(this.getClass().getResource("/views/config.fxml")).load();
         Scene scene = new Scene(root);
-        TextArea url = (TextArea) scene.lookup("#url");
-        TextField userName = (TextField) scene.lookup("#userName");
-        TextField password = (TextField) scene.lookup("#password");
-        Environment environment = getTemplateContext().getEnvironment();
-        url.setText(environment.getProperty("code.datasource.url"));
-        userName.setText(environment.getProperty("code.datasource.username"));
-        password.setText(environment.getProperty("code.datasource.password"));
         secondWindow.setTitle("核心配置");
         secondWindow.setScene(scene);
         secondWindow.show();
@@ -508,7 +499,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 return;
             }
             ProjectTemplateInfoConfig projectTemplateInfoConfig = getProjectTemplateInfoConfig();
-            CoreConfig coreConfig = new CoreConfig(getDataSourceConfig(getTemplateContext().getEnvironment()), projectTemplateInfoConfig);
+            CoreConfig coreConfig = new CoreConfig(DataSourceConfig.getDataSourceConfig(getTemplateContext().getEnvironment()), projectTemplateInfoConfig);
             if (logger.isInfoEnabled()) {
                 logger.info("选中的模板名 {}", templatesOperateController.getSelectTemplateGroup().keySet());
             }
@@ -592,7 +583,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             Map<String, Object> temp = new HashMap<>(10);
             TableInfo tableInfo;
             try {
-                tableInfo = DbUtil.getTableInfo(coreConfig.getDataSourceConfig(), tableName);
+                tableInfo = DbUtil.getTableInfo(coreConfig.getDataSourceConfig(), tableName,getTemplateContext().getEnvironment());
             } catch (SQLException e) {
                 logger.error("doGetTemplate DbUtil.getTableInfo error",e);
                 throw e;
@@ -659,16 +650,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         }
         return new ProjectTemplateInfoConfig(definedFunctionDomains, templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()));
     }
-    /**
-     * 获取数据源配置
-     *
-     * @return
-     */
-    public DataSourceConfig getDataSourceConfig(Environment environment) {
-        String url = environment.getProperty("code.datasource.url");
-        String quDongName = url.indexOf("mysql") > 0 ? "com.mysql.jdbc.Driver" : url.indexOf("oracle") > 0 ? "" : "";
-        return new DataSourceConfig(quDongName, environment.getProperty("code.datasource.username"), url, environment.getProperty("code.datasource.password"));
-    }
+
     @FXML
     public void about() throws IOException {
         Stage secondWindow = new Stage();

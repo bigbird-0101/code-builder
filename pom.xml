@@ -9,6 +9,7 @@
         <module>core</module>
         <module>common</module>
         <module>fxui</module>
+        <module>spi</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -40,6 +41,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -86,6 +92,12 @@
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
                 <version>${log4j-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>RELEASE</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

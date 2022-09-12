@@ -1,12 +1,16 @@
 package com.fpp.code.core.factory;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ServiceLoaderUtil;
 import com.fpp.code.core.factory.config.MultipleTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.factory.config.TemplatePostProcessor;
+import com.fpp.code.core.template.HaveDependTemplate;
 import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
 import com.fpp.code.core.template.TemplateTraceContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +20,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author fpp
  */
 public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry implements ConfigurableTemplateFactory {
-    private final List<TemplatePostProcessor> templatePostProcessors=new CopyOnWriteArrayList<>();
+    private static final Logger logger= LogManager.getLogger(AbstractTemplateFactory.class);
+
+    private transient final List<TemplatePostProcessor> templatePostProcessors=new CopyOnWriteArrayList<>();
     {
         templatePostProcessors.addAll(ServiceLoaderUtil.loadList(TemplatePostProcessor.class));
     }
@@ -53,8 +59,15 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
             Objects.requireNonNull(templateDefinition,"not found "+templateName+" template definition");
             template = createTemplate(templateName, templateDefinition);
         }
-        TemplateTraceContext.setCurrentTemplate(template);
-
+        logger.info("doGetTemplate {}",templateName);
+        if(null!=TemplateTraceContext.getCurrentTemplate()&&(TemplateTraceContext.getCurrentTemplate() instanceof HaveDependTemplate)) {
+            HaveDependTemplate dependTemplate= (HaveDependTemplate) TemplateTraceContext.getCurrentTemplate();
+            if(CollectionUtil.isEmpty(dependTemplate.getDependTemplates())||!dependTemplate.getDependTemplates().contains(templateName)) {
+                TemplateTraceContext.setCurrentTemplate(template);
+            }
+        }else{
+            TemplateTraceContext.setCurrentTemplate(template);
+        }
         return template;
     }
 

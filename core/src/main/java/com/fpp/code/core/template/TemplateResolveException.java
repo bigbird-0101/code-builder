@@ -1,5 +1,7 @@
 package com.fpp.code.core.template;
 
+import cn.hutool.core.util.StrUtil;
+
 import java.security.PrivilegedActionException;
 
 /**
@@ -21,6 +23,10 @@ public class TemplateResolveException extends RuntimeException{
         super(message);
     }
 
+
+    public TemplateResolveException(CharSequence message,Object... param) {
+        super(StrUtil.format(message,param));
+    }
     /**
      * Constructs a new exception with the specified cause and a detail
      * message of <tt>(cause==null ? null : cause.toString())</tt> (which
