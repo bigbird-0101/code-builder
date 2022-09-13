@@ -14,6 +14,12 @@ import java.util.stream.Stream;
 
 public class Test {
     @org.junit.jupiter.api.Test
+    public void testSplitForeach(){
+        String a="column in  interfaceModule.columnList";
+        Stream.of(a.split(" in ")).forEach(System.out::println);
+    }
+
+    @org.junit.jupiter.api.Test
     public void test() throws CodeConfigException {
         Template handleFunctionTemplate = new DefaultNoHandleFunctionTemplate();
         if(handleFunctionTemplate instanceof HaveDependTemplateHandleFunctionTemplate){

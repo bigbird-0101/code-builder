@@ -3,6 +3,7 @@ package com.fpp.code.fxui.fx.controller;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import cn.hutool.log.StaticLog;
 import cn.hutool.system.UserInfo;
 import com.alibaba.fastjson.JSONObject;
@@ -590,7 +591,14 @@ public class ComplexController extends TemplateContextProvider implements Initia
             }
             temp.put("tableInfo", tableInfo);
             if (null != propertiesVariable) {
-                propertiesVariable.forEach((k, v) -> temp.put((String) k, v));
+                propertiesVariable.forEach((k, v) -> {
+                    String value= (String) v;
+                    if(JSONUtil.isTypeJSON(value)){
+                        temp.put((String) k, JSONObject.parse(value));
+                    }else {
+                        temp.put((String) k, value);
+                    }
+                });
             }
             return temp;
         });

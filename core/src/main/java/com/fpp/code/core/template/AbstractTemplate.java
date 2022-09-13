@@ -16,9 +16,11 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 模板核心配置
@@ -99,7 +101,6 @@ public abstract class AbstractTemplate implements Template {
     public AbstractTemplate(String templeFileName, TemplateResolver templateResolver) {
         this.setTemplateName(templeFileName);
         this.templateResolver = templateResolver;
-        this.initTemplateVariables();
     }
 
     /**
@@ -112,7 +113,7 @@ public abstract class AbstractTemplate implements Template {
         if(null==templateFile){
             return "";
         }
-        String result = IOUtils.toString(new FileInputStream(templateFile), StandardCharsets.UTF_8);
+        String result = IOUtils.toString(Files.newInputStream(templateFile.toPath()), StandardCharsets.UTF_8);
         AbstractEnvironment.putTemplateContent(templateFile.getAbsolutePath(), result);
         return AbstractEnvironment.getTemplateContent(templateFile.getAbsolutePath());
     }
@@ -226,6 +227,11 @@ public abstract class AbstractTemplate implements Template {
         if(StrUtil.isNotBlank(getSrcPackage())) {
             getTemplateVariables().put("packageName", Utils.pathToPackage(getSrcPackage()));
         }
+        //add base simpleClassName data
+        TableInfo tableInfo = (TableInfo) getTemplateVariables().get("tableInfo");
+        final String tableName = Optional.ofNullable(tableInfo).map(TableInfo::getTableName).orElse(null);
+        getTemplateVariables().put("simpleClassName",getTemplateFilePrefixNameStrategy().prefixStrategy(this, tableName));
+        getTemplateVariables().put("className",Utils.pathToPackage(getSrcPackage())+"."+ getTemplateVariables().get("simpleClassName"));
     }
 
     public static  class TemplateSerializer implements ObjectSerializer{

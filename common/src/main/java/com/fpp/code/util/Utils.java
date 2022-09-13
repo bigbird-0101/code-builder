@@ -385,41 +385,47 @@ public class Utils {
         Field temp = null;
         String[] typeArray = typeStr.split("\\.");
         List<String> list = Arrays.stream(typeArray).filter(Utils::isNotEmpty).skip(1).collect(Collectors.toList());
-        Class clazz = object.getClass();
-        Class tempClass;
-        Object beforeTemp;
+        Class<?> clazz = object.getClass();
+        Class<?> tempClass;
+        Object beforeTemp=object;
         for (int i = 0; i < list.size(); i++) {
-            if (i == 0) {
-                try {
-                    temp = clazz.getField(list.get(i));
-                } catch (NoSuchFieldException e) {
+            final String name = list.get(i);
+            if(beforeTemp instanceof JSONObject){
+                JSONObject jsonObject= (JSONObject) object;
+                beforeTemp=jsonObject.get(name);
+            }else{
+                if (i == 0) {
                     try {
-                        temp = clazz.getDeclaredField(list.get(i));
-                    } catch (NoSuchFieldException ex) {
-                        logger.warn("对象{}中{}属性不存在", typeArray[0], list.get(i));
+                        temp = clazz.getField(name);
+                    } catch (NoSuchFieldException e) {
+                        try {
+                            temp = clazz.getDeclaredField(list.get(i));
+                        } catch (NoSuchFieldException ex) {
+                            logger.warn("对象{}中{}属性不存在", typeArray[0], list.get(i));
+                        }
+                    }
+                    beforeTemp = object;
+                } else {
+                    beforeTemp = temp;
+                    tempClass = temp.getClass();
+                    try {
+                        temp = tempClass.getField(list.get(i));
+                    } catch (NoSuchFieldException e) {
+                        try {
+                            temp = tempClass.getDeclaredField(list.get(i));
+                        } catch (NoSuchFieldException ex) {
+                            logger.warn("对象{}中{}属性不存在", list.get(i - 1), list.get(i));
+                        }
                     }
                 }
-                beforeTemp = object;
-            } else {
-                beforeTemp = temp;
-                tempClass = temp.getClass();
-                try {
-                    temp = tempClass.getField(list.get(i));
-                } catch (NoSuchFieldException e) {
+                if (i == list.size() - 1) {
+                    Field field = temp;
                     try {
-                        temp = tempClass.getDeclaredField(list.get(i));
-                    } catch (NoSuchFieldException ex) {
-                        logger.warn("对象{}中{}属性不存在", list.get(i - 1), list.get(i));
+                        field.setAccessible(true);
+                        return field.get(beforeTemp);
+                    } catch (IllegalAccessException | NullPointerException exception) {
+                        logger.warn("获取一个对象的属性字段值异常 {} {}", field, beforeTemp);
                     }
-                }
-            }
-            if (i == list.size() - 1) {
-                Field field = temp;
-                try {
-                    field.setAccessible(true);
-                    return field.get(beforeTemp);
-                } catch (IllegalAccessException | NullPointerException exception) {
-                    logger.warn("获取一个对象的属性字段值异常 {} {}", field, beforeTemp);
                 }
             }
         }
@@ -448,24 +454,30 @@ public class Utils {
                 }
                 temp = replaceKeyValue.get(nodeName);
             } else {
-                Field field = null;
-                try {
-                    field = temp.getClass().getField(nodeName);
-                } catch (NoSuchFieldException e) {
+                if(temp instanceof JSONObject){
+                    JSONObject jsonObject= (JSONObject) temp;
+                    temp=jsonObject.get(nodeName);
+                }else {
+                    Field field = null;
                     try {
-                        field = temp.getClass().getDeclaredField(nodeName);
-                    } catch (NoSuchFieldException ex) {
+                        field = temp.getClass().getField(nodeName);
+                    } catch (NoSuchFieldException e) {
+                        try {
+                            field = temp.getClass().getDeclaredField(nodeName);
+                        } catch (NoSuchFieldException ex) {
+                            logger.warn("模板中语法异常{}属性不存在", nodeName);
+                        }
+                    }
+                    if (null == field) {
                         logger.warn("模板中语法异常{}属性不存在", nodeName);
                     }
-                }
-                if (null == field) {
-                    logger.warn("模板中语法异常{}属性不存在", nodeName);
-                }
-                field.setAccessible(true);
-                try {
-                    temp = field.get(temp);
-                } catch (IllegalAccessException e) {
-                    throw e;
+                    assert field != null;
+                    field.setAccessible(true);
+                    try {
+                        temp = field.get(temp);
+                    } catch (IllegalAccessException e) {
+                        throw e;
+                    }
                 }
             }
         }

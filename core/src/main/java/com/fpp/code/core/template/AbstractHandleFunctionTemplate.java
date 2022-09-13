@@ -59,6 +59,42 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      */
     @Override
     public String getTemplateResult() throws TemplateResolveException {
+        doResolverTemplateBefore();
+        TemplateFileClassInfo resultCache = doResolverTemplate();
+        return doResolverTemplateAfter(resultCache);
+    }
+
+    /**
+     * 解析模板之前
+     */
+    private void doResolverTemplateBefore() {
+        initTemplateVariables();
+    }
+
+    /**
+     * 解析模板成功之后
+     * @param resultCache
+     * @return
+     */
+    private String doResolverTemplateAfter(TemplateFileClassInfo resultCache) {
+        //这里深度克隆一下对象 如果不克隆 直接传递引用 缓存将会被修改
+        TemplateFileClassInfo tempResultCache= (TemplateFileClassInfo) ObjectUtils.deepClone(resultCache);
+        //解析策略
+        if(null!=resolverStrategy) {
+            resolverStrategy.resolverStrategy(tempResultCache);
+        }
+        StringBuilder functionStr = new StringBuilder();
+        Map<String, String> tempFunctionMap = tempResultCache.getFunctionS();
+        tempFunctionMap.forEach((k, v) -> functionStr.append(v));
+
+        return tempResultCache.getTemplateClassPrefix() + functionStr + tempResultCache.getTemplateClassSuffix();
+    }
+
+    /**
+     * 解析模板
+     * @return
+     */
+    private TemplateFileClassInfo doResolverTemplate() {
         CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
         TemplateFileClassInfo resultCache= resolverResultCache.get(cacheKey);
         logger.info("cacheKey is {}",cacheKey);
@@ -89,18 +125,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
             this.templateFileClassInfoResolved =resultCache;
             resolverResultCache.put(cacheKey,resultCache);
         }
-
-        //这里深度克隆一下对象 如果不克隆 直接传递引用 缓存将会被修改
-        TemplateFileClassInfo tempResultCache= (TemplateFileClassInfo) ObjectUtils.deepClone(resultCache);
-        //解析策略
-        if(null!=resolverStrategy) {
-            resolverStrategy.resolverStrategy(tempResultCache);
-        }
-        StringBuilder functionStr = new StringBuilder();
-        Map<String, String> tempFunctionMap = tempResultCache.getFunctionS();
-        tempFunctionMap.forEach((k, v) -> functionStr.append(v));
-
-        return tempResultCache.getTemplateClassPrefix() + functionStr.toString() + tempResultCache.getTemplateClassSuffix();
+        return resultCache;
     }
 
 

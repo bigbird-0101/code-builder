@@ -52,7 +52,7 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
             String forEachTitle = matcher.group("title");
             String trimValue = matcher.group("trimValue");
             String forEachAll=matcher.group(0);
-            String[] titleArray=forEachTitle.split("in");
+            String[] titleArray=forEachTitle.split(" in ");
             if(!forEachTitle.contains("in")||titleArray.length!=2){
                 throw new TemplateResolveException(LANG_NAME+" 语句 语法异常");
             }

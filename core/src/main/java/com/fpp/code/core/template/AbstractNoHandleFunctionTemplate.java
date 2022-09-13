@@ -32,6 +32,32 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
 
     @Override
     public String getTemplateResult() throws TemplateResolveException {
+        doResolverTemplateBefore();
+        final String result = doResolverTemplate();
+        return doResolverTemplateAfter(result);
+    }
+
+    /**
+     * 解析模板之后
+     * @param result
+     * @return
+     */
+    private String doResolverTemplateAfter(String result) {
+        return result;
+    }
+
+    /**
+     * 解析模板之前
+     */
+    private void doResolverTemplateBefore() {
+        initTemplateVariables();
+    }
+
+    /**
+     * 解析模板
+     * @return
+     */
+    private String doResolverTemplate() {
         CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
         String result=resolverResultCache.get(cacheKey);
         if(null==result) {

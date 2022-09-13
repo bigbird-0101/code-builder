@@ -51,7 +51,8 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
                     }
                     TableInfo tableInfo = (TableInfo) currentTemplate.getTemplateVariables().get("tableInfo");
                     templateDepend.getTemplateVariables().putAll(currentTemplateWithDepend.getTemplateVariables());
-                    return templateDepend.getTemplateFilePrefixNameStrategy().prefixStrategy(templateDepend,tableInfo.getTableName());
+                    final String tableName = Optional.ofNullable(tableInfo).map(TableInfo::getTableName).orElse(null);
+                    return templateDepend.getTemplateFilePrefixNameStrategy().prefixStrategy(templateDepend, tableName);
                 }else{
                     throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplate,but it use  %s[%s].%s",currentTemplate.getTemplateName(),LANG_NAME,index,"className"));
                 }
@@ -67,8 +68,10 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
                 if(currentTemplate instanceof HaveDependTemplate){
                     Template templateDepend = getDependTemplate(index, (HaveDependTemplate) currentTemplate);
                     TableInfo tableInfo = (TableInfo) currentTemplate.getTemplateVariables().get("tableInfo");
+                    templateDepend.getTemplateVariables().putAll(currentTemplate.getTemplateVariables());
+                    final String tableName = Optional.ofNullable(tableInfo).map(TableInfo::getTableName).orElse(null);
                     return Utils.pathToPackage(templateDepend.getSrcPackage())+"."+
-                            templateDepend.getTemplateFilePrefixNameStrategy().prefixStrategy(templateDepend,tableInfo.getTableName());
+                            templateDepend.getTemplateFilePrefixNameStrategy().prefixStrategy(templateDepend, tableName);
                 }else{
                     throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplate,but it use  %s[%s].%s",currentTemplate.getTemplateName(),LANG_NAME,index,"className"));
                 }

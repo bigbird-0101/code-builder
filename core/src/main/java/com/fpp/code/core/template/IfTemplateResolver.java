@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import cn.hutool.core.util.StrUtil;
 import com.fpp.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +16,7 @@ import java.util.regex.Pattern;
  * @date 2020/6/11 18:42
  */
 public class IfTemplateResolver extends AbstractTemplateLangResolver{
-    private static Logger logger= LogManager.getLogger(IfTemplateResolver.class);
+    private static final Logger logger= LogManager.getLogger(IfTemplateResolver.class);
 
     private static final String LANG_NAME="if";
     /**
@@ -58,10 +59,11 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
             String body = matcher.group("body");
             String title = matcher.group("title");
             String all=matcher.group(0);
+            srcData= StrUtil.isNotBlank(result)?result:srcData;
             try {
                 //是否满足if条件
                 String temp = Utils.getFirstNewLineNull(body);
-                if("true".equals(title.toLowerCase())||"false".equals(title.toLowerCase())){
+                if("true".equalsIgnoreCase(title)||"false".equalsIgnoreCase(title)){
                     String bodyResult = Boolean.parseBoolean(title) ? temp + body.trim() : "";
                     result = Utils.isEmpty(result) ? srcData.replace(all, bodyResult) : result.replace(all, bodyResult);
                 }else{
@@ -70,6 +72,7 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
             }catch(Exception e) {
                 result=doSpecialExpression(replaceKeyValue,title,body,srcData,all);
             }
+            logger.debug("if language Condition {} src {} to convert {}",title,body,result);
         }
         return result;
     }
