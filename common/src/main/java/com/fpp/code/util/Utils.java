@@ -404,7 +404,7 @@ public class Utils {
                             logger.warn("对象{}中{}属性不存在", typeArray[0], list.get(i));
                         }
                     }
-                    beforeTemp = object;
+                    beforeTemp = temp;
                 } else {
                     beforeTemp = temp;
                     tempClass = temp.getClass();
