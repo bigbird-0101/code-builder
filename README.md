@@ -2,7 +2,7 @@
 
 代码生成器.
 
-###### 亮点 
+##### 亮点 
 
 1.根据数据表格或自定义变量,和自定义的模板，生成任意你想生成的代码，避免项目中重复写相似的，大大提高开发效率。
 
@@ -12,20 +12,64 @@
 
 ##### QUICK START
 
-###### 1.通过代码直接启动
+###### 1.通过代码直接启动 HelloWorld
 
-启动com.fpp.Main main方法
+1. 创建一个文件,文件名为 hello_world.template
+
+文件内容为
+
+```txt
+I'm *{helloWorld}* .
+```
+
+2. 引入core 依赖
+
+   ```java
+   package com.fpp.code.core.filebuilder.definedfunction;
+   
+   import com.fpp.code.core.config.JFramePageEnvironment;
+   import com.fpp.code.core.context.GenericTemplateContext;
+   import com.fpp.code.core.template.Template;
+   
+   import java.util.HashMap;
+   import java.util.Map;
+   
+   /**
+    * @author bigbird-0101
+    * @version 1.0.0
+    * @since 2022-09-14 22:34:17
+    */
+   public class HelloWorld {
+       public static void main(String[] args) {
+           JFramePageEnvironment environment=new JFramePageEnvironment();
+           String userHome = System.getProperty("user.home");
+           String projectHome=userHome+"\\Desktop\\tool\\";
+           environment.setCoreConfigPath(projectHome+"codebuilder\\conf\\code.properties");
+           environment.setTemplateConfigPath(projectHome+"codebuilder\\conf\\templates.json");
+           environment.setTemplatesPath(projectHome+"codebuilder\\data\\templates");
+           GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
+           final Template dao = genericTemplateContext.getTemplate("hello_world");
+           Map<String, Object> temp = new HashMap<>(10);
+           temp.put("helloWorld","hello world");
+           dao.getTemplateVariables().putAll(temp);
+           final String templateResult = dao.getTemplateResult();
+           System.out.println(templateResult);
+       }
+   }
+   ```
+
+   
 
 ###### 2.下载 [codebuilder压缩包](https://github.com/bigbird-0101/code-builder/releases) 
 
 解压点击启动**codebuilder.exe**
 
-![image](https://github.com/bigbird-0101/code-builder/blob/master/images/projectfile.png)
+![image-20220914222814314](https://s3.bmp.ovh/imgs/2022/09/14/ae3fa14f53c9cf66.png)
 
 **可修改data中的模板(模板必须为.template 后缀名) 达到修改生成的内容**
 
 项目启动后
-![image](https://github.com/bigbird-0101/code-builder/blob/master/images/projectfile2.png)
+![image-20220914222145472](https://s3.bmp.ovh/imgs/2022/09/14/153192b899a698bf.png)
 
 ###### **参数详解**
 
@@ -171,4 +215,4 @@ column.size对应TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的
 
 如有疑问请加群 `948896114`
 
-![image](https://github.com/bigbird-0101/code-builder/blob/master/images/quncode.png)
+![](https://s3.bmp.ovh/imgs/2022/09/14/8a2fc2fd5d7864ee.png)
