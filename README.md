@@ -64,7 +64,7 @@ I'm *{helloWorld}* .
 
 解压点击启动**codebuilder.exe**
 
-![image-20220914222814314](https://s3.bmp.ovh/imgs/2022/09/14/ae3fa14f53c9cf66.png)
+![image-20220914225842169](https://s3.bmp.ovh/imgs/2022/09/14/22aa2bfa51c1845e.png)
 
 **可修改data中的模板(模板必须为.template 后缀名) 达到修改生成的内容**
 
