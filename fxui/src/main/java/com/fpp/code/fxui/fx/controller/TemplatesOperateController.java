@@ -220,9 +220,9 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             a=System.currentTimeMillis();
         });
         templateNameCheckBox.setOnMouseReleased(event -> {
-            final long l = System.currentTimeMillis() - a;
+            final long l = (System.currentTimeMillis() - a)/1000;
             logger.info("setOnMouseReleased {}",l);
-            if(2== l /1000) {
+            if(l>=1) {
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 ClipboardContent content = new ClipboardContent();//创建剪贴板内容
                 content.putString(templateName);//剪贴板内容对象中添加上文定义的图片
