@@ -29,6 +29,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
+        <controlsfx.version>8.40.14</controlsfx.version>
 
     </properties>
     <dependencyManagement>
@@ -98,6 +99,11 @@
                 <artifactId>junit-jupiter</artifactId>
                 <version>${jupiter.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.controlsfx</groupId>
+                <artifactId>controlsfx</artifactId>
+                <version>${controlsfx.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

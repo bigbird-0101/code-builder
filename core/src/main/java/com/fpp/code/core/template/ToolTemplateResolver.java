@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fpp.code.core.config.Environment;
@@ -123,7 +124,7 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
         CURRENT_DATE_TIME("currentDateTime"){
             @Override
             String done(String src) {
-                return Utils.getCurrentDateTime();
+                return DateUtil.now();
             }
         },
         /**
@@ -187,7 +188,7 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
                         if (currentCount == tableInfo.getColumnList().size()) {
                             stringBuilder.append(" \",");
                         } else {
-                            stringBuilder.append(" \","+mendFirstStr);
+                            stringBuilder.append(" \",").append(mendFirstStr);
                             a = 0;
                         }
                     }

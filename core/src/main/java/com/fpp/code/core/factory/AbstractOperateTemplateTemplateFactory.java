@@ -1,5 +1,6 @@
 package com.fpp.code.core.factory;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.fpp.code.core.common.ClassUtils;
 import com.fpp.code.core.common.ObjectUtils;
 import com.fpp.code.core.config.AbstractEnvironment;
@@ -61,7 +62,7 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     private Template createTemplateInstant(RootTemplateDefinition templateDefinition) {
         try {
             if(Utils.isEmpty(templateDefinition.getTemplateClassName())){
-                boolean noHaveDepend = Utils.isEmpty(templateDefinition.getDependTemplates());
+                boolean noHaveDepend = CollectionUtil.isEmpty(templateDefinition.getDependTemplates());
                 if(templateDefinition.isHandleFunction()){
                     return noHaveDepend ? new DefaultHandleFunctionTemplate() : new HaveDependTemplateHandleFunctionTemplate();
                 }else{

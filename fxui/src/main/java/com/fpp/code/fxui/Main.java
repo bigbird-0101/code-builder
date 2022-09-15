@@ -39,11 +39,11 @@ import java.util.concurrent.CompletableFuture;
  */
 public class Main extends Application {
     public static final UserOperateCache USER_OPERATE_CACHE=new UserOperateCache();
-    public static final String ICON_PNG = "icon.png";
+    public static final String ICON_PNG = "images/icon.png";
     private static Logger logger= LogManager.getLogger(Main.class);
     @Override
     public void start(Stage primaryStage) throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getClassLoader().getResource("main.fxml")));
+        FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getClassLoader().getResource("views/main.fxml")));
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root);
         addKeyCodeCombination(scene,fxmlLoader.getController());

@@ -9,7 +9,7 @@
 <VBox fx:id="mainBox" prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fxui.fx.controller.ComplexController">
   <stylesheets>
-    <URL value="@main.css"/>
+    <URL value="@../css/main.css"/>
   </stylesheets>
   <MenuBar VBox.vgrow="NEVER">
     <Menu mnemonicParsing="false" text="模板">
@@ -33,7 +33,7 @@
       </Menu>
     </Menu>
   </MenuBar>
-  <SplitPane fx:id="splitPane" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+  <SplitPane fx:id="splitPane" focusTraversable="true" VBox.vgrow="ALWAYS">
     <StackPane>
       <Pane fx:id="pane">
         <TreeView fx:id="listViewTemplate">

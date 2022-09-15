@@ -3,6 +3,8 @@ package com.fpp.code.util;
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Objects;
 
@@ -27,7 +29,7 @@ public class CommonFileUtils {
                 }
                 return path;
             }
-        }catch (IOException e){
+        }catch (IOException ignored){
         }
         return fileName;
     }
@@ -41,7 +43,7 @@ public class CommonFileUtils {
         ClassLoader classLoader=null;
         try{
             classLoader=Thread.currentThread().getContextClassLoader();
-        }catch (Exception e){
+        }catch (Exception ignored){
 
         }
         if(null==classLoader){
@@ -49,7 +51,7 @@ public class CommonFileUtils {
             if(null==classLoader){
                 try{
                     classLoader= CommonFileUtils.class.getClassLoader().getParent();
-                }catch (Exception e){
+                }catch (Exception ignored){
 
                 }
             }
@@ -59,7 +61,7 @@ public class CommonFileUtils {
 
     public static InputStream getConfigFileInput(String fileName){
         try {
-            return new FileInputStream(URLDecoder.decode(getFilePath(fileName), "UTF-8"));
+            return Files.newInputStream(Paths.get(URLDecoder.decode(getFilePath(fileName), "UTF-8")));
         }catch (IOException e){
             try {
                 return getFileInputStream(URLDecoder.decode(fileName, "UTF-8"));

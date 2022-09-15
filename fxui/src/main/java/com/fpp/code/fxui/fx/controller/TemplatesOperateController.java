@@ -15,6 +15,7 @@ import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
 import com.fpp.code.fxui.Main;
 import com.fpp.code.fxui.common.AlertUtil;
+import com.fpp.code.fxui.common.TooltipUtil;
 import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
 import com.fpp.code.util.Utils;
 import javafx.fxml.FXML;
@@ -29,6 +30,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -94,6 +97,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     public FlowPane getTemplates() {
         return templates;
     }
+
+    public static long a=0;
 
     /**
      * 变量文件
@@ -211,6 +216,20 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         if (null!=stringListMap&&stringListMap.containsKey(templateName)) {
             templateNameCheckBox.setSelected(true);
         }
+        templateNameCheckBox.setOnMousePressed(event -> {
+            a=System.currentTimeMillis();
+        });
+        templateNameCheckBox.setOnMouseReleased(event -> {
+            final long l = System.currentTimeMillis() - a;
+            logger.info("setOnMouseReleased {}",l);
+            if(2== l /1000) {
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                ClipboardContent content = new ClipboardContent();//创建剪贴板内容
+                content.putString(templateName);//剪贴板内容对象中添加上文定义的图片
+                clipboard.setContent(content);
+                TooltipUtil.showToast("模板名已复制");
+            }
+        });
         templateNameCheckBox.setText("模板名:" + templateName);
         templateNameCheckBox.setUserData(templateName);
         templateNameCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
