@@ -97,9 +97,6 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     public FlowPane getTemplates() {
         return templates;
     }
-
-    public static long a=0;
-
     /**
      * 变量文件
      */
@@ -192,6 +189,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         Scene scene = new Scene(root);
         String templateName = template.getTemplateName();
         FlowPane flowPane = (FlowPane) scene.lookup("#functionPane");
+        doSetTemplateNameLabel(scene, templateName);
         CheckBox templateNameCheckBox = (CheckBox) scene.lookup("#templateName");
         Map<String, List<String>> stringListMap = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected());
         if (template instanceof AbstractHandleFunctionTemplate) {
@@ -216,21 +214,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         if (null!=stringListMap&&stringListMap.containsKey(templateName)) {
             templateNameCheckBox.setSelected(true);
         }
-        templateNameCheckBox.setOnMousePressed(event -> {
-            a=System.currentTimeMillis();
-        });
-        templateNameCheckBox.setOnMouseReleased(event -> {
-            final long l = (System.currentTimeMillis() - a)/1000;
-            logger.info("setOnMouseReleased {}",l);
-            if(l>=1) {
-                Clipboard clipboard = Clipboard.getSystemClipboard();
-                ClipboardContent content = new ClipboardContent();//创建剪贴板内容
-                content.putString(templateName);//剪贴板内容对象中添加上文定义的图片
-                clipboard.setContent(content);
-                TooltipUtil.showToast("模板名已复制");
-            }
-        });
-        templateNameCheckBox.setText("模板名:" + templateName);
+
         templateNameCheckBox.setUserData(templateName);
         templateNameCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             Map<String, List<String>> stringListMap2 = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected());
@@ -282,6 +266,18 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             }
         });
 
+    }
+
+    private static void doSetTemplateNameLabel(Scene scene, String templateName) {
+        Label templateNameLabel = (Label) scene.lookup("#templateNameLabel");
+        templateNameLabel.setText("模板名:"+ templateName);
+        templateNameLabel.setOnMouseClicked(event -> {
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();//创建剪贴板内容
+            content.putString(templateName);//剪贴板内容对象中添加上文定义的图片
+            clipboard.setContent(content);
+            TooltipUtil.showToast("模板名已复制");
+        });
     }
 
     private void addCheckBoxListen(CheckBox checkBox, CheckBox templateNameCheckBox, String templateName, String templateFunction) {
@@ -338,7 +334,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 VBox box = (VBox) node;
                 AnchorPane anchorPane = (AnchorPane) box.getChildren().get(0);
                 BorderPane borderPane = (BorderPane) anchorPane.getChildren().get(0);
-                final CheckBox checkBox2 = (CheckBox) borderPane.getCenter();
+                final HBox hBox = (HBox) borderPane.getCenter();
+                final CheckBox checkBox2 = (CheckBox) hBox.lookup("#templateName");
                 if (checkBox2.isSelected()) {
                     String templateName = (String) checkBox2.getUserData();
                     Template template = getTemplateContext().getTemplate(templateName);
@@ -360,7 +357,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                         .build();
                 getTemplateContext().getEnvironment().refreshPropertySourceSerialize(new StringPropertySource(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, JSON.toJSONString(build)));
             }
-            AlertUtil.showInfo("保存成功");
+            TooltipUtil.showToast("保存成功");
         } catch (CodeConfigException e) {
             AlertUtil.showError("save config error :" + e.getMessage());
             e.printStackTrace();

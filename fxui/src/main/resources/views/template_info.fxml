@@ -9,7 +9,10 @@
     <AnchorPane>
         <BorderPane layoutX="43.0" layoutY="6.0">
             <center>
-                <CheckBox fx:id="templateName" layoutX="50.0" layoutY="22.0" maxWidth="200" prefHeight="15.0" text="模板名:" />
+                <HBox>
+                    <CheckBox fx:id="templateName" layoutX="50.0" layoutY="22.0" maxWidth="200" prefHeight="15.0"/>
+                    <Label fx:id="templateNameLabel" text="模板名:"/>
+                </HBox>
             </center>
             <right>
                 <ImageView fx:id="editTemplate" fitHeight="20.0" fitWidth="20.0" layoutX="4.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="TOP_RIGHT">

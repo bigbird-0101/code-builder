@@ -14,6 +14,9 @@ import org.controlsfx.tools.Utils;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * @author Administrator
+ */
 public class TooltipUtil {
     public static void showToast(String message) {
         showToast((Node) null, message);
@@ -48,7 +51,7 @@ public class TooltipUtil {
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    Platform.runLater(() -> tooltip.hide());
+                    Platform.runLater(tooltip::hide);
                 }
             }, time);
         }

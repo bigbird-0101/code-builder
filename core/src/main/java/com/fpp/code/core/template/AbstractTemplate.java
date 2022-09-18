@@ -1,6 +1,7 @@
 package com.fpp.code.core.template;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
@@ -230,7 +231,11 @@ public abstract class AbstractTemplate implements Template {
         //add base simpleClassName data
         TableInfo tableInfo = (TableInfo) getTemplateVariables().get("tableInfo");
         final String tableName = Optional.ofNullable(tableInfo).map(TableInfo::getTableName).orElse(null);
-        getTemplateVariables().put("simpleClassName",getTemplateFilePrefixNameStrategy().prefixStrategy(this, tableName));
+        try {
+            getTemplateVariables().put("simpleClassName", getTemplateFilePrefixNameStrategy().prefixStrategy(this, tableName));
+        }catch (Exception exception){
+            StaticLog.warn("getTemplateFilePrefixNameStrategy().prefixStrategy",exception);
+        }
         getTemplateVariables().put("className",Utils.pathToPackage(getSrcPackage())+"."+ getTemplateVariables().get("simpleClassName"));
     }
 

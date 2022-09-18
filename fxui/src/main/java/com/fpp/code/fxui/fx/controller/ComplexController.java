@@ -634,7 +634,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     .collect(Collectors.toList());
             CheckBox checkBoxTarget = collect.stream().findFirst().orElse(null);
             if(null!=checkBoxTarget) {
-                AnchorPane anchorPane = (AnchorPane) checkBoxTarget.getParent().getParent();
+                AnchorPane anchorPane = (AnchorPane) checkBoxTarget.getParent().getParent().getParent();
                 //重新设置模板值但不持久化
                 templatesOperateController.doSetTemplate(template, anchorPane);
             }else{
