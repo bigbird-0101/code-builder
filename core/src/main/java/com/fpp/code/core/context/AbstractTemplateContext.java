@@ -3,6 +3,10 @@ package com.fpp.code.core.context;
 import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.context.aware.TemplateContextProvider;
+import com.fpp.code.core.event.BasicCodeEvent;
+import com.fpp.code.core.event.BasicCodeListener;
+import com.fpp.code.core.event.EventMulticaster;
+import com.fpp.code.core.event.SimpleEventMulticaster;
 import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.factory.*;
 import com.fpp.code.core.factory.config.MultipleTemplateDefinitionRegistry;
@@ -31,6 +35,8 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
 
     private TemplateScanner allTypeTemplateScanner;
 
+    private EventMulticaster eventMulticaster;
+
     public AbstractTemplateContext(Environment environment) {
         this(environment, new GenericTemplateScanner());
     }
@@ -51,7 +57,13 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
         return getTemplateFactory().getMultipleTemplate(templateName);
     }
 
+    public EventMulticaster getEventMulticaster() {
+        return eventMulticaster;
+    }
 
+    public void setEventMulticaster(EventMulticaster eventMulticaster) {
+        this.eventMulticaster = eventMulticaster;
+    }
 
     @Override
     public Environment getEnvironment() {
@@ -61,6 +73,17 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
     @Override
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    @Override
+    public void addBasicCodeListener(BasicCodeListener<?> listener) {
+        if(null!=getEventMulticaster()){
+            getEventMulticaster().addListener(listener);
+        }
+    }
+
+    public void publishEvent(BasicCodeEvent basicCodeEvent){
+        getEventMulticaster().multicastEvent(basicCodeEvent);
     }
 
     @Override
@@ -78,13 +101,26 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
             registerTemplateDefinitionAndMultipleTemplateDefinition(allTemplateDefinitionHolder, templateFactory);
             //invoke template factory post processor
             invokeTemplateFactory(templateFactory);
+            //initEventMulticaster
+            initEventMulticaster();
             //Instantiate all remaining template
             finishTemplateFactoryInitialization(templateFactory);
-            //fire refresh end event
-            TemplateContextProvider.doPushEventTemplateContextAware();
+            //finishRefresh
+            finishRefresh();
         } catch (CodeConfigException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 完成模板容器的刷新
+     */
+    private void finishRefresh() {
+        publishEvent(new TemplateContextInitAfterEvent(this));
+    }
+
+    private void initEventMulticaster() {
+        this.eventMulticaster=new SimpleEventMulticaster();
     }
 
     private void invokeTemplateFactory(DefaultListableTemplateFactory templateFactory) {

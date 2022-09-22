@@ -1,5 +1,7 @@
 package com.fpp.code.core.common;
 
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.LFUCache;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.meta.TableType;
 import com.fpp.code.core.config.Environment;
@@ -22,6 +24,7 @@ public class DbUtil {
     static{
         NewInstanceServiceLoader.register(TableNameToDomainName.class);
     }
+    public static final LFUCache<String,Connection> CONNECTION_LFU_CACHE= CacheUtil.newLFUCache(2);
     /**
      * 将数据库列类型转换为java数据类型
      *
@@ -220,7 +223,14 @@ public class DbUtil {
         props.put("remarksReporting", "true");
         props.put("user", user);
         props.put("password", password);
-        return DriverManager.getConnection(url, props);
+        final String cacheKey = StrUtil.format("{}{}", url, props.toString());
+        Connection connection = CONNECTION_LFU_CACHE.get(cacheKey);
+        if(null!=connection){
+            return connection;
+        }
+        connection = DriverManager.getConnection(url, props);
+        CONNECTION_LFU_CACHE.put(cacheKey,connection);
+        return connection;
     }
 
     /**

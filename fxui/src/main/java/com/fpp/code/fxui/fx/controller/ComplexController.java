@@ -12,6 +12,7 @@ import com.fpp.code.core.common.CollectionUtils;
 import com.fpp.code.core.common.DbUtil;
 import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.config.CoreConfig;
+import com.fpp.code.core.context.AbstractTemplateContext;
 import com.fpp.code.core.context.TemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.domain.DataSourceConfig;
@@ -27,6 +28,7 @@ import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResol
 import com.fpp.code.core.template.*;
 import com.fpp.code.fxui.Main;
 import com.fpp.code.fxui.common.AlertUtil;
+import com.fpp.code.fxui.event.DoGetTemplateAfterEvent;
 import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
 import com.fpp.code.fxui.fx.component.FxAlerts;
 import com.fpp.code.fxui.fx.component.FxProgressDialog;
@@ -38,7 +40,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -74,6 +75,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author fpp
@@ -210,7 +213,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         TemplateContext templateContext = getTemplateContext();
         DefaultListableTemplateFactory defaultListableTemplateFactory = (DefaultListableTemplateFactory) templateContext.getTemplateFactory();
         try {
-            List<TreeItem<Label>> collect = templateContext.getMultipleTemplate(multipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, multipleTemplateName, item)).collect(Collectors.toList());
+            List<TreeItem<Label>> collect = templateContext.getMultipleTemplate(multipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, multipleTemplateName, item)).collect(toList());
             item.getChildren().addAll(item.getChildren().size(),collect);
         } catch (CodeConfigException e) {
             e.printStackTrace();
@@ -294,7 +297,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         copyLabel.prefWidthProperty().bind(listViewTemplate.widthProperty());
         TreeItem<Label> copyItem = new TreeItem<>(copyLabel);
         copyItem.setExpanded(true);
-        List<TreeItem<Label>> collect = defaultListableTemplateFactory.getMultipleTemplate(copyMultipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, copyMultipleTemplateName, copyItem)).collect(Collectors.toList());
+        List<TreeItem<Label>> collect = defaultListableTemplateFactory.getMultipleTemplate(copyMultipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, copyMultipleTemplateName, copyItem)).collect(toList());
         copyItem.getChildren().addAll(copyItem.getChildren().size(), collect);
         final FilteredList<TreeItem<Label>> filtered = root.getChildren().filtered(s -> s.getValue().getText().equals(copyMultipleTemplateName));
         final int size = filtered.size();
@@ -559,13 +562,22 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
                     final long l = System.currentTimeMillis();
                     final FileBuilder fileBuilder = FileBuilderFactory.getFileBuilder(fileBuilderEnum);
-                    AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy = (AbstractFileCodeBuilderStrategy) fileBuilder.getFileCodeBuilderStrategy();
+                    AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy = (AbstractFileCodeBuilderStrategy)
+                            fileBuilder.getFileCodeBuilderStrategy();
                     fileCodeBuilderStrategy.setCoreConfig(coreConfig);
-                    Template template = doGetTemplate(templateName, tableName, coreConfig, propertiesVariable.get(), templatesOperateController);
+                    Template template = doGetTemplate(templateName, tableName, coreConfig, propertiesVariable.get(),
+                            templatesOperateController);
+                    final TemplateContext templateContext = getTemplateContext();
+                    if(templateContext instanceof AbstractTemplateContext){
+                        AbstractTemplateContext abstractTemplateContext= (AbstractTemplateContext) templateContext;
+                        Platform.runLater(()-> abstractTemplateContext.publishEvent(
+                                new DoGetTemplateAfterEvent(template,templatesOperateController)));
+                    }
                     fileBuilder.build(template);
                     final long e = System.currentTimeMillis();
                     StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
-                },DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> onProgressUpdate.accept(all,i.getAndIncrement()),DO_ANALYSIS_TEMPLATE);
+                },DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> onProgressUpdate.accept(all,i.getAndIncrement()),
+                        DO_ANALYSIS_TEMPLATE);
                 task.add(voidCompletableFuture);
             }
         }
@@ -623,24 +635,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
             StaticLog.error(e);
             throw new TemplateResolveException(e);
         }
-
-        Platform.runLater(()->{
-            //找到对应的模板checkbox
-            Set<Node> nodes = templatesOperateController.getTemplates().lookupAll("AnchorPane");
-            List<CheckBox> collect = nodes.stream().map(node -> (AnchorPane) node)
-                    .map(anchorPane -> anchorPane.lookup("CheckBox"))
-                    .map(node -> (CheckBox) node)
-                    .filter(checkBox -> checkBox.getUserData().equals(template.getTemplateName()))
-                    .collect(Collectors.toList());
-            CheckBox checkBoxTarget = collect.stream().findFirst().orElse(null);
-            if(null!=checkBoxTarget) {
-                AnchorPane anchorPane = (AnchorPane) checkBoxTarget.getParent().getParent().getParent();
-                //重新设置模板值但不持久化
-                templatesOperateController.doSetTemplate(template, anchorPane);
-            }else{
-                logger.warn("checkBoxTarget not get {}",template.getTemplateName());
-            }
-        });
         return template;
     }
 
