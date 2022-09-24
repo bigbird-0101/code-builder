@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import com.fpp.code.exception.TemplateResolveException;
 import com.fpp.code.util.Utils;
 
 import java.util.*;

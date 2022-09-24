@@ -26,6 +26,7 @@ import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.filebuilder.*;
 import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResolver;
 import com.fpp.code.core.template.*;
+import com.fpp.code.exception.TemplateResolveException;
 import com.fpp.code.fxui.Main;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.fxui.event.DoGetTemplateAfterEvent;

@@ -4,7 +4,7 @@ import cn.hutool.log.StaticLog;
 import com.fpp.code.core.template.AbstractHandleFunctionTemplate;
 import com.fpp.code.core.template.AbstractNoHandleFunctionTemplate;
 import com.fpp.code.core.template.Template;
-import com.fpp.code.core.template.TemplateResolveException;
+import com.fpp.code.exception.TemplateResolveException;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

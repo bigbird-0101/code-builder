@@ -1,6 +1,7 @@
 package com.fpp.code.core.template;
 
 import cn.hutool.core.util.StrUtil;
+import com.fpp.code.exception.TemplateResolveException;
 import com.fpp.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

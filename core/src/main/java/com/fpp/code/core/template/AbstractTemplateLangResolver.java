@@ -1,6 +1,7 @@
 package com.fpp.code.core.template;
 
 import cn.hutool.core.util.StrUtil;
+import com.fpp.code.exception.TemplateResolveException;
 import com.fpp.code.util.Utils;
 
 import java.io.Serializable;
@@ -52,14 +53,19 @@ public abstract class AbstractTemplateLangResolver implements TemplateLangResolv
     protected String getLangBodyResult(Object targetObject, String body, String targetObjectKey) throws TemplateResolveException {
         StringBuilder stringBuilder=new StringBuilder();
         String tempStamp= Utils.getFirstNewLineNull(body);
+        String lastNewLineNull = Utils.getLastNewLineNull(body);
         if(targetObject instanceof Collection){
-            Collection collection= (Collection) targetObject;
+            Collection<?> collection= (Collection<?>) targetObject;
             for(Object object:collection){
                 HashMap<String,Object> replaceKey=new HashMap<>();
                 replaceKey.put(targetObjectKey,object);
                 String replaceResult=this.templateResolver.resolver(body,replaceKey);
                 if(StrUtil.isNotBlank(replaceResult.trim())) {
-                    stringBuilder.append(tempStamp).append(replaceResult.trim());
+                    stringBuilder.append(tempStamp)
+                            .append(StrUtil.removeSuffix(StrUtil.removePrefix(replaceResult,tempStamp),lastNewLineNull));
+                    if(!lastNewLineNull.contains(StrUtil.LF)) {
+                        stringBuilder.append(lastNewLineNull);
+                    }
                 }
             }
         }else{
@@ -67,7 +73,11 @@ public abstract class AbstractTemplateLangResolver implements TemplateLangResolv
             replaceKey.put(targetObjectKey,targetObject);
             String replaceResult=this.templateResolver.resolver(body,replaceKey);
             if(StrUtil.isNotBlank(replaceResult.trim())) {
-                stringBuilder.append(tempStamp).append(replaceResult.trim());
+                stringBuilder.append(tempStamp)
+                        .append(StrUtil.removeSuffix(StrUtil.removePrefix(replaceResult,tempStamp),lastNewLineNull));
+                if(!lastNewLineNull.contains(StrUtil.LF)) {
+                    stringBuilder.append(lastNewLineNull);
+                }
             }
         }
         return stringBuilder.toString();

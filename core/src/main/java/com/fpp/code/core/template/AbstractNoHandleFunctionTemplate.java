@@ -4,6 +4,7 @@ import com.fpp.code.core.cache.impl.SimpleCacheImpl;
 import com.fpp.code.core.exception.CodeBuilderException;
 import com.fpp.code.core.cache.Cache;
 import com.fpp.code.core.cache.CacheKey;
+import com.fpp.code.exception.TemplateResolveException;
 
 import java.io.IOException;
 

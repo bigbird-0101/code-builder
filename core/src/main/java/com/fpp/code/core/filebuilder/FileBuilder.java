@@ -1,7 +1,7 @@
 package com.fpp.code.core.filebuilder;
 
 import com.fpp.code.core.template.Template;
-import com.fpp.code.core.template.TemplateResolveException;
+import com.fpp.code.exception.TemplateResolveException;
 
 /**
  * 文件生成器

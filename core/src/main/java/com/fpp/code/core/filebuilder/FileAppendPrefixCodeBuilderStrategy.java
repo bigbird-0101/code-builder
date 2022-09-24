@@ -2,6 +2,7 @@ package com.fpp.code.core.filebuilder;
 
 import cn.hutool.core.util.StrUtil;
 import com.fpp.code.core.template.*;
+import com.fpp.code.exception.TemplateResolveException;
 
 import java.util.Objects;
 
@@ -17,7 +18,7 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * @return
      */
     @Override
-    public String doneCode() throws TemplateResolveException{
+    public String doneCode() throws TemplateResolveException {
         Template template = getTemplate();
         Objects.requireNonNull(template,"模板对象不允许为空!");
 

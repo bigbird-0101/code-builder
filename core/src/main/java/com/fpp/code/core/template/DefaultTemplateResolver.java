@@ -2,6 +2,7 @@ package com.fpp.code.core.template;
 
 import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.exception.CodeConfigException;
+import com.fpp.code.exception.TemplateResolveException;
 
 import java.util.Iterator;
 import java.util.Map;

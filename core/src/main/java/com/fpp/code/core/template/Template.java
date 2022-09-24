@@ -1,5 +1,7 @@
 package com.fpp.code.core.template;
 
+import com.fpp.code.exception.TemplateResolveException;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;

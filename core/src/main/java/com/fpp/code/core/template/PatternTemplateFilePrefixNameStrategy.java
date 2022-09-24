@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import com.fpp.code.exception.TemplateResolveException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

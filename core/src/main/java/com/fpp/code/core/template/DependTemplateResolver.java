@@ -3,6 +3,7 @@ package com.fpp.code.core.template;
 import cn.hutool.core.collection.CollectionUtil;
 import com.fpp.code.core.context.TemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextAware;
+import com.fpp.code.exception.TemplateResolveException;
 import com.fpp.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -127,8 +128,8 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
 
     private static final String LANG_NAME="depend";
     private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\[\\s*(?<index>.*?)\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\s*\\)??\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
-    protected static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*[\\s*.*?\\s*]\\s*\\.(?<function>.*?)\\(?\\s*\\)?\\s*)", Pattern.DOTALL);
-    private Set<Pattern> excludeVariablePatten=new HashSet<>(Collections.singletonList(TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
+    protected static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*\\[\\s*.*?\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\)?\\s*)", Pattern.DOTALL);
+    private final Set<Pattern> excludeVariablePatten=new HashSet<>(Collections.singletonList(TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
 
     public DependTemplateResolver(TemplateResolver templateResolver) {
         super(templateResolver);

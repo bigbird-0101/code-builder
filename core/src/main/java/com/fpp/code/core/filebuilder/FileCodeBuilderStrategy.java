@@ -2,7 +2,7 @@ package com.fpp.code.core.filebuilder;
 
 
 import com.fpp.code.core.filebuilder.definedfunction.DefinedFunctionResolver;
-import com.fpp.code.core.template.TemplateResolveException;
+import com.fpp.code.exception.TemplateResolveException;
 
 /**
  * @author fpp

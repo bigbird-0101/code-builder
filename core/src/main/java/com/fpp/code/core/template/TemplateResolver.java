@@ -1,5 +1,7 @@
 package com.fpp.code.core.template;
 
+import com.fpp.code.exception.TemplateResolveException;
+
 import java.util.Map;
 
 /**

@@ -1,4 +1,4 @@
-package com.fpp.code.core.template;
+package com.fpp.code.exception;
 
 import cn.hutool.core.util.StrUtil;
 
