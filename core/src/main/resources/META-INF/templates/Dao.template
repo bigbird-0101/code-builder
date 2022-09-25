@@ -1,5 +1,5 @@
 *{prefix}*
-package *{tableInfo.savePath}*.dao;
+package *{packageName}*;
 
 import *{tableInfo.savePath}*.domain.*{tableInfo.domainName}*;
 import org.apache.ibatis.annotations.*;
@@ -18,7 +18,7 @@ public interface *{tableInfo.domainName}*Dao {
 *{function}*
     /**
      * 添加*{tableInfo.tableComment}*
-     *
+     **{tool.firstLower(*{depend[0].simpleClassName}*)}*
      * @param *{tool.firstLower(*{tableInfo.domainName}*)}* *{tableInfo.tableComment}*POJO
      * @return 返回影响的行数
      */
@@ -27,9 +27,11 @@ public interface *{tableInfo.domainName}*Dao {
         "insert into *{tableInfo.tableName}*",
         "<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">",
         *{foreach v-for='column in tableInfo.columnList'}*
+        *{if v-if='column.isPrimaryKey!=true'}*
          "<if test=\"*{column.domainPropertyName}*!= null\">",
          "*{column.name}*,",
          "</if>",
+         *{/if}*
         *{/foreach}*
         "</trim>",
         "<trim prefix=\"values (\" suffix=\")\" suffixOverrides=\",\">",

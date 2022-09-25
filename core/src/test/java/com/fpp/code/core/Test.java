@@ -34,7 +34,7 @@ public class Test {
         templateDefinition.setTemplateClassName("com.fpp.code.core.template.DefaultHandleFunctionTemplate");
         templateDefinition.setProjectUrl("123123");
         templateDefinition.setModule("ddddd");
-        templateDefinition.setTemplateFileSuffixName("java");
+        templateDefinition.setTargetFileSuffixName("java");
         templateDefinition.setDependTemplates(Stream.of("123","1232").collect(Collectors.toCollection(LinkedHashSet::new)));
         ObjectUtils.copyProperties(templateDefinition,template);
         System.out.println(template);

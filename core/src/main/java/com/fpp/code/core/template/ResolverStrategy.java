@@ -1,5 +1,7 @@
 package com.fpp.code.core.template;
 
+import com.fpp.code.core.domain.TemplateFileClassInfo;
+
 /**
  * 解析策略
  * @author fpp

@@ -5,6 +5,7 @@ import com.fpp.code.core.cache.CacheKey;
 import com.fpp.code.core.cache.CachePool;
 import com.fpp.code.core.common.ObjectUtils;
 import com.fpp.code.core.domain.DefinedFunctionDomain;
+import com.fpp.code.core.domain.TemplateFileClassInfo;
 import com.fpp.code.core.exception.CodeBuilderException;
 import com.fpp.code.exception.TemplateResolveException;
 import com.fpp.code.util.Utils;

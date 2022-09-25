@@ -18,6 +18,7 @@ import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.domain.DataSourceConfig;
 import com.fpp.code.core.domain.DefinedFunctionDomain;
 import com.fpp.code.core.domain.ProjectTemplateInfoConfig;
+import com.fpp.code.core.domain.TableInfo;
 import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.GenericMultipleTemplateDefinition;
@@ -26,8 +27,9 @@ import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.filebuilder.*;
 import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResolver;
 import com.fpp.code.core.template.*;
+import com.fpp.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
+import com.fpp.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 import com.fpp.code.exception.TemplateResolveException;
-import com.fpp.code.fxui.Main;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.fxui.event.DoGetTemplateAfterEvent;
 import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
@@ -63,11 +65,11 @@ import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.*;
@@ -77,6 +79,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import static com.fpp.code.fxui.Main.USER_OPERATE_CACHE;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -131,25 +134,44 @@ public class ComplexController extends TemplateContextProvider implements Initia
         initMultipleTemplateViews(root);
         final String defaultMultipleTemplate = getDefaultMultipleTemplate();
         if(StrUtil.isNotBlank(defaultMultipleTemplate)){
-            final TreeItem<Label> labelTreeItem = root.getChildren()
-                    .filtered(s -> s.getValue().getText().equals(defaultMultipleTemplate))
-                    .get(0);
-            listViewTemplate.getSelectionModel().select(labelTreeItem);
+            Optional.ofNullable(root.getChildren()
+                    .filtered(s -> s.getValue().getText().equals(defaultMultipleTemplate)))
+                    .ifPresent(s->{
+                        final TreeItem<Label> labelTreeItem = s.get(0);
+                        listViewTemplate.getSelectionModel().select(labelTreeItem);
+                    });
         }else{
             listViewTemplate.getSelectionModel().select(0);
         }
         listViewTemplate.requestFocus();
-        Main.USER_OPERATE_CACHE.setTemplateNameSelected(listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText());
+        USER_OPERATE_CACHE.setTemplateNameSelected(listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText());
         doSelectMultiple();
         listViewTemplate.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (null != newValue && !newValue.isLeaf()) {
-                Main.USER_OPERATE_CACHE.setTemplateNameSelected(newValue.getValue().getText());
+                USER_OPERATE_CACHE.setTemplateNameSelected(newValue.getValue().getText());
                 if (logger.isInfoEnabled()) {
                     logger.info("select template name {}", newValue.getValue().getText());
                 }
                 doSelectMultiple();
             }
         });
+        init();
+    }
+
+    private void init(){
+        initView();
+        initData();
+    }
+
+    private void initData() {
+        initTableAll();
+    }
+
+    private void initView() {
+        initLogView();
+    }
+
+    private void initLogView() {
         Platform.runLater(()->{
             final String property = new UserInfo().getCurrentDir();
             logger.info("property {}",property);
@@ -232,7 +254,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 defaultListableTemplateFactory.removeMultipleTemplateDefinition(text);
                 defaultListableTemplateFactory.removeMultipleTemplate(text);
                 listViewTemplate.getRoot().getChildren().remove(listViewTemplate.getSelectionModel().getSelectedItem());
-                Main.USER_OPERATE_CACHE.setTemplateNameSelected(defaultListableTemplateFactory.getMultipleTemplateNames().stream().findFirst().orElse(""));
+                USER_OPERATE_CACHE.setTemplateNameSelected(defaultListableTemplateFactory.getMultipleTemplateNames().stream().findFirst().orElse(""));
                 doSelectMultiple();
             }
         });
@@ -389,7 +411,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             templatesOperateNode.prefHeightProperty().bind(contentParent.heightProperty());
             templatesOperateNode.prefWidthProperty().bind(contentParent.widthProperty());
             TemplatesOperateController templatesOperateController=templatesOperateFxmlLoader.getController();
-            templatesOperateController.getCurrentTemplate().setText("当前组合模板:"+Main.USER_OPERATE_CACHE.getTemplateNameSelected());
+            templatesOperateController.getCurrentTemplate().setText("当前组合模板:"+ USER_OPERATE_CACHE.getTemplateNameSelected());
             CheckBox checkBox = (CheckBox) templatesOperateNode.lookup("#isAllTable");
             checkBox.selectedProperty().addListener((o, old, newVal) -> {
                 isSelectedAllTable = newVal;
@@ -398,14 +420,14 @@ public class ComplexController extends TemplateContextProvider implements Initia
             content.getChildren().clear();
             content.getChildren().add(templatesOperateNode);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * 初始化所有表格名
      */
-    private void initTableAll() throws SQLException, ClassNotFoundException {
+    private void initTableAll() {
         this.tableAll = DbUtil.getAllTableName(DataSourceConfig.getDataSourceConfig(getTemplateContext().getEnvironment()));
     }
 
@@ -441,13 +463,13 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     templateController.depends.setText(String.join(",", haveDepend.getDependTemplates()));
                 }
             }
-            TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy = template.getTemplateFilePrefixNameStrategy();
-            int typeValue = templateFilePrefixNameStrategy.getTypeValue();
+            TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = template.getTemplateFilePrefixNameStrategy();
+            int typeValue = targetFilePrefixNameStrategy.getTypeValue();
             RadioButton node = (RadioButton) templateController.filePrefixNameStrategy.getChildren().stream().filter(radio -> ((RadioButton) radio).getText().equals(String.valueOf(typeValue))).findFirst().get();
             node.setSelected(true);
             if (typeValue == 3) {
                 templateController.filePrefixNameStrategyPane.setVisible(true);
-                PatternTemplateFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy = (PatternTemplateFilePrefixNameStrategy) templateFilePrefixNameStrategy;
+                PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy = (PatternTargetFilePrefixNameStrategy) targetFilePrefixNameStrategy;
                 templateController.filePrefixNameStrategyPattern.setText(patternTemplateFilePrefixNameStrategy.getPattern());
             }
         }
@@ -485,12 +507,11 @@ public class ComplexController extends TemplateContextProvider implements Initia
             final CheckBox isDefinedFunction = templatesOperateController.getIsDefinedFunction();
             final TextField representFactor = templatesOperateController.getRepresentFactor();
             final TextField fields = templatesOperateController.getFields();
-            if(isDefinedFunction.isSelected()&&(StrUtil.isBlank(representFactor.getText())||StrUtil.isBlank(fields.getText()))){
+            if(isDefinedFunction.isSelected()&&(!StrUtil.isAllNotBlank(representFactor.getText(),fields.getText()))){
                 FxAlerts.warn("告警","请输入字段名或者代表因子");
                 return;
             }
             if (isSelectedAllTable) {
-                initTableAll();
                 this.tableSelected = this.tableAll;
             } else {
                 if (Utils.isNotEmpty(selectedTable.getText())) {
@@ -511,11 +532,11 @@ public class ComplexController extends TemplateContextProvider implements Initia
             AtomicReference<Properties> propertiesVariable = new AtomicReference<>();
             executorService.submit(()->{
                 if (null != templatesOperateController.getFile()) {
-                    try (InputStreamReader fileInputStream = new InputStreamReader(new FileInputStream(templatesOperateController.getFile()), StandardCharsets.UTF_8)) {
+                    try (InputStreamReader fileInputStream = new InputStreamReader(Files.newInputStream(templatesOperateController.getFile().toPath()), StandardCharsets.UTF_8)) {
                         propertiesVariable.set(new Properties());
                         propertiesVariable.get().load(fileInputStream);
                     } catch (IOException e) {
-                        logger.error("error propertiesVariable",e);
+                        throw new CodeConfigException(e);
                     }
                 }
             });
@@ -524,9 +545,8 @@ public class ComplexController extends TemplateContextProvider implements Initia
             ProgressTask progressTask = new ProgressTask() {
                 @Override
                 protected void execute() {
-                    ComplexController.this.concurrentDoBuild(
-                            fileBuilderEnum, templatesOperateController, coreConfig, propertiesVariable, (total, current) -> updateProgress(current, total)
-                    );
+                    ComplexController.this.concurrentDoBuild(fileBuilderEnum, templatesOperateController, coreConfig,
+                            propertiesVariable, (total, current) -> updateProgress(current, total));
                 }
             };
             Window controllerWindow = mainBox.getScene().getWindow();
@@ -553,22 +573,25 @@ public class ComplexController extends TemplateContextProvider implements Initia
         }
     }
 
-    public void concurrentDoBuild(FileBuilderEnum fileBuilderEnum, TemplatesOperateController templatesOperateController, CoreConfig coreConfig, AtomicReference<Properties> propertiesVariable, BiConsumer<Integer, Integer> onProgressUpdate) {
-        final Set<String> strings = templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).keySet();
-        int all=strings.size()*tableSelected.size();
+    public void concurrentDoBuild(FileBuilderEnum fileBuilderEnum, TemplatesOperateController templatesOperateController,
+                                  CoreConfig coreConfig, AtomicReference<Properties> propertiesVariable,
+                                  BiConsumer<Integer, Integer> onProgressUpdate) {
+        final TemplateContext templateContext = getTemplateContext();
+        final Set<String> templateNamesSelected = templatesOperateController.getSelectTemplateGroup()
+                .get(USER_OPERATE_CACHE.getTemplateNameSelected()).keySet();
+        int all=templateNamesSelected.size()*tableSelected.size();
         AtomicInteger i= new AtomicInteger(1);
         List<CompletableFuture<Void>> task=new ArrayList<>();
         for (String tableName : tableSelected) {
-            for (String templateName : strings) {
+            for (String templateName : templateNamesSelected) {
                 final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
                     final long l = System.currentTimeMillis();
                     final FileBuilder fileBuilder = FileBuilderFactory.getFileBuilder(fileBuilderEnum);
                     AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy = (AbstractFileCodeBuilderStrategy)
                             fileBuilder.getFileCodeBuilderStrategy();
                     fileCodeBuilderStrategy.setCoreConfig(coreConfig);
-                    Template template = doGetTemplate(templateName, tableName, coreConfig, propertiesVariable.get(),
-                            templatesOperateController);
-                    final TemplateContext templateContext = getTemplateContext();
+                    Template template =templateContext.getTemplate(templateName);
+                    doSetTemplateVariablesMapping(template, tableName, coreConfig, propertiesVariable.get());
                     if(templateContext instanceof AbstractTemplateContext){
                         AbstractTemplateContext abstractTemplateContext= (AbstractTemplateContext) templateContext;
                         Platform.runLater(()-> abstractTemplateContext.publishEvent(
@@ -591,15 +614,14 @@ public class ComplexController extends TemplateContextProvider implements Initia
         },DO_ANALYSIS_TEMPLATE).join();
     }
 
-    private Template doGetTemplate(String templateName, String tableName, CoreConfig coreConfig, Properties propertiesVariable, TemplatesOperateController templatesOperateController){
-        Template template = getTemplateContext().getTemplate(templateName);
+    private void doSetTemplateVariablesMapping(Template template, String tableName, CoreConfig coreConfig, Properties propertiesVariable){
         Future<Map<String, Object>> tempValue = executorService.submit(() -> {
             Map<String, Object> temp = new HashMap<>(10);
             TableInfo tableInfo;
             try {
                 tableInfo = DbUtil.getTableInfo(coreConfig.getDataSourceConfig(), tableName,getTemplateContext().getEnvironment());
             } catch (SQLException e) {
-                logger.error("doGetTemplate DbUtil.getTableInfo error",e);
+                logger.error("doSetTemplateVariablesMapping DbUtil.getTableInfo error",e);
                 throw e;
             }
             temp.put("tableInfo", tableInfo);
@@ -636,7 +658,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
             StaticLog.error(e);
             throw new TemplateResolveException(e);
         }
-        return template;
     }
 
     private ProjectTemplateInfoConfig getProjectTemplateInfoConfig() {
@@ -647,11 +668,11 @@ public class ComplexController extends TemplateContextProvider implements Initia
         TextField representFactor = (TextField) scene.lookup("#representFactor");
         TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
         if (isDefinedFunction.isSelected()) {
-            templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).forEach((k, v) -> {
+            templatesOperateController.getSelectTemplateGroup().get(USER_OPERATE_CACHE.getTemplateNameSelected()).forEach((k, v) -> {
                 v.forEach(s->definedFunctionDomains.add(new DefinedFunctionDomain(fields.getText(), s, representFactor.getText())));
             });
         }
-        return new ProjectTemplateInfoConfig(definedFunctionDomains, templatesOperateController.getSelectTemplateGroup().get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()));
+        return new ProjectTemplateInfoConfig(definedFunctionDomains, templatesOperateController.getSelectTemplateGroup().get(USER_OPERATE_CACHE.getTemplateNameSelected()));
     }
 
     @FXML

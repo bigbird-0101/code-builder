@@ -46,11 +46,6 @@ public class *{tableInfo.domainName}*Controller {
     @PostMapping("/add*{tableInfo.domainName}*")
     @ApiOperation(value = "添加*{tableInfo.tableComment}*", notes = "")
     public Response $add*{tableInfo.domainName}*$(@Validated @RequestBody *{tableInfo.domainName}* *{tool.firstLower(*{tableInfo.domainName}*)}*) {
-        List<ObjectError> errorList = errorResult.getAllErrors();
-        if (!errorList.isEmpty()) {
-            String message = errorList.stream().findFirst().get().getDefaultMessage();
-            return ResponseFactory.build(CommonExCodeEnum.FORM_DATA_ERROR, message);
-        }
         return ResponseFactory.build(*{tool.firstLower(*{tableInfo.domainName}*)}*Service.add*{tableInfo.domainName}*(*{tool.firstLower(*{tableInfo.domainName}*)}*));
     }
     *{/function}*
@@ -80,11 +75,6 @@ public class *{tableInfo.domainName}*Controller {
     @PutMapping("/edit*{tableInfo.domainName}*")
     @ApiOperation(value = "修改*{tableInfo.tableComment}*", notes = "")
     public Response $edit*{tableInfo.domainName}*$(@Validated @RequestBody *{tableInfo.domainName}* *{tool.firstLower(*{tableInfo.domainName}*)}*) {
-        List<ObjectError> errorList = errorResult.getAllErrors();
-        if (!errorList.isEmpty()) {
-            String message = errorList.stream().findFirst().get().getDefaultMessage();
-            return ResponseFactory.build(CommonExCodeEnum.FORM_DATA_ERROR, message);
-        }
         return ResponseFactory.build(*{tool.firstLower(*{tableInfo.domainName}*)}*Service.edit*{tableInfo.domainName}*(*{tool.firstLower(*{tableInfo.domainName}*)}*));
     }
     *{/function}*

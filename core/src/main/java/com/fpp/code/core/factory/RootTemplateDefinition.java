@@ -5,9 +5,9 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.fpp.code.core.common.ObjectUtils;
-import com.fpp.code.core.template.PatternTemplateFilePrefixNameStrategy;
-import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
-import com.fpp.code.core.template.TemplateFilePrefixNameStrategyFactory;
+import com.fpp.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
+import com.fpp.code.core.template.targetfile.TargetFilePrefixNameStrategy;
+import com.fpp.code.core.template.targetfile.TemplateFilePrefixNameStrategyFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,12 +21,12 @@ import java.util.Objects;
 public class RootTemplateDefinition extends AbstractTemplateDefinition {
 
     @JSONField(alternateNames = {"fileSuffixName"})
-    private String templateFileSuffixName;
+    private String targetFileSuffixName;
 
     private Boolean isHandleFunction;
 
     @JSONField(deserializeUsing = RootTemplateDefinitionDeserializer.class,alternateNames = {"filePrefixNameStrategy"})
-    private TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy;
+    private TargetFilePrefixNameStrategy targetFilePrefixNameStrategy;
 
     @JSONField(defaultValue = "[]")
     private LinkedHashSet<String> dependTemplates;
@@ -37,12 +37,12 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
 
 
     @Override
-    public String getTemplateFileSuffixName() {
-        return templateFileSuffixName;
+    public String getTargetFileSuffixName() {
+        return targetFileSuffixName;
     }
 
-    public void setTemplateFileSuffixName(String templateFileSuffixName) {
-        this.templateFileSuffixName = templateFileSuffixName;
+    public void setTargetFileSuffixName(String targetFileSuffixName) {
+        this.targetFileSuffixName = targetFileSuffixName;
     }
 
     @Override
@@ -65,12 +65,12 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
     }
 
     @Override
-    public TemplateFilePrefixNameStrategy getTemplateFilePrefixNameStrategy() {
-        return templateFilePrefixNameStrategy;
+    public TargetFilePrefixNameStrategy getTargetFilePrefixNameStrategy() {
+        return targetFilePrefixNameStrategy;
     }
 
-    public void setTemplateFilePrefixNameStrategy(TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy) {
-        this.templateFilePrefixNameStrategy = templateFilePrefixNameStrategy;
+    public void setTemplateFilePrefixNameStrategy(TargetFilePrefixNameStrategy targetFilePrefixNameStrategy) {
+        this.targetFilePrefixNameStrategy = targetFilePrefixNameStrategy;
     }
 
     @Override
@@ -80,8 +80,8 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
         if (!super.equals(o)) return false;
         RootTemplateDefinition that = (RootTemplateDefinition) o;
         return isHandleFunction.equals(that.isHandleFunction) &&
-                templateFileSuffixName.equals(that.templateFileSuffixName) &&
-                templateFilePrefixNameStrategy.equals(that.templateFilePrefixNameStrategy) &&
+                targetFileSuffixName.equals(that.targetFileSuffixName) &&
+                targetFilePrefixNameStrategy.equals(that.targetFilePrefixNameStrategy) &&
                 dependTemplates.equals(that.dependTemplates);
     }
 
@@ -92,7 +92,7 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), templateFileSuffixName, isHandleFunction, templateFilePrefixNameStrategy, dependTemplates);
+        return Objects.hash(super.hashCode(), targetFileSuffixName, isHandleFunction, targetFilePrefixNameStrategy, dependTemplates);
     }
 
     public static class RootTemplateDefinitionDeserializer implements ObjectDeserializer{
@@ -106,9 +106,9 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
             try {
                 int value = jsonObject.getInteger("value");
                 String pattern = jsonObject.getString("pattern");
-                TemplateFilePrefixNameStrategy filePrefixNameStrategy = templateFilePrefixNameStrategyFactory.getTemplateFilePrefixNameStrategy(value);
-                if (filePrefixNameStrategy instanceof PatternTemplateFilePrefixNameStrategy) {
-                    ((PatternTemplateFilePrefixNameStrategy) filePrefixNameStrategy).setPattern(pattern);
+                TargetFilePrefixNameStrategy filePrefixNameStrategy = templateFilePrefixNameStrategyFactory.getTemplateFilePrefixNameStrategy(value);
+                if (filePrefixNameStrategy instanceof PatternTargetFilePrefixNameStrategy) {
+                    ((PatternTargetFilePrefixNameStrategy) filePrefixNameStrategy).setPattern(pattern);
                 }
                 return (T) filePrefixNameStrategy;
             }catch (Exception e){

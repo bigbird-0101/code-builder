@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import com.fpp.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 import com.fpp.code.exception.TemplateResolveException;
 
 import java.io.File;
@@ -99,13 +100,13 @@ public interface Template extends Cloneable, Serializable {
      * 获取模板最终生成文件的文件名命名策略
      * @return 生成文件的文件名命名策略
      */
-    TemplateFilePrefixNameStrategy getTemplateFilePrefixNameStrategy();
+    TargetFilePrefixNameStrategy getTemplateFilePrefixNameStrategy();
 
     /**
      * 设置 模板最终生成文件的文件名前缀命名策略
      * @param templateFileNameStrategy 模板最终生成文件的文件名前缀命名策略
      */
-    void setTemplateFilePrefixNameStrategy(TemplateFilePrefixNameStrategy templateFileNameStrategy);
+    void setTemplateFilePrefixNameStrategy(TargetFilePrefixNameStrategy templateFileNameStrategy);
 
     /**
      * 获取最终生成文件的后缀名

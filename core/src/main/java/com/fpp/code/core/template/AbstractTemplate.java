@@ -8,7 +8,11 @@ import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.fpp.code.core.common.ObjectUtils;
 import com.fpp.code.core.config.AbstractEnvironment;
 import com.fpp.code.core.config.Environment;
+import com.fpp.code.core.domain.TableInfo;
 import com.fpp.code.core.exception.CodeConfigException;
+import com.fpp.code.core.template.targetfile.DefaultTargetFilePrefixNameStrategy;
+import com.fpp.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
+import com.fpp.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 import com.fpp.code.util.Utils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -49,17 +53,17 @@ public abstract class AbstractTemplate implements Template {
 
     private TemplateResolver templateResolver;
 
-    private TemplateFilePrefixNameStrategy templateFileNameStrategy=new DefaultTemplateFilePrefixNameStrategy();
+    private TargetFilePrefixNameStrategy templateFileNameStrategy=new DefaultTargetFilePrefixNameStrategy();
 
     private String templateFileSuffixName;
 
     @Override
-    public TemplateFilePrefixNameStrategy getTemplateFilePrefixNameStrategy() {
+    public TargetFilePrefixNameStrategy getTemplateFilePrefixNameStrategy() {
         return templateFileNameStrategy;
     }
 
     @Override
-    public void setTemplateFilePrefixNameStrategy(TemplateFilePrefixNameStrategy templateFileNameStrategy) {
+    public void setTemplateFilePrefixNameStrategy(TargetFilePrefixNameStrategy templateFileNameStrategy) {
         this.templateFileNameStrategy = templateFileNameStrategy;
     }
 
@@ -179,7 +183,7 @@ public abstract class AbstractTemplate implements Template {
         this.srcPackage = srcPackage;
     }
 
-    public void setTemplateFileNameStrategy(TemplateFilePrefixNameStrategy templateFileNameStrategy) {
+    public void setTemplateFileNameStrategy(TargetFilePrefixNameStrategy templateFileNameStrategy) {
         this.templateFileNameStrategy = templateFileNameStrategy;
     }
 
@@ -234,7 +238,7 @@ public abstract class AbstractTemplate implements Template {
         try {
             getTemplateVariables().put("simpleClassName", getTemplateFilePrefixNameStrategy().prefixStrategy(this, tableName));
         }catch (Exception exception){
-            StaticLog.warn("getTemplateFilePrefixNameStrategy().prefixStrategy",exception);
+            StaticLog.warn("getTargetFilePrefixNameStrategy().prefixStrategy",exception);
         }
         getTemplateVariables().put("className",Utils.pathToPackage(getSrcPackage())+"."+ getTemplateVariables().get("simpleClassName"));
     }
@@ -248,13 +252,13 @@ public abstract class AbstractTemplate implements Template {
                 jsonObject.put("fileName", abstractTemplate.getTemplateFile().getName());
             }
             jsonObject.put("name", abstractTemplate.getTemplateName());
-            final TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy = abstractTemplate.getTemplateFilePrefixNameStrategy();
-            if (null != templateFilePrefixNameStrategy) {
-                int typeValue = templateFilePrefixNameStrategy.getTypeValue();
+            final TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = abstractTemplate.getTemplateFilePrefixNameStrategy();
+            if (null != targetFilePrefixNameStrategy) {
+                int typeValue = targetFilePrefixNameStrategy.getTypeValue();
                 JSONObject value = new JSONObject();
                 value.put("value", typeValue);
-                if (abstractTemplate.getTemplateFilePrefixNameStrategy() instanceof PatternTemplateFilePrefixNameStrategy) {
-                    PatternTemplateFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy = (PatternTemplateFilePrefixNameStrategy) abstractTemplate.getTemplateFilePrefixNameStrategy();
+                if (abstractTemplate.getTemplateFilePrefixNameStrategy() instanceof PatternTargetFilePrefixNameStrategy) {
+                    PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy = (PatternTargetFilePrefixNameStrategy) abstractTemplate.getTemplateFilePrefixNameStrategy();
                     value.put("pattern", patternTemplateFilePrefixNameStrategy.getPattern());
                 }
                 jsonObject.put("filePrefixNameStrategy", value);

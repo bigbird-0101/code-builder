@@ -2,6 +2,7 @@ package com.fpp.code.core.filebuilder;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
+import com.fpp.code.core.domain.TemplateFileClassInfo;
 import com.fpp.code.core.template.*;
 import com.fpp.code.exception.TemplateResolveException;
 import org.apache.commons.io.FileUtils;

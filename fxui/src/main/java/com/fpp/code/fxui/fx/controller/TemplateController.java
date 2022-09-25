@@ -8,6 +8,9 @@ import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.RootTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.template.*;
+import com.fpp.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
+import com.fpp.code.core.template.targetfile.TargetFilePrefixNameStrategy;
+import com.fpp.code.core.template.targetfile.TemplateFilePrefixNameStrategyFactory;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.fxui.common.ClassUtil;
 import com.fpp.code.util.Utils;
@@ -100,8 +103,8 @@ public class TemplateController extends TemplateContextProvider implements Initi
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        ServiceLoader<TemplateFilePrefixNameStrategy> load = ServiceLoader.load(TemplateFilePrefixNameStrategy.class);
-        for (TemplateFilePrefixNameStrategy next : load) {
+        ServiceLoader<TargetFilePrefixNameStrategy> load = ServiceLoader.load(TargetFilePrefixNameStrategy.class);
+        for (TargetFilePrefixNameStrategy next : load) {
             RadioButton radioButton = new RadioButton(String.valueOf(next.getTypeValue()));
             radioButton.setPadding(insets);
             filePrefixNameStrategy.getChildren().add(radioButton);
@@ -193,14 +196,14 @@ public class TemplateController extends TemplateContextProvider implements Initi
         TemplateDefinition templateDefinition = templateContext.getTemplateDefinition(sourceTemplateName);
         boolean isNotHave = null == templateDefinition;
         RootTemplateDefinition rootTemplateDefinition =isNotHave?new RootTemplateDefinition(): (RootTemplateDefinition) templateDefinition;
-        TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy = templateFilePrefixNameStrategyFactory.getTemplateFilePrefixNameStrategy(Utils.setIfNull(filePrefixNameStrategyValue, 1));
-        if(templateFilePrefixNameStrategy instanceof PatternTemplateFilePrefixNameStrategy){
-            PatternTemplateFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy= (PatternTemplateFilePrefixNameStrategy) templateFilePrefixNameStrategy;
+        TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = templateFilePrefixNameStrategyFactory.getTemplateFilePrefixNameStrategy(Utils.setIfNull(filePrefixNameStrategyValue, 1));
+        if(targetFilePrefixNameStrategy instanceof PatternTargetFilePrefixNameStrategy){
+            PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy= (PatternTargetFilePrefixNameStrategy) targetFilePrefixNameStrategy;
             patternTemplateFilePrefixNameStrategy.setPattern(filePrefixNameStrategyPattern.getText());
         }
         rootTemplateDefinition.setTemplateClassName(selectTemplateClassName.getSelectionModel().getSelectedItem());
-        rootTemplateDefinition.setTemplateFilePrefixNameStrategy(templateFilePrefixNameStrategy);
-        rootTemplateDefinition.setTemplateFileSuffixName(fileSuffixName.getText());
+        rootTemplateDefinition.setTemplateFilePrefixNameStrategy(targetFilePrefixNameStrategy);
+        rootTemplateDefinition.setTargetFileSuffixName(fileSuffixName.getText());
         rootTemplateDefinition.setModule(moduleName.getText());
         rootTemplateDefinition.setProjectUrl(projectUrl.getText());
         rootTemplateDefinition.setSourcesRoot(sourcesRootName.getText());

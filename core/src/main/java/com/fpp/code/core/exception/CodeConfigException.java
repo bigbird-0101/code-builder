@@ -1,5 +1,7 @@
 package com.fpp.code.core.exception;
 
+import cn.hutool.core.util.StrUtil;
+
 import java.security.PrivilegedActionException;
 
 /**
@@ -19,6 +21,9 @@ public class CodeConfigException extends CodeBuilderException{
      */
     public CodeConfigException(String message) {
         super(message);
+    }
+    public CodeConfigException(CharSequence message,Object... param) {
+        super(StrUtil.format(message,param));
     }
 
     /**

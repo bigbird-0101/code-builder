@@ -1,5 +1,6 @@
 package com.fpp.code.core.config;
 
+import cn.hutool.core.io.resource.ResourceUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -128,15 +129,13 @@ public abstract class AbstractEnvironment implements Environment {
     public void loadCoreConfig(String fileName) throws IOException {
         Properties pss = new OrderedProperties();
         logger.info("加载配置环境文件名 {}",fileName);
-        try (Reader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(CommonFileUtils.getConfigFileInput(fileName)), StandardCharsets.UTF_8))) {
+        try (Reader reader = ResourceUtil.getUtf8Reader(fileName)) {
             pss.load(reader);
         }
         if(logger.isInfoEnabled()){
             logger.info("加载配置环境 {}",pss);
         }
-        LinkedHashMap<String, String> properties = new LinkedHashMap<>(pss.size());
         pss.stringPropertyNames().forEach((k) -> {
-            properties.put(k, pss.getProperty(k));
             StringPropertySource multipleTemplatePropertySource = new StringPropertySource(k, pss.getProperty(k));
             getPropertySources().addPropertySource(multipleTemplatePropertySource);
         });

@@ -1,4 +1,6 @@
-package com.fpp.code.core.template;
+package com.fpp.code.core.domain;
+
+import com.fpp.code.core.template.Template;
 
 import java.io.Serializable;
 import java.util.List;

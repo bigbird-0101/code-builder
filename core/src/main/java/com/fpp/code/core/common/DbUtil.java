@@ -2,11 +2,12 @@ package com.fpp.code.core.common;
 
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.LFUCache;
+import cn.hutool.core.util.RuntimeUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.meta.TableType;
 import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.domain.DataSourceConfig;
-import com.fpp.code.core.template.TableInfo;
+import com.fpp.code.core.domain.TableInfo;
 import com.fpp.code.spi.NewInstanceServiceLoader;
 import com.fpp.code.util.Utils;
 
@@ -21,10 +22,17 @@ import java.util.Properties;
  * @date 2020/6/2 18:54
  */
 public class DbUtil {
+    public static final LFUCache<String,Connection> CONNECTION_LFU_CACHE= CacheUtil.newLFUCache(2);
     static{
         NewInstanceServiceLoader.register(TableNameToDomainName.class);
+        RuntimeUtil.addShutdownHook(()-> CONNECTION_LFU_CACHE.forEach(s->{
+            try {
+                s.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }));
     }
-    public static final LFUCache<String,Connection> CONNECTION_LFU_CACHE= CacheUtil.newLFUCache(2);
     /**
      * 将数据库列类型转换为java数据类型
      *
@@ -301,11 +309,12 @@ public class DbUtil {
     /**
      * 通过数据库来得到所有表名
      */
-    public static List<String> getAllTableName(DataSourceConfig dataSourceConfigPojo) throws SQLException {
+    public static List<String> getAllTableName(DataSourceConfig dataSourceConfigPojo){
         List<String> tableNameS;
-        Connection connection = DbUtil.getConnection(dataSourceConfigPojo);
+        Connection connection=null;
         try {
-            tableNameS = new ArrayList<String>();
+            connection = DbUtil.getConnection(dataSourceConfigPojo);
+            tableNameS = new ArrayList<>();
             DatabaseMetaData dbmd = connection.getMetaData();
 
             ResultSet rs = dbmd.getTables(null, null, null, new String[]{"TABLE"});
@@ -314,25 +323,9 @@ public class DbUtil {
                 String tableName = rs.getString("TABLE_NAME");
                 tableNameS.add(tableName);
             }
-        } finally {
-            try {
-                assert connection != null;
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return tableNameS;
-    }
-
-
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
-//        String url = "jdbc:mysql://127.0.0.1:3306/xydj?useUnicode=true&characterEncoding=utf-8";
-//        String quDongName = url.indexOf("mysql") > 0 ? "com.mysql.jdbc.Driver" : url.indexOf("oracle") > 0 ? "" : "";
-//        DataSourceConfig a = new DataSourceConfig(quDongName, "root", url, "pttdata");
-//        TableInfo tableInfo = getTableInfo(a, "tab_test");
-//        System.out.println(tableInfo);
-        System.out.println(getDomainPropertyName("CONACT_ID"));
-        System.out.println(Utils.getFieldName("CONACT_ID"));
     }
 }

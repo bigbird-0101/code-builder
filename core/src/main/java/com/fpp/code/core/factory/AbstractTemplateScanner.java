@@ -109,7 +109,8 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
      * @param templateDefinitionMapTemp
      * @throws CodeConfigException
      */
-    protected void analysisTemplateDefinition(String templatesFilePath, JSONArray templates, Set<TemplateDefinitionHolder> templateDefinitionHolders, Map<String, TemplateDefinition> templateDefinitionMapTemp) throws CodeConfigException {
+    protected void analysisTemplateDefinition(String templatesFilePath, JSONArray templates, Set<TemplateDefinitionHolder>
+            templateDefinitionHolders, Map<String, TemplateDefinition> templateDefinitionMapTemp) throws CodeConfigException {
         Collection<File> files = FileUtils.listFiles(new File(templatesFilePath), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
         for(Object jsonObject:templates){
             JSONObject templateConfigInfo =(JSONObject) jsonObject;
@@ -122,7 +123,11 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
             if(Utils.isEmpty(templateFileName)){
                 throw new CodeConfigException("模板文件名不允许为空");
             }
-            File templateFile = files.stream().filter(file -> templateFileName.equals(file.getName())).findFirst().orElseThrow(()->new CodeConfigException("模板名为"+templateName+",配置模板文件名为"+templateFileName+",在"+templatesFilePath+"中不存在"));
+            File templateFile = files.stream()
+                    .filter(file -> templateFileName.equals(file.getName()))
+                    .findFirst()
+                    .orElseThrow(()->new CodeConfigException("templates.json 模板名为{},配置模板文件名为{},在{}中不存在",
+                            templateName, templateFileName,templatesFilePath));
             rootTemplateDefinition.setTemplateFile(templateFile);
             TemplateDefinitionHolder templateDefinitionHolder=new TemplateDefinitionHolder(rootTemplateDefinition,templateName);
             templateDefinitionMapTemp.put(templateName, rootTemplateDefinition);

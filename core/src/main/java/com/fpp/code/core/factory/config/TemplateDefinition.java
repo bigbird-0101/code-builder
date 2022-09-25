@@ -1,6 +1,6 @@
 package com.fpp.code.core.factory.config;
 
-import com.fpp.code.core.template.TemplateFilePrefixNameStrategy;
+import com.fpp.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 
 import java.io.File;
 import java.io.Serializable;
@@ -39,13 +39,13 @@ public interface TemplateDefinition extends Cloneable, Serializable {
      * 获取模板文件最终生成文件名后缀名
      * @return 模板文件最终生成文件名后缀名
      */
-    String getTemplateFileSuffixName();
+    String getTargetFileSuffixName();
 
     /**
      * 文件前缀名命名策略
      * @return
      */
-    TemplateFilePrefixNameStrategy getTemplateFilePrefixNameStrategy();
+    TargetFilePrefixNameStrategy getTargetFilePrefixNameStrategy();
 
     /**
      * 获取模板文件

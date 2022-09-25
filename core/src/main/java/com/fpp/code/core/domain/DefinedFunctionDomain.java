@@ -2,7 +2,6 @@ package com.fpp.code.core.domain;
 
 
 import com.fpp.code.core.common.ObjectUtils;
-import com.fpp.code.core.template.TableInfo;
 
 import java.io.Serializable;
 import java.util.Objects;

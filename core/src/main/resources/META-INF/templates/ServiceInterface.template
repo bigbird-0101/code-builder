@@ -70,7 +70,7 @@ public interface *{tableInfo.domainName}*Service {
      * @return *{tableInfo.tableComment}*数据列表
      * @throws NoTokenException 未找到token异常
      */
-    List<*{tableInfo.domainName}*> $getAll*{tableInfo.domainName}*List$(String findKey, int offset, int pageCount) throws NoTokenException;
+    List<*{tableInfo.domainName}*> $getAll*{tableInfo.domainName}*List$(String findKey, Integer offset, Integer pageCount) throws NoTokenException;
 *{/function}*
 *{suffix}*
 }

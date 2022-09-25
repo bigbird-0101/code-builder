@@ -1,34 +1,106 @@
-[
-	{
-		"Spring代码模板": [{
-			"fileName": "ControllerFileTemplate.txt",
-			"name": "Controller模板",
-			"path": "controller"
-		}, {
-			"fileName": "DoMainTemplate.txt",
-			"name": "DoMain模板",
-			"path": "domain",
-			"isHandleFunction": 0,
-			"filePrefixNameStrategyType": 1
-		}, {
-			"fileName": "DaoFileTemplate.txt",
-			"name": "Dao模板",
-			"path": "dao"
-		}, {
-			"fileName": "ServiceInterfaceFileTemplate.txt",
-			"name": "ServiceInterface模板",
-			"path": "service"
-		}, {
-			"fileName": "ServiceImplFileTemplate.txt",
-			"name": "ServiceImpl模板",
-			"path": "service/impl"
-		}, {
-			"fileName": "trigger.txt",
-			"name": "触发器模板",
-			"path": "pages",
-			"isHandleFunction": 0,
-			"filePrefixNameStrategyType": 1,
-			"fileSuffixName": "sql"
-		}]
-	 }
-]
+{
+	"multipleTemplates":[
+		{
+			"templates":[
+				"Dao",
+				"ServiceImpl",
+				"ServiceInterface",
+				"Controller",
+				"DoMain"
+			],
+			"name":"Spring代码模板"
+		}
+	],"templates":[
+		{
+			"isHandleFunction":1,
+			"fileName":"DaoFileTemplate.template",
+			"projectUrl":"C:/DevelopSoftwareWorkSpace/ideaWorkSpace/zzd_chat2",
+			"sourcesRoot":"src/main/java",
+			"fileSuffixName":"java",
+			"module":"talk-service/talk-service-provider",
+			"name":"Dao模板",
+			"srcPackage":"com/zzd/talk/service/provider/dao",
+			"filePrefixNameStrategy":{
+				"pattern":"*{tableInfo.domainName}*RpcImplService222",
+				"value":3
+			}
+		},
+		{
+			"fileName":"Dao.template",
+			"projectUrl":"C:/DevelopSoftwareWorkSpace/ideaWorkSpace/zzd_chat25",
+			"sourcesRoot":"src/main/java",
+			"fileSuffixName":"java",
+			"module":"/",
+			"name":"Dao",
+			"dependTemplates":[
+				"DoMain"
+			],
+			"srcPackage":"com/zzd/talk/service/provider/rpcservice",
+			"templateClassName":"com.fpp.code.core.template.HaveDependTemplateHandleFunctionTemplate",
+			"filePrefixNameStrategy":{
+				"pattern":"*{tableInfo.domainName}*Dao",
+				"value":3
+			}
+		},
+		{
+			"fileName":"ServiceImpl.template",
+			"projectUrl":"C:/DevelopSoftwareWorkSpace/ideaWorkSpace/zzd_chat25",
+			"sourcesRoot":"src/main/java",
+			"fileSuffixName":"java",
+			"module":"/",
+			"name":"ServiceImpl",
+			"srcPackage":"com/zzd/talk/service/provider/rpcservice",
+			"templateClassName":"com.fpp.code.core.template.DefaultHandleFunctionTemplate",
+			"filePrefixNameStrategy":{
+				"pattern":"*{tableInfo.domainName}*RpcImplService222",
+				"value":3
+			}
+		},
+		{
+			"fileName":"ServiceInterface.template",
+			"projectUrl":"C:/DevelopSoftwareWorkSpace/ideaWorkSpace/zzd_chat25",
+			"sourcesRoot":"src/main/java",
+			"fileSuffixName":"java",
+			"module":"/",
+			"name":"ServiceInterface",
+			"srcPackage":"com/zzd/talk/service/provider/rpcservice",
+			"templateClassName":"com.fpp.code.core.template.DefaultHandleFunctionTemplate",
+			"filePrefixNameStrategy":{
+				"pattern":"*{tableInfo.domainName}*RpcImplService222",
+				"value":3
+			}
+		},
+		{
+			"fileName":"Controller.template",
+			"projectUrl":"C:/DevelopSoftwareWorkSpace/ideaWorkSpace/zzd_chat25",
+			"sourcesRoot":"src/main/java",
+			"fileSuffixName":"java",
+			"module":"/",
+			"name":"Controller",
+			"dependTemplates":[
+				"ServiceInterface",
+				"DoMain"
+			],
+			"srcPackage":"com/zzd/talk/service/provider/rpcservice",
+			"templateClassName":"com.fpp.code.core.template.HaveDependTemplateHandleFunctionTemplate",
+			"filePrefixNameStrategy":{
+				"pattern":"*{tableInfo.domainName}*Controller",
+				"value":3
+			}
+		},
+		{
+			"fileName":"DoMain.template",
+			"projectUrl":"C:/DevelopSoftwareWorkSpace/ideaWorkSpace/zzd_chat25",
+			"sourcesRoot":"src/main/java",
+			"fileSuffixName":"java",
+			"module":"/",
+			"name":"DoMain",
+			"srcPackage":"com/zzd/talk/service/provider/rpcservice",
+			"templateClassName":"com.fpp.code.core.template.DefaultNoHandleFunctionTemplate",
+			"filePrefixNameStrategy":{
+				"pattern":"*{tableInfo.domainName}*",
+				"value":3
+			}
+		}
+	]
+}

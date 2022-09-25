@@ -1,7 +1,7 @@
 package com.fpp.code.fxui;
 
 import cn.hutool.system.UserInfo;
-import com.fpp.code.core.config.JFramePageEnvironment;
+import com.fpp.code.core.config.StandardEnvironment;
 import com.fpp.code.core.context.GenericTemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.template.Template;
@@ -102,14 +102,8 @@ public class Main extends Application {
     public void init() {
         Parameters parameters = getParameters();
         List<String> raw = parameters.getRaw();
-        JFramePageEnvironment environment=new JFramePageEnvironment();
-        if(raw.isEmpty()) {
-            String userHome = System.getProperty("user.home");
-            String projectHome=userHome+"\\Desktop\\tool\\";
-            environment.setCoreConfigPath(projectHome+"codebuilder\\conf\\code.properties");
-            environment.setTemplateConfigPath(projectHome+"codebuilder\\conf\\templates.json");
-            environment.setTemplatesPath(projectHome+"codebuilder\\data\\templates");
-        }else{
+        StandardEnvironment environment=new StandardEnvironment();
+        if(!raw.isEmpty()) {
             logger.info("run params {},{}",raw.toString(),new UserInfo().getCurrentDir());
             environment.setCoreConfigPath(raw.get(0));
             environment.setTemplateConfigPath(raw.get(1));

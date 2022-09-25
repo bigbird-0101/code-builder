@@ -1,5 +1,8 @@
-package com.fpp.code.core.template;
+package com.fpp.code.core.template.targetfile;
 
+import com.fpp.code.core.template.AbstractTemplate;
+import com.fpp.code.core.template.Template;
+import com.fpp.code.core.template.TemplateResolver;
 import com.fpp.code.exception.TemplateResolveException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author Administrator
  */
-public class PatternTemplateFilePrefixNameStrategy implements TemplateFilePrefixNameStrategy {
+public class PatternTargetFilePrefixNameStrategy implements TargetFilePrefixNameStrategy {
     private Logger logger = LogManager.getLogger(getClass());
 
     private static final int TYPE_VALUE=3;

@@ -2,6 +2,9 @@ package com.fpp.code.fxui.fx.component;
 
 import javafx.concurrent.Task;
 
+/**
+ * @author Administrator
+ */
 public abstract class ProgressTask extends Task<Void> {
 
     @Override

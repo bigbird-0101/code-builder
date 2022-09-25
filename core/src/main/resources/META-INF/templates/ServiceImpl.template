@@ -1,11 +1,11 @@
 *{prefix}*
-package *{tableInfo.savePath}*.service.impl;
+package *{tableInfo.savePath}*;
 
 import com.zzd.common.TokenSupport;
-import *{tableInfo.savePath}*.dao.*{tableInfo.domainName}*Dao;
-import *{tableInfo.savePath}*.domain.*{tableInfo.domainName}*;
+import *{tool.upLevelPath(*{tableInfo.savePath}*)}*.dao.*{tableInfo.domainName}*Dao;
+import *{tool.upLevelPath(*{tableInfo.savePath}*)}*.domain.*{tableInfo.domainName}*;
 import com.zzd.exception.NoTokenException;
-import *{tableInfo.savePath}*.service.*{tableInfo.domainName}*Service;
+import *{tool.upLevelPath(*{tableInfo.savePath}*)}*.service.*{tableInfo.domainName}*Service;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
+import java.util.Date;
 /**
  * *{tableInfo.tableComment}*业务处理接口实现类
  * @since  *{tool.currentDateTime()}*
@@ -40,6 +40,7 @@ public class *{tableInfo.domainName}*ServiceImpl implements *{tableInfo.domainNa
         Objects.requireNonNull(*{tool.firstLower(*{tableInfo.domainName}*)}*);
         *{tool.firstLower(*{tableInfo.domainName}*)}*.setGmtCreate(new Date());
         *{tool.firstLower(*{tableInfo.domainName}*)}*.setGmtModified(new Date());
+        *{弟弟}*
         return *{tool.firstLower(*{tableInfo.domainName}*)}*Dao.add*{tableInfo.domainName}*(*{tool.firstLower(*{tableInfo.domainName}*)}*) == 1;
     }
 *{/function}*
@@ -78,13 +79,28 @@ public class *{tableInfo.domainName}*ServiceImpl implements *{tableInfo.domainNa
 *{function}*
     /**
      * 根据id获取*{tableInfo.tableComment}*信息
-     *
+     * @idcompent2
      * @param id *{tableInfo.tableComment}*id
      * @return *{tableInfo.tableComment}*POJO
      */
     @Override
     public *{tableInfo.domainName}* $get*{tableInfo.domainName}*ById$(int id) {
+        Logger.info(this,"id={}",id);
+        Logger.info(this,"id={}",id);
         return *{tool.firstLower(*{tableInfo.domainName}*)}*Dao.get*{tableInfo.domainName}*ById(id);
+    }
+*{/function}*
+*{function}*
+    /**
+     * 根据id获取*{tableInfo.tableComment}*信息
+     * @idcompent2
+     * @param id *{tableInfo.tableComment}*id
+     * @return *{tableInfo.tableComment}*POJO
+     */
+    @Override
+    public *{tableInfo.domainName}* $get*{tableInfo.domainName}*ByIds$(List<Long> ids) {
+        Logger.info(this,"ids={}",ids);
+        return *{tool.firstLower(*{tableInfo.domainName}*)}*Dao.get*{tableInfo.domainName}*ByIds(ids);
     }
 *{/function}*
 *{function}*
@@ -110,7 +126,7 @@ public class *{tableInfo.domainName}*ServiceImpl implements *{tableInfo.domainNa
      * @return *{tableInfo.tableComment}*数据列表
      */
     @Override
-    public List<*{tableInfo.domainName}*> $getAll*{tableInfo.domainName}*List$(String findKey, int offset, int pageCount) throws NoTokenException {
+    public List<*{tableInfo.domainName}*> $getAll*{tableInfo.domainName}*List$(String findKey, Integer offset, Integer pageCount) throws NoTokenException {
         int belongToId = TokenSupport.currentId();
         return *{tool.firstLower(*{tableInfo.domainName}*)}*Dao.getAll*{tableInfo.domainName}*List(belongToId, findKey, offset, pageCount);
     }

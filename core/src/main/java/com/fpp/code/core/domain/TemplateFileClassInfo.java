@@ -1,4 +1,4 @@
-package com.fpp.code.core.template;
+package com.fpp.code.core.domain;
 
 import java.io.Serializable;
 import java.util.Map;

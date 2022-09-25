@@ -1,4 +1,6 @@
-package com.fpp.code.core.template;
+package com.fpp.code.core.template.targetfile;
+
+import com.fpp.code.core.template.Template;
 
 import java.io.Serializable;
 
@@ -8,7 +10,7 @@ import java.io.Serializable;
  * @version 1.0
  * @date 2020/7/2 18:16
  */
-public interface TemplateFilePrefixNameStrategy extends Serializable {
+public interface TargetFilePrefixNameStrategy extends Serializable {
     /**
      * 获取命名策略代表值
      * @return

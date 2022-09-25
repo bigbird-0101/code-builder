@@ -1,6 +1,8 @@
 package com.fpp.code.core.filebuilder;
 
+import com.fpp.code.core.domain.TableInfo;
 import com.fpp.code.core.template.*;
+import com.fpp.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 
 /**
  * 默认文件名生成器
@@ -18,11 +20,11 @@ public class DefaultFileNameBuilderImpl implements FileNameBuilder {
     @Override
     public String nameBuilder(Template template) {
         String result="";
-        TemplateFilePrefixNameStrategy templateFilePrefixNameStrategy=template.getTemplateFilePrefixNameStrategy();
-        if(null!=templateFilePrefixNameStrategy){
+        TargetFilePrefixNameStrategy targetFilePrefixNameStrategy =template.getTemplateFilePrefixNameStrategy();
+        if(null!= targetFilePrefixNameStrategy){
             TableInfo tableInfo = (TableInfo) template.getTemplateVariables().get("tableInfo");
             String tableName=tableInfo.getTableName();
-            result+=templateFilePrefixNameStrategy.prefixStrategy(template,tableName)+"."+template.getTemplateFileSuffixName();
+            result+= targetFilePrefixNameStrategy.prefixStrategy(template,tableName)+"."+template.getTemplateFileSuffixName();
         }
         return result;
     }

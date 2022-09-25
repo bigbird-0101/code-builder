@@ -27,7 +27,7 @@ I'm *{helloWorld}* .
    ```java
    package com.fpp.code.core.filebuilder.definedfunction;
    
-   import com.fpp.code.core.config.JFramePageEnvironment;
+   import com.fpp.code.core.config.StandardEnvironment;
    import com.fpp.code.core.context.GenericTemplateContext;
    import com.fpp.code.core.template.Template;
    

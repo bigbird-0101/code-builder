@@ -3,6 +3,8 @@ package com.fpp.code.core.filebuilder;
 import com.fpp.code.core.common.CollectionUtils;
 import com.fpp.code.core.config.CoreConfig;
 import com.fpp.code.core.domain.DefinedFunctionDomain;
+import com.fpp.code.core.domain.TableInfo;
+import com.fpp.code.core.domain.TemplateFileClassInfo;
 import com.fpp.code.core.filebuilder.definedfunction.DefinedFunctionResolver;
 import com.fpp.code.core.template.*;
 import com.fpp.code.util.Utils;

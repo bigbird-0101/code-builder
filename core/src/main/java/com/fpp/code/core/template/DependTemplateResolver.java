@@ -3,6 +3,7 @@ package com.fpp.code.core.template;
 import cn.hutool.core.collection.CollectionUtil;
 import com.fpp.code.core.context.TemplateContext;
 import com.fpp.code.core.context.aware.TemplateContextAware;
+import com.fpp.code.core.domain.TableInfo;
 import com.fpp.code.exception.TemplateResolveException;
 import com.fpp.code.util.Utils;
 import org.apache.logging.log4j.LogManager;

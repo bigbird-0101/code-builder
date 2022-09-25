@@ -82,7 +82,8 @@ public class DataSourceConfig {
         String userName = environment.getProperty("code.datasource.username");
         String password = environment.getProperty("code.datasource.password");
         if (!StrUtil.isAllNotBlank(url, userName, password)) {
-            throw new CodeConfigException("datasource config error ，not get url or userName or password");
+            throw new CodeConfigException("datasource config error,not get url {} or userName {} or password {}"
+                    ,url,userName,password);
         }
         return new DataSourceConfig(null, userName, url, password);
     }

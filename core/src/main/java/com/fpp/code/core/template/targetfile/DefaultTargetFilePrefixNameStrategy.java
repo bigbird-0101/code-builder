@@ -1,5 +1,6 @@
-package com.fpp.code.core.template;
+package com.fpp.code.core.template.targetfile;
 
+import com.fpp.code.core.template.Template;
 import com.fpp.code.util.Utils;
 
 /**
@@ -8,7 +9,7 @@ import com.fpp.code.util.Utils;
  * @version 1.0
  * @date 2020/7/2 18:43
  */
-public class DefaultTemplateFilePrefixNameStrategy implements TemplateFilePrefixNameStrategy {
+public class DefaultTargetFilePrefixNameStrategy implements TargetFilePrefixNameStrategy {
     private static final int TYPE_VALUE=1;
 
     /**

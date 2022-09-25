@@ -1,7 +1,7 @@
 package com.fpp.code.core.filebuilder.definedfunction;
 
 import com.fpp.code.core.domain.DefinedFunctionDomain;
-import com.fpp.code.core.template.TableInfo;
+import com.fpp.code.core.domain.TableInfo;
 import com.fpp.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 
