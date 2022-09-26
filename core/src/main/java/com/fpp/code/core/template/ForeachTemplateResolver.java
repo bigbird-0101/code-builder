@@ -1,11 +1,15 @@
 package com.fpp.code.core.template;
 
+import cn.hutool.core.util.StrUtil;
 import com.fpp.code.exception.TemplateResolveException;
 import com.fpp.code.util.Utils;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * foreach 语句解析器
@@ -53,19 +57,16 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
             String forEachTitle = matcher.group("title");
             String trimValue = matcher.group("trimValue");
             String forEachAll=matcher.group(0);
-            String[] titleArray=forEachTitle.split(" in ");
-            if(!forEachTitle.contains("in")||titleArray.length!=2){
+            List<String> titleArray = Stream.of(forEachTitle.split(" in "))
+                    .filter(StrUtil::isNotBlank).collect(toList());
+            if(!forEachTitle.contains("in")||titleArray.size()!=2){
                 throw new TemplateResolveException(LANG_NAME+" 语句 语法异常");
             }
-            String itemName=titleArray[0].trim();
-            String itemParentNode=titleArray[1].trim();
+            String itemName= titleArray.get(0).trim();
+            String itemParentNode=titleArray.get(1).trim();
             //校验字段是否存在,并返回最终的最后的对象 a.b.c 返回a对象中的b对象中的c对象
             Object temp;
-            try {
-                temp = Utils.getTargetObject(replaceKeyValue,itemParentNode);
-            } catch (IllegalAccessException e) {
-                throw new TemplateResolveException(e);
-            }
+            temp = Utils.getTargetObject(replaceKeyValue,itemParentNode);
             String foreachResult=getLangBodyResult(temp,forEachBody,itemName);
             //去除最后一个字符为逗号的字符串
             if("true".equals(trimValue)){

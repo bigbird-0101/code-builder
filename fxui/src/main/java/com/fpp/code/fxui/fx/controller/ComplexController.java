@@ -3,7 +3,6 @@ package com.fpp.code.fxui.fx.controller;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import cn.hutool.log.StaticLog;
 import cn.hutool.system.UserInfo;
 import com.alibaba.fastjson.JSONObject;
@@ -18,7 +17,6 @@ import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.domain.DataSourceConfig;
 import com.fpp.code.core.domain.DefinedFunctionDomain;
 import com.fpp.code.core.domain.ProjectTemplateInfoConfig;
-import com.fpp.code.core.domain.TableInfo;
 import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.GenericMultipleTemplateDefinition;
@@ -26,10 +24,14 @@ import com.fpp.code.core.factory.RootTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.filebuilder.*;
 import com.fpp.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResolver;
-import com.fpp.code.core.template.*;
+import com.fpp.code.core.template.HaveDependTemplate;
+import com.fpp.code.core.template.MultipleTemplate;
+import com.fpp.code.core.template.Template;
 import com.fpp.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
 import com.fpp.code.core.template.targetfile.TargetFilePrefixNameStrategy;
-import com.fpp.code.exception.TemplateResolveException;
+import com.fpp.code.core.template.variable.resource.ConfigFileTemplateVariableResource;
+import com.fpp.code.core.template.variable.resource.DataSourceTemplateVariableResource;
+import com.fpp.code.core.template.variable.resource.TemplateVariableResource;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.fxui.event.DoGetTemplateAfterEvent;
 import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
@@ -66,19 +68,21 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Queue;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import static com.fpp.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_KEY;
+import static com.fpp.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_VALUE;
 import static com.fpp.code.fxui.Main.USER_OPERATE_CACHE;
 import static java.util.stream.Collectors.toList;
 
@@ -529,24 +533,19 @@ public class ComplexController extends TemplateContextProvider implements Initia
             if (logger.isInfoEnabled()) {
                 logger.info("选中的模板名 {}", templatesOperateController.getSelectTemplateGroup().keySet());
             }
-            AtomicReference<Properties> propertiesVariable = new AtomicReference<>();
-            executorService.submit(()->{
-                if (null != templatesOperateController.getFile()) {
-                    try (InputStreamReader fileInputStream = new InputStreamReader(Files.newInputStream(templatesOperateController.getFile().toPath()), StandardCharsets.UTF_8)) {
-                        propertiesVariable.set(new Properties());
-                        propertiesVariable.get().load(fileInputStream);
-                    } catch (IOException e) {
-                        throw new CodeConfigException(e);
-                    }
-                }
-            });
-
+            ConfigFileTemplateVariableResource configFileTemplateVariableResource=null;
+            if (null != templatesOperateController.getFile()) {
+                configFileTemplateVariableResource=new ConfigFileTemplateVariableResource(
+                        Files.newInputStream(templatesOperateController.getFile().toPath()));
+            }
+            final FileBuilder fileBuilder = getFileBuilder(fileBuilderEnum, coreConfig);
             final long l = System.currentTimeMillis();
+            ConfigFileTemplateVariableResource finalConfigFileTemplateVariableResource = configFileTemplateVariableResource;
             ProgressTask progressTask = new ProgressTask() {
                 @Override
                 protected void execute() {
-                    ComplexController.this.concurrentDoBuild(fileBuilderEnum, templatesOperateController, coreConfig,
-                            propertiesVariable, (total, current) -> updateProgress(current, total));
+                    ComplexController.this.concurrentDoBuild(fileBuilder,
+                            finalConfigFileTemplateVariableResource, (total, current) -> updateProgress(current, total));
                 }
             };
             Window controllerWindow = mainBox.getScene().getWindow();
@@ -573,36 +572,27 @@ public class ComplexController extends TemplateContextProvider implements Initia
         }
     }
 
-    public void concurrentDoBuild(FileBuilderEnum fileBuilderEnum, TemplatesOperateController templatesOperateController,
-                                  CoreConfig coreConfig, AtomicReference<Properties> propertiesVariable,
+    public void concurrentDoBuild(FileBuilder fileBuilder,
+                                  ConfigFileTemplateVariableResource propertiesVariable,
                                   BiConsumer<Integer, Integer> onProgressUpdate) {
-        final TemplateContext templateContext = getTemplateContext();
-        final Set<String> templateNamesSelected = templatesOperateController.getSelectTemplateGroup()
-                .get(USER_OPERATE_CACHE.getTemplateNameSelected()).keySet();
-        int all=templateNamesSelected.size()*tableSelected.size();
-        AtomicInteger i= new AtomicInteger(1);
         List<CompletableFuture<Void>> task=new ArrayList<>();
-        for (String tableName : tableSelected) {
-            for (String templateName : templateNamesSelected) {
-                final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
-                    final long l = System.currentTimeMillis();
-                    final FileBuilder fileBuilder = FileBuilderFactory.getFileBuilder(fileBuilderEnum);
-                    AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy = (AbstractFileCodeBuilderStrategy)
-                            fileBuilder.getFileCodeBuilderStrategy();
-                    fileCodeBuilderStrategy.setCoreConfig(coreConfig);
-                    Template template =templateContext.getTemplate(templateName);
-                    doSetTemplateVariablesMapping(template, tableName, coreConfig, propertiesVariable.get());
-                    if(templateContext instanceof AbstractTemplateContext){
-                        AbstractTemplateContext abstractTemplateContext= (AbstractTemplateContext) templateContext;
-                        Platform.runLater(()-> abstractTemplateContext.publishEvent(
-                                new DoGetTemplateAfterEvent(template,templatesOperateController)));
-                    }
-                    fileBuilder.build(template);
-                    final long e = System.currentTimeMillis();
-                    StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
-                },DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> onProgressUpdate.accept(all,i.getAndIncrement()),
-                        DO_ANALYSIS_TEMPLATE);
-                task.add(voidCompletableFuture);
+        if(!tableSelected.isEmpty()) {
+            for (String tableName : tableSelected) {
+                //数据库变量资源
+                DataSourceTemplateVariableResource dataSourceTemplateVariableResource = new DataSourceTemplateVariableResource(
+                        tableName,  getTemplateContext().getEnvironment());
+                final Queue<Map<String, Object>> noShareVar = Optional.ofNullable(propertiesVariable)
+                        .map(ConfigFileTemplateVariableResource::getNoShareVar).orElse(new LinkedList<>());
+                doBuildTemplate(fileBuilder, Arrays.asList(propertiesVariable,dataSourceTemplateVariableResource),
+                        onProgressUpdate, task, tableName, noShareVar,0);
+            }
+        }else{
+            final Queue<Map<String, Object>> noShareVar = propertiesVariable.getNoShareVar();
+            int sizeAll=noShareVar.size();
+            while(!noShareVar.isEmpty()) {
+                doBuildTemplate(fileBuilder, Collections.singletonList(propertiesVariable),
+                        onProgressUpdate, task, (String) propertiesVariable.getTemplateVariable().getOrDefault(
+                                DEFAULT_SRC_RESOURCE_KEY, DEFAULT_SRC_RESOURCE_VALUE), noShareVar,sizeAll);
             }
         }
         StaticLog.debug("do get task {}",task.size());
@@ -614,49 +604,64 @@ public class ComplexController extends TemplateContextProvider implements Initia
         },DO_ANALYSIS_TEMPLATE).join();
     }
 
-    private void doSetTemplateVariablesMapping(Template template, String tableName, CoreConfig coreConfig, Properties propertiesVariable){
-        Future<Map<String, Object>> tempValue = executorService.submit(() -> {
-            Map<String, Object> temp = new HashMap<>(10);
-            TableInfo tableInfo;
-            try {
-                tableInfo = DbUtil.getTableInfo(coreConfig.getDataSourceConfig(), tableName,getTemplateContext().getEnvironment());
-            } catch (SQLException e) {
-                logger.error("doSetTemplateVariablesMapping DbUtil.getTableInfo error",e);
-                throw e;
-            }
-            temp.put("tableInfo", tableInfo);
-            if (null != propertiesVariable) {
-                propertiesVariable.forEach((k, v) -> {
-                    String value= (String) v;
-                    if(JSONUtil.isTypeJSON(value)){
-                        temp.put((String) k, JSONObject.parse(value));
-                    }else {
-                        temp.put((String) k, value);
-                    }
-                });
-            }
-            return temp;
-        });
-        try {
-            template.getTemplateVariables().putAll(tempValue.get());
-            final String simpleClassName = template.getTemplateFilePrefixNameStrategy().prefixStrategy(template, tableName);
-            template.getTemplateVariables().put("className",Utils.pathToPackage(template.getSrcPackage())+"."+simpleClassName);
-            template.getTemplateVariables().put("simpleClassName",simpleClassName);
-            if(template instanceof HaveDependTemplate){
-                HaveDependTemplate haveDependTemplate= (HaveDependTemplate) template;
-                if(!CollectionUtils.isEmpty(haveDependTemplate.getDependTemplates())) {
-                    haveDependTemplate.getDependTemplates()
-                            .forEach(s -> {
-                                final Template templateDepend = getTemplateContext().getTemplate(s);
-                                Map<String, Object> templateVariables =new HashMap<>();
-                                templateVariables.put("tableInfo", template.getTemplateVariables().get("tableInfo"));
-                                templateDepend.getTemplateVariables().putAll(templateVariables);
-                            });
+    private void doBuildTemplate(FileBuilder fileBuilder, List<TemplateVariableResource> templateVariableResources,
+                                 BiConsumer<Integer, Integer> onProgressUpdate, List<CompletableFuture<Void>> task,
+                                 String tableName, Queue<Map<String, Object>> noShareVar,int queueSize) {
+        final TemplateContext templateContext = getTemplateContext();
+        final TemplatesOperateController controller = templatesOperateFxmlLoader.getController();
+        final Set<String> templateNamesSelected = controller.getSelectTemplateGroup()
+                .get(USER_OPERATE_CACHE.getTemplateNameSelected()).keySet();
+        final int size = tableSelected.size();
+        int all=0==size?templateNamesSelected.size()*queueSize:templateNamesSelected.size()* size;
+        AtomicInteger i= new AtomicInteger(1);
+        for (String templateName : templateNamesSelected) {
+            final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
+                final long l = System.currentTimeMillis();
+                Template template = templateContext.getTemplate(templateName);
+                template.getTemplateVariables().putAll(
+                        templateVariableResources.stream()
+                                .filter(Objects::nonNull)
+                                .findFirst().orElseThrow(()->new CodeConfigException("not get eVariable resource config"))
+                                .mergeTemplateVariable(templateVariableResources));
+                Optional.ofNullable(noShareVar.poll()).ifPresent(s->template.getTemplateVariables().putAll(s));
+                doSetDependTemplateVariablesMapping(template, tableName);
+                if (templateContext instanceof AbstractTemplateContext) {
+                    AbstractTemplateContext abstractTemplateContext = (AbstractTemplateContext) templateContext;
+                    Platform.runLater(() -> abstractTemplateContext.publishEvent(
+                            new DoGetTemplateAfterEvent(template, controller)));
                 }
+                fileBuilder.build(template);
+                final long e = System.currentTimeMillis();
+                StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
+            }, DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> onProgressUpdate.accept(all, i.getAndIncrement()),
+                    DO_ANALYSIS_TEMPLATE);
+            task.add(voidCompletableFuture);
+        }
+    }
+
+    private static FileBuilder getFileBuilder(FileBuilderEnum fileBuilderEnum, CoreConfig coreConfig) {
+        final FileBuilder fileBuilder = FileBuilderFactory.getFileBuilder(fileBuilderEnum);
+        AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy = (AbstractFileCodeBuilderStrategy)
+                fileBuilder.getFileCodeBuilderStrategy();
+        fileCodeBuilderStrategy.setCoreConfig(coreConfig);
+        return fileBuilder;
+    }
+
+    private void doSetDependTemplateVariablesMapping(Template template, String tableName){
+        final String simpleClassName = template.getTemplateFilePrefixNameStrategy().prefixStrategy(template, tableName);
+        template.getTemplateVariables().put("className",Utils.pathToPackage(template.getSrcPackage())+"."+simpleClassName);
+        template.getTemplateVariables().put("simpleClassName",simpleClassName);
+        if(template instanceof HaveDependTemplate){
+            HaveDependTemplate haveDependTemplate= (HaveDependTemplate) template;
+            if(!CollectionUtils.isEmpty(haveDependTemplate.getDependTemplates())) {
+                haveDependTemplate.getDependTemplates()
+                        .forEach(s -> {
+                            final Template templateDepend = getTemplateContext().getTemplate(s);
+                            Map<String, Object> templateVariables =new HashMap<>();
+                            templateVariables.put("tableInfo", template.getTemplateVariables().get("tableInfo"));
+                            templateDepend.getTemplateVariables().putAll(templateVariables);
+                        });
             }
-        } catch (InterruptedException | ExecutionException e) {
-            StaticLog.error(e);
-            throw new TemplateResolveException(e);
         }
     }
 

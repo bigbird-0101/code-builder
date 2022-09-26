@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -60,20 +62,18 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
             String body = matcher.group("body");
             String title = matcher.group("title");
             String all=matcher.group(0);
-            srcData= StrUtil.isNotBlank(result)?result:srcData;
             try {
                 //是否满足if条件
                 String temp = Utils.getFirstNewLineNull(body);
                 if("true".equalsIgnoreCase(title)||"false".equalsIgnoreCase(title)){
                     String bodyResult = Boolean.parseBoolean(title) ? temp + body.trim() : "";
-                    result = Utils.isEmpty(result) ? srcData.replace(all, bodyResult) : result.replace(all, bodyResult);
+                    result = Utils.isEmpty(result) ? StrUtil.isNotBlank(result)?result.replace(all, bodyResult):srcData.replace(all, bodyResult) : result.replace(all, bodyResult);
                 }else{
-                    result=doSpecialExpression(replaceKeyValue,title,body,srcData,all);
+                    result=doSpecialExpression(replaceKeyValue,title,body,StrUtil.isNotBlank(result)?result:srcData,all);
                 }
             }catch(Exception e) {
-                result=doSpecialExpression(replaceKeyValue,title,body,srcData,all);
+                result=doSpecialExpression(replaceKeyValue,title,body,StrUtil.isNotBlank(result)?result:srcData,all);
             }
-            logger.debug("if language Condition {} src {} to convert {}",title,body,result);
         }
         return result;
     }
@@ -143,9 +143,19 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
      * @param str if语句的语法体 title
      * @return
      */
-    public static List<String> getIfPostfixExpression(String str){
+    public static PostfixExpressionModule getIfPostfixExpression(String str){
         List<String> result=new ArrayList<>();
-        String[] tempArray=str.split("&&");
+        List<String> tempArray;
+        String title=null;
+        if(str.contains("&&")) {
+            tempArray = Stream.of(str.split("&&")).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+            title="&&";
+        }else if (str.contains("||")){
+            tempArray = Stream.of(str.split("\\||")).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+            title="||";
+        }else{
+            tempArray = Stream.of(str.split("&&")).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+        }
         for (String content:tempArray) {
             //查看第一个是不是!不等于号
             boolean hasSpecial= content.trim().charAt(0) == '!';
@@ -180,17 +190,19 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
         if(logger.isInfoEnabled()){
             logger.info(" if语句解析后的结果 {}",result.toString());
         }
-        return result;
+        return new PostfixExpressionModule(result,title);
     }
 
     /**
      * 计算后缀表达式
-     * @param postfixExpression 后缀表达式
+     * @param postfixExpressionModule 后缀表达式模型
      * @param targetObject 目标对象
      * @return
      */
-    public  boolean computeIfPostfixExpression(List<String> postfixExpression,Object targetObject){
+    public  boolean computeIfPostfixExpression(PostfixExpressionModule postfixExpressionModule,Object targetObject){
         Stack<String> stack=new Stack<>();
+        List<String> postfixExpression = postfixExpressionModule.getPostfixExpression();
+        String title = postfixExpressionModule.getTitle();
         for(String value:postfixExpression){
             if(!specialSet.contains(value)&&!value.contains("!")){
                 stack.push(value);
@@ -206,16 +218,29 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
                 String value3=stack.pop();
                 Object temp;
                 Object temp3;
-                temp = Utils.getObjectFieldValue(value1,targetObject);
-                temp3 = Utils.getObjectFieldValue(value3,targetObject);
-                temp=null==temp?value1:temp;
-                temp3=null==temp3?value3:temp3;
+                if(!value1.startsWith("'")&&!value1.endsWith("'")) {
+                    temp = Utils.getObjectFieldValue(value1, targetObject);
+                    temp = null == temp ? value1 : temp;
+                }else{
+                    temp= StrUtil.removeSuffix(StrUtil.removePrefix(value1,"'"),"'");
+                }
+                if(!value3.startsWith("'")&&!value3.endsWith("'")) {
+                    temp3 = Utils.getObjectFieldValue(value3, targetObject);
+                    temp3 = null == temp3 ? value3 : temp3;
+                }else{
+                    temp3= StrUtil.removeSuffix(StrUtil.removePrefix(value3,"'"),"'");
+                }
                 if (String.valueOf(temp).equals(String.valueOf(temp3))) {
                     stack.push(String.valueOf("==".equals(value)));
                 } else {
                     stack.push(String.valueOf(!"==".equals(value)));
                 }
             }
+        }
+        if("&&".equals(title)){
+            return !stack.contains("false");
+        }else if("||".equals(title)){
+            return stack.contains("true");
         }
         return Boolean.parseBoolean(stack.pop());
     }
@@ -228,6 +253,36 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
     @Override
     public Set<Pattern> getExcludeVariablePatten() {
         return excludeVariablePatten;
+    }
+
+    private static class PostfixExpressionModule{
+        private List<String> postfixExpression;
+        //目前支持&& || 不支持 混合使用
+        private String title;
+
+        public List<String> getPostfixExpression() {
+            return postfixExpression;
+        }
+
+        public void setPostfixExpression(List<String> postfixExpression) {
+            this.postfixExpression = postfixExpression;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public PostfixExpressionModule() {
+        }
+
+        public PostfixExpressionModule(List<String> postfixExpression, String title) {
+            this.postfixExpression = postfixExpression;
+            this.title = title;
+        }
     }
 
 }

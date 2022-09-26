@@ -21,20 +21,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2022-09-24 23:14:30
  */
 public class DataSourceTemplateVariableResource implements TemplateVariableResource{
-    private final DataSourceConfig dataSourceConfig;
     private final String tableName;
     private final Environment environment;
 
     private static final Map<String,TableInfo> TABLE_INFO_CACHE= new ConcurrentHashMap<>();
 
-    public DataSourceTemplateVariableResource(DataSourceConfig dataSourceConfig, String tableName, Environment environment) {
-        this.dataSourceConfig = dataSourceConfig;
+    public DataSourceTemplateVariableResource(String tableName, Environment environment) {
         this.tableName = tableName;
         this.environment = environment;
-    }
-
-    public DataSourceConfig getDataSourceConfig() {
-        return dataSourceConfig;
     }
 
     public String getTableName() {
@@ -47,11 +41,12 @@ public class DataSourceTemplateVariableResource implements TemplateVariableResou
 
     @Override
     public Map<String, Object> getTemplateVariable() {
-        if(!ObjectUtil.isAllNotEmpty(dataSourceConfig,tableName,environment)){
+        if(!ObjectUtil.isAllNotEmpty(environment,tableName)){
             throw new IllegalArgumentException(StrUtil.format(
-                    "argument error dataSourceConfig {},tableName{},environment{}",dataSourceConfig,tableName,environment));
+                    "argument error tableName{},environment",environment,tableName));
         }
         try {
+            final DataSourceConfig dataSourceConfig = DataSourceConfig.getDataSourceConfig(environment);
             String cacheKey=StrUtil.format("{},{}",dataSourceConfig.toString(),tableName);
             TableInfo tableInfo = TABLE_INFO_CACHE.get(cacheKey);
             if(null!=tableInfo){

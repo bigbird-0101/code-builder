@@ -19,7 +19,7 @@ class ConfigFileTemplateVariableResourceTest {
     public void before(){
         configFileTemplateVariableResource=new ConfigFileTemplateVariableResource(
                 ConfigFileTemplateVariableResourceTest.class.getClassLoader()
-                        .getResourceAsStream("testConfigFile.properties"));
+                        .getResourceAsStream("testTemplateVariableConfigFile.properties"));
     }
 
 

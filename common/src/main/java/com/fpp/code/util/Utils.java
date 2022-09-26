@@ -193,7 +193,7 @@ public class Utils {
      * @param itemParentNode  v-for( a in b) 中的 b
      * @return 对象 a.b.c 返回a对象中的b对象中的c对象
      */
-    public static Object getTargetObject(Map<String, Object> replaceKeyValue, String itemParentNode) throws IllegalAccessException {
+    public static Object getTargetObject(Map<String, Object> replaceKeyValue, String itemParentNode) {
         Object current = null;
         List<String> itemParentNodeList = Arrays.stream(itemParentNode.split("\\.")).filter(Utils::isNotEmpty)
                 .map(String::trim).collect(toList());

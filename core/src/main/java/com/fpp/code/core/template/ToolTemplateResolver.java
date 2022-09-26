@@ -71,7 +71,7 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
                         throw new TemplateResolveException("tool sub method not support [{}] src all is not number,should example tool.sub(1,abc)  tool.sub(abc,2) ",src);
                     }
                     if(NumberUtil.isInteger(s)){
-                         return StrUtil.sub(s1,Integer.parseInt(s),s1.length());
+                        return StrUtil.sub(s1,Integer.parseInt(s),s1.length());
                     }else{
                         return StrUtil.sub(s,0,s.length()-Integer.parseInt(s1));
                     }
@@ -256,19 +256,17 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
             StringBuilder titleBuilder=new StringBuilder();
             while(matcherTitle.find()){
                 String titleGroup=matcherTitle.group();
-                Object objectTarget;
-                try {
-                    objectTarget = Utils.getTargetObject(replaceKeyValue,titleGroup);
-                } catch (IllegalAccessException e) {
-                    throw new TemplateResolveException(e);
-                }
                 String realTitle;
-                if(objectTarget instanceof String){
-                    realTitle= title.replaceAll(AbstractTemplateResolver.getTemplateVariableFormat(titleGroup),(String) objectTarget);
-                } else if(isMatchDependTemplate(titleGroup)){
-                    realTitle = getDependTemplateResolver().langResolver(title,replaceKeyValue);
+                if(isMatchDependTemplate(titleGroup)){
+                    realTitle = getDependTemplateResolver().langResolver(title, replaceKeyValue);
                 }else {
-                    realTitle = getLangBodyResult(objectTarget, title, titleGroup.split("\\.")[0]);
+                    Object objectTarget;
+                    objectTarget = Utils.getTargetObject(replaceKeyValue, titleGroup);
+                    if (objectTarget instanceof String) {
+                        realTitle = title.replaceAll(AbstractTemplateResolver.getTemplateVariableFormat(titleGroup), (String) objectTarget);
+                    } else {
+                        realTitle = getLangBodyResult(objectTarget, title, titleGroup.split("\\.")[0]);
+                    }
                 }
                 titleBuilder.append(realTitle);
             }

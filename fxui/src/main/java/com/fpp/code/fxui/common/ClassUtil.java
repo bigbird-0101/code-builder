@@ -3,7 +3,6 @@ package com.fpp.code.fxui.common;
 
 import com.fpp.code.core.common.ClassUtils;
 import com.fpp.code.core.common.CollectionUtils;
-import com.fpp.code.core.template.Template;
 import com.fpp.code.fxui.Main;
 import org.apache.logging.log4j.LogManager;
 
@@ -25,12 +24,12 @@ import java.util.stream.Stream;
  * @author Administrator
  */
 public class ClassUtil {
-    private static org.apache.logging.log4j.Logger LOG = LogManager.getLogger(Main.class);
+    private static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger(Main.class);
 
-    private static final Map<Class<?>,ArrayList<Class<?>>> cache=new ConcurrentHashMap<>();
+    private static final Map<Class<?>,ArrayList<Class<?>>> CACHE =new ConcurrentHashMap<>();
 
     public static ArrayList<Class<?>> getAllClassByInterface(Class<?> clazz) {
-        ArrayList<Class<?>> objects = cache.get(clazz);
+        ArrayList<Class<?>> objects = CACHE.get(clazz);
         if(!CollectionUtils.isEmpty(objects)){
             LOG.info("getAllClassByInterface cache {}",objects);
             return objects;
@@ -62,7 +61,7 @@ public class ClassUtil {
             }
         }
         LOG.info("class list size :" + list.size());
-        cache.put(clazz,list);
+        CACHE.put(clazz,list);
         return list;
     }
 
@@ -183,13 +182,6 @@ public class ClassUtil {
     }
 
     public void clearCache(){
-        cache.clear();
-    }
-
-    public static void main(String[] args) {
-        ArrayList<Class<?>> allClassByInterface = ClassUtil.getAllClassByInterface(Template.class);
-        allClassByInterface.forEach(clazz -> {
-            System.out.println(clazz.getName());
-        });
+        CACHE.clear();
     }
 }
