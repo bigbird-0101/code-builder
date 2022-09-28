@@ -94,7 +94,7 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
             if(logger.isInfoEnabled()) {
                 logger.info("Environment {}", environment);
             }
-            DefaultListableTemplateFactory templateFactory = (DefaultListableTemplateFactory) getTemplateFactory();
+            DefaultListableTemplateFactory templateFactory = obtainFreshTemplateFactory();
             AllTemplateDefinitionHolder allTemplateDefinitionHolder = allTypeTemplateScanner.scanner(environment.getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH), environment.getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH));
             //get TemplateFactory
             //register TemplateDefinition
@@ -150,6 +150,13 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
         this.templateFactoryPostProcessors.add(templateFactoryPostProcessor);
     }
 
+    protected DefaultListableTemplateFactory obtainFreshTemplateFactory() {
+        refreshTemplateFactory();
+        return (DefaultListableTemplateFactory) getTemplateFactory();
+    }
+
+    protected abstract void refreshTemplateFactory();
+
     /**
      * 获取模板名字集合
      * @return
@@ -169,7 +176,7 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
     }
 
     @Override
-    public void addPostProcessor(TemplatePostProcessor templatePostProcessor) {
-        getTemplateFactory().addPostProcessor(templatePostProcessor);
+    public void addTemplatePostProcessor(TemplatePostProcessor templatePostProcessor) {
+        getTemplateFactory().addTemplatePostProcessor(templatePostProcessor);
     }
 }

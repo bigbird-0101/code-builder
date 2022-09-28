@@ -3,6 +3,11 @@ package com.fpp.code.core.filebuilder;
 import com.fpp.code.core.domain.TableInfo;
 import com.fpp.code.core.template.*;
 import com.fpp.code.core.template.targetfile.TargetFilePrefixNameStrategy;
+import com.fpp.code.core.template.variable.resource.TemplateVariableResource;
+
+import java.util.Optional;
+
+import static com.fpp.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_KEY;
 
 /**
  * 默认文件名生成器
@@ -23,7 +28,10 @@ public class DefaultFileNameBuilderImpl implements FileNameBuilder {
         TargetFilePrefixNameStrategy targetFilePrefixNameStrategy =template.getTemplateFilePrefixNameStrategy();
         if(null!= targetFilePrefixNameStrategy){
             TableInfo tableInfo = (TableInfo) template.getTemplateVariables().get("tableInfo");
-            String tableName=tableInfo.getTableName();
+            String tableName= Optional.ofNullable(tableInfo)
+                    .map(TableInfo::getTableName)
+                    .orElse((String) template.getTemplateVariables()
+                            .getOrDefault(DEFAULT_SRC_RESOURCE_KEY,TemplateVariableResource.DEFAULT_SRC_RESOURCE_VALUE));
             result+= targetFilePrefixNameStrategy.prefixStrategy(template,tableName)+"."+template.getTemplateFileSuffixName();
         }
         return result;

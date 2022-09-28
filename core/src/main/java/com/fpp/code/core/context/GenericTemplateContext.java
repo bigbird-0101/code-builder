@@ -1,7 +1,6 @@
 package com.fpp.code.core.context;
 
 import com.fpp.code.core.config.Environment;
-import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.config.MultipleTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 
@@ -10,24 +9,12 @@ import com.fpp.code.core.factory.config.TemplateDefinition;
  * @version 1.0
  * @date 2021/1/7 11:35
  */
-public class GenericTemplateContext extends AbstractTemplateContext {
-    private transient DefaultListableTemplateFactory defaultListableTemplateFactory;
+public class GenericTemplateContext extends AbstractRefreshTemplateContext {
     public GenericTemplateContext(Environment environment){
         super(environment);
-        this.defaultListableTemplateFactory=new DefaultListableTemplateFactory();
-        this.defaultListableTemplateFactory.setEnvironment(environment);
         this.refresh();
     }
 
-    /**
-     * 获取模板工厂
-     *
-     * @return
-     */
-    @Override
-    public final DefaultListableTemplateFactory getTemplateFactory() {
-        return defaultListableTemplateFactory;
-    }
 
     @Override
     public void registerMultipleTemplateDefinition(String multipleTemplateDefinitionName, MultipleTemplateDefinition multipleTemplateDefinition) {

@@ -65,8 +65,7 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
             String itemName= titleArray.get(0).trim();
             String itemParentNode=titleArray.get(1).trim();
             //校验字段是否存在,并返回最终的最后的对象 a.b.c 返回a对象中的b对象中的c对象
-            Object temp;
-            temp = Utils.getTargetObject(replaceKeyValue,itemParentNode);
+            Object temp= Utils.getTargetObject(replaceKeyValue,itemParentNode);
             String foreachResult=getLangBodyResult(temp,forEachBody,itemName);
             //去除最后一个字符为逗号的字符串
             if("true".equals(trimValue)){

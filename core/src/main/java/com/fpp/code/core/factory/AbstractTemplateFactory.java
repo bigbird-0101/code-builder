@@ -73,7 +73,7 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
 
 
     @Override
-    public void addPostProcessor(TemplatePostProcessor templatePostProcessor) {
+    public void addTemplatePostProcessor(TemplatePostProcessor templatePostProcessor) {
         this.templatePostProcessors.remove(templatePostProcessor);
         this.templatePostProcessors.add(templatePostProcessor);
     }

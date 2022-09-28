@@ -2,6 +2,7 @@ package com.fpp.code.util;
 
 import cn.hutool.core.util.ReflectUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.fpp.code.exception.TemplateResolveException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -198,14 +199,14 @@ public class Utils {
         List<String> itemParentNodeList = Arrays.stream(itemParentNode.split("\\.")).filter(Utils::isNotEmpty)
                 .map(String::trim).collect(toList());
         if (itemParentNodeList.isEmpty()) {
-            throw new IllegalArgumentException("模板中语法异常");
+            throw new TemplateResolveException("模板中语法异常");
         }
         for (int i = 0; i < itemParentNodeList.size(); i++) {
             String nodeName = itemParentNodeList.get(i);
             if (i == 0) {
                 if (!replaceKeyValue.containsKey(nodeName)) {
-                    LOGGER.warn("getTargetObject itemParentNode {} 模板中语法异常 {} 属性不存在",itemParentNode,nodeName);
-                    return null;
+                    LOGGER.warn("getTargetObject itemParentNode {} 模板中语法异常 {} 属性在变量表中{}不存在",itemParentNode,nodeName,replaceKeyValue.keySet());
+                    throw new TemplateResolveException("{} 模板中语法异常 {} 属性在变量表中{}不存在",itemParentNode,nodeName,replaceKeyValue.keySet());
                 }
                 current = replaceKeyValue.get(nodeName);
             } else {

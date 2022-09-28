@@ -113,10 +113,10 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
         for (String targetKey:targetKeyList){
             Object targetObject=replaceKeyValue.get(targetKey);
             if(logger.isInfoEnabled()){
-                logger.info(" if语句满足条件目标对象 {}",targetObject.toString());
+                logger.info(" if语句满足条件目标对象 {}",targetObject);
             }
             if(null==targetObject){
-                throw new IllegalArgumentException("if 语句中 由于源对象为空 不能解析条件语句 "+title);
+                throw new TemplateResolveException("if 语句中 由于{}源对象为空 不能解析条件语句 {}",targetKey,title);
             }
             return computeIfPostfixExpression(getIfPostfixExpression(title),targetObject);
         }

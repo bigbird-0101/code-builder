@@ -29,11 +29,16 @@ public interface ConfigurableTemplateFactory extends TemplateFactory,Environment
      * 添加拦截器
      * @param templatePostProcessor
      */
-    void addPostProcessor(TemplatePostProcessor templatePostProcessor);
+    void addTemplatePostProcessor(TemplatePostProcessor templatePostProcessor);
 
     /**
      * 设置环境
      * @param environment
      */
     void setEnvironment(Environment environment);
+
+    /**
+     * 销毁模板
+     */
+    void destroyTemplates();
 }

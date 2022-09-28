@@ -1,6 +1,7 @@
 package com.fpp.code.core.factory;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.fpp.code.core.common.ClassUtils;
 import com.fpp.code.core.common.ObjectUtils;
 import com.fpp.code.core.config.AbstractEnvironment;
@@ -14,6 +15,7 @@ import com.fpp.code.core.factory.config.TemplatePostProcessor;
 import com.fpp.code.core.template.*;
 import com.fpp.code.util.Utils;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -146,5 +148,11 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
         super.removeMultipleTemplate(templateName);
         //刷新模板到配置文件中
         getEnvironment().removePropertySourceSerialize(new MultipleTemplatePropertySource(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE, multipleTemplate));
+    }
+
+    @Override
+    public void destroyTemplates() {
+        final Set<String> templateNames = new HashSet<>(getTemplateNames());
+        templateNames.stream().filter(StrUtil::isNotBlank).forEach(super::removeTemplate);
     }
 }

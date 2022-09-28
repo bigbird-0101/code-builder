@@ -18,18 +18,20 @@ import java.util.Set;
  */
 public class DefaultListableTemplateFactory extends AbstractOperateTemplateTemplateFactory implements TemplateDefinitionRegistry, ConfigurableListableTemplateFactory, MultipleTemplateDefinitionRegistry {
 
-    private Map<String, TemplateDefinition> templateDefinitionMap = new HashMap<>();
-    private Set<String> templateDefinitionSets = new HashSet<>();
+    private final Map<String, TemplateDefinition> templateDefinitionMap = new HashMap<>();
+    private final Set<String> templateDefinitionSets = new HashSet<>();
 
-    private Map<String, MultipleTemplateDefinition> multipleTemplateDefinitionMap = new HashMap<>();
-    private Set<String> multipleTemplateDefinitionSets = new HashSet<>();
+    private Boolean allowTemplateDefinitionOverriding=true;
+
+    private final Map<String, MultipleTemplateDefinition> multipleTemplateDefinitionMap = new HashMap<>();
+    private final Set<String> multipleTemplateDefinitionSets = new HashSet<>();
 
     private Environment environment;
 
     @Override
     public void registerTemplateDefinition(String templateName, TemplateDefinition templateDefinition) {
         TemplateDefinition templateDefinitionTemp = templateDefinitionMap.get(templateName);
-        if (null != templateDefinitionTemp) {
+        if (null != templateDefinitionTemp&&!getAllowTemplateDefinitionOverriding()) {
             throw new IllegalStateException("Could not register TemplateDefinition [" + templateDefinition +
                     "] under TemplateDefinition name '" + templateName + "': there is already object [" + templateDefinitionTemp + "] bound");
         }
@@ -72,7 +74,7 @@ public class DefaultListableTemplateFactory extends AbstractOperateTemplateTempl
     @Override
     public void registerMultipleTemplateDefinition(String multipleTemplateDefinitionName, MultipleTemplateDefinition multipleTemplateDefinition) {
         MultipleTemplateDefinition multipleTemplateDefinitionTemp = multipleTemplateDefinitionMap.get(multipleTemplateDefinitionName);
-        if (null != multipleTemplateDefinitionTemp) {
+        if (null != multipleTemplateDefinitionTemp&&!getAllowTemplateDefinitionOverriding()) {
             throw new IllegalStateException("Could not register MultipleTemplateDefinition [" + multipleTemplateDefinition +
                     "] under MultipleTemplateDefinition name '" + multipleTemplateDefinitionName + "': there is already object [" + multipleTemplateDefinitionTemp + "] bound");
         }
@@ -103,5 +105,18 @@ public class DefaultListableTemplateFactory extends AbstractOperateTemplateTempl
     @Override
     public Environment getEnvironment() {
         return this.environment;
+    }
+
+    @Override
+    public void destroyTemplates() {
+        super.destroyTemplates();
+    }
+
+    public Boolean getAllowTemplateDefinitionOverriding() {
+        return allowTemplateDefinitionOverriding;
+    }
+
+    public void setAllowTemplateDefinitionOverriding(Boolean allowTemplateDefinitionOverriding) {
+        this.allowTemplateDefinitionOverriding = allowTemplateDefinitionOverriding;
     }
 }
