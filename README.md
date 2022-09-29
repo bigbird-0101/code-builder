@@ -29,36 +29,35 @@ I'm *{helloWorld}* .
    
    import com.fpp.code.core.config.StandardEnvironment;
    import com.fpp.code.core.context.GenericTemplateContext;
+   import com.fpp.code.core.factory.TemplateDefinitionBuilder;
+   import com.fpp.code.core.template.DefaultNoHandleFunctionTemplate;
    import com.fpp.code.core.template.Template;
+   import org.junit.jupiter.api.Assertions;
+   import org.junit.jupiter.api.Test;
    
    import java.util.HashMap;
    import java.util.Map;
    
-   /**
-    * @author bigbird-0101
-    * @version 1.0.0
-    * @since 2022-09-14 22:34:17
-    */
-   public class HelloWorld {
-       public static void main(String[] args) {
-           JFramePageEnvironment environment=new JFramePageEnvironment();
-           String userHome = System.getProperty("user.home");
-           String projectHome=userHome+"\\Desktop\\tool\\";
-           environment.setCoreConfigPath(projectHome+"codebuilder\\conf\\code.properties");
-           environment.setTemplateConfigPath(projectHome+"codebuilder\\conf\\templates.json");
-           environment.setTemplatesPath(projectHome+"codebuilder\\data\\templates");
+   public class HelloWorldTest {
+       @Test
+       public void helloWorld() {
+           StandardEnvironment environment=new StandardEnvironment();
            GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
+           final String testConfigTemplateResource = "hello_world";
+           genericTemplateContext.registerTemplateDefinition(testConfigTemplateResource, TemplateDefinitionBuilder.build(
+                   DefaultNoHandleFunctionTemplate.class,"hello_world.template"));
            final Template dao = genericTemplateContext.getTemplate("hello_world");
            Map<String, Object> temp = new HashMap<>(10);
            temp.put("helloWorld","hello world");
            dao.getTemplateVariables().putAll(temp);
            final String templateResult = dao.getTemplateResult();
-           System.out.println(templateResult);
+           Assertions.assertNotNull(templateResult);
        }
    }
-   ```
-
    
+   ```
+   
+
 
 ###### 2.下载 [codebuilder压缩包](https://github.com/bigbird-0101/code-builder/releases) 
 
@@ -75,10 +74,14 @@ I'm *{helloWorld}* .
 
 1.`code.properties 配置文件详解`
 
-1. `code.datasource.url`  数据源地址
-2. `code.datasource.username` 数据源用户名
-3. `code.datasource.password` 数据源密码
-4. `code.project.file.project-author`  项目的作者
+   default为数据源的配置名 可通过页面配置
+
+1. `code.datasource.default.url`  数据源地址
+2. `code.datasource.default.username` 数据源用户名
+3. `code.datasource.default.password` 数据源密码
+4. `code.datasource.names=["default2","default3","default","mysql"]` 为数据源的集合
+5. `code.datasource=mysql` 为选中的数据源名
+6. `code.project.file.project-author`  项目的作者
 
 `2.templates.json 配置文件详解`
 
@@ -212,7 +215,14 @@ column.size对应TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的
 6. `*{tool.author()}*` 获取code.properties 中配置的作者
 7. `*{tool.allSqlColumn()}*` 获取 当前数据表格的所有字段(用于拼接sql)
 8. `*{tool.upLevelPath(params)}*` 获取 上一级路径 比如包名 com.zzd 的上一级就是 com,com/zzd 为 com
+9. `*{tool.sub(str,startIndex,endIndex)}*` 支持三种
+
+```
+`*{tool.sub(1,abc)}*  截取index 从1开始到末尾的字符串 bc
+`*{tool.sub(abc,2)}*  截取index 从开始到末尾倒数2的字符串 a
+`*{tool.sub(abc,1,2)}* 截取startIndex 从开始1到2的字符串 这三种语法  b
+```
 
 如有疑问请加群 `948896114`
 
-![](https://s3.bmp.ovh/imgs/2022/09/14/8a2fc2fd5d7864ee.png)
+<img src="https://s3.bmp.ovh/imgs/2022/09/29/807bd5a01532920b.png" alt="image-20220929222640211" style="zoom: 33%;" />

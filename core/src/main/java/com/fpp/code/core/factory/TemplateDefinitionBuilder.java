@@ -11,6 +11,7 @@ import static cn.hutool.core.io.resource.ResourceUtil.getResourceObj;
 import static cn.hutool.core.text.CharSequenceUtil.removePrefix;
 
 /**
+ * 模板定义构建器
  * @author bigbird-0101
  * @version 1.0.0
  * @since 2022-09-27 22:38:04
@@ -35,9 +36,9 @@ public class TemplateDefinitionBuilder {
         return templateDefinition;
     }
 
-    public static <T extends Template> TemplateDefinition build(Class<T> tClass,String classPathUrl){
+    public static <T extends Template> TemplateDefinition build(Class<T> tClass,String templateFilePath){
         final GenericTemplateDefinition templateDefinition = (GenericTemplateDefinition) build(tClass);
-        final String filePath = removePrefix(getResourceObj(classPathUrl).getUrl().getFile(), SEPARATOR);
+        final String filePath = removePrefix(getResourceObj(templateFilePath).getUrl().getFile(), SEPARATOR);
         templateDefinition.setTemplateFile(new File(filePath));
         return templateDefinition;
     }
