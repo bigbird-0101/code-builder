@@ -1,4 +1,3 @@
-
 package com.fpp.code.spi.order;
 
 import com.fpp.code.spi.NewInstanceServiceLoader;
@@ -9,6 +8,7 @@ import java.util.TreeMap;
 
 /**
  * Ordered registry.
+ * @author Administrator
  */
 public final class OrderedRegistry {
     
@@ -20,7 +20,7 @@ public final class OrderedRegistry {
      * @return registered classes
      */
     @SuppressWarnings("unchecked")
-    public static <T extends OrderAware> Collection<Class<T>> getRegisteredClasses(final Class<T> orderAwareClass) {
+    public static <T extends OrderAware<?>> Collection<Class<T>> getRegisteredClasses(final Class<T> orderAwareClass) {
         Map<Integer, Class<T>> result = new TreeMap<>();
         for (T each : NewInstanceServiceLoader.newServiceInstances(orderAwareClass)) {
             result.put(each.getOrder(), (Class<T>) each.getClass());

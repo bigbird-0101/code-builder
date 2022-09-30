@@ -1,4 +1,3 @@
-
 package com.fpp.code.spi;
 
 
@@ -18,7 +17,7 @@ public final class NewInstanceServiceLoader {
 
     }
     
-    private static final Map<Class, Collection<Class<?>>> SERVICE_MAP = new HashMap<>();
+    private static final Map<Class<?>, Collection<Class<?>>> SERVICE_MAP = new HashMap<>();
     
     /**
      * Register SPI service into map for new instance.
@@ -32,7 +31,6 @@ public final class NewInstanceServiceLoader {
         }
     }
     
-    @SuppressWarnings("unchecked")
     private static <T> void registerServiceClass(final Class<T> service, final T instance) {
         Collection<Class<?>> serviceClasses = SERVICE_MAP.get(service);
         if (null == serviceClasses) {

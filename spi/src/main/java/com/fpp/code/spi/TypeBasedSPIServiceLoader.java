@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.fpp.code.spi;
-
 
 import java.util.Collection;
 import java.util.Properties;
@@ -24,12 +22,12 @@ import java.util.stream.Collectors;
 
 /**
  * Type based SPI service loader.
- * 
- * @author Administrator
+ *
  * @param <T> type of algorithm class
+ * @author Administrator
  */
 public abstract class TypeBasedSPIServiceLoader<T extends TypeBasedSPI> {
-    
+
     private final Class<T> classType;
 
     protected TypeBasedSPIServiceLoader(Class<T> classType) {
@@ -38,8 +36,8 @@ public abstract class TypeBasedSPIServiceLoader<T extends TypeBasedSPI> {
 
     /**
      * Create new instance for type based SPI.
-     * 
-     * @param type SPI type
+     *
+     * @param type  SPI type
      * @param props SPI properties
      * @return SPI instance
      */
@@ -52,7 +50,7 @@ public abstract class TypeBasedSPIServiceLoader<T extends TypeBasedSPI> {
         result.setProperties(props);
         return result;
     }
-    
+
     /**
      * Create new service by default SPI type.
      *
@@ -63,13 +61,13 @@ public abstract class TypeBasedSPIServiceLoader<T extends TypeBasedSPI> {
         result.setProperties(new Properties());
         return result;
     }
-    
+
     private Collection<T> loadTypeBasedServices(final String type) {
         return NewInstanceServiceLoader.newServiceInstances(classType).stream()
                 .filter(input -> type.equalsIgnoreCase(input.getType()))
                 .collect(Collectors.toList());
     }
-    
+
     private T loadFirstTypeBasedService() {
         Collection<T> instances = NewInstanceServiceLoader.newServiceInstances(classType);
         if (instances.isEmpty()) {

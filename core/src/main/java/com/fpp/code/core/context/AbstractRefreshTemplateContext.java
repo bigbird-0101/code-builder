@@ -3,7 +3,6 @@ package com.fpp.code.core.context;
 import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.TemplateScanner;
-import com.sun.istack.internal.Nullable;
 
 /**
  * @author bigbird-0101
@@ -14,7 +13,6 @@ public abstract class AbstractRefreshTemplateContext extends AbstractTemplateCon
 
     private Boolean allowTemplateDefinitionOverriding;
 
-    @Nullable
     private volatile DefaultListableTemplateFactory templateFactory;
 
     public AbstractRefreshTemplateContext(Environment environment) {
