@@ -457,7 +457,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             templateController.srcPackageName.setText(Utils.convertTruePathIfNotNull(template.getSrcPackage()));
             templateController.setFile(template.getTemplateFile());
             templateController.fileName.setText(template.getTemplateFile().getName());
-            templateController.fileSuffixName.setText(template.getTemplateFileSuffixName());
+            templateController.fileSuffixName.setText(template.getTargetFileSuffixName());
             if(template instanceof HaveDependTemplate) {
                 HaveDependTemplate haveDepend= (HaveDependTemplate) template;
                 if(!CollectionUtils.isEmpty(haveDepend.getDependTemplates())) {

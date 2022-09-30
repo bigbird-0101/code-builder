@@ -55,7 +55,7 @@ public abstract class AbstractTemplate implements Template {
 
     private TargetFilePrefixNameStrategy templateFileNameStrategy=new DefaultTargetFilePrefixNameStrategy();
 
-    private String templateFileSuffixName;
+    private String targetFileSuffixName;
 
     @Override
     public TargetFilePrefixNameStrategy getTemplateFilePrefixNameStrategy() {
@@ -134,13 +134,13 @@ public abstract class AbstractTemplate implements Template {
     }
 
     @Override
-    public String getTemplateFileSuffixName() {
-        return templateFileSuffixName;
+    public String getTargetFileSuffixName() {
+        return targetFileSuffixName;
     }
 
     @Override
-    public void setTemplateFileSuffixName(String templateFileSuffixName) {
-        this.templateFileSuffixName = templateFileSuffixName;
+    public void setTargetFileSuffixName(String targetFileSuffixName) {
+        this.targetFileSuffixName = targetFileSuffixName;
     }
 
     @Override
@@ -209,12 +209,12 @@ public abstract class AbstractTemplate implements Template {
                 Objects.equals(getTemplateFile(), that.getTemplateFile()) &&
                 Objects.equals(getTemplateResolver(), that.getTemplateResolver()) &&
                 Objects.equals(getTemplateFilePrefixNameStrategy(), that.getTemplateFilePrefixNameStrategy()) &&
-                Objects.equals(getTemplateFileSuffixName(), that.getTemplateFileSuffixName());
+                Objects.equals(getTargetFileSuffixName(), that.getTargetFileSuffixName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTemplateName(), getProjectUrl(), getModule(), getSourcesRoot(), getSrcPackage(), getTemplateFile(),getTemplateResolver(), getTemplateFilePrefixNameStrategy(), getTemplateFileSuffixName());
+        return Objects.hash(getTemplateName(), getProjectUrl(), getModule(), getSourcesRoot(), getSrcPackage(), getTemplateFile(),getTemplateResolver(), getTemplateFilePrefixNameStrategy(), getTargetFileSuffixName());
     }
 
     @Override
@@ -264,7 +264,7 @@ public abstract class AbstractTemplate implements Template {
                 jsonObject.put("filePrefixNameStrategy", value);
             }
             jsonObject.put("templateClassName",object.getClass().getName());
-            jsonObject.put("fileSuffixName",abstractTemplate.getTemplateFileSuffixName());
+            jsonObject.put("fileSuffixName",abstractTemplate.getTargetFileSuffixName());
             jsonObject.put("projectUrl",abstractTemplate.getProjectUrl());
             jsonObject.put("module",abstractTemplate.getModule());
             jsonObject.put("sourcesRoot",abstractTemplate.getSourcesRoot());

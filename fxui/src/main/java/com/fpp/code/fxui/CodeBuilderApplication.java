@@ -40,7 +40,7 @@ import java.util.concurrent.CompletableFuture;
 public class CodeBuilderApplication extends Application {
     public static final UserOperateCache USER_OPERATE_CACHE=new UserOperateCache();
     public static final String ICON_PNG = "images/icon.png";
-    private static Logger logger= LogManager.getLogger(CodeBuilderApplication.class);
+    private static final Logger logger= LogManager.getLogger(CodeBuilderApplication.class);
     @Override
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getClassLoader().getResource("views/main.fxml")));

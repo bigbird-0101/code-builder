@@ -112,13 +112,13 @@ public interface Template extends Cloneable, Serializable {
      * 获取最终生成文件的后缀名
      * @return 文件的后缀名
      */
-    String getTemplateFileSuffixName();
+    String getTargetFileSuffixName();
 
     /**
      * 设置最终生成文件的后缀名
-     * @param templateFileSuffixName 文件的后缀名
+     * @param targetFileSuffixName 文件的后缀名
      */
-    void setTemplateFileSuffixName(String templateFileSuffixName);
+    void setTargetFileSuffixName(String targetFileSuffixName);
 
     /**
      * 获取模板文件

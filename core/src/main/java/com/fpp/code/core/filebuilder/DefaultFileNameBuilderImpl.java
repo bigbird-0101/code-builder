@@ -32,7 +32,7 @@ public class DefaultFileNameBuilderImpl implements FileNameBuilder {
                     .map(TableInfo::getTableName)
                     .orElse((String) template.getTemplateVariables()
                             .getOrDefault(DEFAULT_SRC_RESOURCE_KEY,TemplateVariableResource.DEFAULT_SRC_RESOURCE_VALUE));
-            result+= targetFilePrefixNameStrategy.prefixStrategy(template,tableName)+"."+template.getTemplateFileSuffixName();
+            result+= targetFilePrefixNameStrategy.prefixStrategy(template,tableName)+"."+template.getTargetFileSuffixName();
         }
         return result;
     }
