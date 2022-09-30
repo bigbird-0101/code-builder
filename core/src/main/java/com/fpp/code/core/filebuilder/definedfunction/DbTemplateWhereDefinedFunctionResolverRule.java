@@ -11,7 +11,7 @@ import java.util.stream.Stream;
  */
 public abstract class DbTemplateWhereDefinedFunctionResolverRule extends AbstractDefinedFunctionResolverRule {
 
-    public static List<String> MYSQL_TYPES;
+    protected static List<String> MYSQL_TYPES;
     static {
         MYSQL_TYPES = Stream.of(Types.class.getFields()).map(Field::getName).collect(Collectors.toList());
     }

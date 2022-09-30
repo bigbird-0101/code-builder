@@ -25,7 +25,7 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
     /**
      * 语法语句中的运算符
      */
-    public final static Set<String> specialSet=new HashSet<>(Arrays.asList("!=","==",">","<",">=","<="));
+    public static final Set<String> specialSet=new HashSet<>(Arrays.asList("!=","==",">","<",">=","<="));
 
     private Set<Pattern> excludeVariablePatten=new HashSet<>(Arrays.asList(templateGrammarPatternPrefix,templateGrammarPatternSuffix));
 
@@ -276,10 +276,10 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
             this.title = title;
         }
 
-        public PostfixExpressionModule() {
+        PostfixExpressionModule() {
         }
 
-        public PostfixExpressionModule(List<String> postfixExpression, String title) {
+        PostfixExpressionModule(List<String> postfixExpression, String title) {
             this.postfixExpression = postfixExpression;
             this.title = title;
         }

@@ -19,10 +19,10 @@ import static com.fpp.code.fxui.common.LayoutHelper.icon;
 public class FxApp {
 
     // 获得 App 主窗体
-    public static Stage primaryStage;
+     static Stage primaryStage;
 
     // 获得 App 图标，用于主窗体和对话框上
-    public static Image appIcon;
+     static Image appIcon;
 
     // 获得全局 CSS，用于主窗体和对话框上
     public static final List<String> styleSheets = new ArrayList<>();

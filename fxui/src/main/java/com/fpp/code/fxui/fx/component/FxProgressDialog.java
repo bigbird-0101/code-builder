@@ -21,7 +21,7 @@ import static javafx.stage.WindowEvent.WINDOW_SHOWN;
  * 执行后台任务的同时打开一个置顶的进度窗口，用户可以通过点击取消按钮中止任务执行
  * @author Administrator
  */
-public class FxProgressDialog {
+public final class FxProgressDialog {
 
     public static final DecimalFormat FORMAT = new DecimalFormat("#.00%");
 

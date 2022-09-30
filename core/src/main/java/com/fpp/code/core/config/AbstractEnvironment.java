@@ -34,8 +34,8 @@ public abstract class AbstractEnvironment implements Environment {
     public static final String DEFAULT_CORE_TEMPLATE_PATH = "code.template.config";
     public static final String DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE = "code.template.config.template";
     public static final String DEFAULT_CORE_TEMPLATE_FILES_PATH = "code.template.files";
-    private transient final MultiplePropertySources DEFAULT_MULTIPLE = new MultiplePropertySources();
-    private transient final PropertySourcesPropertyResolver propertySourcesPropertyResolver = new PropertySourcesPropertyResolver(DEFAULT_MULTIPLE);
+    private final transient MultiplePropertySources DEFAULT_MULTIPLE = new MultiplePropertySources();
+    private final transient PropertySourcesPropertyResolver propertySourcesPropertyResolver = new PropertySourcesPropertyResolver(DEFAULT_MULTIPLE);
     private static final Map<String, String> TEMPLATE_FILE_URL_CONTENT_MAPPING = new HashMap<>();
     private static final Map<String, String> TEMPLATE_FILE_NAME_URL_MAPPING = new HashMap<>();
     private String coreConfigPath;

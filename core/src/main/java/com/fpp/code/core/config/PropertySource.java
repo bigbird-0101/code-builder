@@ -46,7 +46,7 @@ public abstract class PropertySource<T> implements Serializable {
         private static final String USAGE_ERROR =
                 "ComparisonPropertySource instances are for use with collection comparison only";
 
-        public ComparisonPropertySource(String name) {
+        ComparisonPropertySource(String name) {
             super(name);
         }
 

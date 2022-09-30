@@ -17,7 +17,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * @author Administrator
  */
-public class Utils {
+public abstract class Utils {
     private static final Logger LOGGER = LogManager.getLogger(Utils.class);
 
     public static boolean isEmpty(String str) {
@@ -270,7 +270,7 @@ public class Utils {
         return fieldName;
     }
 
-    private final static String UNDERLINE = "_";
+    private static final  String UNDERLINE = "_";
 
     /***
      * 下划线命名转为驼峰命名
@@ -283,7 +283,7 @@ public class Utils {
             return "";
         }
         StringBuilder result = new StringBuilder();
-        String a[] = para.split(UNDERLINE);
+        String[] a = para.split(UNDERLINE);
         for (String s : a) {
             if (!para.contains(UNDERLINE)) {
 				result.append(s.substring(0, 1).toUpperCase());

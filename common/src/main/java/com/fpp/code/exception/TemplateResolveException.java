@@ -10,7 +10,8 @@ import java.security.PrivilegedActionException;
  * @version 1.0
  * @date 2020/7/10 11:01
  */
-public class TemplateResolveException extends RuntimeException{
+public class TemplateResolveException extends RuntimeException {
+
     /**
      * Constructs a new exception with the specified detail message.  The
      * cause is not initialized, and may subsequently be initialized by
@@ -23,9 +24,13 @@ public class TemplateResolveException extends RuntimeException{
         super(message);
     }
 
-
-    public TemplateResolveException(CharSequence message,Object... param) {
-        super(StrUtil.format(message,param));
+    /**
+     *
+     * @param message
+     * @param param
+     */
+    public TemplateResolveException(CharSequence message, Object... param) {
+        super(StrUtil.format(message, param));
     }
     /**
      * Constructs a new exception with the specified cause and a detail

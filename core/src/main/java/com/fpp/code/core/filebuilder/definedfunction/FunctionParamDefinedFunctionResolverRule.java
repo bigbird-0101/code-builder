@@ -63,7 +63,4 @@ public class FunctionParamDefinedFunctionResolverRule extends AbstractDefinedFun
                 regularExpressionPattern.pattern());
         return regularExpressionPattern.matcher(charSequence);
     }
-
-    public static void main(String[] args) {
-    }
 }

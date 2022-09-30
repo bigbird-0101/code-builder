@@ -22,10 +22,10 @@ import java.util.Properties;
  * @date 2020/6/2 18:54
  */
 public class DbUtil {
-    public static final LFUCache<String,Connection> CONNECTION_LFU_CACHE= CacheUtil.newLFUCache(2);
-    static{
+    public static final LFUCache<String, Connection> CONNECTION_LFU_CACHE = CacheUtil.newLFUCache(2);
+    static {
         NewInstanceServiceLoader.register(TableNameToDomainName.class);
-        RuntimeUtil.addShutdownHook(()-> CONNECTION_LFU_CACHE.forEach(s->{
+        RuntimeUtil.addShutdownHook(() -> CONNECTION_LFU_CACHE.forEach(s -> {
             try {
                 s.close();
             } catch (SQLException e) {
@@ -60,6 +60,11 @@ public class DbUtil {
         return javaType;
     }
 
+    /**
+     *
+     * @param dataType
+     * @return
+     */
     public static String getString(int dataType) {
         String javaType;
         if (dataType == Types.NUMERIC || dataType == Types.DECIMAL || dataType == Types.DOUBLE) {
@@ -219,7 +224,7 @@ public class DbUtil {
      * 获取数据库连接
      *
      * @param dataSourceConfigPojo
-     * @return
+     * @return 获取数据库连接
      * @throws SQLException
      */
     private static Connection getConnection(DataSourceConfig dataSourceConfigPojo) throws SQLException {
@@ -233,11 +238,11 @@ public class DbUtil {
         props.put("password", password);
         final String cacheKey = StrUtil.format("{}{}", url, props.toString());
         Connection connection = CONNECTION_LFU_CACHE.get(cacheKey);
-        if(null!=connection){
+        if (null != connection) {
             return connection;
         }
         connection = DriverManager.getConnection(url, props);
-        CONNECTION_LFU_CACHE.put(cacheKey,connection);
+        CONNECTION_LFU_CACHE.put(cacheKey, connection);
         return connection;
     }
 
@@ -257,6 +262,14 @@ public class DbUtil {
         return new TableNameToDomainNameServiceLoader(TableNameToDomainName.class).newService(propertyOrDefault,properties).buildDomainName(tableName);
     }
 
+    /**
+     *
+     * @param dataSourceConfigPojo
+     * @param tableName
+     * @param environment
+     * @return 表详情
+     * @throws SQLException
+     */
     public static TableInfo getTableInfo(DataSourceConfig dataSourceConfigPojo, String tableName, Environment environment) throws SQLException {
         TableInfo tableInfo;
         Connection connection = DbUtil.getConnection(dataSourceConfigPojo);
@@ -279,8 +292,8 @@ public class DbUtil {
                     if (null != rs2) {
                         while (rs2.next()) {
                             final String primaryKeysName = rs.getString("COLUMN_NAME");
-                            if(name.equals(primaryKeysName)){
-                                isPrimaryKey=true;
+                            if (name.equals(primaryKeysName)) {
+                                isPrimaryKey = true;
                             }
                         }
                     }
@@ -309,9 +322,9 @@ public class DbUtil {
     /**
      * 通过数据库来得到所有表名
      */
-    public static List<String> getAllTableName(DataSourceConfig dataSourceConfigPojo){
+    public static List<String> getAllTableName(DataSourceConfig dataSourceConfigPojo) {
         List<String> tableNameS;
-        Connection connection=null;
+        Connection connection = null;
         try {
             connection = DbUtil.getConnection(dataSourceConfigPojo);
             tableNameS = new ArrayList<>();

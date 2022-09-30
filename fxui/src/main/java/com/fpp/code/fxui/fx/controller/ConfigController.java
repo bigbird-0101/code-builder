@@ -33,11 +33,11 @@ public class ConfigController extends TemplateContextProvider implements Initial
     private static final Logger logger= LogManager.getLogger(ConfigController.class);
 
     @FXML
-    public AnchorPane anchorPane;
+    AnchorPane anchorPane;
     @FXML
-    public TextField dataSourceName;
+    TextField dataSourceName;
     @FXML
-    public ChoiceBox<String> dataSourceNames;
+    ChoiceBox<String> dataSourceNames;
     @FXML
     private TextArea url;
     @FXML

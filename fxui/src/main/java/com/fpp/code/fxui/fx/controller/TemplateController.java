@@ -43,33 +43,33 @@ public class TemplateController extends TemplateContextProvider implements Initi
     private static Logger logger= LogManager.getLogger(TemplateController.class);
 
     @FXML
-    public TextArea projectUrl;
+    TextArea projectUrl;
     @FXML
-    public TextField moduleName;
+    TextField moduleName;
     @FXML
-    public TextField srcPackageName;
+    TextField srcPackageName;
     @FXML
-    public TextField templateName;
+    TextField templateName;
     @FXML
-    public TextField fileSuffixName;
+    TextField fileSuffixName;
     @FXML
-    public FlowPane filePrefixNameStrategy;
+    FlowPane filePrefixNameStrategy;
     @FXML
-    public TextField sourcesRootName;
+    TextField sourcesRootName;
     @FXML
-    public Label fileName;
+    Label fileName;
     @FXML
-    public VBox vBox;
+    VBox vBox;
     @FXML
-    public TextField filePrefixNameStrategyPattern;
+    TextField filePrefixNameStrategyPattern;
     @FXML
-    public FlowPane filePrefixNameStrategyPane;
+    FlowPane filePrefixNameStrategyPane;
     @FXML
-    public Button button;
+    Button button;
     @FXML
-    public TextField depends;
+    TextField depends;
     @FXML
-    public ComboBox<String> selectTemplateClassName;
+    ComboBox<String> selectTemplateClassName;
 
     private Integer filePrefixNameStrategyValue;
     private File file;

@@ -37,10 +37,10 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Administrator
  */
-public class Main extends Application {
+public class CodeBuilderApplication extends Application {
     public static final UserOperateCache USER_OPERATE_CACHE=new UserOperateCache();
     public static final String ICON_PNG = "images/icon.png";
-    private static Logger logger= LogManager.getLogger(Main.class);
+    private static Logger logger= LogManager.getLogger(CodeBuilderApplication.class);
     @Override
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getClassLoader().getResource("views/main.fxml")));
@@ -140,6 +140,10 @@ public class Main extends Application {
         TemplateTraceContext.clear();
     }
 
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         launch(args);
     }

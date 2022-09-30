@@ -11,7 +11,9 @@ import java.util.TreeMap;
  * @author Administrator
  */
 public final class OrderedRegistry {
-    
+    private OrderedRegistry() {
+    }
+
     /**
      * Get registered classes.
      * 

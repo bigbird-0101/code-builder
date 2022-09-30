@@ -30,7 +30,7 @@
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
         <controlsfx.version>8.40.14</controlsfx.version>
-
+        <maven-checkstyle-plugin>3.1.1</maven-checkstyle-plugin>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -128,6 +128,26 @@
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
                 </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>${maven-checkstyle-plugin}</version>
+            <configuration>
+                <configLocation>checkstyle/checkstyle.xml</configLocation>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>checkstyle</id>
+                    <phase>validate</phase>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                    <configuration>
+                        <failOnViolation>true</failOnViolation>
+                    </configuration>
+                </execution>
+            </executions>
         </plugin>
     </plugins>
     </build>

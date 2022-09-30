@@ -14,7 +14,7 @@ import java.net.URL;
 /**
  * 自定义系统托盘(单例模式)
  */
-public class MinWindow {
+public final class MinWindow {
  
     private static MinWindow instance;
     private static MenuItem showItem;

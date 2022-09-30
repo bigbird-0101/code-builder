@@ -74,8 +74,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -83,7 +81,7 @@ import java.util.stream.Collectors;
 
 import static com.fpp.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_KEY;
 import static com.fpp.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_VALUE;
-import static com.fpp.code.fxui.Main.USER_OPERATE_CACHE;
+import static com.fpp.code.fxui.CodeBuilderApplication.USER_OPERATE_CACHE;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -91,14 +89,14 @@ import static java.util.stream.Collectors.toList;
  */
 public class ComplexController extends TemplateContextProvider implements Initializable {
     @FXML
-    public VBox mainBox;
+    VBox mainBox;
     @FXML
-    public StackPane contentParent;
+    StackPane contentParent;
     @FXML
-    public Menu showLog;
+    Menu showLog;
     private Logger logger = LogManager.getLogger(getClass());
     @FXML
-    public TreeView<Label> listViewTemplate;
+    TreeView<Label> listViewTemplate;
     @FXML
     private Pane pane;
     @FXML
@@ -118,7 +116,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
     private final Insets insets = new Insets(0, 10, 10, 0);
     private VBox templatesOperateNode;
     private FXMLLoader templatesOperateFxmlLoader;
-    private static ExecutorService executorService=Executors.newFixedThreadPool(4);
     final ThreadPoolExecutor DO_ANALYSIS_TEMPLATE = ExecutorBuilder.create()
             .setCorePoolSize(5)
             .setThreadFactory(ThreadFactoryBuilder.create().setNamePrefix("DO_ANALYSIS_TEMPLATE").build())
@@ -583,16 +580,30 @@ public class ComplexController extends TemplateContextProvider implements Initia
                         tableName,  getTemplateContext().getEnvironment());
                 final Queue<Map<String, Object>> noShareVar = Optional.ofNullable(propertiesVariable)
                         .map(ConfigFileTemplateVariableResource::getNoShareVar).orElse(new LinkedList<>());
-                doBuildTemplate(fileBuilder, Arrays.asList(propertiesVariable,dataSourceTemplateVariableResource),
-                        onProgressUpdate, task, tableName, noShareVar,0);
+                doBuildTemplate(new DoBuildTemplateParam.Builder()
+                        .fileBuilder(fileBuilder)
+                        .templateVariableResources(Arrays.asList(propertiesVariable,dataSourceTemplateVariableResource))
+                        .onProgressUpdate(onProgressUpdate)
+                        .task(task)
+                        .tableName(tableName)
+                        .noShareVar(noShareVar)
+                        .queueSize(0)
+                        .build());
             }
         }else{
             final Queue<Map<String, Object>> noShareVar = propertiesVariable.getNoShareVar();
             int sizeAll=noShareVar.size();
             while(!noShareVar.isEmpty()) {
-                doBuildTemplate(fileBuilder, Collections.singletonList(propertiesVariable),
-                        onProgressUpdate, task, (String) propertiesVariable.getTemplateVariable().getOrDefault(
-                                DEFAULT_SRC_RESOURCE_KEY, DEFAULT_SRC_RESOURCE_VALUE), noShareVar,sizeAll);
+                doBuildTemplate(new DoBuildTemplateParam.Builder()
+                        .fileBuilder(fileBuilder)
+                        .templateVariableResources(Collections.singletonList(propertiesVariable))
+                        .onProgressUpdate(onProgressUpdate)
+                        .task(task)
+                        .tableName( (String) propertiesVariable.getTemplateVariable().getOrDefault(
+                                DEFAULT_SRC_RESOURCE_KEY, DEFAULT_SRC_RESOURCE_VALUE))
+                        .noShareVar(noShareVar)
+                        .queueSize(sizeAll)
+                        .build());
             }
         }
         StaticLog.debug("do get task {}",task.size());
@@ -604,38 +615,36 @@ public class ComplexController extends TemplateContextProvider implements Initia
         },DO_ANALYSIS_TEMPLATE).join();
     }
 
-    private void doBuildTemplate(FileBuilder fileBuilder, List<TemplateVariableResource> templateVariableResources,
-                                 BiConsumer<Integer, Integer> onProgressUpdate, List<CompletableFuture<Void>> task,
-                                 String tableName, Queue<Map<String, Object>> noShareVar,int queueSize) {
+    private void doBuildTemplate(DoBuildTemplateParam doBuildTemplateParam) {
         final TemplateContext templateContext = getTemplateContext();
         final TemplatesOperateController controller = templatesOperateFxmlLoader.getController();
         final Set<String> templateNamesSelected = controller.getSelectTemplateGroup()
                 .get(USER_OPERATE_CACHE.getTemplateNameSelected()).keySet();
         final int size = tableSelected.size();
-        int all=0==size?templateNamesSelected.size()*queueSize:templateNamesSelected.size()* size;
+        int all=0==size?templateNamesSelected.size()*doBuildTemplateParam.getQueueSize():templateNamesSelected.size()* size;
         AtomicInteger i= new AtomicInteger(1);
         for (String templateName : templateNamesSelected) {
             final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
                 final long l = System.currentTimeMillis();
                 Template template = templateContext.getTemplate(templateName);
                 template.getTemplateVariables().putAll(
-                        templateVariableResources.stream()
+                        doBuildTemplateParam.getTemplateVariableResources().stream()
                                 .filter(Objects::nonNull)
                                 .findFirst().orElseThrow(()->new CodeConfigException("not get eVariable resource config"))
-                                .mergeTemplateVariable(templateVariableResources));
-                Optional.ofNullable(noShareVar.poll()).ifPresent(s->template.getTemplateVariables().putAll(s));
-                doSetDependTemplateVariablesMapping(template, tableName);
+                                .mergeTemplateVariable(doBuildTemplateParam.getTemplateVariableResources()));
+                Optional.ofNullable(doBuildTemplateParam.getNoShareVar().poll()).ifPresent(s->template.getTemplateVariables().putAll(s));
+                doSetDependTemplateVariablesMapping(template, doBuildTemplateParam.getTableName());
                 if (templateContext instanceof AbstractTemplateContext) {
                     AbstractTemplateContext abstractTemplateContext = (AbstractTemplateContext) templateContext;
                     Platform.runLater(() -> abstractTemplateContext.publishEvent(
                             new DoGetTemplateAfterEvent(template, controller)));
                 }
-                fileBuilder.build(template);
+                doBuildTemplateParam.getFileBuilder().build(template);
                 final long e = System.currentTimeMillis();
                 StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
-            }, DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> onProgressUpdate.accept(all, i.getAndIncrement()),
+            }, DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> doBuildTemplateParam.getOnProgressUpdate().accept(all, i.getAndIncrement()),
                     DO_ANALYSIS_TEMPLATE);
-            task.add(voidCompletableFuture);
+            doBuildTemplateParam.getTask().add(voidCompletableFuture);
         }
     }
 
@@ -728,5 +737,134 @@ public class ComplexController extends TemplateContextProvider implements Initia
         fileCodeBuilderStrategy.setDefinedFunctionResolver(new DefaultDefinedFunctionResolver());
         fileBuilder.setFileCodeBuilderStrategy(fileCodeBuilderStrategy);
         doBuild(FileBuilderEnum.OVERRIDE);
+    }
+
+    public static final class DoBuildTemplateParam{
+        private FileBuilder fileBuilder;
+        private List<TemplateVariableResource> templateVariableResources;
+        private BiConsumer<Integer,Integer> onProgressUpdate;
+        private List<CompletableFuture<Void>> task;
+        private String tableName;
+        private Queue<Map<String,Object>> noShareVar;
+        private int queueSize;
+
+        private DoBuildTemplateParam(Builder builder) {
+            setFileBuilder(builder.fileBuilder);
+            setTemplateVariableResources(builder.templateVariableResources);
+            setOnProgressUpdate(builder.onProgressUpdate);
+            setTask(builder.task);
+            setTableName(builder.tableName);
+            setNoShareVar(builder.noShareVar);
+            setQueueSize(builder.queueSize);
+        }
+
+        public FileBuilder getFileBuilder() {
+            return fileBuilder;
+        }
+
+        public void setFileBuilder(FileBuilder fileBuilder) {
+            this.fileBuilder = fileBuilder;
+        }
+
+        public List<TemplateVariableResource> getTemplateVariableResources() {
+            return templateVariableResources;
+        }
+
+        public void setTemplateVariableResources(List<TemplateVariableResource> templateVariableResources) {
+            this.templateVariableResources = templateVariableResources;
+        }
+
+        public BiConsumer<Integer, Integer> getOnProgressUpdate() {
+            return onProgressUpdate;
+        }
+
+        public void setOnProgressUpdate(BiConsumer<Integer, Integer> onProgressUpdate) {
+            this.onProgressUpdate = onProgressUpdate;
+        }
+
+        public List<CompletableFuture<Void>> getTask() {
+            return task;
+        }
+
+        public void setTask(List<CompletableFuture<Void>> task) {
+            this.task = task;
+        }
+
+        public String getTableName() {
+            return tableName;
+        }
+
+        public void setTableName(String tableName) {
+            this.tableName = tableName;
+        }
+
+        public Queue<Map<String, Object>> getNoShareVar() {
+            return noShareVar;
+        }
+
+        public void setNoShareVar(Queue<Map<String, Object>> noShareVar) {
+            this.noShareVar = noShareVar;
+        }
+
+        public int getQueueSize() {
+            return queueSize;
+        }
+
+        public void setQueueSize(int queueSize) {
+            this.queueSize = queueSize;
+        }
+
+
+        public static final class Builder {
+            private FileBuilder fileBuilder;
+            private List<TemplateVariableResource> templateVariableResources;
+            private BiConsumer<Integer, Integer> onProgressUpdate;
+            private List<CompletableFuture<Void>> task;
+            private String tableName;
+            private Queue<Map<String, Object>> noShareVar;
+            private int queueSize;
+
+            public Builder() {
+            }
+
+            public Builder fileBuilder(FileBuilder val) {
+                fileBuilder = val;
+                return this;
+            }
+
+            public Builder templateVariableResources(List<TemplateVariableResource> val) {
+                templateVariableResources = val;
+                return this;
+            }
+
+            public Builder onProgressUpdate(BiConsumer<Integer, Integer> val) {
+                onProgressUpdate = val;
+                return this;
+            }
+
+            public Builder task(List<CompletableFuture<Void>> val) {
+                task = val;
+                return this;
+            }
+
+            public Builder tableName(String val) {
+                tableName = val;
+                return this;
+            }
+
+            public Builder noShareVar(Queue<Map<String, Object>> val) {
+                noShareVar = val;
+                return this;
+            }
+
+            public Builder queueSize(int val) {
+                queueSize = val;
+                return this;
+            }
+
+            public DoBuildTemplateParam build() {
+                return new DoBuildTemplateParam(this);
+            }
+        }
     }
 }

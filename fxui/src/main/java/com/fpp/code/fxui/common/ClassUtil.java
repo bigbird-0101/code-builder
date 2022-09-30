@@ -3,7 +3,7 @@ package com.fpp.code.fxui.common;
 
 import com.fpp.code.core.common.ClassUtils;
 import com.fpp.code.core.common.CollectionUtils;
-import com.fpp.code.fxui.Main;
+import com.fpp.code.fxui.CodeBuilderApplication;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
@@ -24,7 +24,7 @@ import java.util.stream.Stream;
  * @author Administrator
  */
 public class ClassUtil {
-    private static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger(Main.class);
+    private static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger(CodeBuilderApplication.class);
 
     private static final Map<Class<?>,ArrayList<Class<?>>> CACHE =new ConcurrentHashMap<>();
 

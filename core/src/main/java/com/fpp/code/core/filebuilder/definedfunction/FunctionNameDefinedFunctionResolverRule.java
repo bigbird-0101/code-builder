@@ -50,11 +50,11 @@ public class FunctionNameDefinedFunctionResolverRule implements DefinedFunctionR
         if(matcher.find()){
             String prefix=matcher.group("functionNamePrefix");
             String suffix=matcher.group("functionNameSuffix");
-            String[] perfixs=prefix.split("\\s");
-            String oldFunctionNameCompletion=getFunctionNameCompletion(perfixs,Utils.firstUpperCase(representFactor),suffix);
+            String[] prefixs=prefix.split("\\s");
+            String oldFunctionNameCompletion=getFunctionNameCompletion(prefixs,Utils.firstUpperCase(representFactor),suffix);
             try {
                 Matcher matcherTemp = Pattern.compile(oldFunctionNameCompletion, Pattern.CASE_INSENSITIVE).matcher(srcFunctionBody);
-                return matcherTemp.replaceAll(getFunctionNameCompletion(perfixs,tempLessFunctionName,suffix));
+                return matcherTemp.replaceAll(getFunctionNameCompletion(prefixs,tempLessFunctionName,suffix));
             }catch (Exception e){
                 return srcFunctionBody;
             }
@@ -64,60 +64,5 @@ public class FunctionNameDefinedFunctionResolverRule implements DefinedFunctionR
 
     private String getFunctionNameCompletion(String[] perfixs,String realStr,String suffix){
         return perfixs.length>0?(perfixs[perfixs.length-1]+realStr+suffix):realStr+suffix;
-    }
-
-    public static void main(String[] args) {
-        String srcFunctionBody="\n" +
-                "    /**\n" +
-                "     * 根据id获取用户表信息\n" +
-                "     *\n" +
-                "     * @param id 用户表id\n" +
-                "     * @return 用户表POJO\n" +
-                "     */\n" +
-                "    @Select({\n" +
-                "           \"<script>\",\n" +
-                "           \" select \",\n" +
-                "           \" open_id as openId, pwd, phone \",\n" +
-                "           \" from tab_user\",\n" +
-                "           \" where id=#{id}\",\n" +
-                "           \"</script>\"\n" +
-                "    })\n" +
-                "   User getUserById(@Param(\"id\") int id);\n";
-
-
-        String tep="\n" +
-                "    /**\n" +
-                "     * 根据id获取用户表信息\n" +
-                "     *\n" +
-                "     * @param id 用户表id\n" +
-                "     * @return 用户表POJO\n" +
-                "     */\n" +
-                "    @Override\n" +
-                "    public User getUserById(int id) {\n" +
-                "        return userDao.getUserById(id);\n" +
-                "    }\n";
-
-        String dd="\n" +
-                "    /**\n" +
-                "     * 根据id 获取用户表\n" +
-                "     *\n" +
-                "     * @param id 用户表的id\n" +
-                "     * @return 数据处理结果\n" +
-                "     */\n" +
-                "    @GetMapping(\"/getUserById\")\n" +
-                "    @ApiOperation(value = \"根据id获取用户表\", notes = \"返回用户表详细信息\")\n" +
-                "    @ApiImplicitParam(paramType = \"query\", name = \"id\", value = \"用户表id\", required = true, dataType = \"Integer\")\n" +
-                "    public ReturnValue getUserById(@RequestParam Integer id) {\n" +
-                "        return ReturnValueFactory.buildSuccessDataReturnValue(userService.getUserById(id));\n" +
-                "    }\n" +
-                "    ";
-        String tempLess="OpenIdAndStatus";
-        String representFactor="id";
-//        Pattern ruleInterface=Pattern.compile("(.*)\\s+((?<functionNamePrefix>.*)"+Utils.firstUpperCase(representFactor)+"(?<functionNameSuffix>.*)\\(?)(.*)(?=\\)\\s*;)");
-//        Pattern rule=Pattern.compile("(.*)\\s+((?<functionNamePrefix>.*)"+Utils.firstUpperCase(representFactor)+"(?<functionNameSuffix>.*)\\()(.*)(?=\\)\\s*\\{+)",Pattern.DOTALL);
-        Pattern rule=Pattern.compile("(.*)\\s+((?<functionNamePrefix>.*)"+Utils.firstUpperCase(representFactor)+"(?<functionNameSuffix>.*?)\\()(.*)(?=\\)\\s*;)",Pattern.DOTALL);
-
-        FunctionNameDefinedFunctionResolverRule ab=new FunctionNameDefinedFunctionResolverRule();
-        System.out.println(ab.doRule(dd,rule,tempLess,representFactor));
     }
 }

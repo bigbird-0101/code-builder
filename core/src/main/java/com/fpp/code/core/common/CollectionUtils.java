@@ -381,7 +381,7 @@ public abstract class CollectionUtils {
 
 		private final Enumeration<E> enumeration;
 
-		public EnumerationIterator(Enumeration<E> enumeration) {
+		EnumerationIterator(Enumeration<E> enumeration) {
 			this.enumeration = enumeration;
 		}
 

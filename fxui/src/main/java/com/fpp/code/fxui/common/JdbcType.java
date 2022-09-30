@@ -69,7 +69,7 @@ public enum JdbcType {
   TIME_WITH_TIMEZONE(Types.TIME_WITH_TIMEZONE), // JDBC 4.2 JDK8
   TIMESTAMP_WITH_TIMEZONE(Types.TIMESTAMP_WITH_TIMEZONE); // JDBC 4.2 JDK8
 
-  public final int TYPE_CODE;
+  final int TYPE_CODE;
   private static Map<Integer,JdbcType> codeLookup = new HashMap<>();
 
   static {

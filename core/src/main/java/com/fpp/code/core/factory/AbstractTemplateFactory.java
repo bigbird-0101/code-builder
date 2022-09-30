@@ -22,7 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry implements ConfigurableTemplateFactory {
     private static final Logger logger= LogManager.getLogger(AbstractTemplateFactory.class);
 
-    private transient final List<TemplatePostProcessor> templatePostProcessors=new CopyOnWriteArrayList<>();
+    private final transient List<TemplatePostProcessor> templatePostProcessors=new CopyOnWriteArrayList<>();
     {
         templatePostProcessors.addAll(ServiceLoaderUtil.loadList(TemplatePostProcessor.class));
     }

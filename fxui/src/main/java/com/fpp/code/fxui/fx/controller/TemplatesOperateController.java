@@ -13,7 +13,7 @@ import com.fpp.code.core.factory.OperateTemplateBeanFactory;
 import com.fpp.code.core.template.AbstractHandleFunctionTemplate;
 import com.fpp.code.core.template.MultipleTemplate;
 import com.fpp.code.core.template.Template;
-import com.fpp.code.fxui.Main;
+import com.fpp.code.fxui.CodeBuilderApplication;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.fxui.common.TooltipUtil;
 import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
@@ -54,35 +54,35 @@ import java.util.stream.Collectors;
  */
 public class TemplatesOperateController extends TemplateContextProvider implements Initializable {
 
-    private static Logger logger = LogManager.getLogger(TemplatesOperateController.class);
+    private static final Logger LOGGER = LogManager.getLogger(TemplatesOperateController.class);
 
     private static final String DEFAULT_SOURCES_ROOT = "src/main/java";
 
     private static final String DEFAULT_USER_SAVE_TEMPLATE_CONFIG = "code.user.save.config";
 
     @FXML
-    public Label fileName;
+     Label fileName;
     @FXML
-    public Label currentTemplate;
+     Label currentTemplate;
     @FXML
-    public TextField targetTable;
+     TextField targetTable;
     @FXML
-    public CheckBox isDefinedFunction;
+     CheckBox isDefinedFunction;
     @FXML
-    public TextField representFactor;
+     TextField representFactor;
     @FXML
-    public TextField fields;
+     TextField fields;
     @FXML
-    public CheckBox isAllTable;
+     CheckBox isAllTable;
     @FXML
-    public ScrollPane scrollPane;
+     ScrollPane scrollPane;
     @FXML
     private VBox box;
 
     @FXML
     private FlowPane templates;
 
-    public CheckBox getIsDefinedFunction() {
+     CheckBox getIsDefinedFunction() {
         return isDefinedFunction;
     }
 
@@ -124,7 +124,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             initTemplateConfig();
             templates.getChildren().clear();
             templates.autosize();
-            String templateNameSelected = Main.USER_OPERATE_CACHE.getTemplateNameSelected();
+            String templateNameSelected = CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected();
             MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(templateNameSelected);
             if (null != multipleTemplate) {
                 int size = 1;
@@ -138,7 +138,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 }
             }
         } catch (IOException | CodeConfigException e) {
-            logger.info("Template Operate init error", e);
+            LOGGER.info("Template Operate init error", e);
             e.printStackTrace();
         }
     }
@@ -157,11 +157,11 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                     isAllTable.setSelected(Optional.ofNullable(pageInputSnapshot.getSelectTableAll()).orElse(false));
                 }
                 if (!selectTemplateGroup.isEmpty()) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("user save config {}", property);
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("user save config {}", property);
                     }
                 }
-                selectTemplateGroup.putIfAbsent(Main.USER_OPERATE_CACHE.getTemplateNameSelected(),new HashMap<>());
+                selectTemplateGroup.putIfAbsent(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected(),new HashMap<>());
                 selectTemplateGroup.forEach((k,v)->{
                     final MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(k);
                     final Set<String> templateNames = multipleTemplate.getTemplates().stream().map(Template::getTemplateName).collect(Collectors.toSet());
@@ -173,8 +173,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 });
             }
         } catch (Exception e) {
-            if (logger.isErrorEnabled()) {
-                logger.error("初始化用户配置异常: {} {} {} {} {} {}",e, DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("初始化用户配置异常: {} {} {} {} {} {}",e, DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
             }
         }
     }
@@ -191,7 +191,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         FlowPane flowPane = (FlowPane) scene.lookup("#functionPane");
         doSetTemplateNameLabel(scene, templateName);
         CheckBox templateNameCheckBox = (CheckBox) scene.lookup("#templateName");
-        Map<String, List<String>> stringListMap = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected());
+        Map<String, List<String>> stringListMap = selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected());
         if (template instanceof AbstractHandleFunctionTemplate) {
             AbstractHandleFunctionTemplate handlerTemplate = (AbstractHandleFunctionTemplate) template;
             Set<String> templateFunctionNameS = handlerTemplate.getTemplateFunctionNameS();
@@ -217,7 +217,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
 
         templateNameCheckBox.setUserData(templateName);
         templateNameCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            Map<String, List<String>> stringListMap2 = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected());
+            Map<String, List<String>> stringListMap2 = selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected());
             if (newValue) {
                 List<String> strings = stringListMap2.get(templateName);
                 if(null==strings||strings.isEmpty()){
@@ -241,7 +241,10 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 }
             }
         });
+        initProjectUrlViewData(template, scene);
+    }
 
+    private static void initProjectUrlViewData(Template template, Scene scene) {
         TextArea projectUrlTextArea = (TextArea) scene.lookup("#projectUrl");
         projectUrlTextArea.setText(Utils.convertTruePathIfNotNull(template.getProjectUrl()));
 
@@ -265,7 +268,6 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 }
             }
         });
-
     }
 
     private static void doSetTemplateNameLabel(Scene scene, String templateName) {
@@ -283,46 +285,46 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     private void addCheckBoxListen(CheckBox checkBox, CheckBox templateNameCheckBox, String templateName, String templateFunction) {
         checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                logger.info("selectTemplateGroup newValue {}",newValue);
-                if (!selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).containsKey(templateName)) {
+                LOGGER.info("selectTemplateGroup newValue {}",newValue);
+                if (!selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).containsKey(templateName)) {
                     List<String> functionNames = new ArrayList<>();
                     functionNames.add(templateFunction);
-                    Map<String, List<String>> stringListMap = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected());
+                    Map<String, List<String>> stringListMap = selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected());
                     if(null==stringListMap){
                         stringListMap=new HashMap<>();
                         stringListMap.put(templateName,functionNames);
-                        selectTemplateGroup.put(Main.USER_OPERATE_CACHE.getTemplateNameSelected(),stringListMap);
+                        selectTemplateGroup.put(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected(),stringListMap);
                     }else {
                         stringListMap.put(templateName, functionNames);
                     }
                 } else {
-                    List<String> functionNames = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName);
+                    List<String> functionNames = selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName);
                     if (null == functionNames) {
                         functionNames = new ArrayList<>();
                     }
                     if (!functionNames.contains(templateFunction)) {
                         functionNames.add(templateFunction);
                     }
-                    selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).put(templateName, functionNames);
+                    selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).put(templateName, functionNames);
                 }
                 if (!templateNameCheckBox.isSelected()) {
                     templateNameCheckBox.setSelected(true);
                 }
-                logger.info("selectTemplateGroup {}",selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName));
+                LOGGER.info("selectTemplateGroup {}",selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName));
             } else {
-                logger.info("selectTemplateGroup oldValue{}",oldValue);
-                List<String> functionNames = selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName);
+                LOGGER.info("selectTemplateGroup oldValue{}",oldValue);
+                List<String> functionNames = selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName);
                 if (null != functionNames) {
                     functionNames.remove(templateFunction);
-                    selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).put(templateName, functionNames);
+                    selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).put(templateName, functionNames);
                 }
                 if (null == functionNames || functionNames.isEmpty()) {
                     if (templateNameCheckBox.isSelected()) {
                         templateNameCheckBox.setSelected(false);
                     }
-                    selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).remove(templateName);
+                    selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).remove(templateName);
                 }
-                logger.info("selectTemplateGroup {}",selectTemplateGroup.get(Main.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName));
+                LOGGER.info("selectTemplateGroup {}",selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName));
             }
         });
     }
@@ -347,7 +349,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             if (!selectTemplateGroup.isEmpty()) {
                 final PageInputSnapshot build = PageInputSnapshot.Builder
                         .builder()
-                        .withCurrentMultipleTemplate(Main.USER_OPERATE_CACHE.getTemplateNameSelected())
+                        .withCurrentMultipleTemplate(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected())
                         .withFields(fields.getText())
                         .withRepresentFactor(representFactor.getText())
                         .withSelectTemplateGroup(selectTemplateGroup)
@@ -383,7 +385,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     public void refreshTemplate() {
         try {
             OperateTemplateBeanFactory operateTemplateBeanFactory = (OperateTemplateBeanFactory) getTemplateContext().getTemplateFactory();
-            MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(Main.USER_OPERATE_CACHE.getTemplateNameSelected());
+            MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected());
             operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate.getTemplateName());
             initialize(null,null);
             AlertUtil.showInfo("刷新成功");

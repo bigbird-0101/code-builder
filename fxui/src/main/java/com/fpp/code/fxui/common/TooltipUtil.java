@@ -58,32 +58,138 @@ public class TooltipUtil {
     }
 
     public static void showToast(String message, Pos pos) {
-        showToast(null, message, null, 3, pos, null, null, true, true);
+        ToastParam toastParam=new ToastParam();
+        toastParam.setTitle(null);
+        toastParam.setMessage(message);
+        toastParam.setPos(pos);
+        toastParam.setHideTime(3);
+        toastParam.setHideCloseButton(true);
+        toastParam.setDarkStyle(true);
+        showToast(toastParam);
     }
 
     public static void showToast(String title, String message) {
-        showToast(title, message, null, 3, Pos.BOTTOM_CENTER, null, null, true, true);
+        ToastParam toastParam=new ToastParam();
+        toastParam.setTitle(title);
+        toastParam.setMessage(message);
+        toastParam.setPos(Pos.BOTTOM_CENTER);
+        toastParam.setHideTime(3);
+        toastParam.setHideCloseButton(true);
+        toastParam.setDarkStyle(true);
+        showToast(toastParam);
     }
 
     public static void showToast(String title, String message, Pos pos) {
-        showToast(title, message, null, 3, pos, null, null, true, true);
+        ToastParam toastParam=new ToastParam();
+        toastParam.setTitle(title);
+        toastParam.setMessage(message);
+        toastParam.setPos(pos);
+        toastParam.setHideTime(3);
+        toastParam.setHideCloseButton(true);
+        toastParam.setDarkStyle(true);
+        showToast(toastParam);
     }
 
-    public static void showToast(String title, String message, Node graphic, double hideTime, Pos pos,
-                                 EventHandler<ActionEvent> onAction, Object owner, boolean isHideCloseButton, boolean isDarkStyle) {
-        Notifications notificationBuilder = Notifications.create().title(title).text(message).graphic(graphic)
-                .hideAfter(Duration.seconds(hideTime)).position(pos).onAction(onAction);
-        if (owner != null) {
-            notificationBuilder.owner(owner);
+    public static void showToast(ToastParam toastParam) {
+        Notifications notificationBuilder = Notifications.create()
+                .title(toastParam.getTitle())
+                .text(toastParam.getMessage())
+                .graphic(toastParam.getGraphic())
+                .hideAfter(Duration.seconds(toastParam.getHideTime()))
+                .position(toastParam.getPos()).onAction(toastParam.getOnAction());
+        if (toastParam.getOwner() != null) {
+            notificationBuilder.owner(toastParam.getOwner());
         }
-        if (isHideCloseButton) {
+        if (toastParam.isHideCloseButton) {
             notificationBuilder.hideCloseButton();
         }
-        if (isDarkStyle) {
+        if (toastParam.isDarkStyle) {
             notificationBuilder.darkStyle();
         }
-        Platform.runLater(() -> {
-            notificationBuilder.show();
-        });
+        Platform.runLater(notificationBuilder::show);
+    }
+
+    public static class ToastParam{
+        private String title;
+        private String message;
+        private Node graphic;
+        private double hideTime;
+        private Pos pos;
+        private EventHandler<ActionEvent> onAction;
+        private Object owner;
+        private boolean isHideCloseButton;
+        private boolean isDarkStyle;
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public Node getGraphic() {
+            return graphic;
+        }
+
+        public void setGraphic(Node graphic) {
+            this.graphic = graphic;
+        }
+
+        public double getHideTime() {
+            return hideTime;
+        }
+
+        public void setHideTime(double hideTime) {
+            this.hideTime = hideTime;
+        }
+
+        public Pos getPos() {
+            return pos;
+        }
+
+        public void setPos(Pos pos) {
+            this.pos = pos;
+        }
+
+        public EventHandler<ActionEvent> getOnAction() {
+            return onAction;
+        }
+
+        public void setOnAction(EventHandler<ActionEvent> onAction) {
+            this.onAction = onAction;
+        }
+
+        public Object getOwner() {
+            return owner;
+        }
+
+        public void setOwner(Object owner) {
+            this.owner = owner;
+        }
+
+        public boolean isHideCloseButton() {
+            return isHideCloseButton;
+        }
+
+        public void setHideCloseButton(boolean hideCloseButton) {
+            isHideCloseButton = hideCloseButton;
+        }
+
+        public boolean isDarkStyle() {
+            return isDarkStyle;
+        }
+
+        public void setDarkStyle(boolean darkStyle) {
+            isDarkStyle = darkStyle;
+        }
     }
 }

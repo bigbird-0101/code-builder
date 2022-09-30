@@ -29,11 +29,11 @@ public class AddEditConfigController extends TemplateContextProvider implements 
     private static final Logger logger= LogManager.getLogger(AddEditConfigController.class);
 
     @FXML
-    public VBox main;
+    VBox main;
     @FXML
-    public TextField dataSourceName;
+    TextField dataSourceName;
     @FXML
-    public Button button;
+    Button button;
     @FXML
     private TextArea url;
     @FXML

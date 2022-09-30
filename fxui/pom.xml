@@ -59,7 +59,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.fpp.code.fxui.Main</mainClass>
+                            <mainClass>com.fpp.code.fxui.CodeBuilderApplication</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

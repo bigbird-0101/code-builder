@@ -7,7 +7,7 @@ import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.GenericMultipleTemplateDefinition;
 import com.fpp.code.core.factory.RootTemplateDefinition;
 import com.fpp.code.core.template.MultipleTemplate;
-import com.fpp.code.fxui.Main;
+import com.fpp.code.fxui.CodeBuilderApplication;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.util.Utils;
 import javafx.fxml.FXML;
@@ -29,18 +29,18 @@ import java.util.Set;
  */
 public class MultipleTemplateController extends TemplateContextProvider implements Initializable {
     @FXML
-    public FlowPane templates;
+    FlowPane templates;
     private final Insets insets=new Insets(0,10,10,0);
     private final Set<String> selectTemplateNames=new HashSet<>();
     @FXML
-    public TextField multipleTemplateName;
+    TextField multipleTemplateName;
     @FXML
-    public AnchorPane anchorPane;
-    public TreeView<Label> listViewTemplate;
+    AnchorPane anchorPane;
+    TreeView<Label> listViewTemplate;
     @FXML
-    public Button button;
+    Button button;
     @FXML
-    public TextArea projectUrl;
+    TextArea projectUrl;
 
     private String sourceMultipleTemplateName;
 
@@ -127,9 +127,9 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
         });
         AlertUtil.showInfo("Success!");
         ((Stage)anchorPane.getScene().getWindow()).close();
-        if(Main.USER_OPERATE_CACHE.getTemplateNameSelected().equals(multipleTemplateName.getText())||
-                sourceMultipleTemplateName.equals(Main.USER_OPERATE_CACHE.getTemplateNameSelected())){
-            Main.USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateName.getText());
+        if(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected().equals(multipleTemplateName.getText())||
+                sourceMultipleTemplateName.equals(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected())){
+            CodeBuilderApplication.USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateName.getText());
             complexController.doSelectMultiple();
         }
     }
