@@ -16,7 +16,7 @@ import java.util.Set;
  * @since 2022-10-01 21:50:45
  */
 public class ForeachCodeNode implements CodeNode{
-    private static final SimpleTemplateResolver simpleTemplateResolver=new SimpleTemplateResolver();
+    private static final SimpleTemplateResolver SIMPLE_TEMPLATE_RESOLVER =new SimpleTemplateResolver();
     public static final String ITEM_INDEX_PREFIX="_foreach_";
     private final CodeNode contents;
 
@@ -121,11 +121,11 @@ public class ForeachCodeNode implements CodeNode{
 
         @Override
         public void appendCode(String code) {
-            final Set<String> templateVariableKey = simpleTemplateResolver.getTemplateVariableKey(code);
+            final Set<String> templateVariableKey = SIMPLE_TEMPLATE_RESOLVER.getTemplateVariableKey(code);
             String result=code;
             for (String templateVariable : templateVariableKey) {
                 if(!itemizeItemStart(templateVariable)) {
-                    result = simpleTemplateResolver.replaceFirstVariable(result, templateVariable, itemizeItemStart(item, uniqueNumber));
+                    result = SIMPLE_TEMPLATE_RESOLVER.replaceFirstVariable(result, templateVariable, itemizeItemStart(item, uniqueNumber));
                 }
             }
             delegate.appendCode(result);
