@@ -8,7 +8,6 @@ import cn.hutool.db.meta.TableType;
 import com.fpp.code.core.config.Environment;
 import com.fpp.code.core.domain.DataSourceConfig;
 import com.fpp.code.core.domain.TableInfo;
-import com.fpp.code.spi.NewInstanceServiceLoader;
 import com.fpp.code.util.Utils;
 
 import java.sql.*;
@@ -24,7 +23,6 @@ import java.util.Properties;
 public class DbUtil {
     public static final LFUCache<String, Connection> CONNECTION_LFU_CACHE = CacheUtil.newLFUCache(2);
     static {
-        NewInstanceServiceLoader.register(TableNameToDomainName.class);
         RuntimeUtil.addShutdownHook(() -> CONNECTION_LFU_CACHE.forEach(s -> {
             try {
                 s.close();

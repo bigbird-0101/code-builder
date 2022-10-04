@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import cn.hutool.core.util.StrUtil;
 import com.fpp.code.core.context.aware.TemplateContextAware;
 import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.config.Environment;
@@ -13,6 +14,10 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static cn.hutool.core.text.StrPool.DOT;
 
 /**
  * @author fpp
@@ -34,13 +39,13 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
      * 模板变量的前缀标识
      * 模板变量使用 {{变量名}}
      */
-    protected static final String TEMPLATE_VARIABLE_PREFIX = "\\*\\{";
+    public static final String TEMPLATE_VARIABLE_PREFIX = "\\*\\{";
 
     /**
      * 模板变量的后缀标识
      * 模板变量使用 {{变量名}}
      */
-    protected static final String TEMPLATE_VARIABLE_SUFFIX = "\\}\\*";
+    public static final String TEMPLATE_VARIABLE_SUFFIX = "\\}\\*";
 
     /**
      * 整个方法之间的标识
@@ -104,6 +109,10 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
         return environment;
     }
 
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
     public AbstractTemplateResolver() throws CodeConfigException {
         init();
         initTemplateLangResolverListWhenConfig(null);
@@ -164,9 +173,6 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
                 continue;
             }
             if (!isExclude && !str.split("\\.")[0].equals(targetObjectKey)) {
-                if(!(targetObject instanceof String)){
-                    logger.warn("{}属性在{}不存在",targetObjectKey,targetObject.getClass().getSimpleName());
-                }
                 continue;
             }
             if (!isExclude) {
@@ -256,9 +262,7 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
 
     public Set<Pattern> getAllExcludeVariablePatten() {
         Set<Pattern> excludeVariablePattenSet = new HashSet<>();
-        templateLangResolverList.forEach(item -> {
-            excludeVariablePattenSet.addAll(item.getExcludeVariablePatten());
-        });
+        templateLangResolverList.forEach(item -> excludeVariablePattenSet.addAll(item.getExcludeVariablePatten()));
         return excludeVariablePattenSet;
     }
 
@@ -270,20 +274,55 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
      */
     @Override
     public String replace(Map<String, Object> replaceKeyValue, String replaceTargetS) {
-        Iterator<Map.Entry<String, Object>> tempReplaceIterator = replaceKeyValue.entrySet().iterator();
-        while (tempReplaceIterator.hasNext()) {
-            Map.Entry<String, Object> entryReplace = tempReplaceIterator.next();
+        for (Map.Entry<String, Object> entryReplace : replaceKeyValue.entrySet()) {
             String key = entryReplace.getKey();
             Object value = entryReplace.getValue();
             String tempRule = "(" + TEMPLATE_VARIABLE_PREFIX + ")(" + key + ")(" + TEMPLATE_VARIABLE_SUFFIX + ")";
-            boolean isExclude=excludeCheckTemplateVariableKey(key);
-            if(isExclude){
-                replaceTargetS = replaceTargetS.replaceAll(key,String.valueOf(value));
-            }else {
+            boolean isExclude = excludeCheckTemplateVariableKey(key);
+            if (isExclude) {
+                replaceTargetS = replaceTargetS.replaceAll(key, String.valueOf(value));
+            } else {
                 replaceTargetS = replaceTargetS.replaceAll(tempRule, String.valueOf(value));
             }
         }
         return replaceTargetS;
+    }
+
+    /**
+     * 替换 source当中的变量key
+     * 例如 source=这是上层循环*{column.name}*
+     * srcVariable=column.name
+     * targetVariable=column2.name
+     * 结果将等于 这是上层循环*{column2.name}*
+     * @param source
+     * @param srcVariable
+     * @param targetVariable
+     * @return
+     */
+    public String replaceVariable(String source,String srcVariable,String targetVariable){
+        return StrUtil.replace(source, doBuildCompleteVariable(srcVariable), s-> doBuildCompleteVariable(targetVariable));
+    }
+
+    /**
+     * 替换 source当中的变量key当中的前缀
+     * 例如 source=这是上层循环*{column.name}*
+     * srcVariable=column.name
+     * targetVariable=column2
+     * 结果将等于 这是上层循环*{column2.name}*
+     * @param source
+     * @param srcVariable
+     * @param targetVariable
+     * @return
+     */
+    public String replaceFirstVariable(String source,String srcVariable,String targetVariable){
+        String variableSuffix= Stream.of(srcVariable.split("\\.")).skip(1)
+                .collect(Collectors.joining(DOT));
+        return StrUtil.replace(source, doBuildCompleteVariable(srcVariable),
+                s-> doBuildCompleteVariable(targetVariable+ DOT+variableSuffix));
+    }
+
+    private static String doBuildCompleteVariable(String variableKey) {
+        return StrUtil.format("{}{}{}", TEMPLATE_VARIABLE_PREFIX, variableKey, TEMPLATE_VARIABLE_SUFFIX);
     }
 
     public static String getTemplateVariableFormat(String str){

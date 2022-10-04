@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +113,7 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
             return result;
         }
         file.setWritable(true, false);
-        try(InputStream inputStream = new FileInputStream(file)){
+        try(InputStream inputStream = Files.newInputStream(file.toPath())){
             result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         }catch (Exception ignored){
         }

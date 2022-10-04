@@ -23,7 +23,7 @@ import java.util.Set;
  * @author fpp
  */
 public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTemplateFactory implements OperateTemplateBeanFactory {
-    private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+    private final ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
     @Override
     public Template createTemplate(String templateName, TemplateDefinition templateDefinition) {
         RootTemplateDefinition rootTemplateDefinition= (RootTemplateDefinition) templateDefinition;
@@ -62,22 +62,26 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     }
 
     private Template createTemplateInstant(RootTemplateDefinition templateDefinition) {
+        Template result;
         try {
+            //兼容老的逻辑
             if(Utils.isEmpty(templateDefinition.getTemplateClassName())){
                 boolean noHaveDepend = CollectionUtil.isEmpty(templateDefinition.getDependTemplates());
                 if(templateDefinition.isHandleFunction()){
-                    return noHaveDepend ? new DefaultHandleFunctionTemplate() : new HaveDependTemplateHandleFunctionTemplate();
+                    result = noHaveDepend ? new DefaultHandleFunctionTemplate() : new HaveDependTemplateHandleFunctionTemplate();
                 }else{
-                    return noHaveDepend ? new DefaultNoHandleFunctionTemplate() : new HaveDependTemplateNoHandleFunctionTemplate();
+                    result=noHaveDepend ? new DefaultNoHandleFunctionTemplate() : new HaveDependTemplateNoHandleFunctionTemplate();
                 }
             }else {
                 Class<?> templateClass = beanClassLoader.loadClass(templateDefinition.getTemplateClassName());
                 templateDefinition.setTemplateClass(templateClass);
-                return (Template) templateClass.newInstance();
+                result= (Template) templateClass.newInstance();
             }
+            invokeBaseAware(result);
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new CreateTemplateException(e);
         }
+        return result;
     }
 
     private void initTemplatePropertyValues(String templateName, Template template, RootTemplateDefinition templateDefinition) {

@@ -1,0 +1,37 @@
+<template>
+<prefix>
+    private String abcd;
+    <if v-if="test=='ab'">
+        ab
+        <if v-if="test2=='ab'">
+        test2ab
+        </if>
+    </if>
+<foreach v-for="column in tableInfo2.columnList">
+     这是上层循环*{column.name}*
+</foreach>
+<foreach v-for="column in tableInfo2.columnList">
+     这是上层循环*{column.name}*
+     <foreach v-for="list in column.list">
+        这是内层循环 *{list.testa}* *{list.testb}*
+     </foreach>
+</foreach>
+</prefix>
+<function name="delete">
+    /**
+     * 删除*{tableInfo.tableComment}* 根据其id数组
+     *
+     * @param idS *{tableInfo.tableComment}*id数组
+     * @return 返回是否成功
+     */
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public boolean delete*{tableInfo.domainName}*(String idS) {
+        if (Strings.isNotBlank(idS)) {
+            List&lt;String&gt; idArray = Arrays.stream(idS.split(",")).filter(Strings::isNotBlank).distinct().collect(Collectors.toList());
+            return *{tool.firstLower(*{tableInfo.domainName}*)}*Dao.delete*{tableInfo.domainName}*(idArray) == idArray.size();
+        }
+        return false;
+    }
+</function>
+</template>

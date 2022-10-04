@@ -95,6 +95,7 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
                 logger.info("Environment {}", environment);
             }
             DefaultListableTemplateFactory templateFactory = obtainFreshTemplateFactory();
+            prepareTemplateFactory(templateFactory);
             AllTemplateDefinitionHolder allTemplateDefinitionHolder = allTypeTemplateScanner.scanner(environment.getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH), environment.getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH));
             //get TemplateFactory
             //register TemplateDefinition
@@ -110,6 +111,11 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
         } catch (CodeConfigException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void prepareTemplateFactory(DefaultListableTemplateFactory templateFactory) {
+        TemplateContextAwareProcessor templateContextAwareProcessor=new TemplateContextAwareProcessor(this);
+        templateContextAwareProcessor.awareProcessor();
     }
 
     /**

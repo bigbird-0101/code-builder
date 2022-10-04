@@ -1,7 +1,7 @@
 package com.fpp.code.util;
 
 import cn.hutool.core.util.ReflectUtil;
-import com.alibaba.fastjson.JSONObject;
+import cn.hutool.core.util.StrUtil;
 import com.fpp.code.exception.TemplateResolveException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static cn.hutool.core.text.CharSequenceUtil.SPACE;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -155,6 +156,17 @@ public abstract class Utils {
         return str.substring(str.lastIndexOf(first) + 1);
     }
 
+    /**
+     * 删除字符串尾部的空格
+     * @param str
+     * @return
+     */
+    public static String removeSuffixEmpty(String str){
+        while(str.endsWith(SPACE)){
+            str=StrUtil.removeSuffix(str, SPACE);
+        }
+        return str;
+    }
 
     /**
      * 获取一个对象的属性字段值
@@ -163,6 +175,7 @@ public abstract class Utils {
      * @param object  源对象  比如:student
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static Object getObjectFieldValue(String typeStr, Object object) {
         String[] typeArray = typeStr.split("\\.");
         List<String> list = Arrays.stream(typeArray).filter(Utils::isNotEmpty).skip(1).collect(toList());
@@ -170,9 +183,9 @@ public abstract class Utils {
         Object currentObj=object;
         Field currentField;
         for (final String name : list) {
-            if (currentObj instanceof JSONObject) {
-                JSONObject jsonObject = (JSONObject) currentObj;
-                currentObj = jsonObject.get(name);
+            if (currentObj instanceof Map) {
+                Map<String,Object> objMap = (Map<String,Object>) currentObj;
+                currentObj = objMap.get(name);
             } else {
                 try {
                     currentField = ReflectUtil.getField(currentClazz, name);
@@ -182,6 +195,9 @@ public abstract class Utils {
                     LOGGER.error("getObjectFieldValue error", e);
                     LOGGER.warn("getObjectFieldValue typeStr 对象{}中{}属性不存在", currentObj, name);
                 }
+            }
+            if(null==currentObj){
+                throw new TemplateResolveException("{} 模板中语法异常 {} 属性在对象中{}不存在",typeStr,name,object);
             }
         }
         return currentObj;
@@ -194,6 +210,7 @@ public abstract class Utils {
      * @param itemParentNode  v-for( a in b) 中的 b
      * @return 对象 a.b.c 返回a对象中的b对象中的c对象
      */
+    @SuppressWarnings("unchecked")
     public static Object getTargetObject(Map<String, Object> replaceKeyValue, String itemParentNode) {
         Object current = null;
         List<String> itemParentNodeList = Arrays.stream(itemParentNode.split("\\.")).filter(Utils::isNotEmpty)
@@ -210,9 +227,9 @@ public abstract class Utils {
                 }
                 current = replaceKeyValue.get(nodeName);
             } else {
-                if(current instanceof JSONObject){
-                    JSONObject jsonObject= (JSONObject) current;
-                    current=jsonObject.get(nodeName);
+                if(current instanceof Map){
+                    Map<String,Object> objMap= (Map<String,Object>) current;
+                    current=objMap.get(nodeName);
                 }else {
                     try {
                         current = ReflectUtil.getFieldValue(current, nodeName);

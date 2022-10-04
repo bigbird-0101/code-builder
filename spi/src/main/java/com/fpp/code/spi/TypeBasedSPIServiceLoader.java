@@ -17,6 +17,7 @@
 package com.fpp.code.spi;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,12 @@ public abstract class TypeBasedSPIServiceLoader<T extends TypeBasedSPI> {
         T result = typeBasedServices.iterator().next();
         result.setProperties(props);
         return result;
+    }
+
+    public final Map<String,T> map(final Properties props){
+        return NewInstanceServiceLoader.newServiceInstances(classType).stream()
+                .peek(s-> s.setProperties(props))
+                .collect(Collectors.toMap(TypeBasedSPI::getType, s->s));
     }
 
     /**

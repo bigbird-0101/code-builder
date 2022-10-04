@@ -2,6 +2,8 @@ package com.fpp.code.core.factory;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ServiceLoaderUtil;
+import com.fpp.code.core.config.aware.EnvironmentAware;
+import com.fpp.code.core.factory.aware.TemplateFactoryAware;
 import com.fpp.code.core.factory.config.MultipleTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
 import com.fpp.code.core.factory.config.TemplatePostProcessor;
@@ -25,6 +27,17 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
     private final transient List<TemplatePostProcessor> templatePostProcessors=new CopyOnWriteArrayList<>();
     {
         templatePostProcessors.addAll(ServiceLoaderUtil.loadList(TemplatePostProcessor.class));
+    }
+
+    public void invokeBaseAware(Object object) {
+        if(object instanceof TemplateFactoryAware){
+            TemplateFactoryAware templateFactoryAware= (TemplateFactoryAware) object;
+            templateFactoryAware.setTemplateFactory(AbstractTemplateFactory.this);
+        }
+        if(object instanceof EnvironmentAware){
+            EnvironmentAware environmentAware= (EnvironmentAware) object;
+            environmentAware.setEnvironment(getEnvironment());
+        }
     }
 
     @Override

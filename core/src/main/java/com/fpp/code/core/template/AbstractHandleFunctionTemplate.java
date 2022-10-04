@@ -28,7 +28,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     protected TemplateFileClassInfo templateFileClassInfoNoResolve;
     protected TemplateFileClassInfo templateFileClassInfoResolved;
 
-    private Cache<CacheKey,TemplateFileClassInfo> resolverResultCache= CachePool.build(156);
+    protected final Cache<CacheKey,TemplateFileClassInfo> resolverResultCache= CachePool.build(156);
 
     protected ResolverStrategy resolverStrategy;
 
@@ -45,6 +45,10 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
         }
         resolverResultCache.clear();
         this.initTemplateVariables();
+        deepClearCache();
+    }
+
+    protected void deepClearCache() {
         //清除本模板的方法的自定义方法缓存
         CachePool.clear(s->s.getKeys()
                 .stream()
@@ -69,7 +73,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     /**
      * 解析模板之前
      */
-    private void doResolverTemplateBefore() {
+    protected void doResolverTemplateBefore() {
         initTemplateVariables();
     }
 
@@ -96,37 +100,43 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      * 解析模板
      * @return
      */
-    private TemplateFileClassInfo doResolverTemplate() {
+    protected TemplateFileClassInfo doResolverTemplate() {
         CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
         TemplateFileClassInfo resultCache= resolverResultCache.get(cacheKey);
         logger.info("cacheKey is {}",cacheKey);
         logger.info("cache is {}",resultCache);
         if(null==resultCache) {
-            String resultPrefix = this.templateFileClassInfoNoResolve.getTemplateClassPrefix();
-            String resultSuffix = this.templateFileClassInfoNoResolve.getTemplateClassSuffix();
-            Map<String, String> functionS = this.templateFileClassInfoNoResolve.getFunctionS();
-
-            Iterator<Map.Entry<String, String>> functionIterator = functionS.entrySet().iterator();
-            //清除前缀和后缀的{{}}代码
-            resultPrefix = getTemplateResolver().resolver(resultPrefix, getTemplateVariables());
-            resultSuffix = getTemplateResolver().resolver(resultSuffix, getTemplateVariables());
-
-            //清除方法名和方法体的{{}}代码
-            Map<String, String> tempFunctionMap = new LinkedHashMap<>(functionS.size());
-            while (functionIterator.hasNext()) {
-                Map.Entry<String, String> entry = functionIterator.next();
-                String functionName = entry.getKey();
-                String functionBody = entry.getValue().replaceAll("\\" + AbstractTemplateResolver.FUNCTION_NAME_BETWEEN_SPLIT, "");
-                functionName = getNoResolverFunctionName(functionName);
-                functionBody = getTemplateResolver().resolver(functionBody, getTemplateVariables());
-                if (!tempFunctionMap.containsKey(functionName)) {
-                    tempFunctionMap.put(functionName, functionBody);
-                }
-            }
-            resultCache=new TemplateFileClassInfo(resultPrefix,resultSuffix,tempFunctionMap);
-            this.templateFileClassInfoResolved =resultCache;
+            resultCache = doBuildTemplateResultCache(cacheKey);
             resolverResultCache.put(cacheKey,resultCache);
         }
+        return resultCache;
+    }
+
+    protected TemplateFileClassInfo doBuildTemplateResultCache(CacheKey cacheKey) {
+        TemplateFileClassInfo resultCache;
+        String resultPrefix = this.templateFileClassInfoNoResolve.getTemplateClassPrefix();
+        String resultSuffix = this.templateFileClassInfoNoResolve.getTemplateClassSuffix();
+        Map<String, String> functionS = this.templateFileClassInfoNoResolve.getFunctionS();
+
+        Iterator<Map.Entry<String, String>> functionIterator = functionS.entrySet().iterator();
+        //清除前缀和后缀的{{}}代码
+        resultPrefix = getTemplateResolver().resolver(resultPrefix, getTemplateVariables());
+        resultSuffix = getTemplateResolver().resolver(resultSuffix, getTemplateVariables());
+
+        //清除方法名和方法体的{{}}代码
+        Map<String, String> tempFunctionMap = new LinkedHashMap<>(functionS.size());
+        while (functionIterator.hasNext()) {
+            Map.Entry<String, String> entry = functionIterator.next();
+            String functionName = entry.getKey();
+            String functionBody = entry.getValue().replaceAll("\\" + AbstractTemplateResolver.FUNCTION_NAME_BETWEEN_SPLIT, "");
+            functionName = getNoResolverFunctionName(functionName);
+            functionBody = getTemplateResolver().resolver(functionBody, getTemplateVariables());
+            if (!tempFunctionMap.containsKey(functionName)) {
+                tempFunctionMap.put(functionName, functionBody);
+            }
+        }
+        resultCache= new TemplateFileClassInfo(resultPrefix, resultSuffix, tempFunctionMap);
+        this.templateFileClassInfoResolved =resultCache;
         return resultCache;
     }
 

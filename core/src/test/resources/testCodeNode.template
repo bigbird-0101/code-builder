@@ -1,0 +1,25 @@
+private String abcd;
+*{if v-if='test=='ab''}*
+    ab
+
+*{if v-if='test=='ab''}*
+    ab
+    *{if v-if='test2=='ab''}*
+          test2ab
+    *{/if}*
+*{/if}*
+
+*{if
+v-if='test=='ab''}*
+    ab
+*{/if}*
+private String abcd;
+*{foreach v-for="column in tableInfo.columnList"}*
+     这是上层循环*{column.name}*
+*{/foreach}*
+*{foreach v-for="column in tableInfo.columnList"}*
+     这是上层循环*{column.name}*
+     *{foreach v-for="list in column.list"}*
+        这是内层循环 *{list.testa}* *{list.testb}*
+     *{/foreach}*
+*{/foreach}*

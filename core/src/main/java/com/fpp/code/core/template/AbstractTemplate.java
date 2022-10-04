@@ -87,6 +87,10 @@ public abstract class AbstractTemplate implements Template {
         this.templateVariables = templateVariables;
     }
 
+    public void setTemplateResolver(TemplateResolver templateResolver) {
+        this.templateResolver = templateResolver;
+    }
+
     public TemplateResolver getTemplateResolver() {
         return templateResolver;
     }

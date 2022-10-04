@@ -17,8 +17,7 @@ public interface TemplateResolver extends TemplateVariableResolver{
      * @param srcData         需要解析的模板数据
      * @param replaceKeyValue 模板中的变量数据
      * @return 解析后的字符串
-     * @throws IllegalAccessException 解析其中的对象字段异常
-     * @throws NoSuchFieldException   解析其中的对象字段异常
+     * @throws TemplateResolveException 模板解析异常
      */
     String resolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException;
 }

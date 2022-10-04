@@ -14,5 +14,5 @@ public interface ResolverStrategy {
      * 解析策略
      * @param templateFileClassInfo 模板的详情信息
      */
-    void resolverStrategy(TemplateFileClassInfo templateFileClassInfo);
+   void resolverStrategy(TemplateFileClassInfo templateFileClassInfo);
 }

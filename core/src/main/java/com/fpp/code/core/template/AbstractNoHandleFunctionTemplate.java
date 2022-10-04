@@ -18,7 +18,7 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
 
     private String templateContent;
 
-    private Cache<CacheKey,String> resolverResultCache=new SimpleCacheImpl<>(156);
+    private final Cache<CacheKey,String> resolverResultCache=new SimpleCacheImpl<>(156);
 
     @Override
     public void refresh(){
@@ -43,14 +43,14 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
      * @param result
      * @return
      */
-    private String doResolverTemplateAfter(String result) {
+    protected String doResolverTemplateAfter(String result) {
         return result;
     }
 
     /**
      * 解析模板之前
      */
-    private void doResolverTemplateBefore() {
+    protected void doResolverTemplateBefore() {
         initTemplateVariables();
     }
 
@@ -58,14 +58,18 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
      * 解析模板
      * @return
      */
-    private String doResolverTemplate() {
+    protected String doResolverTemplate() {
         CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
         String result=resolverResultCache.get(cacheKey);
         if(null==result) {
-            result = getTemplateResolver().resolver(this.templateContent, getTemplateVariables());
+            result = doBuildTemplateResultCache();
             resolverResultCache.put(cacheKey,result);
         }
         return result;
+    }
+
+    protected String doBuildTemplateResultCache() {
+        return getTemplateResolver().resolver(this.templateContent, getTemplateVariables());
     }
 
 }

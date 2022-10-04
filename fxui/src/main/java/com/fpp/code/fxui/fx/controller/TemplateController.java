@@ -7,7 +7,9 @@ import com.fpp.code.core.context.aware.TemplateContextProvider;
 import com.fpp.code.core.factory.DefaultListableTemplateFactory;
 import com.fpp.code.core.factory.RootTemplateDefinition;
 import com.fpp.code.core.factory.config.TemplateDefinition;
-import com.fpp.code.core.template.*;
+import com.fpp.code.core.template.HaveDependTemplate;
+import com.fpp.code.core.template.MultipleTemplate;
+import com.fpp.code.core.template.Template;
 import com.fpp.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
 import com.fpp.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 import com.fpp.code.core.template.targetfile.TemplateFilePrefixNameStrategyFactory;
@@ -28,10 +30,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -217,7 +219,7 @@ public class TemplateController extends TemplateContextProvider implements Initi
             FileUtils.copyFile(this.file, newFile);
         }
         rootTemplateDefinition.setTemplateFile(newFile);
-        AbstractEnvironment.putTemplateContent(newFile.getAbsolutePath(), IOUtils.toString(new FileInputStream(newFile), StandardCharsets.UTF_8));
+        AbstractEnvironment.putTemplateContent(newFile.getAbsolutePath(), IOUtils.toString(Files.newInputStream(newFile.toPath()), StandardCharsets.UTF_8));
         if(isNotHave||!templateName.getText().equals(sourceTemplateName)) {
             templateContext.registerTemplateDefinition(templateName.getText(), rootTemplateDefinition);
             if(!templateName.getText().equals(sourceTemplateName)){
