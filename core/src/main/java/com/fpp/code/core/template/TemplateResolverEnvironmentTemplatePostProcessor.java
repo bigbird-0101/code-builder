@@ -12,7 +12,7 @@ import com.fpp.code.core.factory.config.TemplatePostProcessor;
 public class TemplateResolverEnvironmentTemplatePostProcessor implements TemplatePostProcessor, EnvironmentAware {
     private Environment environment;
     @Override
-    public Template postProcessAfterInstantiation(Template template, String templateName) {
+    public Template postProcessBeforeInstantiation(Template template, String templateName) {
         if(template instanceof AbstractTemplate){
             AbstractTemplate abstractTemplate= (AbstractTemplate) template;
             final TemplateResolver templateResolver = abstractTemplate.getTemplateResolver();

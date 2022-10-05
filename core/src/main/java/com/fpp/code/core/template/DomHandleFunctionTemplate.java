@@ -35,6 +35,7 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
                 final FileInputStream fileInputStream = new FileInputStream(getTemplateFile());
                 DomScriptCodeNodeBuilder domScriptCodeNodeBuilder=new DomScriptCodeNodeBuilder(XmlUtil.readXML(fileInputStream));
                 source= domScriptCodeNodeBuilder.parse();
+                this.templateFileClassInfoNoResolve = new TemplateFileClassInfo(getPrefix(source), getSuffix(source), getFunctionS(source));
             } catch (FileNotFoundException e) {
                 throw new CodeConfigException(e);
             }
@@ -46,7 +47,6 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
 
     @Override
     protected TemplateFileClassInfo doBuildTemplateResultCache(CacheKey cacheKey) {
-        this.templateFileClassInfoNoResolve = new TemplateFileClassInfo(getPrefix(source), getSuffix(source), getFunctionS(source));
         return super.doBuildTemplateResultCache(cacheKey);
     }
 
