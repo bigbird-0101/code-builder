@@ -105,10 +105,12 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
 
     @Override
     public void removeTemplate(String templateName) {
-        Template template = getTemplate(templateName);
-        super.removeTemplate(templateName);
-        //刷新模板到配置文件中
-        getEnvironment().removePropertySourceSerialize(new TemplatePropertySource(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE, template));
+        if(getTemplateNames().contains(templateName)) {
+            Template template = getTemplate(templateName);
+            super.removeTemplate(templateName);
+            //刷新模板到配置文件中
+            getEnvironment().removePropertySourceSerialize(new TemplatePropertySource(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE, template));
+        }
     }
 
     @Override

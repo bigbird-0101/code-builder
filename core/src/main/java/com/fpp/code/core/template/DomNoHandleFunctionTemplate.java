@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fpp.code.core.config.Environment;
@@ -8,6 +9,7 @@ import com.fpp.code.core.exception.CodeConfigException;
 import com.fpp.code.core.template.languagenode.CodeNode;
 import com.fpp.code.core.template.languagenode.DomScriptCodeNodeBuilder;
 import com.fpp.code.core.template.languagenode.DynamicCodeNodeContext;
+import com.fpp.code.exception.TemplateResolveException;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,6 +35,8 @@ public class DomNoHandleFunctionTemplate extends DefaultNoHandleFunctionTemplate
                 source= domScriptCodeNodeBuilder.parse();
             } catch (FileNotFoundException e) {
                 throw new CodeConfigException(e);
+            } catch (UtilException ed) {
+                throw new TemplateResolveException("dom template Resolve error {}",ed.getMessage());
             }
         }
     }

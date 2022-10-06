@@ -197,7 +197,7 @@ public abstract class Utils {
                 }
             }
             if(null==currentObj){
-                throw new TemplateResolveException("{} 模板中语法异常 {} 属性在对象中{}不存在",typeStr,name,object);
+                throw new TemplateResolveException("未定义的属性,模板中语法异常 {} 属性在变量表中不存在",typeStr,name);
             }
         }
         return currentObj;
@@ -223,7 +223,7 @@ public abstract class Utils {
             if (i == 0) {
                 if (!replaceKeyValue.containsKey(nodeName)) {
                     LOGGER.warn("getTargetObject itemParentNode {} 模板中语法异常 {} 属性在变量表中{}不存在",itemParentNode,nodeName,replaceKeyValue.keySet());
-                    throw new TemplateResolveException("{} 模板中语法异常 {} 属性在变量表中{}不存在",itemParentNode,nodeName,replaceKeyValue.keySet());
+                    throw new TemplateResolveException("未定义的属性,模板中语法异常 {} 属性在变量表中不存在",itemParentNode,nodeName);
                 }
                 current = replaceKeyValue.get(nodeName);
             } else {

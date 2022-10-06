@@ -1,5 +1,6 @@
 package com.fpp.code.core.template;
 
+import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fpp.code.core.cache.CacheKey;
@@ -27,17 +28,18 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
         this.setTemplateResolver(new SimpleTemplateResolver());
     }
 
-    private CodeNode source;
     @Override
     public void refresh() {
         if(null!=getTemplateFile()) {
             try {
                 final FileInputStream fileInputStream = new FileInputStream(getTemplateFile());
                 DomScriptCodeNodeBuilder domScriptCodeNodeBuilder=new DomScriptCodeNodeBuilder(XmlUtil.readXML(fileInputStream));
-                source= domScriptCodeNodeBuilder.parse();
+                CodeNode source = domScriptCodeNodeBuilder.parse();
                 this.templateFileClassInfoNoResolve = new TemplateFileClassInfo(getPrefix(source), getSuffix(source), getFunctionS(source));
             } catch (FileNotFoundException e) {
                 throw new CodeConfigException(e);
+            } catch (UtilException ed) {
+                throw new TemplateResolveException("dom template Resolve error {}",ed.getMessage());
             }
         }
         resolverResultCache.clear();

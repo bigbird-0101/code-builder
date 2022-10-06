@@ -32,6 +32,7 @@ import com.fpp.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 import com.fpp.code.core.template.variable.resource.ConfigFileTemplateVariableResource;
 import com.fpp.code.core.template.variable.resource.DataSourceTemplateVariableResource;
 import com.fpp.code.core.template.variable.resource.TemplateVariableResource;
+import com.fpp.code.exception.TemplateResolveException;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.fxui.event.DoGetTemplateAfterEvent;
 import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
@@ -553,8 +554,13 @@ public class ComplexController extends TemplateContextProvider implements Initia
             progressTask.setOnFailed(event -> {
                 Throwable e = event.getSource().getException();
                 if (e != null) {
+                    final Throwable cause = e.getCause();
                     logger.error("生成失败", e);
-                    FxAlerts.error(controllerWindow, "生成失败", e);
+                    if(cause instanceof TemplateResolveException){
+                        FxAlerts.error(controllerWindow,"生成失败",cause.getMessage());
+                    }else {
+                        FxAlerts.error(controllerWindow, "生成失败", e);
+                    }
                 } else {
                     FxAlerts.error(controllerWindow, "生成失败", event.getSource().getMessage());
                 }
@@ -639,7 +645,12 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     Platform.runLater(() -> abstractTemplateContext.publishEvent(
                             new DoGetTemplateAfterEvent(template, controller)));
                 }
-                doBuildTemplateParam.getFileBuilder().build(template);
+                try {
+                    doBuildTemplateParam.getFileBuilder().build(template);
+                }catch (TemplateResolveException templateResolveException){
+                    throw new TemplateResolveException("{} 解析异常,{}",template.getTemplateName(),
+                            templateResolveException.getMessage());
+                }
                 final long e = System.currentTimeMillis();
                 StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
             }, DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> doBuildTemplateParam.getOnProgressUpdate().accept(all, i.getAndIncrement()),

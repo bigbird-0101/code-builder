@@ -17,6 +17,7 @@ import com.fpp.code.fxui.CodeBuilderApplication;
 import com.fpp.code.fxui.common.AlertUtil;
 import com.fpp.code.fxui.common.TooltipUtil;
 import com.fpp.code.fxui.fx.bean.PageInputSnapshot;
+import com.fpp.code.fxui.fx.component.FxAlerts;
 import com.fpp.code.util.Utils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -181,7 +182,11 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
 
     public VBox initTemplateInfo(Template template) throws IOException {
         VBox root = FXMLLoader.load(resource);
-        initTemplateInfo(root, template);
+        try {
+            initTemplateInfo(root, template);
+        }catch (Exception e){
+            FxAlerts.warn("初始化模板异常",e.getMessage());
+        }
         return root;
     }
 
