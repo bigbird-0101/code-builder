@@ -15,7 +15,6 @@ import static java.util.stream.Collectors.toList;
  * foreach 语句解析器
  * @author fpp
  * @version 1.0
- * @date 2020/6/9 16:50
  */
 public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
 

@@ -6,7 +6,6 @@ import io.github.bigbird0101.code.core.domain.DefinedFunctionDomain;
 /**
  * @author fpp
  * @version 1.0
- * @date 2020/7/13 8:57
  */
 public interface DefinedFunctionResolver {
     /**

@@ -47,8 +47,7 @@ public interface PropertySources extends Serializable {
 
     /**
      * convert Properties
-     * @param propertySources
-     * @return
+     * @return Properties
      */
     default Properties convertProperties(){
         Iterator<PropertySource<?>> iterable = this.iterator();

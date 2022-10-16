@@ -13,7 +13,6 @@ import java.util.List;
 /**
  * @author fpp
  * @version 1.0
- * @date 2021/1/8 9:35
  */
 public abstract class TemplateContextProvider {
     private Logger logger= LogManager.getLogger(TemplateContextProvider.class);

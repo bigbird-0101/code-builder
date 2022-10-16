@@ -32,7 +32,6 @@ import java.util.Optional;
  *
  * @author fpp
  * @version 1.0
- * @date 2020/5/20 14:30
  */
 public abstract class AbstractTemplate implements Template {
     private static Logger logger= LogManager.getLogger(AbstractTemplate.class);

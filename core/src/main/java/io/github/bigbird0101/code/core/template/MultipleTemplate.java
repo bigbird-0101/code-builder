@@ -8,7 +8,6 @@ import java.util.Set;
  * 多个模板集合 组合
  * @author fpp
  * @version 1.0
- * @date 2020/6/15 18:19
  */
 public interface MultipleTemplate extends Cloneable, Serializable {
     /**

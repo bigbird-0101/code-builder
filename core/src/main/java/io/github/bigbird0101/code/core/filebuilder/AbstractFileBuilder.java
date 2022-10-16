@@ -3,7 +3,6 @@ package io.github.bigbird0101.code.core.filebuilder;
 /**
  * @author fpp
  * @version 1.0
- * @date 2020/6/30 18:20
  */
 public abstract class AbstractFileBuilder implements FileBuilder{
     private FileNameBuilder fileNameBuilder;

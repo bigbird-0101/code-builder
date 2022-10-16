@@ -13,7 +13,6 @@ import static io.github.bigbird0101.code.core.template.variable.resource.Templat
  * 默认文件名生成器
  * @author fpp
  * @version 1.0
- * @date 2020/6/30 17:42
  */
 public class DefaultFileNameBuilderImpl implements FileNameBuilder {
     /**

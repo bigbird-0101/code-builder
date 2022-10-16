@@ -56,8 +56,8 @@ public abstract class Utils {
 
     /**
      * 路径转包
-     * @param path
-     * @return
+     * @param path 路径
+     * @return 路径转包
      */
     public static String pathToPackage(String path){
         return path.replaceAll("/",".")
@@ -66,6 +66,8 @@ public abstract class Utils {
 
     /**
      * 第一个字符串大写
+     * @param str 字符串
+     * @return 第一个字符串大写
      */
     public static String firstUpperCase(String str) {
         if (str == null) {
@@ -82,6 +84,8 @@ public abstract class Utils {
 
     /**
      * 第一个字符串小写
+     * @param str 字符串
+     * @return 第一个字符串小写
      */
     public static String firstLowerCase(String str) {
         if (str == null) {
@@ -114,9 +118,9 @@ public abstract class Utils {
 
 
     /**
-     * @说明 ： 获得栈数据
-     * @参数 ：@param stack
-     * @参数 ：@param bool true 弹出  false 获取
+     * 获得栈数据
+     * @param stack 栈数据
+     * @param bool true 弹出  false 获取
      **/
     private static String getStack(Stack<String> stack, boolean bool) {
         String result = null;
@@ -133,8 +137,8 @@ public abstract class Utils {
     /**
      * 获取字符串的第一个换行和空格
      *
-     * @param str
-     * @return
+     * @param str 字符串
+     * @return 获取字符串的第一个换行和空格
      */
     public static String getFirstNewLineNull(String str) {
         try {
@@ -148,8 +152,8 @@ public abstract class Utils {
     /**
      * 获取字符串的最后一个换行和空格
      *
-     * @param str
-     * @return
+     * @param str 字符串
+     * @return 获取字符串的最后一个换行和空格
      */
     public static String getLastNewLineNull(String str) {
         String first = str.trim().substring(str.trim().length() - 1);
@@ -158,8 +162,8 @@ public abstract class Utils {
 
     /**
      * 删除字符串尾部的空格
-     * @param str
-     * @return
+     * @param str 字符串
+     * @return 删除字符串尾部的空格
      */
     public static String removeSuffixEmpty(String str){
         while(str.endsWith(SPACE)){
@@ -173,7 +177,7 @@ public abstract class Utils {
      *
      * @param typeStr 一个对象的形如json的字符串属性列  比如:student.teacher.name
      * @param object  源对象  比如:student
-     * @return
+     * @return 获取一个对象的属性字段值
      */
     @SuppressWarnings("unchecked")
     public static Object getObjectFieldValue(String typeStr, Object object) {
@@ -246,8 +250,9 @@ public abstract class Utils {
     /**
      * 通过路径名获取文件名
      *
-     * @param path
-     * @return
+     * @param path 路径名
+     * @param pattern pattern
+     * @return 通过路径名获取文件名
      */
     public static String getFileNameByPath(String path, String pattern) {
         String[] split = path.split(pattern);
@@ -293,7 +298,7 @@ public abstract class Utils {
      * 下划线命名转为驼峰命名
      *
      * @param para 下划线命名的字符串
-     *
+     * @return 下划线命名转为驼峰命名
      */
     public static String underlineToHump(String para) {
         if (null == para) {

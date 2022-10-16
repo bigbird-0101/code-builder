@@ -7,7 +7,6 @@ import io.github.bigbird0101.code.util.Utils;
  * 默认模板最终生成文件的文件名命名策略
  * @author fpp
  * @version 1.0
- * @date 2020/7/2 18:43
  */
 public class DefaultTargetFilePrefixNameStrategy implements TargetFilePrefixNameStrategy {
     private static final int TYPE_VALUE=1;

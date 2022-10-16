@@ -20,7 +20,6 @@ import java.util.regex.Matcher;
  * 需要对方法进行操作的模板
  * @author fpp
  * @version 1.0
- * @date 2020/6/9 17:44
  */
 public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     private static Logger logger= LogManager.getLogger(AbstractHandleFunctionTemplate.class);

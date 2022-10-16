@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 /**
  * @author fpp
  * @version 1.0
- * @date 2020/6/12 17:49
  */
 public class ToolTemplateResolver extends AbstractTemplateLangResolver implements TemplateContextAware {
 

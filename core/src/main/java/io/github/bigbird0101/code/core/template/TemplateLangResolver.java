@@ -9,7 +9,6 @@ import java.util.Map;
  *
  * @author fpp
  * @version 1.0
- * @date 2020/6/9 16:43
  */
 public interface TemplateLangResolver extends Rule {
 

@@ -7,7 +7,6 @@ import io.github.bigbird0101.code.exception.TemplateResolveException;
 /**
  * @author fpp
  * @version 1.0
- * @date 2020/6/29 11:04
  */
 public interface FileCodeBuilderStrategy {
 

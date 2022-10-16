@@ -12,7 +12,6 @@ import java.io.IOException;
  * 不需要操作方法的模板
  * @author fpp
  * @version 1.0
- * @date 2020/6/9 17:45
  */
 public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate {
 

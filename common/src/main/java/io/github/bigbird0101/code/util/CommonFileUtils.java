@@ -11,13 +11,12 @@ import java.util.Objects;
 /**
  * @author fpp
  * @version 1.0
- * @date 2020/5/20 15:10
  */
 public abstract class CommonFileUtils {
 
     /**
      *
-     * @param fileName
+     * @param fileName 文件名
      * @return 返回文件路径
      */
     public static String getFilePath(String fileName) {
@@ -42,7 +41,7 @@ public abstract class CommonFileUtils {
 
     /**
      *
-     * @param fileName
+     * @param fileName 文件名
      * @return 获取文件流
      */
     public static InputStream getFileInputStream(String fileName) {
@@ -76,7 +75,7 @@ public abstract class CommonFileUtils {
 
     /**
      *
-     * @param fileName
+     * @param fileName 文件名
      * @return 获取配置文件流
      */
     public static InputStream getConfigFileInput(String fileName) {
@@ -94,9 +93,9 @@ public abstract class CommonFileUtils {
 
     /**
      *
-     * @param fileName
+     * @param fileName 文件名
      * @return 获取配置文件输出流
-     * @throws FileNotFoundException
+     * @throws FileNotFoundException 文件没找到
      */
     public static FileOutputStream getConfigFileOut(String fileName) throws FileNotFoundException {
         try {
@@ -109,8 +108,8 @@ public abstract class CommonFileUtils {
 
     /**
      *
-     * @param fileName
-     * @throws IOException
+     * @param fileName 文件名
+     * @throws IOException io异常
      */
     public static void clearFileContent(String fileName) throws IOException {
         try (FileOutputStream fileWriter = CommonFileUtils.getConfigFileOut(fileName)) {

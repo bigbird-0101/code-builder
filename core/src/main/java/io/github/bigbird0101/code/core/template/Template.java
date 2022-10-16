@@ -4,14 +4,12 @@ import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameS
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
 /**
  * @author fpp
  * @version 1.0
- * @date 2020/5/15 17:30
  */
 public interface Template extends Cloneable, Serializable {
     String TABLE_INFO_KEY="tableInfo";
@@ -134,7 +132,6 @@ public interface Template extends Cloneable, Serializable {
 
     /**
      * 刷新当前模板 重新加载模板中的内容
-     * @throws IOException 模板文件不存在异常
      */
     void refresh();
 }

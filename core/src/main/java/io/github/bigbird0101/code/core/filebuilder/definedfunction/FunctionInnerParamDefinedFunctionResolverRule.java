@@ -16,7 +16,6 @@ import java.util.stream.Stream;
  *
  * @author fpp
  * @version 1.0
- * @date 2020/7/13 9:47
  */
 public class FunctionInnerParamDefinedFunctionResolverRule extends AbstractDefinedFunctionResolverRule {
     /**

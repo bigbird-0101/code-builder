@@ -8,7 +8,6 @@ import java.security.PrivilegedActionException;
  * 配置文件异常
  * @author fpp
  * @version 1.0
- * @date 2020/7/10 11:27
  */
 public class CodeConfigException extends CodeBuilderException{
     /**

@@ -7,7 +7,6 @@ import io.github.bigbird0101.code.util.Utils;
  * 截断前面4个字符
  * @author fpp
  * @version 1.0
- * @date 2020/7/13 19:00
  */
 public class OnlySubFourTargetFilePrefixNameStrategy implements TargetFilePrefixNameStrategy {
     private static final int TYPE_VALUE=2;

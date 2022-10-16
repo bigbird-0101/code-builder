@@ -47,8 +47,8 @@ public abstract class AbstractTemplateLangResolver implements TemplateLangResolv
      * @param targetObject 语法中目标对象
      * @param body 语法中的语法题
      * @param targetObjectKey 语法中所包含的对象key
-     * @return
-     * @throws IllegalAccessException
+     * @return 获取 语法语句中的 body中的解析后的结果
+     * @throws TemplateResolveException TemplateResolveException
      */
     protected String getLangBodyResult(Object targetObject, String body, String targetObjectKey) throws TemplateResolveException {
         StringBuilder stringBuilder=new StringBuilder();

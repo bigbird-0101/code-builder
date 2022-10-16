@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 /**
  * @author fpp
  * @version 1.0
- * @date 2020/6/12 17:49
  */
 public class DependTemplateResolver extends AbstractTemplateLangResolver implements TemplateContextAware {
     private static Logger logger= LogManager.getLogger(DependTemplateResolver.class);

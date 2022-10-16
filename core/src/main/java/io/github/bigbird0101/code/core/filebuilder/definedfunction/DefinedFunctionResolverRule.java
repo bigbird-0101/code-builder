@@ -17,7 +17,6 @@ import static cn.hutool.core.lang.Validator.isChinese;
 /**
  * @author fpp
  * @version 1.0
- * @date 2020/7/13 9:03
  */
 public interface DefinedFunctionResolverRule {
     String QUOTATION_MARKS = "\"";

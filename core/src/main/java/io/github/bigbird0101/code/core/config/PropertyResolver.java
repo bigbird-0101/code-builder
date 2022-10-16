@@ -6,7 +6,6 @@ import java.util.Optional;
 /**
  * @author fpp
  * @version 1.0
- * @date 2020/5/7 15:53
  */
 public interface PropertyResolver extends Serializable {
     /**

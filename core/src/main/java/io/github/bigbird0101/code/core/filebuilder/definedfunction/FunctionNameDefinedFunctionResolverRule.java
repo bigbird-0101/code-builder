@@ -12,7 +12,6 @@ import java.util.stream.Stream;
  * 方法名 解析规则
  * @author fpp
  * @version 1.0
- * @date 2020/7/13 9:53
  */
 public class FunctionNameDefinedFunctionResolverRule implements DefinedFunctionResolverRule {
     /**

@@ -18,7 +18,6 @@ import java.util.Objects;
  * 生成新文件的代码策略
  * @author fpp
  * @version 1.0
- * @date 2020/6/30 17:51
  */
 public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy {
     private static Logger logger= LogManager.getLogger(NewFileCodeBuilderStrategy.class);

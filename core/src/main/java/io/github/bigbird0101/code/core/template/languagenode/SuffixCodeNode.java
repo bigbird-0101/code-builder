@@ -3,9 +3,11 @@ package io.github.bigbird0101.code.core.template.languagenode;
 /**
  * 表示整个模板的后缀节点 用于可控制方法的模板 作为后缀
  * 类似
+ * <p>
  * <suffix>
  *    factory
  * </suffix>
+ * </p>
  *   .
  *   .
  *   .

@@ -8,7 +8,6 @@ import java.util.Set;
 /**
  * @author fpp
  * @version 1.0
- * @date 2021/1/7 14:03
  */
 @JSONType(serializer = AbstractMultipleTemplate.MultipleTemplateSerializer.class)
 public class GenericMultipleTemplate extends AbstractMultipleTemplate{

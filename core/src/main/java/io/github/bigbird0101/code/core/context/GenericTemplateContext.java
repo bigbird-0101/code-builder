@@ -7,7 +7,6 @@ import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
 /**
  * @author fpp
  * @version 1.0
- * @date 2021/1/7 11:35
  */
 public class GenericTemplateContext extends AbstractRefreshTemplateContext {
     public GenericTemplateContext(Environment environment){

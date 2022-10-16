@@ -13,7 +13,6 @@ import java.util.stream.Stream;
  * 自定义方法mybatis sqlwhere条件解析规则
  * @author fpp
  * @version 1.0
- * @date 2020/7/13 10:15
  */
 public class MybatisSqlWhereDefinedFunctionResolverRule extends DbTemplateWhereDefinedFunctionResolverRule {
     private static final String JDBC_TYPE = "\\s*,\\s*jdbcType\\s*=\\s*";

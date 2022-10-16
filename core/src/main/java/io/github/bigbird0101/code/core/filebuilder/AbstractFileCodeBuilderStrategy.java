@@ -15,7 +15,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -107,8 +106,7 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
      * 获取源文件的代码
      *
      * @param srcFilePath
-     * @return
-     * @throws IOException
+     * @return 获取源文件的代码
      */
     public String getSrcFileCode(String srcFilePath){
         String result ="";

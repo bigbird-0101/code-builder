@@ -8,7 +8,6 @@ import java.util.Map;
  * 注意:信息中的模板信息还未替换
  * @author fpp
  * @version 1.0
- * @date 2020/5/20 14:58
  */
 public class TemplateFileClassInfo implements Serializable {
 

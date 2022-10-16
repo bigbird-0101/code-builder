@@ -13,7 +13,6 @@ import java.util.stream.Stream;
  * 自定义方法ibatis sqlwhere条件解析规则
  * @author fpp
  * @version 1.0
- * @date 2020/7/13 10:15
  */
 public class IbatisSqlWhereDefinedFunctionResolverRule  extends DbTemplateWhereDefinedFunctionResolverRule {
     private static org.apache.logging.log4j.Logger logger= LogManager.getLogger(IbatisSqlWhereDefinedFunctionResolverRule.class);

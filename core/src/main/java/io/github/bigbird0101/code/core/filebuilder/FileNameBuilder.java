@@ -7,7 +7,6 @@ import io.github.bigbird0101.code.core.template.Template;
  * 文件名命名
  * @author fpp
  * @version 1.0
- * @date 2020/6/29 11:20
  */
 public interface FileNameBuilder {
     /**

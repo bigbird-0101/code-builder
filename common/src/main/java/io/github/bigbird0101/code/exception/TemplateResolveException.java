@@ -8,7 +8,6 @@ import java.security.PrivilegedActionException;
  * 模板解析异常
  * @author fpp
  * @version 1.0
- * @date 2020/7/10 11:01
  */
 public class TemplateResolveException extends RuntimeException {
 
@@ -26,8 +25,8 @@ public class TemplateResolveException extends RuntimeException {
 
     /**
      *
-     * @param message
-     * @param param
+     * @param message 异常信息
+     * @param param 具体的参数
      */
     public TemplateResolveException(CharSequence message, Object... param) {
         super(StrUtil.format(message, param));

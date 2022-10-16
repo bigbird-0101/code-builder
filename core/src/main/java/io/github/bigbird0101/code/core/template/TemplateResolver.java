@@ -8,7 +8,6 @@ import java.util.Map;
  * 模板解析器
  * @author fpp
  * @version 1.0
- * @date 2020/6/15 11:11
  */
 public interface TemplateResolver extends TemplateVariableResolver{
     /**

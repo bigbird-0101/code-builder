@@ -9,7 +9,6 @@ import java.util.Set;
 /**
  * @author fpp
  * @version 1.0
- * @date 2021/1/6 19:52
  */
 public class GenericMultipleTemplateDefinition implements MultipleTemplateDefinition {
 

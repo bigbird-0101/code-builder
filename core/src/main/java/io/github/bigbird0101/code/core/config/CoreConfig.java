@@ -8,7 +8,6 @@ import io.github.bigbird0101.code.core.domain.ProjectTemplateInfoConfig;
  * 核心配置文件
  * @author fpp
  * @version 1.0
- * @date 2020/6/30 18:11
  */
 public class CoreConfig {
     /**

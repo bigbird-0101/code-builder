@@ -5,7 +5,6 @@ import com.alibaba.fastjson.annotation.JSONType;
 /**
  * @author fpp
  * @version 1.0
- * @date 2020/6/15 18:24
  */
 @JSONType(serializer = AbstractTemplate.TemplateSerializer.class)
 public class DefaultHandleFunctionTemplate extends AbstractHandleFunctionTemplate {
