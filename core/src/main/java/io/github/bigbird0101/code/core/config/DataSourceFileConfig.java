@@ -1,0 +1,1 @@
+package io.github.bigbird0101.code.core.config;/** * @author Administrator */public class DataSourceFileConfig extends MultiplePropertySources {    private static final String CONFIG_PREFIX="code.datasource.";}

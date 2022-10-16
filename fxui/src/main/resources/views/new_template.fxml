@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:id="vBox" prefHeight="600.0" prefWidth="740.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fxui.fx.controller.TemplateController">
+<VBox fx:id="vBox" prefHeight="600.0" prefWidth="740.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.bigbird0101.code.fxui.fx.controller.TemplateController">
     <AnchorPane prefHeight="534.0" prefWidth="640.0" VBox.vgrow="ALWAYS">
         <Label layoutX="82.0" layoutY="60.0" text="项目地址:" />
         <TextArea fx:id="projectUrl" layoutX="182.0" layoutY="49.0" prefHeight="52.0" prefWidth="315.0" />

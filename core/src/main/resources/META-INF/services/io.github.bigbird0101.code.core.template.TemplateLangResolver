@@ -1,0 +1,4 @@
+io.github.bigbird0101.code.core.template.ForeachTemplateResolver
+io.github.bigbird0101.code.core.template.IfTemplateResolver
+io.github.bigbird0101.code.core.template.ToolTemplateResolver
+io.github.bigbird0101.code.core.template.DependTemplateResolver

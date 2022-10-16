@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>code-builder</artifactId>
-        <groupId>com.fpp</groupId>
+        <groupId>io.github.bigbird-0101</groupId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -59,7 +59,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.fpp.code.fxui.CodeBuilderApplication</mainClass>
+                            <mainClass>io.github.bigbird0101.code.fxui.CodeBuilderApplication</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

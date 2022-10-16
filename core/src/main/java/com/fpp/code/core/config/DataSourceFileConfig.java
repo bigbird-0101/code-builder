@@ -1,1 +1,0 @@
-package com.fpp.code.core.config;/** * @author Administrator */public class DataSourceFileConfig extends MultiplePropertySources {    private static final String CONFIG_PREFIX="code.datasource.";}

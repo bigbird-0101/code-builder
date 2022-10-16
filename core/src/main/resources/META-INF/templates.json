@@ -36,7 +36,7 @@
 				"DoMain"
 			],
 			"srcPackage":"com/zzd/talk/service/provider/rpcservice",
-			"templateClassName":"com.fpp.code.core.template.HaveDependTemplateHandleFunctionTemplate",
+			"templateClassName":"io.github.bigbird0101.code.core.template.HaveDependTemplateHandleFunctionTemplate",
 			"filePrefixNameStrategy":{
 				"pattern":"*{tableInfo.domainName}*Dao",
 				"value":3
@@ -50,7 +50,7 @@
 			"module":"/",
 			"name":"ServiceImpl",
 			"srcPackage":"com/zzd/talk/service/provider/rpcservice",
-			"templateClassName":"com.fpp.code.core.template.DefaultHandleFunctionTemplate",
+			"templateClassName":"io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemplate",
 			"filePrefixNameStrategy":{
 				"pattern":"*{tableInfo.domainName}*RpcImplService222",
 				"value":3
@@ -64,7 +64,7 @@
 			"module":"/",
 			"name":"ServiceInterface",
 			"srcPackage":"com/zzd/talk/service/provider/rpcservice",
-			"templateClassName":"com.fpp.code.core.template.DefaultHandleFunctionTemplate",
+			"templateClassName":"io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemplate",
 			"filePrefixNameStrategy":{
 				"pattern":"*{tableInfo.domainName}*RpcImplService222",
 				"value":3
@@ -82,7 +82,7 @@
 				"DoMain"
 			],
 			"srcPackage":"com/zzd/talk/service/provider/rpcservice",
-			"templateClassName":"com.fpp.code.core.template.HaveDependTemplateHandleFunctionTemplate",
+			"templateClassName":"io.github.bigbird0101.code.core.template.HaveDependTemplateHandleFunctionTemplate",
 			"filePrefixNameStrategy":{
 				"pattern":"*{tableInfo.domainName}*Controller",
 				"value":3
@@ -96,7 +96,7 @@
 			"module":"/",
 			"name":"DoMain",
 			"srcPackage":"com/zzd/talk/service/provider/rpcservice",
-			"templateClassName":"com.fpp.code.core.template.DefaultNoHandleFunctionTemplate",
+			"templateClassName":"io.github.bigbird0101.code.core.template.DefaultNoHandleFunctionTemplate",
 			"filePrefixNameStrategy":{
 				"pattern":"*{tableInfo.domainName}*",
 				"value":3

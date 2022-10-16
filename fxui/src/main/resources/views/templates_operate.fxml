@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox fx:id="box" stylesheets="@../css/template_operate.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fpp.code.fxui.fx.controller.TemplatesOperateController">
+<VBox fx:id="box" stylesheets="@../css/template_operate.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.bigbird0101.code.fxui.fx.controller.TemplatesOperateController">
     <VBox>
           <Label fx:id="currentTemplate" alignment="CENTER" contentDisplay="CENTER" prefHeight="15.0" prefWidth="1000" textAlignment="JUSTIFY">
          <font>

@@ -1,0 +1,6 @@
+io.github.bigbird0101.code.core.filebuilder.definedfunction.FunctionNameDefinedFunctionResolverRule
+io.github.bigbird0101.code.core.filebuilder.definedfunction.FunctionParamDefinedFunctionResolverRule
+io.github.bigbird0101.code.core.filebuilder.definedfunction.FunctionInnerParamDefinedFunctionResolverRule
+io.github.bigbird0101.code.core.filebuilder.definedfunction.JavaFunctionBodyOuterDefinedFunctionResolverRule
+io.github.bigbird0101.code.core.filebuilder.definedfunction.MybatisSqlWhereDefinedFunctionResolverRule
+io.github.bigbird0101.code.core.filebuilder.definedfunction.IbatisSqlWhereDefinedFunctionResolverRule
