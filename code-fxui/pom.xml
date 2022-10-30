@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>code-builder</artifactId>
+        <artifactId>code-builder-parent</artifactId>
         <groupId>io.github.bigbird-0101</groupId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
@@ -14,6 +14,8 @@
     <artifactId>code-fxui</artifactId>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
         <skip_maven_deploy>false</skip_maven_deploy>
     </properties>
     <dependencies>
@@ -42,16 +44,6 @@
     <build>
         <finalName>code-builder</finalName>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>utf-8</encoding>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
