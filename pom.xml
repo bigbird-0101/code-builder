@@ -163,7 +163,7 @@
         </profile>
     </profiles>
     <properties>
-        <revision>3.0.3</revision>
+        <revision>3.0.4</revision>
         <skip_maven_deploy>false</skip_maven_deploy>
         <!-- Compiler settings properties -->
         <maven.compiler.source>1.8</maven.compiler.source>

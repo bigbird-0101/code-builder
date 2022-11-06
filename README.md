@@ -28,7 +28,7 @@ I'm *{helloWorld}*
    <dependency>
        <groupId>io.github.bigbird-0101</groupId>
        <artifactId>code-core</artifactId>
-       <version>3.0.3</version>
+       <version>3.0.4</version>
    </dependency>
    ```
    
