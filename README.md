@@ -19,11 +19,19 @@
 文件内容为
 
 ```txt
-I'm *{helloWorld}* .
+I'm *{helloWorld}*
 ```
 
 2. 引入core 依赖
 
+   ```maven
+   <dependency>
+       <groupId>io.github.bigbird-0101</groupId>
+       <artifactId>code-core</artifactId>
+       <version>3.0.3</version>
+   </dependency>
+   ```
+   
    ```java
    package com.fpp.code.core.filebuilder.definedfunction;
    
@@ -43,9 +51,6 @@ I'm *{helloWorld}* .
        public void helloWorld() {
            StandardEnvironment environment=new StandardEnvironment();
            GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
-           final String testConfigTemplateResource = "hello_world";
-           genericTemplateContext.registerTemplateDefinition(testConfigTemplateResource, TemplateDefinitionBuilder.build(
-                   DefaultNoHandleFunctionTemplate.class,"hello_world.template"));
            final Template dao = genericTemplateContext.getTemplate("hello_world");
            Map<String, Object> temp = new HashMap<>(10);
            temp.put("helloWorld","hello world");
