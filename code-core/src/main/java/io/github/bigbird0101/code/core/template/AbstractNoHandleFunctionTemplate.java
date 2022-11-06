@@ -19,6 +19,8 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
 
     private final Cache<CacheKey,String> resolverResultCache=new SimpleCacheImpl<>(156);
 
+    protected volatile boolean refreshed;
+
     @Override
     public void refresh(){
         resolverResultCache.clear();
@@ -27,6 +29,7 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
         } catch (IOException e) {
             throw new CodeBuilderException(e);
         }
+        refreshed=true;
     }
 
 
@@ -50,6 +53,9 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
      * 解析模板之前
      */
     protected void doResolverTemplateBefore() {
+        if(!refreshed){
+            this.refresh();
+        }
         initTemplateVariables();
     }
 

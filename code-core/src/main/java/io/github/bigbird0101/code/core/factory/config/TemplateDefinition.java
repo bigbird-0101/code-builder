@@ -1,8 +1,8 @@
 package io.github.bigbird0101.code.core.factory.config;
 
+import io.github.bigbird0101.code.core.config.Resource;
 import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -51,7 +51,7 @@ public interface TemplateDefinition extends Cloneable, Serializable {
      * 获取模板文件
      * @return 模板文件
      */
-    File getTemplateFile();
+    Resource getTemplateResource();
 
     /**
      * 是否控制方法

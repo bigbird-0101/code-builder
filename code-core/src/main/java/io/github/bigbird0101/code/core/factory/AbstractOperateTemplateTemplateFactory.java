@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static io.github.bigbird0101.code.core.config.AbstractEnvironment.CODE_CONTEXT_TEMPLATE_INIT_REFRESH;
+
 /**
  * @author fpp
  */
@@ -87,7 +89,11 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     private void initTemplatePropertyValues(String templateName, Template template, RootTemplateDefinition templateDefinition) {
         BeanUtil.copyProperties(templateDefinition,template);
         template.setTemplateName(templateName);
-        template.refresh();
+        //是否需要刷新模板
+        final Boolean initRefresh = getEnvironment().getProperty(CODE_CONTEXT_TEMPLATE_INIT_REFRESH, Boolean.class);
+        if(Boolean.TRUE.equals(initRefresh)){
+            template.refresh();
+        }
     }
 
     @Override

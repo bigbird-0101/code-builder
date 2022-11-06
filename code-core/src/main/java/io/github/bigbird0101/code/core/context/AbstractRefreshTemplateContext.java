@@ -3,6 +3,7 @@ package io.github.bigbird0101.code.core.context;
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 import io.github.bigbird0101.code.core.factory.TemplateScanner;
+import io.github.bigbird0101.code.core.template.Template;
 
 /**
  * @author bigbird-0101
@@ -70,5 +71,15 @@ public abstract class AbstractRefreshTemplateContext extends AbstractTemplateCon
                     "call 'refresh' before accessing beans via the TemplateContext");
         }
         return templateFactory;
+    }
+
+    /**
+     * 刷新所有的模板
+     */
+    public void refreshAllTemplate(){
+        getTemplateNames().forEach(s->{
+            final Template template = getTemplate(s);
+            template.refresh();
+        });
     }
 }

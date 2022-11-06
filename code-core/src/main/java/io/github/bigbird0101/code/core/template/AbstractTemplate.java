@@ -1,13 +1,17 @@
 package io.github.bigbird0101.code.core.template;
 
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
+import io.github.bigbird0101.code.core.cache.Cache;
+import io.github.bigbird0101.code.core.cache.CachePool;
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.Environment;
+import io.github.bigbird0101.code.core.config.Resource;
 import io.github.bigbird0101.code.core.domain.TableInfo;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.template.targetfile.DefaultTargetFilePrefixNameStrategy;
@@ -21,12 +25,14 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * 模板核心配置
@@ -35,7 +41,9 @@ import java.util.Optional;
  * @version 1.0
  */
 public abstract class AbstractTemplate implements Template {
-    private static Logger logger= LogManager.getLogger(AbstractTemplate.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractTemplate.class);
+
+    private static Cache<String,String> MATCH_FILE_CONTENT_CACHE= CachePool.build(100);
 
     private String templateName;
 
@@ -47,7 +55,7 @@ public abstract class AbstractTemplate implements Template {
 
     private String srcPackage;
 
-    private File templateFile;
+    private Resource templateResource;
 
     private Map<String,Object> templateVariables;
 
@@ -119,22 +127,22 @@ public abstract class AbstractTemplate implements Template {
      * @throws IOException
      */
     public String readTemplateFile() throws IOException {
-        if(null==templateFile){
+        if(null== templateResource){
             return "";
         }
-        String result = IOUtils.toString(Files.newInputStream(templateFile.toPath()), StandardCharsets.UTF_8);
-        AbstractEnvironment.putTemplateContent(templateFile.getAbsolutePath(), result);
-        return AbstractEnvironment.getTemplateContent(templateFile.getAbsolutePath());
+        String result = IOUtils.toString(templateResource.getInputStream(), UTF_8);
+        AbstractEnvironment.putTemplateContent(templateResource.getFile().getAbsolutePath(), result);
+        return AbstractEnvironment.getTemplateContent(templateResource.getFile().getAbsolutePath());
     }
 
     @Override
-    public File getTemplateFile() {
-        return templateFile;
+    public Resource getTemplateResource() {
+        return templateResource;
     }
 
     @Override
-    public void setTemplateFile(File templateFile) {
-        this.templateFile = templateFile;
+    public void setTemplateResource(Resource templateResource) {
+        this.templateResource = templateResource;
     }
 
     @Override
@@ -192,6 +200,28 @@ public abstract class AbstractTemplate implements Template {
     }
 
     @Override
+    public boolean match(File file) {
+        try {
+            final Path path = file.toPath();
+            String content = MATCH_FILE_CONTENT_CACHE.get(path.toString());
+            if (null == content) {
+                content = IoUtil.readUtf8(Files.newInputStream(path));
+                MATCH_FILE_CONTENT_CACHE.put(path.toString(), content);
+            }
+            return doMatch(content);
+        } catch (IOException e) {
+            throw new CodeConfigException(e);
+        }
+    }
+
+    /**
+     * 真正匹配逻辑
+     * @param content 文件内容
+     * @return
+     */
+    protected abstract boolean doMatch(String content);
+
+    @Override
     public Object clone(){
         return ObjectUtil.cloneByStream(this);
     }
@@ -210,7 +240,7 @@ public abstract class AbstractTemplate implements Template {
                 Objects.equals(getModule(), that.getModule()) &&
                 Objects.equals(getSourcesRoot(), that.getSourcesRoot()) &&
                 Objects.equals(getSrcPackage(), that.getSrcPackage()) &&
-                Objects.equals(getTemplateFile(), that.getTemplateFile()) &&
+                Objects.equals(getTemplateResource(), that.getTemplateResource()) &&
                 Objects.equals(getTemplateResolver(), that.getTemplateResolver()) &&
                 Objects.equals(getTargetFilePrefixNameStrategy(), that.getTargetFilePrefixNameStrategy()) &&
                 Objects.equals(getTargetFileSuffixName(), that.getTargetFileSuffixName());
@@ -218,7 +248,7 @@ public abstract class AbstractTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTemplateName(), getProjectUrl(), getModule(), getSourcesRoot(), getSrcPackage(), getTemplateFile(),getTemplateResolver(), getTargetFilePrefixNameStrategy(), getTargetFileSuffixName());
+        return Objects.hash(getTemplateName(), getProjectUrl(), getModule(), getSourcesRoot(), getSrcPackage(), getTemplateResource(),getTemplateResolver(), getTargetFilePrefixNameStrategy(), getTargetFileSuffixName());
     }
 
     @Override
@@ -252,8 +282,12 @@ public abstract class AbstractTemplate implements Template {
         public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) {
             AbstractTemplate abstractTemplate = (AbstractTemplate) object;
             JSONObject jsonObject = new JSONObject();
-            if (null != abstractTemplate.getTemplateFile()) {
-                jsonObject.put("fileName", abstractTemplate.getTemplateFile().getName());
+            if (null != abstractTemplate.getTemplateResource()) {
+                try {
+                    jsonObject.put("fileName", abstractTemplate.getTemplateResource().getFile().getName());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
             jsonObject.put("name", abstractTemplate.getTemplateName());
             final TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = abstractTemplate.getTargetFilePrefixNameStrategy();
@@ -262,7 +296,8 @@ public abstract class AbstractTemplate implements Template {
                 JSONObject value = new JSONObject();
                 value.put("value", typeValue);
                 if (abstractTemplate.getTargetFilePrefixNameStrategy() instanceof PatternTargetFilePrefixNameStrategy) {
-                    PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy = (PatternTargetFilePrefixNameStrategy) abstractTemplate.getTargetFilePrefixNameStrategy();
+                    PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy =
+                            (PatternTargetFilePrefixNameStrategy) abstractTemplate.getTargetFilePrefixNameStrategy();
                     value.put("pattern", patternTemplateFilePrefixNameStrategy.getPattern());
                 }
                 jsonObject.put("filePrefixNameStrategy", value);
@@ -277,8 +312,8 @@ public abstract class AbstractTemplate implements Template {
                 HaveDependTemplate haveDependTemplate=(HaveDependTemplate)object;
                 jsonObject.put("dependTemplates",haveDependTemplate.getDependTemplates());
             }
-            if(logger.isInfoEnabled()){
-                logger.info(" JSON Serializer {}",jsonObject);
+            if(LOGGER.isInfoEnabled()){
+                LOGGER.info(" JSON Serializer {}",jsonObject);
             }
             serializer.write(jsonObject);
         }

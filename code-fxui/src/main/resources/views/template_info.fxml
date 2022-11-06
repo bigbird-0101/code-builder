@@ -15,9 +15,22 @@
                 </HBox>
             </center>
             <right>
-                <ImageView fx:id="editTemplate" fitHeight="20.0" fitWidth="20.0" layoutX="4.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="TOP_RIGHT">
-                    <Image url="@/images/edit.png" />
-                </ImageView>
+                <HBox>
+                    <ImageView fx:id="editTemplate" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="TOP_RIGHT">
+                        <Image url="@/images/edit.png" />
+                    </ImageView>
+                    <VBox>
+                        <padding>
+                            <Insets left="10" right="10.0"/>
+                        </padding>
+                    </VBox>
+                    <ImageView fx:id="openTargetFile" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="TOP_RIGHT">
+                        <Image url="@/images/openFile.png" />
+                    </ImageView>
+                    <padding>
+                        <Insets left="10" right="10.0"/>
+                    </padding>
+                </HBox>
             </right>
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

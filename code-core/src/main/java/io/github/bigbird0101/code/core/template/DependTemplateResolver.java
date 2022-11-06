@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  * @version 1.0
  */
 public class DependTemplateResolver extends AbstractTemplateLangResolver implements TemplateContextAware {
-    private static Logger logger= LogManager.getLogger(DependTemplateResolver.class);
+    private static final Logger LOGGER = LogManager.getLogger(DependTemplateResolver.class);
 
     private TemplateContext templateContext;
 
@@ -127,7 +127,7 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
     }
 
     private static final String LANG_NAME="depend";
-    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\[\\s*(?<index>.*?)\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\s*\\)??\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
+    public static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\[\\s*(?<index>.*?)\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\s*\\)??\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
     protected static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*\\[\\s*.*?\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\)?\\s*)", Pattern.DOTALL);
     private final Set<Pattern> excludeVariablePatten=new HashSet<>(Collections.singletonList(TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
 

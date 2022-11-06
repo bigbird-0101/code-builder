@@ -6,7 +6,7 @@ package io.github.bigbird0101.spi.order;
  * @param <T> type
  * @author Administrator
  */
-public interface OrderAware<T> {
+public interface OrderAware{
 
     /**
      * Get order of load.
@@ -14,11 +14,4 @@ public interface OrderAware<T> {
      * @return load order
      */
     int getOrder();
-
-    /**
-     * Get type.
-     *
-     * @return type
-     */
-    T getType();
 }

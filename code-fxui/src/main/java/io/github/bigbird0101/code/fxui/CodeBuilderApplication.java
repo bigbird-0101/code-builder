@@ -6,7 +6,7 @@ import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.core.template.TemplateTraceContext;
-import io.github.bigbird0101.code.fxui.common.ClassUtil;
+import io.github.bigbird0101.code.util.ClassUtil;
 import io.github.bigbird0101.code.fxui.fx.MinWindow;
 import io.github.bigbird0101.code.fxui.fx.cache.UserOperateCache;
 import io.github.bigbird0101.code.fxui.fx.component.FxApp;
@@ -117,6 +117,7 @@ public class CodeBuilderApplication extends Application {
                 logger.warn("load log file warning not get config log file");
             }
         }
+        environment.setContextTemplateInitRefresh(true);
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         TemplateContextProvider.setTemplateContext(genericTemplateContext);
         CompletableFuture.runAsync(()-> ClassUtil.getAllClassByInterface(Template.class));

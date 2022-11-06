@@ -1,9 +1,9 @@
 package io.github.bigbird0101.code.core.template;
 
+import io.github.bigbird0101.code.core.config.Resource;
 import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -11,7 +11,7 @@ import java.util.Map;
  * @author fpp
  * @version 1.0
  */
-public interface Template extends Cloneable, Serializable {
+public interface Template extends Cloneable, Serializable,TemplateMatchRule {
     String TABLE_INFO_KEY="tableInfo";
     /**
      * 项目地址
@@ -119,19 +119,20 @@ public interface Template extends Cloneable, Serializable {
     void setTargetFileSuffixName(String targetFileSuffixName);
 
     /**
-     * 获取模板文件
+     * 获取模板文件资源
      * @return 模板文件
      */
-    File getTemplateFile();
+    Resource getTemplateResource();
 
     /**
      * 设置模板文件
-     * @param file
+     * @param templateResource
      */
-    void setTemplateFile(File file);
+    void setTemplateResource(Resource templateResource);
 
     /**
      * 刷新当前模板 重新加载模板中的内容
      */
     void refresh();
+
 }

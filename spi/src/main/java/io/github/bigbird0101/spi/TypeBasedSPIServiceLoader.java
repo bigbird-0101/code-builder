@@ -52,7 +52,7 @@ public abstract class TypeBasedSPIServiceLoader<T extends TypeBasedSPI> {
         return result;
     }
 
-    public final Map<String,T> map(final Properties props){
+    public final Map<String,T> newServiceMap(final Properties props){
         return NewInstanceServiceLoader.newServiceInstances(classType).stream()
                 .peek(s-> s.setProperties(props))
                 .collect(Collectors.toMap(TypeBasedSPI::getType, s->s));

@@ -26,7 +26,7 @@ import static cn.hutool.core.text.StrPool.DOT;
  */
 public abstract class AbstractTemplateResolver  extends TemplateContextProvider implements TemplateResolver, Serializable {
 
-    private static Logger logger= LogManager.getLogger(AbstractTemplateResolver.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractTemplateResolver.class);
 
     protected static final String CONFIG_TEMPLATE_RESOLVERS="code.project.file.template-lang-resolver";
 
@@ -50,17 +50,17 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
     /**
      * 整个方法之间的标识
      */
-    protected static final String FUNCTION_BODY_BETWEEN_SPLIT = "function";
+    public static final String FUNCTION_BODY_BETWEEN_SPLIT = "function";
 
     /**
      * 整个模板前缀的标识
      */
-    protected static final String TEMPLATE_PREFIX_SPLIT = "prefix";
+    public static final String TEMPLATE_PREFIX_SPLIT = "prefix";
 
     /**
      * 整个模板后缀的标识
      */
-    protected static final String TEMPLATE_SUFFIX_SPLIT = "suffix";
+    public static final String TEMPLATE_SUFFIX_SPLIT = "suffix";
 
     /**
      * 获取方法名的正则
@@ -80,7 +80,7 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
     /**
      * 获取前缀的正则
      */
-    protected static Pattern templatePefixPattern = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX + TEMPLATE_PREFIX_SPLIT + TEMPLATE_VARIABLE_SUFFIX + ")(.*)(?=" + TEMPLATE_VARIABLE_PREFIX + ".*/" + TEMPLATE_PREFIX_SPLIT + ".*" + TEMPLATE_VARIABLE_SUFFIX + ")", Pattern.DOTALL);
+    protected static Pattern templatePrefixPattern = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX + TEMPLATE_PREFIX_SPLIT + TEMPLATE_VARIABLE_SUFFIX + ")(.*)(?=" + TEMPLATE_VARIABLE_PREFIX + ".*/" + TEMPLATE_PREFIX_SPLIT + ".*" + TEMPLATE_VARIABLE_SUFFIX + ")", Pattern.DOTALL);
 
     /**
      * 获取后缀的正则
@@ -90,7 +90,7 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
     /**
      * 方法名的前缀
      */
-    protected static Pattern templateFunctionNamePefixSuffixPattern = Pattern.compile("(\\s*(?<bodyPrefix>.*?)" + TEMPLATE_VARIABLE_PREFIX+")(.*)(?="+TEMPLATE_VARIABLE_SUFFIX+"(?<bodySuffix>.*)\\s*)", Pattern.DOTALL);
+    protected static Pattern templateFunctionNamePrefixSuffixPattern = Pattern.compile("(\\s*(?<bodyPrefix>.*?)" + TEMPLATE_VARIABLE_PREFIX+")(.*)(?="+TEMPLATE_VARIABLE_SUFFIX+"(?<bodySuffix>.*)\\s*)", Pattern.DOTALL);
 
 
     private List<TemplateLangResolver> templateLangResolverList;
@@ -135,8 +135,8 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
             }
             this.templateLangResolverList.add(item);
         });
-        if(templateLangResolverList.size()==0&&logger.isWarnEnabled()){
-            logger.warn("template lang resolver load failed");
+        if(templateLangResolverList.size()==0&& LOGGER.isWarnEnabled()){
+            LOGGER.warn("template lang resolver load failed");
         }
     }
 

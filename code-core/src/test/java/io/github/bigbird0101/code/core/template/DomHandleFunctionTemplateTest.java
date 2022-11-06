@@ -2,12 +2,12 @@ package io.github.bigbird0101.code.core.template;
 
 import io.github.bigbird0101.code.core.config.StandardEnvironment;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
-import io.github.bigbird0101.code.core.factory.TemplateDefinitionBuilder;
 import io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilderTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.Objects;
 
 /**
  * @author bigbird-0101
@@ -19,10 +19,8 @@ class DomHandleFunctionTemplateTest {
     @Test
     void test() throws SQLException {
         StandardEnvironment environment=new StandardEnvironment();
+        environment.setTemplatesPath(Objects.requireNonNull(DomHandleFunctionTemplateTest.class.getResource("/")).toString());
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
-        final String testConfigTemplateResource = "testCodeNodeXml";
-        genericTemplateContext.registerTemplateDefinition(testConfigTemplateResource, TemplateDefinitionBuilder.build(
-                DomHandleFunctionTemplate.class,"testCodeNodeXml.template"));
         final Template dao = genericTemplateContext.getTemplate("testCodeNodeXml");
         dao.getTemplateVariables().putAll(DomScriptCodeNodeBuilderTest.doBuildData(environment));
         final String templateResult = dao.getTemplateResult();

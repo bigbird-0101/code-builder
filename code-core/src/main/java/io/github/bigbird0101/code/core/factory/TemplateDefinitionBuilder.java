@@ -2,10 +2,16 @@ package io.github.bigbird0101.code.core.factory;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.system.SystemUtil;
+import io.github.bigbird0101.code.core.config.FileUrlResource;
+import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
+import io.github.bigbird0101.code.core.template.DefaultNoHandleFunctionTemplate;
 import io.github.bigbird0101.code.core.template.Template;
+import io.github.bigbird0101.spi.SPIServiceLoader;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.util.LinkedList;
 
 import static cn.hutool.core.io.resource.ResourceUtil.getResourceObj;
 import static cn.hutool.core.text.CharSequenceUtil.removePrefix;
@@ -39,7 +45,34 @@ public class TemplateDefinitionBuilder {
     public static <T extends Template> TemplateDefinition build(Class<T> tClass,String templateFilePath){
         final GenericTemplateDefinition templateDefinition = (GenericTemplateDefinition) build(tClass);
         final String filePath = removePrefix(getResourceObj(templateFilePath).getUrl().getFile(), SEPARATOR);
-        templateDefinition.setTemplateFile(new File(filePath));
+        try {
+            templateDefinition.setTemplateResource(new FileUrlResource(filePath));
+        } catch (MalformedURLException e) {
+            throw new CodeConfigException(e);
+        }
         return templateDefinition;
     }
+
+    public static TemplateDefinition build(File templateFile){
+        final LinkedList<Template> templates = SPIServiceLoader.newServicesOrdered(Template.class);
+        for(Template template:templates){
+            if(template.match(templateFile)){
+                final GenericTemplateDefinition templateDefinition = (GenericTemplateDefinition) build(template.getClass());
+                try {
+                    templateDefinition.setTemplateResource(new FileUrlResource(templateFile.getAbsolutePath()));
+                } catch (MalformedURLException e) {
+                    throw new CodeConfigException(e);
+                }
+                return templateDefinition;
+            }
+        }
+        final GenericTemplateDefinition templateDefinition = (GenericTemplateDefinition) build(DefaultNoHandleFunctionTemplate.class);
+        try {
+            templateDefinition.setTemplateResource(new FileUrlResource(templateFile.getAbsolutePath()));
+        } catch (MalformedURLException e) {
+            throw new CodeConfigException(e);
+        }
+        return templateDefinition;
+    }
+
 }

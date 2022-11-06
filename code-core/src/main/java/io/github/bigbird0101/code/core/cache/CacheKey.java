@@ -70,7 +70,7 @@ public class CacheKey {
     public String toString() {
         return "CacheKey{" +
                 "templateName='" + templateName + '\'' +
-                ", map=" + map +
+                ", newServiceMap=" + map +
                 ", hashCode=" + hashCode +
                 '}';
     }

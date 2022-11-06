@@ -11,6 +11,7 @@ import com.alibaba.fastjson.TypeReference;
 import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.CoreConfig;
+import io.github.bigbird0101.code.core.config.FileUrlResource;
 import io.github.bigbird0101.code.core.context.AbstractTemplateContext;
 import io.github.bigbird0101.code.core.context.TemplateContext;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
@@ -167,7 +168,11 @@ public class ComplexController extends TemplateContextProvider implements Initia
     }
 
     private void initData() {
-        initTableAll();
+        try {
+            initTableAll();
+        }catch (Exception e){
+            logger.error(e);
+        }
     }
 
     private void initView() {
@@ -383,7 +388,12 @@ public class ComplexController extends TemplateContextProvider implements Initia
         final RootTemplateDefinition templateDefinition = (RootTemplateDefinition)defaultListableTemplateFactory.getTemplateDefinition(template.getTemplateName());
         TemplateDefinition clone = (TemplateDefinition) templateDefinition.clone();
         final String copyTemplateName = template.getTemplateName() + "Copy";
-        final File templateFile = clone.getTemplateFile();
+        final File templateFile;
+        try {
+            templateFile = clone.getTemplateResource().getFile();
+        } catch (IOException e) {
+            throw new CodeConfigException(e);
+        }
         try {
             String newFileName = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + File.separator + copyTemplateName+AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
             final File file = new File(newFileName);
@@ -392,7 +402,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 Thread.sleep(100);
             }
             RootTemplateDefinition rootTemplateDefinition= (RootTemplateDefinition) clone;
-            rootTemplateDefinition.setTemplateFile(file);
+            rootTemplateDefinition.setTemplateResource(new FileUrlResource(file.getAbsolutePath()));
         } catch (Exception e) {
             logger.error(e);
         }
@@ -457,8 +467,8 @@ public class ComplexController extends TemplateContextProvider implements Initia
             templateController.moduleName.setText(Utils.convertTruePathIfNotNull(template.getModule()));
             templateController.sourcesRootName.setText(Utils.convertTruePathIfNotNull(template.getSourcesRoot()));
             templateController.srcPackageName.setText(Utils.convertTruePathIfNotNull(template.getSrcPackage()));
-            templateController.setFile(template.getTemplateFile());
-            templateController.fileName.setText(template.getTemplateFile().getName());
+            templateController.setFile(template.getTemplateResource().getFile());
+            templateController.fileName.setText(template.getTemplateResource().getFile().getName());
             templateController.fileSuffixName.setText(template.getTargetFileSuffixName());
             if(template instanceof HaveDependTemplate) {
                 HaveDependTemplate haveDepend= (HaveDependTemplate) template;

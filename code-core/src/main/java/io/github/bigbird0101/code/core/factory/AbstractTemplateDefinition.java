@@ -1,9 +1,9 @@
 package io.github.bigbird0101.code.core.factory;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import io.github.bigbird0101.code.core.config.Resource;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
 
-import java.io.File;
 import java.util.Objects;
 
 /**
@@ -19,7 +19,7 @@ public abstract class AbstractTemplateDefinition implements TemplateDefinition {
 
     private String srcPackage;
 
-    private File templateFile;
+    private Resource templateResource;
 
     @JSONField(alternateNames = {"templateClassName"})
     private Object templateClass;
@@ -94,12 +94,12 @@ public abstract class AbstractTemplateDefinition implements TemplateDefinition {
     }
 
     @Override
-    public File getTemplateFile() {
-        return templateFile;
+    public Resource getTemplateResource() {
+        return templateResource;
     }
 
-    public void setTemplateFile(File templateFile) {
-        this.templateFile = templateFile;
+    public void setTemplateResource(Resource templateResource) {
+        this.templateResource = templateResource;
     }
 
     @Override
@@ -111,13 +111,13 @@ public abstract class AbstractTemplateDefinition implements TemplateDefinition {
                 Objects.equals(module, that.module) &&
                 Objects.equals(sourcesRoot, that.sourcesRoot) &&
                 Objects.equals(srcPackage, that.srcPackage) &&
-                Objects.equals(templateFile, that.templateFile) &&
+                Objects.equals(templateResource, that.templateResource) &&
                 Objects.equals(templateClass, that.templateClass);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(projectUrl, module, sourcesRoot, srcPackage, templateFile, templateClass);
+        return Objects.hash(projectUrl, module, sourcesRoot, srcPackage, templateResource, templateClass);
     }
 
 }

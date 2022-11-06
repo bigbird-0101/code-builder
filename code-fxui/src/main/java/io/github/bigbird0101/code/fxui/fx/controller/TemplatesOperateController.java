@@ -2,6 +2,7 @@ package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -44,6 +45,8 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -186,6 +189,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         try {
             initTemplateInfo(root, template);
         }catch (Exception e){
+            StaticLog.error(e);
             FxAlerts.warn("初始化模板异常",e.getMessage());
         }
         return root;
@@ -265,7 +269,26 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
 
         ImageView editTemplate = (ImageView) scene.lookup("#editTemplate");
         editTemplate.setOnMouseClicked(event -> {
-            final File templateFile = template.getTemplateFile();
+            final File templateFile;
+            try {
+                templateFile = template.getTemplateResource().getFile();
+                Desktop desktop = Desktop.getDesktop();
+                if(templateFile.exists()) {
+                    try {
+                        desktop.open(templateFile);
+                    } catch (IOException ignored) {
+                    }
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        ImageView openTargetFile = (ImageView) scene.lookup("#openTargetFile");
+        openTargetFile.setOnMouseClicked(event -> {
+            final File templateFile;
+            final Path path = Paths.get(template.getProjectUrl(), template.getModule(), template.getSourcesRoot(),
+                    template.getSrcPackage());
+            templateFile = path.toFile();
             Desktop desktop = Desktop.getDesktop();
             if(templateFile.exists()) {
                 try {

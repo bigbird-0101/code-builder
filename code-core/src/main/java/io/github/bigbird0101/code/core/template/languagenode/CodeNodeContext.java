@@ -20,8 +20,8 @@ public interface CodeNodeContext {
      */
     void appendCode(String code);
     /**
-     * 获取模板变量 k-v map
-     * @return 模板变量 k-v map
+     * 获取模板变量 k-v newServiceMap
+     * @return 模板变量 k-v newServiceMap
      */
     Map<String, Object> getTemplateVariable();
 }

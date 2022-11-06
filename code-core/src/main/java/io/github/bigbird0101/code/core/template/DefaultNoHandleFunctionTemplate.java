@@ -8,4 +8,8 @@ import com.alibaba.fastjson.annotation.JSONType;
  */
 @JSONType(serializer = AbstractTemplate.TemplateSerializer.class)
 public class DefaultNoHandleFunctionTemplate extends AbstractNoHandleFunctionTemplate {
+    @Override
+    public boolean doMatch(String content) {
+        return true;
+    }
 }

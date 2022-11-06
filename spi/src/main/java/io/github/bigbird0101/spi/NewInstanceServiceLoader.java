@@ -18,7 +18,7 @@ public final class NewInstanceServiceLoader {
     private static final Map<Class<?>, Collection<Class<?>>> SERVICE_MAP = new HashMap<>();
 
     /**
-     * Register SPI service into map for new instance.
+     * Register SPI service into newServiceMap for new instance.
      *
      * @param service service type
      * @param <T>     type of service
@@ -49,7 +49,8 @@ public final class NewInstanceServiceLoader {
     public static <T> Collection<T> newServiceInstances(final Class<T> service) {
         Collection<T> result = new LinkedList<>();
         if (null == SERVICE_MAP.get(service)) {
-            return result;
+            register(service);
+            return newServiceInstances(service);
         }
         for (Class<?> each : SERVICE_MAP.get(service)) {
             try {

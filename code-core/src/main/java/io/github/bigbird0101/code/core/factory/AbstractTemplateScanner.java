@@ -1,8 +1,13 @@
 package io.github.bigbird0101.code.core.factory;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.github.bigbird0101.code.core.config.FileUrlResource;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
 import io.github.bigbird0101.code.util.Utils;
@@ -14,17 +19,17 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.MalformedURLException;
 import java.util.*;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * 所有模板扫描器
  * @author fpp
  */
 public abstract class AbstractTemplateScanner implements TemplateScanner {
-    private static Logger logger= LogManager.getLogger(AbstractTemplateScanner.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractTemplateScanner.class);
 
     private static final String DEFAULT_FILE_SUFFIX_NAME="java";
     private static final Boolean DEFAULT_IS_HANDLE_FUNCTION=true;
@@ -33,10 +38,10 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
     public JSONObject getConfigContent(String templatesFilePath) throws CodeConfigException {
         String result;
         try {
-            result = IOUtils.toString(Files.newInputStream(Paths.get(templatesFilePath)), StandardCharsets.UTF_8);
+            result = IOUtils.toString(ResourceUtil.getResourceObj(templatesFilePath).getStream(), UTF_8);
         } catch (IOException e) {
-            if(logger.isErrorEnabled()){
-                logger.error("template config error {} ",e.getMessage());
+            if(LOGGER.isErrorEnabled()){
+                LOGGER.error("template config error {} ",e.getMessage());
             }
             throw new CodeConfigException(e);
         }
@@ -45,10 +50,15 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
 
     @Override
     public AllTemplateDefinitionHolder scanner(String templatesFilePath, String templateConfigPath) throws CodeConfigException {
-        JSONObject configContent = getConfigContent(templateConfigPath);
-        JSONArray multipleTemplates = configContent.getJSONArray("multipleTemplates");
-        JSONArray templates = configContent.getJSONArray("templates");
-        return parseScannerData(multipleTemplates,templates,templatesFilePath);
+        Assert.notBlank(templatesFilePath);
+        if(StrUtil.isNotBlank(templateConfigPath)) {
+            JSONObject configContent = getConfigContent(templateConfigPath);
+            JSONArray multipleTemplates = configContent.getJSONArray("multipleTemplates");
+            JSONArray templates = configContent.getJSONArray("templates");
+            return parseScannerData(multipleTemplates, templates, templatesFilePath);
+        }else{
+            return parseScannerData(new JSONArray(), new JSONArray(), templatesFilePath);
+        }
     }
 
     protected AllTemplateDefinitionHolder parseScannerData(JSONArray multipleTemplates, JSONArray templates,String templatesFilePath) throws CodeConfigException {
@@ -89,7 +99,7 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
                     String templateName= (String)o;
                     TemplateDefinition templateDefinition=templateDefinitionMapTemp.get(templateName);
                     if(null==templateDefinition){
-                        logger.warn("{}组合模板中的模板名为{}不存在",name,templateName);
+                        LOGGER.warn("{}组合模板中的模板名为{}不存在",name,templateName);
                         continue;
                     }
                     templateNames.add(templateName);
@@ -112,7 +122,8 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
      */
     protected void analysisTemplateDefinition(String templatesFilePath, JSONArray templates, Set<TemplateDefinitionHolder>
             templateDefinitionHolders, Map<String, TemplateDefinition> templateDefinitionMapTemp) throws CodeConfigException {
-        Collection<File> files = FileUtils.listFiles(new File(templatesFilePath), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
+        Collection<File> files = FileUtils.listFiles(new File(ResourceUtil.getResourceObj(templatesFilePath).getUrl()
+                .getFile()), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
         for(Object jsonObject:templates){
             JSONObject templateConfigInfo =(JSONObject) jsonObject;
             RootTemplateDefinition rootTemplateDefinition =JSONObject.parseObject(templateConfigInfo.toJSONString(), RootTemplateDefinition.class);
@@ -124,15 +135,32 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
             if(Utils.isEmpty(templateFileName)){
                 throw new CodeConfigException("模板文件名不允许为空");
             }
-            File templateFile = files.stream()
-                    .filter(file -> templateFileName.equals(file.getName()))
-                    .findFirst()
-                    .orElseThrow(()->new CodeConfigException("templates.json 模板名为{},配置模板文件名为{},在{}中不存在",
-                            templateName, templateFileName,templatesFilePath));
-            rootTemplateDefinition.setTemplateFile(templateFile);
-            TemplateDefinitionHolder templateDefinitionHolder=new TemplateDefinitionHolder(rootTemplateDefinition,templateName);
-            templateDefinitionMapTemp.put(templateName, rootTemplateDefinition);
-            templateDefinitionHolders.add(templateDefinitionHolder);
+            try {
+                File templateFile = files.stream()
+                        .filter(file -> templateFileName.equals(file.getName()))
+                        .findFirst()
+                        .orElseThrow(() -> new CodeConfigException("templates.json 模板名为{},配置模板文件名为{},在{}中不存在",
+                                templateName, templateFileName, templatesFilePath));
+                try {
+                    rootTemplateDefinition.setTemplateResource(new FileUrlResource(templateFile.getAbsolutePath()));
+                } catch (MalformedURLException e) {
+                    throw new CodeConfigException(e);
+                }
+                TemplateDefinitionHolder templateDefinitionHolder = new TemplateDefinitionHolder(rootTemplateDefinition, templateName);
+                templateDefinitionMapTemp.put(templateName, rootTemplateDefinition);
+                templateDefinitionHolders.add(templateDefinitionHolder);
+            }catch (CodeConfigException e){
+                LOGGER.warn(e);
+            }
         }
+        files.forEach(file -> {
+            final String name = FileUtil.getPrefix(file.getName());
+            if(!templateDefinitionMapTemp.containsKey(name)){
+                final TemplateDefinition build = TemplateDefinitionBuilder.build(file);
+                templateDefinitionMapTemp.put(name, build);
+                TemplateDefinitionHolder templateDefinitionHolder=new TemplateDefinitionHolder(build,name);
+                templateDefinitionHolders.add(templateDefinitionHolder);
+            }
+        });
     }
 }

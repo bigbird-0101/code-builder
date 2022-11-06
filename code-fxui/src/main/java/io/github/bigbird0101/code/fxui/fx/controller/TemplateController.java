@@ -2,6 +2,7 @@ package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
+import io.github.bigbird0101.code.core.config.FileUrlResource;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
@@ -14,7 +15,7 @@ import io.github.bigbird0101.code.core.template.targetfile.PatternTargetFilePref
 import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.TemplateFilePrefixNameStrategyFactory;
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
-import io.github.bigbird0101.code.fxui.common.ClassUtil;
+import io.github.bigbird0101.code.util.ClassUtil;
 import io.github.bigbird0101.code.util.Utils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -218,7 +219,7 @@ public class TemplateController extends TemplateContextProvider implements Initi
         if(!this.file.equals(newFile)) {
             FileUtils.copyFile(this.file, newFile);
         }
-        rootTemplateDefinition.setTemplateFile(newFile);
+        rootTemplateDefinition.setTemplateResource(new FileUrlResource(newFile.getAbsolutePath()));
         AbstractEnvironment.putTemplateContent(newFile.getAbsolutePath(), IOUtils.toString(Files.newInputStream(newFile.toPath()), StandardCharsets.UTF_8));
         if(isNotHave||!templateName.getText().equals(sourceTemplateName)) {
             templateContext.registerTemplateDefinition(templateName.getText(), rootTemplateDefinition);

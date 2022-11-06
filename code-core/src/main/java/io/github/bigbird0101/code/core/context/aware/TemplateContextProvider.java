@@ -25,12 +25,14 @@ public abstract class TemplateContextProvider {
 
     public static void doPushEventTemplateContextAware() {
         AbstractTemplate currentTemplate = (AbstractTemplate) TemplateTraceContext.getCurrentTemplate();
-        AbstractTemplateResolver templateResolver = (AbstractTemplateResolver) currentTemplate.getTemplateResolver();
-        List<TemplateLangResolver> templateLangResolverList = templateResolver.getTemplateLangResolverList();
-        for(TemplateLangResolver templateLangResolver:templateLangResolverList){
-            if(templateLangResolver instanceof TemplateContextAware){
-                TemplateContextAware aware= (TemplateContextAware) templateLangResolver;
-                aware.setTemplateContext(templateContext);
+        if(null!=currentTemplate) {
+            AbstractTemplateResolver templateResolver = (AbstractTemplateResolver) currentTemplate.getTemplateResolver();
+            List<TemplateLangResolver> templateLangResolverList = templateResolver.getTemplateLangResolverList();
+            for (TemplateLangResolver templateLangResolver : templateLangResolverList) {
+                if (templateLangResolver instanceof TemplateContextAware) {
+                    TemplateContextAware aware = (TemplateContextAware) templateLangResolver;
+                    aware.setTemplateContext(templateContext);
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.core.template;
 
 import cn.hutool.core.exceptions.UtilException;
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.github.bigbird0101.code.core.config.Environment;
@@ -11,8 +12,11 @@ import io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBu
 import io.github.bigbird0101.code.core.template.languagenode.DynamicCodeNodeContext;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import static io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemplate.DOM_MATCH_RULE;
+import static io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemplate.DOM_MATCH_RULE_TEMPLATE;
 
 /**
  * @author bigbird-0101
@@ -28,18 +32,31 @@ public class DomNoHandleFunctionTemplate extends DefaultNoHandleFunctionTemplate
     private Environment environment;
     @Override
     public void refresh() {
-        if(null!=getTemplateFile()) {
+        if(null!= getTemplateResource()) {
             try {
-                final FileInputStream fileInputStream = new FileInputStream(getTemplateFile());
-                DomScriptCodeNodeBuilder domScriptCodeNodeBuilder=new DomScriptCodeNodeBuilder(XmlUtil.readXML(fileInputStream));
+                DomScriptCodeNodeBuilder domScriptCodeNodeBuilder=new DomScriptCodeNodeBuilder(XmlUtil.readXML(
+                        getTemplateResource().getInputStream()));
                 source= domScriptCodeNodeBuilder.parse();
             } catch (FileNotFoundException e) {
                 throw new CodeConfigException(e);
-            } catch (UtilException ed) {
-                throw new TemplateResolveException("dom template Resolve error {}",ed.getMessage());
+            } catch (UtilException | IOException ed) {
+                throw new TemplateResolveException("dom {} template Resolve error {}",getTemplateName(),ed.getMessage());
             }
         }
+        refreshed=true;
     }
+
+    @Override
+    public boolean doMatch(String content) {
+            return ReUtil.isMatch(DOM_MATCH_RULE_TEMPLATE, content)
+                    &&!ReUtil.isMatch(DOM_MATCH_RULE, content);
+    }
+
+    @Override
+    public int getOrder() {
+        return 510;
+    }
+
     @Override
     protected String doBuildTemplateResultCache() {
         DynamicCodeNodeContext dynamicCodeNodeContext=new DynamicCodeNodeContext(getTemplateVariables(),environment);

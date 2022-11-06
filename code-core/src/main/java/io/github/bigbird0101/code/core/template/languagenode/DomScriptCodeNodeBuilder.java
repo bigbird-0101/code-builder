@@ -12,6 +12,7 @@ import org.w3c.dom.NodeList;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static io.github.bigbird0101.code.core.template.AbstractTemplateResolver.*;
 import static java.util.stream.Collectors.toList;
 import static org.w3c.dom.Node.*;
 
@@ -32,7 +33,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
 
     private void initHandler() {
         CODE_NODE_HANDLER_MAP.putAll(new CodeNodeHandlerTypeBasedSPIServiceLoader(CodeNodeHandler.class)
-                .map(new Properties()));
+                .newServiceMap(new Properties()));
     }
 
     @Override
@@ -65,6 +66,10 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
      * 构建 具体的{@link CodeNode} 并且加入到整体的contents当中
      */
     public interface CodeNodeHandler extends TypeBasedSPI {
+        /**
+         * template节点
+         */
+        String TEMPALTE="template";
         /**
          * 构建 具体的{@link CodeNode} 并且加入到整体的contents当中
          * @param node 需要解析的节点
@@ -162,7 +167,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
 
         @Override
         public String getType() {
-            return "prefix";
+            return TEMPLATE_PREFIX_SPLIT;
         }
 
     }
@@ -177,7 +182,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
 
         @Override
         public String getType() {
-            return "suffix";
+            return TEMPLATE_SUFFIX_SPLIT;
         }
     }
 
@@ -197,7 +202,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
 
         @Override
         public String getType() {
-            return "function";
+            return FUNCTION_BODY_BETWEEN_SPLIT;
         }
     }
 
@@ -212,7 +217,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
 
         @Override
         public String getType() {
-            return "template";
+            return TEMPALTE;
         }
     }
 

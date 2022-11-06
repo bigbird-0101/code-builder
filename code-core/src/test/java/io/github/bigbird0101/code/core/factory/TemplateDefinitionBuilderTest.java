@@ -1,10 +1,12 @@
 package io.github.bigbird0101.code.core.factory;
 
+import cn.hutool.core.io.resource.ResourceUtil;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
-import io.github.bigbird0101.code.core.factory.TemplateDefinitionBuilder;
 import io.github.bigbird0101.code.core.template.DefaultNoHandleFunctionTemplate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
 
 /**
  * @author bigbird-0101
@@ -16,6 +18,14 @@ class TemplateDefinitionBuilderTest {
     @Test
     void build() {
         final TemplateDefinition build = TemplateDefinitionBuilder.build(DefaultNoHandleFunctionTemplate.class);
+        Assertions.assertNotNull(build);
+    }
+
+    @Test
+    void testBuild() {
+        final TemplateDefinition build = TemplateDefinitionBuilder.build(
+                new File(ResourceUtil.getResourceObj("testCodeNodeXml.template").getUrl().getFile())
+        );
         Assertions.assertNotNull(build);
     }
 }

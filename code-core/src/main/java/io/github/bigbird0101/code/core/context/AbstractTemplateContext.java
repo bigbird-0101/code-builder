@@ -161,6 +161,9 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
         return (DefaultListableTemplateFactory) getTemplateFactory();
     }
 
+    /**
+     * 刷新模板工厂
+     */
     protected abstract void refreshTemplateFactory();
 
     /**

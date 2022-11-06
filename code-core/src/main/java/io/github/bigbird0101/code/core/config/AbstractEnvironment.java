@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.core.config;
 
 import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -33,6 +34,10 @@ public abstract class AbstractEnvironment implements Environment {
     public static final String DEFAULT_CORE_TEMPLATE_PATH = "code.template.config";
     public static final String DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE = "code.template.config.template";
     public static final String DEFAULT_CORE_TEMPLATE_FILES_PATH = "code.template.files";
+    /**
+     * 容器初始化时，是否需要刷新模板
+     */
+    public static final String CODE_CONTEXT_TEMPLATE_INIT_REFRESH="code.context.template.init.refresh";
     private final transient MultiplePropertySources DEFAULT_MULTIPLE = new MultiplePropertySources();
     private final transient PropertySourcesPropertyResolver propertySourcesPropertyResolver = new PropertySourcesPropertyResolver(DEFAULT_MULTIPLE);
     private static final Map<String, String> TEMPLATE_FILE_URL_CONTENT_MAPPING = new HashMap<>();
@@ -108,7 +113,8 @@ public abstract class AbstractEnvironment implements Environment {
         loadCoreConfig(coreConfigPath);
     }
     protected void loadTemplatesPath() {
-        Collection<File> files = FileUtils.listFiles(new File(templatesPath), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
+        Collection<File> files = FileUtils.listFiles(new File(ResourceUtil.getResourceObj(templatesPath).getUrl()
+                .getFile()), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
         files.forEach(file -> {
             String fileName = file.getName();
             TEMPLATE_FILE_NAME_URL_MAPPING.put(fileName, file.getAbsolutePath());
@@ -183,16 +189,15 @@ public abstract class AbstractEnvironment implements Environment {
                     multipleTemplates.add(jsonObject);
                 }
             });
-            try (FileOutputStream fileOutputStream = new FileOutputStream(templateConfigPath)) {
-                CommonFileUtils.clearFileContent(templateConfigPath);
-                String result = JSON.toJSONString(configContent, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue,
-                        SerializerFeature.WriteDateUseDateFormat);
-                IOUtils.write(result.getBytes(StandardCharsets.UTF_8), fileOutputStream);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            doSetTemplateConfig(configContent);
         } else {
             Arrays.stream(propertySources).forEach(propertySource -> getPropertySources().updatePropertySource(propertySource.getName(), propertySource.getSource()));
+            doSetCoreConfig();
+        }
+    }
+
+    private void doSetCoreConfig() {
+        if(StrUtil.isNotBlank(coreConfigPath)) {
             Properties properties = getPropertySources().convertProperties();
             StringBuilder stringBuilder = new StringBuilder();
             properties.forEach((k, v) -> {
@@ -203,6 +208,19 @@ public abstract class AbstractEnvironment implements Environment {
             try (FileOutputStream fileOutputStream = new FileOutputStream(coreConfigPath)) {
                 CommonFileUtils.clearFileContent(coreConfigPath);
                 IOUtils.write(stringBuilder.toString().getBytes(StandardCharsets.UTF_8), fileOutputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void doSetTemplateConfig(JSONObject configContent) {
+        if(StrUtil.isNotBlank(templateConfigPath)) {
+            try (FileOutputStream fileOutputStream = new FileOutputStream(templateConfigPath)) {
+                CommonFileUtils.clearFileContent(templateConfigPath);
+                String result = JSON.toJSONString(configContent, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue,
+                        SerializerFeature.WriteDateUseDateFormat);
+                IOUtils.write(result.getBytes(StandardCharsets.UTF_8), fileOutputStream);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -241,29 +259,10 @@ public abstract class AbstractEnvironment implements Environment {
                     }
                 }
             });
-            try (FileOutputStream fileOutputStream = new FileOutputStream(templateConfigPath)) {
-                CommonFileUtils.clearFileContent(templateConfigPath);
-                String result = JSON.toJSONString(configContent, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue,
-                        SerializerFeature.WriteDateUseDateFormat);
-                IOUtils.write(result.getBytes(StandardCharsets.UTF_8), fileOutputStream);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            doSetTemplateConfig(configContent);
         } else {
             Arrays.stream(propertySources).forEach(propertySource -> getPropertySources().removeIfPresent(propertySource));
-            Properties properties = getPropertySources().convertProperties();
-            StringBuilder stringBuilder = new StringBuilder();
-            properties.forEach((k, v) -> {
-                if (!k.equals(DEFAULT_CORE_TEMPLATE_PATH) && !k.equals(DEFAULT_CORE_TEMPLATE_FILES_PATH)) {
-                    stringBuilder.append(k).append("=").append(v).append("\r\n");
-                }
-            });
-            try (FileOutputStream fileOutputStream = new FileOutputStream(coreConfigPath)) {
-                CommonFileUtils.clearFileContent(coreConfigPath);
-                IOUtils.write(stringBuilder.toString().getBytes(StandardCharsets.UTF_8), fileOutputStream);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            doSetCoreConfig();
         }
     }
 
@@ -287,6 +286,14 @@ public abstract class AbstractEnvironment implements Environment {
             throw new CodeConfigException(e);
         }
         return (JSONObject) JSON.parse(result);
+    }
+
+    /**
+     * 设置容器初始化时是否需要刷新
+     * @param initRefresh
+     */
+    public void setContextTemplateInitRefresh(Boolean initRefresh){
+        getPropertySources().addPropertySource(new GenericPropertySource<>(CODE_CONTEXT_TEMPLATE_INIT_REFRESH,initRefresh));
     }
 
     @Override

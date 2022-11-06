@@ -1,8 +1,8 @@
-package io.github.bigbird0101.code.fxui.common;
+package io.github.bigbird0101.code.util;
 
 import cn.hutool.core.collection.CollectionUtil;
-import io.github.bigbird0101.code.fxui.CodeBuilderApplication;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.lang.reflect.Modifier;
@@ -22,8 +22,7 @@ import java.util.stream.Stream;
  * @author Administrator
  */
 public class ClassUtil {
-    private static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger(CodeBuilderApplication.class);
-
+    private static final Logger LOG = LogManager.getLogger(ClassUtil.class);
     private static final Map<Class<?>,ArrayList<Class<?>>> CACHE =new ConcurrentHashMap<>();
 
     public static ArrayList<Class<?>> getAllClassByInterface(Class<?> clazz) {

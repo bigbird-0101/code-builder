@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
  * @version 1.0
  */
 public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
-    private static Logger logger= LogManager.getLogger(AbstractHandleFunctionTemplate.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractHandleFunctionTemplate.class);
 
     protected TemplateFileClassInfo templateFileClassInfoNoResolve;
     protected TemplateFileClassInfo templateFileClassInfoResolved;
@@ -31,9 +31,11 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
 
     protected ResolverStrategy resolverStrategy;
 
+    protected volatile boolean refreshed;
+
     @Override
     public void refresh(){
-        if(null!=getTemplateFile()) {
+        if(null!= getTemplateResource()) {
             String templateFileContent;
             try {
                 templateFileContent = readTemplateFile();
@@ -45,6 +47,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
         resolverResultCache.clear();
         this.initTemplateVariables();
         deepClearCache();
+        refreshed=true;
     }
 
     protected void deepClearCache() {
@@ -73,6 +76,9 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      * 解析模板之前
      */
     protected void doResolverTemplateBefore() {
+        if(!refreshed){
+            this.refresh();
+        }
         initTemplateVariables();
     }
 
@@ -81,7 +87,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      * @param resultCache
      * @return
      */
-    private String doResolverTemplateAfter(TemplateFileClassInfo resultCache) {
+    protected String doResolverTemplateAfter(TemplateFileClassInfo resultCache) {
         //这里深度克隆一下对象 如果不克隆 直接传递引用 缓存将会被修改
         TemplateFileClassInfo tempResultCache= (TemplateFileClassInfo) ObjectUtil.cloneByStream(resultCache);
         //解析策略
@@ -102,8 +108,8 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     protected TemplateFileClassInfo doResolverTemplate() {
         CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
         TemplateFileClassInfo resultCache= resolverResultCache.get(cacheKey);
-        logger.info("cacheKey is {}",cacheKey);
-        logger.info("cache is {}",resultCache);
+        LOGGER.info("cacheKey is {}",cacheKey);
+        LOGGER.info("cache is {}",resultCache);
         if(null==resultCache) {
             resultCache = doBuildTemplateResultCache(cacheKey);
             resolverResultCache.put(cacheKey,resultCache);
@@ -162,7 +168,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      * @return 模板内容的后缀
      */
     public String getPrefix(String templateContent) {
-        Matcher matcher = AbstractTemplateResolver.templatePefixPattern.matcher(templateContent);
+        Matcher matcher = AbstractTemplateResolver.templatePrefixPattern.matcher(templateContent);
         if (matcher.find()) {
             return matcher.group(1);
         } else {
@@ -214,7 +220,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     }
 
     public String getNoResolverFunctionName(String srcFunctionName) {
-        Matcher matcher=AbstractTemplateResolver.templateFunctionNamePefixSuffixPattern.matcher(srcFunctionName);
+        Matcher matcher=AbstractTemplateResolver.templateFunctionNamePrefixSuffixPattern.matcher(srcFunctionName);
         if(matcher.find()){
             String prefix=matcher.group("bodyPrefix");
             String suffix=matcher.group("bodySuffix");

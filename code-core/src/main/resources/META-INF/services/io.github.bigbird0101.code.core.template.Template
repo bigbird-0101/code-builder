@@ -1,1 +1,6 @@
 io.github.bigbird0101.code.core.template.DefaultNoHandleFunctionTemplate
+io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemplate
+io.github.bigbird0101.code.core.template.DomHandleFunctionTemplate
+io.github.bigbird0101.code.core.template.DomNoHandleFunctionTemplate
+io.github.bigbird0101.code.core.template.HaveDependTemplateHandleFunctionTemplate
+io.github.bigbird0101.code.core.template.HaveDependTemplateNoHandleFunctionTemplate
