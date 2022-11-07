@@ -21,10 +21,10 @@
                     </ImageView>
                     <VBox>
                         <padding>
-                            <Insets left="10" right="10.0"/>
+                            <Insets left="5" right="5.0"/>
                         </padding>
                     </VBox>
-                    <ImageView fx:id="openTargetFile" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="TOP_RIGHT">
+                    <ImageView fx:id="openTargetFile" fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="TOP_RIGHT">
                         <Image url="@/images/openFile.png" />
                     </ImageView>
                     <padding>
