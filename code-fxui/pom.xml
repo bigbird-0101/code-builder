@@ -22,6 +22,8 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>code-core</artifactId>
+            <scope>compile</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
