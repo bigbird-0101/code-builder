@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.core.context;
 
 import io.github.bigbird0101.code.core.config.Environment;
+import io.github.bigbird0101.code.core.config.StandardEnvironment;
 import io.github.bigbird0101.code.core.factory.config.MultipleTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
 
@@ -14,6 +15,9 @@ public class GenericTemplateContext extends AbstractRefreshTemplateContext {
         this.refresh();
     }
 
+    public GenericTemplateContext(){
+        this(new StandardEnvironment());
+    }
 
     @Override
     public void registerMultipleTemplateDefinition(String multipleTemplateDefinitionName, MultipleTemplateDefinition multipleTemplateDefinition) {
