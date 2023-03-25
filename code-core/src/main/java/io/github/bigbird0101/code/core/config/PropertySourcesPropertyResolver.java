@@ -1,5 +1,7 @@
 package io.github.bigbird0101.code.core.config;
 
+import cn.hutool.core.convert.Convert;
+
 /**
  * @author fpp
  * @version 1.0
@@ -25,7 +27,8 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
         if(null==propertySource){
             return null;
         }
-        return (T)propertySources.getPropertySource(propertyKey).getSource();
+        final PropertySource<Object> propertySourceTemplate = propertySources.getPropertySource(propertyKey);
+        return (T) Convert.convert(targetClass,propertySourceTemplate.getSource());
     }
 
     /**
