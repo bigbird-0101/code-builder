@@ -5,6 +5,8 @@ import io.github.bigbird0101.code.core.factory.config.MultipleTemplateDefinition
 import io.github.bigbird0101.code.core.factory.config.MultipleTemplateDefinitionRegistry;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinitionRegistry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +19,7 @@ import java.util.Set;
  * @author Administrator
  */
 public class DefaultListableTemplateFactory extends AbstractOperateTemplateTemplateFactory implements TemplateDefinitionRegistry, ConfigurableListableTemplateFactory, MultipleTemplateDefinitionRegistry {
+    private static final Logger logger= LogManager.getLogger(DefaultListableTemplateFactory.class);
 
     private final Map<String, TemplateDefinition> templateDefinitionMap = new HashMap<>();
     private final Set<String> templateDefinitionSets = new HashSet<>();
@@ -58,11 +61,19 @@ public class DefaultListableTemplateFactory extends AbstractOperateTemplateTempl
     public void preInstantiateTemplates(){
         //初始化 模板
         for (String templateName : templateDefinitionSets) {
-            getTemplate(templateName);
+            try {
+                getTemplate(templateName);
+            }catch (Exception e){
+                logger.error("template name {} is error",templateName,e);
+            }
         }
         //初始化组合模板
         for (String templateName : multipleTemplateDefinitionSets) {
-            getMultipleTemplate(templateName);
+            try {
+                getMultipleTemplate(templateName);
+            }catch (Exception e){
+                logger.error("MultipleTemplate name {} is error",templateName,e);
+            }
         }
     }
 
