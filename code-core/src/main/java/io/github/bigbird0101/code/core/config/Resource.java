@@ -2,6 +2,7 @@ package io.github.bigbird0101.code.core.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 
@@ -10,7 +11,7 @@ import java.net.URL;
  * @version 1.0.0
  * @since 2022-11-05 20:03:23
  */
-public interface Resource extends InputStreamSource{
+public interface Resource extends InputStreamSource, Serializable {
     /**
      * 获取资源的url
      * @throws IOException IOException

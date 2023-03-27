@@ -369,14 +369,18 @@ public class ComplexController extends TemplateContextProvider implements Initia
         edit.setOnAction(event -> {
             try {
                 toNewTemplateView(template);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                FxAlerts.error(mainBox.getScene().getWindow(), "修改页加载失败", e);
             }
         });
 
         copy.setOnAction(event -> {
-            copyTemplate(template, defaultListableTemplateFactory);
-            AlertUtil.showInfo("复制成功");
+            try {
+                copyTemplate(template, defaultListableTemplateFactory);
+                AlertUtil.showInfo("复制成功");
+            }catch (Exception e){
+                FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", e);
+            }
         });
 
         contextMenu.getItems().addAll(register, edit,copy);
@@ -527,7 +531,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 return;
             }
             if (isSelectedAllTable) {
-                this.tableSelected = this.tableAll;
+                this.tableSelected = new ArrayList<>(this.tableAll);
             } else {
                 if (Utils.isNotEmpty(selectedTable.getText())) {
                     if (!this.tableSelected.contains(selectedTable.getText())) {
