@@ -7,6 +7,7 @@ import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.core.template.TemplateTraceContext;
 import io.github.bigbird0101.code.util.Utils;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class Swagger2MultipleRepresentFactorReplaceRule extends AbstractMultiple
     }
 
     @Override
-    public String replace(String pendingString, String representFactor, String replaceString, String before, String after) {
+    public String replace(Map<String, Object> dataModel, String pendingString, String representFactor, String replaceString, String before, String after) {
         Pattern compile = compile("(?<paramPrefix>.*?)" + API_IMPLICIT_PARAM +"\\s*\\(\\s*(?<paramPrefix2>.*)"+ ReUtil.escape(before) + representFactor + ReUtil.escape(after)+"(?<paramSuffix>.*)\\s*\\)\\s*", DOTALL| CASE_INSENSITIVE);
         final Matcher matcher = compile.matcher(pendingString);
         while(matcher.find()){
@@ -50,8 +51,8 @@ public class Swagger2MultipleRepresentFactorReplaceRule extends AbstractMultiple
             String collect = Stream.of(replaceString.split(COMMA))
                     .map(s -> templateStringByRepresentFactor(representFactor, s))
                     .map(s ->  paramPrefix+ API_IMPLICIT_PARAM +"("+getRepresentFactorReplaceRuleResolver()
-                            .doResolver(paramSuffix2, representFactor, s)+ before + s+ after +
-                            getConvertTypeSuffix(paramSuffix, representFactor, s)+")")
+                            .doResolver(dataModel, paramSuffix2, representFactor, s)+ before + s+ after +
+                            getConvertTypeSuffix(dataModel,paramSuffix, representFactor, s)+")")
                     .collect(Collectors.joining(",\r\n"));
             collect = prefixNull + "@ApiImplicitParams({\r\n" + collect + "\r\n" + prefixNull + "})";
             pendingString = pendingString.replaceFirst(ReUtil.escape(matcher.group()),ReUtil.escape(collect));
@@ -61,21 +62,23 @@ public class Swagger2MultipleRepresentFactorReplaceRule extends AbstractMultiple
 
     /**
      * 获取到类型转换之后的 后缀
+     *
+     * @param dataModel
      * @param pendingString
      * @param representFactor
      * @param replaceString
      * @return
      */
-    public String getConvertTypeSuffix(String pendingString, String representFactor, String replaceString){
+    public String getConvertTypeSuffix(Map<String, Object> dataModel, String pendingString, String representFactor, String replaceString){
         final Template currentTemplate = TemplateTraceContext.getCurrentTemplate();
-        final String targetJavaType = TableInfo.getJavaType(replaceString, currentTemplate);
-        String s = getRepresentFactorReplaceRuleResolver().doResolver(pendingString, representFactor, replaceString);
+        final String targetJavaType = TableInfo.getJavaType(replaceString, currentTemplate,dataModel);
+        String s = getRepresentFactorReplaceRuleResolver().doResolver(dataModel, pendingString, representFactor, replaceString);
         final Matcher matcher = GET_TYPE.matcher(s);
         if(matcher.find()) {
             try {
                 representFactor = matcher.group(0);
                 StaticLog.info("getConvertTypeSuffix  src {},target dataType = \"{}\"", representFactor, targetJavaType);
-                return getRepresentFactorReplaceRuleResolver().doResolver(s, representFactor,
+                return getRepresentFactorReplaceRuleResolver().doResolver(dataModel, s, representFactor,
                         "dataType = \"" + targetJavaType + "\"");
             }catch (Exception e){
                 return s;

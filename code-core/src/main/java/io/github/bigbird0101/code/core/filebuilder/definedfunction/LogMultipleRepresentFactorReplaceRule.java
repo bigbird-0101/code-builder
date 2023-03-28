@@ -3,6 +3,7 @@ package io.github.bigbird0101.code.core.filebuilder.definedfunction;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ public class LogMultipleRepresentFactorReplaceRule extends AbstractMultipleRepre
     }
 
     @Override
-    public String replace(String pendingString, String representFactor, String replaceString, String before, String after) {
+    public String replace(Map<String, Object> dataModel, String pendingString, String representFactor, String replaceString, String before, String after) {
         Pattern compile = Pattern.compile(ReUtil.escape(before) + representFactor + "(?<param>.*?)\\{\\s*\\}",
                 Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
         Matcher matcher = compile.matcher(pendingString);

@@ -3,6 +3,8 @@ package io.github.bigbird0101.code.core.filebuilder;
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 
+import java.util.Map;
+
 /**
  * 文件生成器
  * @author fpp
@@ -38,6 +40,7 @@ public interface FileBuilder {
     /**
      * 文件生成器
      * @param template 模板
+     * @param dataModel 数据模型
      */
-    void build(Template template) throws TemplateResolveException;
+    void build(Template template, Map<String,Object> dataModel) throws TemplateResolveException;
 }

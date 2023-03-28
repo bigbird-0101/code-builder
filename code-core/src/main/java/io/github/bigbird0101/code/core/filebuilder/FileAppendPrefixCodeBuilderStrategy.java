@@ -7,6 +7,7 @@ import io.github.bigbird0101.code.core.template.AbstractNoHandleFunctionTemplate
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -20,16 +21,16 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * @return
      */
     @Override
-    public String doneCode() throws TemplateResolveException {
+    public String doneCode(Map<String,Object> dataModel) throws TemplateResolveException {
         Template template = getTemplate();
         Objects.requireNonNull(template,"模板对象不允许为空!");
 
         if(template instanceof AbstractHandleFunctionTemplate){
             AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
             handleFunctionTemplate.setResolverStrategy(this);
-            String templeResult=handleFunctionTemplate.getTemplateResult();
+            String templeResult=handleFunctionTemplate.process(dataModel);
 
-            String srcFilePath=template.getProjectUrl()+template.getModule()+template.getSourcesRoot()+template.getSrcPackage()+getFileNameBuilder().nameBuilder(template);
+            String srcFilePath=template.getProjectUrl()+template.getModule()+template.getSourcesRoot()+template.getSrcPackage()+getFileNameBuilder().nameBuilder(template, dataModel);
             String srcResult=getSrcFileCode(srcFilePath);
             if(StrUtil.isNotBlank(srcResult)) {
                 String result = srcResult.substring(0, srcResult.indexOf("{\r\n"));
@@ -40,9 +41,9 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
                 return prefix + templeResult + suffix;
             }
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
-            return template.getTemplateResult();
+            return template.process(dataModel);
         }else{
-            return template.getTemplateResult();
+            return template.process(dataModel);
         }
     }
 
@@ -50,9 +51,10 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * 文件写入的方式
      *
      * @param code
+     * @param dataModel
      */
     @Override
-    public void fileWrite(String code) {
+    public void fileWrite(String code, Map<String, Object> dataModel) {
 
     }
 
@@ -60,11 +62,12 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * 解析策略
      *
      * @param templateFileClassInfo 模板的详情信息
+     * @param dataModel
      */
     @Override
-    public void resolverStrategy(TemplateFileClassInfo templateFileClassInfo) {
+    public void resolverStrategy(TemplateFileClassInfo templateFileClassInfo, Map<String, Object> dataModel) {
         templateFileClassInfo.setTemplateClassPrefix("");
         templateFileClassInfo.setTemplateClassSuffix("");
-        this.filterFunction(templateFileClassInfo);
+        this.filterFunction(templateFileClassInfo, dataModel);
     }
 }

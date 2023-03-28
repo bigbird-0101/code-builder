@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -31,14 +32,14 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * @return
      */
     @Override
-    public String doneCode() throws TemplateResolveException {
+    public String doneCode(Map<String,Object> dataModel) throws TemplateResolveException {
         Objects.requireNonNull(getTemplate(),"模板对象不允许为空!");
         Template template = getTemplate();
         if(template instanceof AbstractHandleFunctionTemplate){
             AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
             handleFunctionTemplate.setResolverStrategy(this);
-            String templeResult=handleFunctionTemplate.getTemplateResult();
-            String srcFilePath=getFilePath();
+            String templeResult=handleFunctionTemplate.process(dataModel);
+            String srcFilePath=getFilePath(dataModel);
                 String srcResult = getSrcFileCode(srcFilePath);
                 if(StrUtil.isNotBlank(srcResult)) {
                     String suffix = handleFunctionTemplate.getTemplateFileClassInfoWhenResolved().getTemplateClassSuffix();
@@ -51,21 +52,23 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
                     return prefix + templeResult + suffix;
                 }
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
-            return template.getTemplateResult();
+            return template.process(dataModel);
         }else{
-            return template.getTemplateResult();
+            return template.process(dataModel);
         }
     }
 
     /**
      * 文件写入的方式
-     *  文件的末尾处写入
+     * 文件的末尾处写入
+     *
      * @param code
+     * @param dataModel
      */
     @Override
-    public void fileWrite(String code){
+    public void fileWrite(String code, Map<String, Object> dataModel){
         try {
-            String filePath = getFilePath();
+            String filePath = getFilePath(dataModel);
             File file = new File(filePath);
             logger.info("文件的路径 {} ", filePath);
             if (!file.exists()) {
@@ -86,11 +89,12 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * 解析策略
      *
      * @param templateFileClassInfo 模板的详情信息
+     * @param dataModel
      */
     @Override
-    public void resolverStrategy(TemplateFileClassInfo templateFileClassInfo) {
+    public void resolverStrategy(TemplateFileClassInfo templateFileClassInfo, Map<String, Object> dataModel) {
         templateFileClassInfo.setTemplateClassPrefix("");
         templateFileClassInfo.setTemplateClassSuffix("");
-        this.filterFunction(templateFileClassInfo);
+        this.filterFunction(templateFileClassInfo, dataModel);
     }
 }

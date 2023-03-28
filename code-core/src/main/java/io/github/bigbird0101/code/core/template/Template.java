@@ -74,25 +74,12 @@ public interface Template extends Cloneable, Serializable,TemplateMatchRule {
     void setTemplateName(String templateName);
 
     /**
-     * 设置模板中的变量键值对
-     * @param templateVariables 设置模板中的变量键值对
-     */
-    void setTemplateVariables(Map<String, Object> templateVariables);
-
-    /**
-     * 获取模板中的变量键值对
-     * @return 模板中的变量键值对
-     */
-    Map<String, Object> getTemplateVariables();
-
-
-    /**
      * 获取根据模板中的变量表最终生成的模板内容
-     *
+     * @param dataModel 模板需要用到的元数据模型
      * @return 生成的模板内容
      * @throws TemplateResolveException 模板解析异常
      */
-    String getTemplateResult() throws TemplateResolveException;
+    String process(Map<String,Object> dataModel) throws TemplateResolveException;
 
     /**
      * 获取模板最终生成文件的文件名命名策略

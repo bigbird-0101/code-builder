@@ -182,17 +182,23 @@ public class ComplexController extends TemplateContextProvider implements Initia
     private void initLogView() {
         Platform.runLater(()->{
             final String property = new UserInfo().getCurrentDir();
-            logger.info("property {}",property);
+            if(logger.isDebugEnabled()) {
+                StaticLog.debug("property {}", property);
+            }
             if(StrUtil.isNotBlank(property)){
                 final String logPath = property + File.separator + "log";
                 final File file = new File(logPath);
-                logger.info("logPath {}",logPath);
+                if(logger.isDebugEnabled()) {
+                    StaticLog.debug("logPath {}", logPath);
+                }
                 if(file.exists()){
                     FileFilterUtils.filterList(FileFileFilter.FILE, file.listFiles())
                             .stream().map(File::getName)
                             .map(MenuItem::new)
                             .forEach(s->{
-                                logger.info("MenuItem {}",s.getText());
+                                if(logger.isDebugEnabled()) {
+                                    StaticLog.debug("MenuItem {}", s.getText());
+                                }
                                 s.setOnAction(event -> {
                                     Desktop desktop = Desktop.getDesktop();
                                     File logFile=new File(logPath+File.separator+s.getText());
@@ -436,6 +442,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             selectedTable = (TextField) templatesOperateNode.lookup("#targetTable");
             content.getChildren().clear();
             content.getChildren().add(templatesOperateNode);
+            templatesOperateController.initTemplateConfig();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -595,7 +602,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
     public void concurrentDoBuild(FileBuilder fileBuilder,
                                   ConfigFileTemplateVariableResource propertiesVariable,
                                   BiConsumer<Integer, Integer> onProgressUpdate) {
-        List<CompletableFuture<Void>> task=new ArrayList<>();
+        List<CompletableFuture<Boolean>> task=new ArrayList<>();
         if(!tableSelected.isEmpty()) {
             for (String tableName : tableSelected) {
                 //数据库变量资源
@@ -647,32 +654,34 @@ public class ComplexController extends TemplateContextProvider implements Initia
         int all=0==size?templateNamesSelected.size()*doBuildTemplateParam.getQueueSize():templateNamesSelected.size()* size;
         AtomicInteger i= new AtomicInteger(1);
         for (String templateName : templateNamesSelected) {
-            final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
+//            final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
                 final long l = System.currentTimeMillis();
                 Template template = templateContext.getTemplate(templateName);
-                template.getTemplateVariables().putAll(
-                        doBuildTemplateParam.getTemplateVariableResources().stream()
-                                .filter(Objects::nonNull)
-                                .findFirst().orElseThrow(()->new CodeConfigException("not get eVariable resource config"))
-                                .mergeTemplateVariable(doBuildTemplateParam.getTemplateVariableResources()));
-                Optional.ofNullable(doBuildTemplateParam.getNoShareVar().poll()).ifPresent(s->template.getTemplateVariables().putAll(s));
-                doSetDependTemplateVariablesMapping(template, doBuildTemplateParam.getTableName());
+                Map<String, Object> dataModel = new HashMap<>(doBuildTemplateParam.getTemplateVariableResources().stream()
+                        .filter(Objects::nonNull)
+                        .findFirst().orElseThrow(() -> new CodeConfigException("not get eVariable resource config"))
+                        .mergeTemplateVariable(doBuildTemplateParam.getTemplateVariableResources()));
+                Optional.ofNullable(doBuildTemplateParam.getNoShareVar().poll()).ifPresent(dataModel::putAll);
+                doSetDependTemplateVariablesMapping(template, doBuildTemplateParam.getTableName(),dataModel);
                 if (templateContext instanceof AbstractTemplateContext) {
                     AbstractTemplateContext abstractTemplateContext = (AbstractTemplateContext) templateContext;
                     Platform.runLater(() -> abstractTemplateContext.publishEvent(
                             new DoGetTemplateAfterEvent(template, controller)));
                 }
                 try {
-                    doBuildTemplateParam.getFileBuilder().build(template);
+                    doBuildTemplateParam.getFileBuilder().build(template,dataModel);
                 }catch (TemplateResolveException templateResolveException){
                     throw new TemplateResolveException("{} 解析异常,{}",template.getTemplateName(),
                             templateResolveException.getMessage());
                 }
                 final long e = System.currentTimeMillis();
                 StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
-            }, DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> doBuildTemplateParam.getOnProgressUpdate().accept(all, i.getAndIncrement()),
-                    DO_ANALYSIS_TEMPLATE);
-            doBuildTemplateParam.getTask().add(voidCompletableFuture);
+//            }, DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> doBuildTemplateParam.getOnProgressUpdate().accept(all, i.getAndIncrement()),
+//                    DO_ANALYSIS_TEMPLATE);
+            doBuildTemplateParam.getOnProgressUpdate().accept(all,i.getAndIncrement());
+            CompletableFuture<Boolean> e1 = new CompletableFuture<>();
+            e1.complete(true);
+            doBuildTemplateParam.getTask().add(e1);
         }
     }
 
@@ -684,19 +693,21 @@ public class ComplexController extends TemplateContextProvider implements Initia
         return fileBuilder;
     }
 
-    private void doSetDependTemplateVariablesMapping(Template template, String tableName){
-        final String simpleClassName = template.getTargetFilePrefixNameStrategy().prefixStrategy(template, tableName);
-        template.getTemplateVariables().put("className",Utils.pathToPackage(template.getSrcPackage())+"."+simpleClassName);
-        template.getTemplateVariables().put("simpleClassName",simpleClassName);
+    private void doSetDependTemplateVariablesMapping(Template template, String tableName, Map<String, Object> dataModel){
+        final String simpleClassName = template.getTargetFilePrefixNameStrategy().prefixStrategy(template, tableName,dataModel);
+        dataModel.put("className",Utils.pathToPackage(template.getSrcPackage())+"."+simpleClassName);
+        dataModel.put("simpleClassName",simpleClassName);
+        if(StrUtil.isNotBlank(template.getSrcPackage())) {
+            dataModel.put("packageName", Utils.pathToPackage(template.getSrcPackage()));
+        }
         if(template instanceof HaveDependTemplate){
             HaveDependTemplate haveDependTemplate= (HaveDependTemplate) template;
             if(CollectionUtil.isNotEmpty(haveDependTemplate.getDependTemplates())) {
                 haveDependTemplate.getDependTemplates()
                         .forEach(s -> {
-                            final Template templateDepend = getTemplateContext().getTemplate(s);
                             Map<String, Object> templateVariables =new HashMap<>();
-                            templateVariables.put("tableInfo", template.getTemplateVariables().get("tableInfo"));
-                            templateDepend.getTemplateVariables().putAll(templateVariables);
+                            templateVariables.put("tableInfo", dataModel.get("tableInfo"));
+                            dataModel.putAll(templateVariables);
                         });
             }
         }
@@ -771,7 +782,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         private FileBuilder fileBuilder;
         private List<TemplateVariableResource> templateVariableResources;
         private BiConsumer<Integer,Integer> onProgressUpdate;
-        private List<CompletableFuture<Void>> task;
+        private List<CompletableFuture<Boolean>> task;
         private String tableName;
         private Queue<Map<String,Object>> noShareVar;
         private int queueSize;
@@ -810,11 +821,11 @@ public class ComplexController extends TemplateContextProvider implements Initia
             this.onProgressUpdate = onProgressUpdate;
         }
 
-        public List<CompletableFuture<Void>> getTask() {
+        public List<CompletableFuture<Boolean>> getTask() {
             return task;
         }
 
-        public void setTask(List<CompletableFuture<Void>> task) {
+        public void setTask(List<CompletableFuture<Boolean>> task) {
             this.task = task;
         }
 
@@ -847,7 +858,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             private FileBuilder fileBuilder;
             private List<TemplateVariableResource> templateVariableResources;
             private BiConsumer<Integer, Integer> onProgressUpdate;
-            private List<CompletableFuture<Void>> task;
+            private List<CompletableFuture<Boolean>> task;
             private String tableName;
             private Queue<Map<String, Object>> noShareVar;
             private int queueSize;
@@ -870,7 +881,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 return this;
             }
 
-            public Builder task(List<CompletableFuture<Void>> val) {
+            public Builder task(List<CompletableFuture<Boolean>> val) {
                 task = val;
                 return this;
             }

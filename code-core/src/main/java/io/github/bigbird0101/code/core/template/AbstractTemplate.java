@@ -57,8 +57,6 @@ public abstract class AbstractTemplate implements Template {
 
     private Resource templateResource;
 
-    private Map<String,Object> templateVariables;
-
     private TemplateResolver templateResolver;
 
     private TargetFilePrefixNameStrategy targetFilePrefixNameStrategy =new DefaultTargetFilePrefixNameStrategy();
@@ -83,16 +81,6 @@ public abstract class AbstractTemplate implements Template {
     @Override
     public void setTemplateName(String templateName) {
         this.templateName = templateName;
-    }
-
-    @Override
-    public Map<String, Object> getTemplateVariables() {
-        return templateVariables;
-    }
-
-    @Override
-    public void setTemplateVariables(Map<String, Object> templateVariables) {
-        this.templateVariables = templateVariables;
     }
 
     public void setTemplateResolver(TemplateResolver templateResolver) {
@@ -256,27 +244,6 @@ public abstract class AbstractTemplate implements Template {
         return JSONObject.toJSONString(this);
     }
 
-    /**
-     * 初始化模板参数并且构建一些基础的参数
-     */
-    public void initTemplateVariables() {
-        if(null==getTemplateVariables()||getTemplateVariables().isEmpty()){
-            setTemplateVariables(new HashMap<>());
-        }
-        if(StrUtil.isNotBlank(getSrcPackage())) {
-            getTemplateVariables().put("packageName", Utils.pathToPackage(getSrcPackage()));
-        }
-        //add base simpleClassName data
-        TableInfo tableInfo = (TableInfo) getTemplateVariables().get("tableInfo");
-        final String tableName = Optional.ofNullable(tableInfo).map(TableInfo::getTableName).orElse(null);
-        try {
-            getTemplateVariables().put("simpleClassName", getTargetFilePrefixNameStrategy().prefixStrategy(this, tableName));
-        }catch (Exception exception){
-            StaticLog.warn("getTargetFilePrefixNameStrategy().prefixStrategy",exception);
-        }
-        getTemplateVariables().put("className",Utils.pathToPackage(getSrcPackage())+"."+ getTemplateVariables().get("simpleClassName"));
-    }
-
     public static  class TemplateSerializer implements ObjectSerializer{
         @Override
         public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) {
@@ -312,8 +279,8 @@ public abstract class AbstractTemplate implements Template {
                 HaveDependTemplate haveDependTemplate=(HaveDependTemplate)object;
                 jsonObject.put("dependTemplates",haveDependTemplate.getDependTemplates());
             }
-            if(LOGGER.isInfoEnabled()){
-                LOGGER.info(" JSON Serializer {}",jsonObject);
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug(" JSON Serializer {}",jsonObject);
             }
             serializer.write(jsonObject);
         }

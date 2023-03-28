@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static cn.hutool.core.lang.Validator.isChinese;
 
@@ -19,7 +20,7 @@ public abstract class AbstractRepresentFactorReplaceRuleResolver implements Repr
                     "~", "`", "<", ">", ".", "\\", ";", ":","");
 
     @Override
-    public String doResolver(String pendingString, String representFactor, String replaceString) {
+    public String doResolver(Map<String, Object> dataModel, String pendingString, String representFactor, String replaceString) {
         int representFactorIndex=0;
         int oldRepresentFactorIndex=representFactorIndex;
         while (
@@ -36,7 +37,7 @@ public abstract class AbstractRepresentFactorReplaceRuleResolver implements Repr
             if (isSpecialCharOrChinese(before, after)) {
                 for (RepresentFactorReplaceRule representFactorReplaceRule:ruleList){
                     if(representFactorReplaceRule.match(pendingString,representFactor,replaceString,before,after)){
-                        pendingString=representFactorReplaceRule.replace(pendingString,representFactor,
+                        pendingString=representFactorReplaceRule.replace(dataModel,pendingString,representFactor,
                                 replaceString,before,after);
                     }
                 }

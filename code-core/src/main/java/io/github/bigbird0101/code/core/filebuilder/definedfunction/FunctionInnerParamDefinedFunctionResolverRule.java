@@ -6,6 +6,7 @@ import io.github.bigbird0101.code.core.domain.DefinedFunctionDomain;
 import io.github.bigbird0101.code.core.template.TemplateTraceContext;
 import io.github.bigbird0101.code.util.Utils;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ public class FunctionInnerParamDefinedFunctionResolverRule extends AbstractDefin
         String definedValue = definedFunctionDomain.getDefinedValue();
         String representFactor = definedFunctionDomain.getRepresentFactor();
         String srcFunctionBody = definedFunctionDomain.getTemplateFunction();
+        Map<String, Object> dataModel = definedFunctionDomain.getDataModel();
         String[] definedValues = definedValue.split("\\,");
         //匹配不是set方法的
         Matcher matcher = Pattern.compile("(.*?)(?<!set" + Utils.firstUpperCase(representFactor) + ")\\(" + representFactor + "\\)", Pattern.CASE_INSENSITIVE).matcher(srcFunctionBody);
@@ -55,7 +57,7 @@ public class FunctionInnerParamDefinedFunctionResolverRule extends AbstractDefin
                 final String[] splits = functionBody.split("\r\n|\n");
                 for(String line:splits){
                     srcFunctionBody = Utils.getIgnoreLowerUpperMather(srcFunctionBody, ReUtil.escape(line))
-                            .replaceAll(ReUtil.escape(getRepresentFactorReplaceRuleResolver().doResolver(line,representFactor,definedValue)));
+                            .replaceAll(ReUtil.escape(getRepresentFactorReplaceRuleResolver().doResolver(dataModel,line,representFactor,definedValue)));
                 }
             }
         }

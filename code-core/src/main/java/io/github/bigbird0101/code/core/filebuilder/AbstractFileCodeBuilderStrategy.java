@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilderStrategy, ResolverStrategy {
 
-    private static Logger logger= LogManager.getLogger(AbstractFileCodeBuilderStrategy.class);
+    private static final Logger logger= LogManager.getLogger(AbstractFileCodeBuilderStrategy.class);
 
     private CoreConfig coreConfig;
 
@@ -67,7 +67,7 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
         this.fileNameBuilder = fileNameBuilder;
     }
 
-    public void filterFunction(TemplateFileClassInfo templateFileClassInfo) {
+    public void filterFunction(TemplateFileClassInfo templateFileClassInfo, Map<String, Object> dataModel) {
         Map<String, List<String>> templateSelectedGroup = this.getCoreConfig().getProjectTemplateInfoConfig().getTemplateSelectedGroup();
         if (this.getTemplate() instanceof AbstractHandleFunctionTemplate) {
             List<String> jsonArrayFunction = templateSelectedGroup.get(this.template.getTemplateName());
@@ -91,7 +91,8 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
                     if(Utils.isNotEmpty(srcFunctionBody)) {
                         DefinedFunctionDomain definedFunctionDomain = (DefinedFunctionDomain) item.clone();
                         definedFunctionDomain.setTemplateFunction(srcFunctionBody);
-                        definedFunctionDomain.setTableInfo((TableInfo) getTemplate().getTemplateVariables().get("tableInfo"));
+                        definedFunctionDomain.setTableInfo((TableInfo) dataModel.get("tableInfo"));
+                        definedFunctionDomain.setDataModel(dataModel);
                         String functionBody = this.definedFunctionResolver.doResolver(definedFunctionDomain);
                         newFunction.put(templateFunctionName + "DEFINEDFUNCTION", functionBody);
                     }
@@ -127,8 +128,8 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
      *
      * @return
      */
-    public String getFilePath() {
-        return this.getTemplate().getProjectUrl()+"/"+this.getTemplate().getModule() + "/" + this.getTemplate().getSourcesRoot() + "/"+this.getTemplate().getSrcPackage()+"/" + getFileNameBuilder().nameBuilder(template);
+    public String getFilePath(Map<String, Object> dataModel) {
+        return this.getTemplate().getProjectUrl()+"/"+this.getTemplate().getModule() + "/" + this.getTemplate().getSourcesRoot() + "/"+this.getTemplate().getSrcPackage()+"/" + getFileNameBuilder().nameBuilder(template,dataModel);
     }
 
     @Override
@@ -137,7 +138,7 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
     }
 
     @Override
-    public void resolverStrategy(TemplateFileClassInfo templateFileClassInfo) {
-       filterFunction(templateFileClassInfo);
+    public void resolverStrategy(TemplateFileClassInfo templateFileClassInfo, Map<String, Object> dataModel) {
+       filterFunction(templateFileClassInfo,dataModel);
     }
 }

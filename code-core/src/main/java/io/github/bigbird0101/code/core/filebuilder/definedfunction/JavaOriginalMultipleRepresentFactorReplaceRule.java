@@ -2,6 +2,7 @@ package io.github.bigbird0101.code.core.filebuilder.definedfunction;
 
 import cn.hutool.core.util.ReUtil;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class JavaOriginalMultipleRepresentFactorReplaceRule extends AbstractMult
     }
 
     @Override
-    public String replace(String pendingString, String representFactor, String replaceString, String before, String after) {
+    public String replace(Map<String, Object> dataModel, String pendingString, String representFactor, String replaceString, String before, String after) {
         Pattern compile = Pattern.compile("(?<paramPrefix>.*?)" + PARAM + ReUtil.escape(before) + representFactor + ReUtil.escape(after)+"(?<paramSuffix>.*)", Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
         final Matcher matcher = compile.matcher(pendingString);
         while(matcher.find()){
@@ -42,7 +43,7 @@ public class JavaOriginalMultipleRepresentFactorReplaceRule extends AbstractMult
             final String paramPrefix = matcher.group(DefinedFunctionResolverRule.PARAM_PREFIX);
             final String collect = Stream.of(replaceString.split(DefinedFunctionResolverRule.COMMA))
                     .map(s -> templateStringByRepresentFactor(representFactor, s))
-                    .map(s ->  paramPrefix+ PARAM + before + s+ after + getRepresentFactorReplaceRuleResolver().doResolver(paramSuffix, representFactor, s))
+                    .map(s ->  paramPrefix+ PARAM + before + s+ after + getRepresentFactorReplaceRuleResolver().doResolver(dataModel, paramSuffix, representFactor, s))
                     .collect(Collectors.joining("\r\n"));
             pendingString = pendingString.replaceFirst(ReUtil.escape(matcher.group()), ReUtil.escape(collect));
         }

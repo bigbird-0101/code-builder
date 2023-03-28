@@ -33,7 +33,6 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
 
     @Override
     public void refresh() {
-        this.initTemplateVariables();
         if(null!= getTemplateResource()) {
             try {
                 DomScriptCodeNodeBuilder domScriptCodeNodeBuilder=new DomScriptCodeNodeBuilder(XmlUtil.readXML(
@@ -63,12 +62,12 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
     }
 
     @Override
-    protected TemplateFileClassInfo doBuildTemplateResultCache(CacheKey cacheKey) {
-        return super.doBuildTemplateResultCache(cacheKey);
+    protected TemplateFileClassInfo doBuildTemplateResultCache(CacheKey cacheKey, Map<String, Object> dataModel) {
+        return super.doBuildTemplateResultCache(cacheKey, dataModel);
     }
 
     private DynamicCodeNodeContext getCodeNodeContext() {
-        return new DynamicCodeNodeContext(getTemplateVariables(),environment);
+        return new DynamicCodeNodeContext(new HashMap<>(),environment);
     }
 
     private Map<String, String> getFunctionS(CodeNode source) {

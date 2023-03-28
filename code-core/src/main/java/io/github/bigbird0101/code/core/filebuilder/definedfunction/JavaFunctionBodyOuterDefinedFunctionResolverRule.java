@@ -5,6 +5,7 @@ import io.github.bigbird0101.code.core.domain.DefinedFunctionDomain;
 import io.github.bigbird0101.code.core.template.TemplateTraceContext;
 import io.github.bigbird0101.code.util.Utils;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 
 /**
@@ -27,6 +28,7 @@ public class JavaFunctionBodyOuterDefinedFunctionResolverRule extends AbstractDe
         String definedValue = definedFunctionDomain.getDefinedValue();
         String representFactor = definedFunctionDomain.getRepresentFactor();
         String srcFunctionBody = definedFunctionDomain.getTemplateFunction();
+        Map<String, Object> dataModel = definedFunctionDomain.getDataModel();
         final boolean isInterface = isInterface(TemplateTraceContext.getCurrentTemplate());
         Matcher matcher =isInterface?INTERFACE_FUNCTION.matcher(srcFunctionBody):FUNCTION.matcher(srcFunctionBody);
         if(matcher.find()){
@@ -34,7 +36,7 @@ public class JavaFunctionBodyOuterDefinedFunctionResolverRule extends AbstractDe
             final String[] splits = group.split("\r\n|\n");
             for(String line:splits){
                 srcFunctionBody = Utils.getIgnoreLowerUpperMather(srcFunctionBody, ReUtil.escape(line))
-                    .replaceAll(ReUtil.escape(getRepresentFactorReplaceRuleResolver().doResolver(line,representFactor,definedValue)));
+                    .replaceAll(ReUtil.escape(getRepresentFactorReplaceRuleResolver().doResolver(dataModel, line,representFactor,definedValue)));
             }
         }
         return srcFunctionBody;

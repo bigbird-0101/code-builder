@@ -17,7 +17,9 @@ public class TemplateTraceContext {
     }
 
     public static void setCurrentTemplate(Template currentTemplate) {
-        logger.info("setCurrentTemplate {}",currentTemplate.getTemplateName());
+        if(logger.isDebugEnabled()) {
+            logger.debug("setCurrentTemplate {}", currentTemplate.getTemplateName());
+        }
         TemplateTraceContext.CURRENT_TEMPLATE.set(currentTemplate);
     }
 

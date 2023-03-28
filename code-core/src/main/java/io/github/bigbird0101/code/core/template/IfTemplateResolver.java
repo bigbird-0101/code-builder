@@ -112,8 +112,8 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
     private boolean meetConditions(String title, List<String> targetKeyList, Map<String, Object> replaceKeyValue) {
         for (String targetKey:targetKeyList){
             Object targetObject=replaceKeyValue.get(targetKey);
-            if(logger.isInfoEnabled()){
-                logger.info(" if语句满足条件目标对象 {}",targetObject);
+            if(logger.isDebugEnabled()){
+                logger.debug(" if语句满足条件目标对象 {}",targetObject);
             }
             if(null==targetObject){
                 throw new TemplateResolveException("if 语句中 由于{}源对象为空 不能解析条件语句 {}",targetKey,title);
@@ -187,8 +187,8 @@ public class IfTemplateResolver extends AbstractTemplateLangResolver{
 
             }
         }
-        if(logger.isInfoEnabled()){
-            logger.info(" if语句解析后的结果 {}",result.toString());
+        if(logger.isDebugEnabled()){
+            logger.debug(" if语句解析后的结果 {}",result.toString());
         }
         return new PostfixExpressionModule(result,title);
     }

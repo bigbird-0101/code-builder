@@ -2,6 +2,8 @@ package io.github.bigbird0101.code.core.filebuilder.definedfunction;
 
 import cn.hutool.core.util.ReUtil;
 
+import java.util.Map;
+
 /**
  * 单个需要替换的字段的实现
  * @author Administrator
@@ -13,7 +15,7 @@ public class SingletonReplaceStringRepresentFactorReplaceRule extends AbstractRe
     }
 
     @Override
-    public String replace(String pendingString, String representFactor, String replaceString, String before, String after) {
+    public String replace(Map<String, Object> dataModel, String pendingString, String representFactor, String replaceString, String before, String after) {
         return pendingString.replaceFirst(ReUtil.escape(before + representFactor + after),
                 ReUtil.escape(before + templateStringByRepresentFactor(representFactor, replaceString) +after));
     }

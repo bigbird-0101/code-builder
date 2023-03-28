@@ -3,6 +3,8 @@ package io.github.bigbird0101.code.core.template.targetfile;
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.util.Utils;
 
+import java.util.Map;
+
 /**
  * 默认模板最终生成文件的文件名命名策略
  * @author fpp
@@ -29,7 +31,7 @@ public class DefaultTargetFilePrefixNameStrategy implements TargetFilePrefixName
      * @return
      */
     @Override
-    public String prefixStrategy(Template template, String srcSource) {
+    public String prefixStrategy(Template template, String srcSource, Map<String,Object> dataModel) {
         return Utils.getFileNameByPath(srcSource.substring(4),"\\_")+Utils.getFileNameByPath(template.getSrcPackage(),"\\/");
     }
 }

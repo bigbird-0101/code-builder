@@ -14,6 +14,7 @@ import io.github.bigbird0101.code.exception.TemplateResolveException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
 
 import static io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemplate.DOM_MATCH_RULE;
 import static io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemplate.DOM_MATCH_RULE_TEMPLATE;
@@ -58,10 +59,10 @@ public class DomNoHandleFunctionTemplate extends DefaultNoHandleFunctionTemplate
     }
 
     @Override
-    protected String doBuildTemplateResultCache() {
-        DynamicCodeNodeContext dynamicCodeNodeContext=new DynamicCodeNodeContext(getTemplateVariables(),environment);
+    protected String doBuildTemplateResultCache(Map<String, Object> dataModel) {
+        DynamicCodeNodeContext dynamicCodeNodeContext=new DynamicCodeNodeContext(dataModel,environment);
         source.apply(dynamicCodeNodeContext);
-        return getTemplateResolver().resolver(dynamicCodeNodeContext.getCode(),getTemplateVariables());
+        return getTemplateResolver().resolver(dynamicCodeNodeContext.getCode(),dataModel);
     }
 
     @Override

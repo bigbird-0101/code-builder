@@ -4,6 +4,7 @@ package io.github.bigbird0101.code.core.domain;
 import cn.hutool.core.util.ObjectUtil;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -33,6 +34,8 @@ public class DefinedFunctionDomain implements Cloneable, Serializable {
 
     private TableInfo tableInfo;
 
+    private Map<String,Object> dataModel;
+
     public DefinedFunctionDomain(String definedValue, String templateFunctionName, String representFactor, String templateFunction) {
         this.definedValue = definedValue;
         this.templateFunctionName = templateFunctionName;
@@ -54,6 +57,14 @@ public class DefinedFunctionDomain implements Cloneable, Serializable {
 
     public void setTableInfo(TableInfo tableInfo) {
         this.tableInfo = tableInfo;
+    }
+
+    public Map<String, Object> getDataModel() {
+        return dataModel;
+    }
+
+    public void setDataModel(Map<String, Object> dataModel) {
+        this.dataModel = dataModel;
     }
 
     public String getDefinedValue() {

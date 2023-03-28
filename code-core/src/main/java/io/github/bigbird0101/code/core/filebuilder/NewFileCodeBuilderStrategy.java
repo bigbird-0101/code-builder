@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -20,24 +21,24 @@ import java.util.Objects;
  * @version 1.0
  */
 public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy {
-    private static Logger logger= LogManager.getLogger(NewFileCodeBuilderStrategy.class);
+    private static final Logger logger= LogManager.getLogger(NewFileCodeBuilderStrategy.class);
     /**
      * 文件代码生成器策略
      *
      * @return
      */
     @Override
-    public String doneCode() throws TemplateResolveException {
+    public String doneCode(Map<String,Object> dataModel) throws TemplateResolveException {
         Objects.requireNonNull(getTemplate(),"模板对象不允许为空!");
         Template template = getTemplate();
         if(template instanceof AbstractHandleFunctionTemplate){
             AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
             handleFunctionTemplate.setResolverStrategy(this);
-            return handleFunctionTemplate.getTemplateResult();
+            return handleFunctionTemplate.process(dataModel);
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
-            return template.getTemplateResult();
+            return template.process(dataModel);
         }else{
-            return template.getTemplateResult();
+            return template.process(dataModel);
         }
     }
 
@@ -46,9 +47,9 @@ public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy 
      *  创建新的文件
      */
     @Override
-    public void fileWrite(String code){
+    public void fileWrite(String code, Map<String, Object> dataModel){
         try {
-            String filePath = getFilePath();
+            String filePath = getFilePath(dataModel);
             File a = new File(filePath);
             if (a.exists()) {
                 filePath = filePath + "_1.txt";

@@ -164,7 +164,11 @@
     </profiles>
     <properties>
         <revision>3.0.4</revision>
-        <skip_maven_deploy>false</skip_maven_deploy>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <maven.source.skip>true</maven.source.skip>
+        <gpg.skip>true</gpg.skip>
+        <checkstyle.skip>true</checkstyle.skip>
+        <skip.maven.deploy>true</skip.maven.deploy>
         <!-- Compiler settings properties -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>

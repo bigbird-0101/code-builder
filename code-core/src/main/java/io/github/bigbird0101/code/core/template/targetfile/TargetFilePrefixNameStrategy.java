@@ -3,6 +3,7 @@ package io.github.bigbird0101.code.core.template.targetfile;
 import io.github.bigbird0101.code.core.template.Template;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * 模板最终生成文件的文件前缀名命名策略
@@ -19,8 +20,9 @@ public interface TargetFilePrefixNameStrategy extends Serializable {
      * 命名策略
      * @param template 模板
      * @param srcSource 源资源 比如表名
+     * @param dataModel 数据模型
      * @return
      */
-    String prefixStrategy(Template template, String srcSource);
+    String prefixStrategy(Template template, String srcSource, Map<String,Object> dataModel);
 
 }

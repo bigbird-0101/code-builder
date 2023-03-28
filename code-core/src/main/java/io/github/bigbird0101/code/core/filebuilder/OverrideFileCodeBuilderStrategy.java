@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -23,24 +24,24 @@ public class OverrideFileCodeBuilderStrategy extends AbstractFileCodeBuilderStra
     private static Logger logger= LogManager.getLogger(OverrideFileCodeBuilderStrategy.class);
 
     @Override
-    public String doneCode() throws TemplateResolveException {
+    public String doneCode(Map<String,Object> dataModel) throws TemplateResolveException {
         Objects.requireNonNull(getTemplate(),"模板对象不允许为空!");
         Template template = getTemplate();
         if(template instanceof AbstractHandleFunctionTemplate){
             AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
             handleFunctionTemplate.setResolverStrategy(this);
-            return handleFunctionTemplate.getTemplateResult();
+            return handleFunctionTemplate.process(dataModel);
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
-            return template.getTemplateResult();
+            return template.process(dataModel);
         }else{
-            return template.getTemplateResult();
+            return template.process(dataModel);
         }
     }
 
     @Override
-    public void fileWrite(String code){
+    public void fileWrite(String code, Map<String, Object> dataModel){
         try {
-            String filePath = getFilePath();
+            String filePath = getFilePath(dataModel);
             File a = new File(filePath);
             if (a.exists()) {
                 FileWriter fileWriter = new FileWriter(a);
@@ -48,8 +49,8 @@ public class OverrideFileCodeBuilderStrategy extends AbstractFileCodeBuilderStra
                 fileWriter.flush();
                 fileWriter.close();
             }
-            if (logger.isInfoEnabled()) {
-                logger.info("最终的生成文件的路径 {} ", filePath);
+            if (logger.isDebugEnabled()) {
+                logger.debug("最终的生成文件的路径 {} ", filePath);
             }
             FileUtils.forceMkdirParent(a);
             FileOutputStream fops = new FileOutputStream(a);

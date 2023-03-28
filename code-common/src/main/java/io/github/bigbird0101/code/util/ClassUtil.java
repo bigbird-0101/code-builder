@@ -57,7 +57,7 @@ public class ClassUtil {
                 throw new RuntimeException("出现异常" + e.getMessage());
             }
         }
-        LOG.info("class list size :" + list.size());
+        LOG.debug("class list size :" + list.size());
         CACHE.put(clazz,list);
         return list;
     }
@@ -70,10 +70,13 @@ public class ClassUtil {
      */
     private static ArrayList<Class<?>> getAllClass(String packageName) {
 
-
-        LOG.info("packageName to search：{}", packageName);
+        if(LOG.isDebugEnabled()) {
+            LOG.debug("packageName to search：{}", packageName);
+        }
         List<String> classNameList = getClassName(packageName);
-        LOG.info("getAllClass classNameList: {}",classNameList);
+        if(LOG.isDebugEnabled()) {
+            LOG.debug("getAllClass classNameList: {}", classNameList);
+        }
         ArrayList<Class<?>> list = new ArrayList<>();
 
         for (String className : classNameList) {
@@ -83,7 +86,7 @@ public class ClassUtil {
                 LOG.warn("load class from name failed :{} {}", e, className);
             }
         }
-        LOG.info("find list size :" + list.size());
+        LOG.debug("find list size :" + list.size());
         return list;
     }
 

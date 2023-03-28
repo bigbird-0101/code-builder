@@ -10,10 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -50,8 +47,9 @@ class ConfigFileTemplateVariableResourceTest {
         StandardEnvironment standardEnvironment=new StandardEnvironment();
         GenericTemplateContext genericTemplateContext=new GenericTemplateContext(standardEnvironment);
         final Template dao = genericTemplateContext.getTemplate("Dao");
-        dao.getTemplateVariables().putAll(configFileTemplateVariableResource.getTemplateVariable());
-        Assertions.assertThrows(TemplateResolveException.class, dao::getTemplateResult);
+        HashMap<String, Object> objectObjectHashMap = new HashMap<>();
+        objectObjectHashMap.putAll(configFileTemplateVariableResource.getTemplateVariable());
+        Assertions.assertThrows(TemplateResolveException.class, ()-> dao.process(objectObjectHashMap));
     }
 
     @Test
@@ -63,12 +61,11 @@ class ConfigFileTemplateVariableResourceTest {
                 DefaultNoHandleFunctionTemplate.class,"testTemplateVariable.template"));
         final Template dao = genericTemplateContext.getTemplate("testConfigTemplateResource");
         final Queue<Map<String, Object>> noShareVar = configFileTemplateVariableResource.getNoShareVar();
+        Map<String,Object> dataModel=new HashMap<>();
         while(!noShareVar.isEmpty()){
-            dao.getTemplateVariables().putAll(configFileTemplateVariableResource.getTemplateVariable());
-            Optional.ofNullable(noShareVar.poll()).ifPresent(s->{
-                dao.getTemplateVariables().putAll(s);
-            });
-            final String templateResult = dao.getTemplateResult();
+            dataModel.putAll(configFileTemplateVariableResource.getTemplateVariable());
+            Optional.ofNullable(noShareVar.poll()).ifPresent(dataModel::putAll);
+            final String templateResult = dao.process(dataModel);
             Assertions.assertNotNull(templateResult);
         }
     }

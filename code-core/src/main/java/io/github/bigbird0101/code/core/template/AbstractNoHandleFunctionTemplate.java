@@ -5,8 +5,11 @@ import io.github.bigbird0101.code.core.exception.CodeBuilderException;
 import io.github.bigbird0101.code.core.cache.Cache;
 import io.github.bigbird0101.code.core.cache.CacheKey;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * 不需要操作方法的模板
@@ -14,6 +17,7 @@ import java.io.IOException;
  * @version 1.0
  */
 public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate {
+    private static final Logger LOGGER = LogManager.getLogger(AbstractNoHandleFunctionTemplate.class);
 
     private String templateContent;
 
@@ -34,9 +38,10 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
 
 
     @Override
-    public String getTemplateResult() throws TemplateResolveException {
-        doResolverTemplateBefore();
-        final String result = doResolverTemplate();
+    public String process(Map<String,Object> dataModel) throws TemplateResolveException {
+        LOGGER.info("process:{}  dataModel:{}",getTemplateName(),dataModel);
+        doResolverTemplateBefore(dataModel);
+        final String result = doResolverTemplate(dataModel);
         return doResolverTemplateAfter(result);
     }
 
@@ -52,29 +57,28 @@ public abstract class AbstractNoHandleFunctionTemplate extends AbstractTemplate 
     /**
      * 解析模板之前
      */
-    protected void doResolverTemplateBefore() {
+    protected void doResolverTemplateBefore(Map<String, Object> dataModel) {
         if(!refreshed){
             this.refresh();
         }
-        initTemplateVariables();
     }
 
     /**
      * 解析模板
      * @return
      */
-    protected String doResolverTemplate() {
-        CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
+    protected String doResolverTemplate(Map<String, Object> dataModel) {
+        CacheKey cacheKey=new CacheKey(getTemplateName(),dataModel);
         String result=resolverResultCache.get(cacheKey);
         if(null==result) {
-            result = doBuildTemplateResultCache();
+            result = doBuildTemplateResultCache(dataModel);
             resolverResultCache.put(cacheKey,result);
         }
         return result;
     }
 
-    protected String doBuildTemplateResultCache() {
-        return getTemplateResolver().resolver(this.templateContent, getTemplateVariables());
+    protected String doBuildTemplateResultCache(Map<String, Object> dataModel) {
+        return getTemplateResolver().resolver(this.templateContent, dataModel);
     }
 
 }

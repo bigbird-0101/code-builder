@@ -4,6 +4,8 @@ import io.github.bigbird0101.code.core.filebuilder.definedfunction.DefaultDefine
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 
+import java.util.Map;
+
 /**
  * 默认文件生成器
  * @author fpp
@@ -25,11 +27,11 @@ public class DefaultFileBuilder extends AbstractFileBuilder {
      * @param template 模板
      */
     @Override
-    public void build(Template template) throws TemplateResolveException {
+    public void build(Template template, Map<String,Object> dataModel) throws TemplateResolveException {
         AbstractFileCodeBuilderStrategy fileCodeBuilderStrategy= (AbstractFileCodeBuilderStrategy) getFileCodeBuilderStrategy();
         fileCodeBuilderStrategy.setTemplate(template);
         fileCodeBuilderStrategy.setFileNameBuilder(getFileNameBuilder());
-        String code=fileCodeBuilderStrategy.doneCode().trim();
-        fileCodeBuilderStrategy.fileWrite(code);
+        String code=fileCodeBuilderStrategy.doneCode(dataModel).trim();
+        fileCodeBuilderStrategy.fileWrite(code,dataModel);
     }
 }

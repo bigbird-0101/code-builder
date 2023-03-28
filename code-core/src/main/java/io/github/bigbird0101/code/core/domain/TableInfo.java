@@ -4,6 +4,7 @@ import io.github.bigbird0101.code.core.template.Template;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -75,8 +76,8 @@ public class TableInfo implements Serializable {
         }
     }
 
-    public static String getJavaType(String columnName, Template template) {
-        final TableInfo tableInfo = (TableInfo) template.getTemplateVariables().get(Template.TABLE_INFO_KEY);
+    public static String getJavaType(String columnName, Template template, Map<String,Object> dataModel) {
+        final TableInfo tableInfo = (TableInfo) dataModel.get(Template.TABLE_INFO_KEY);
         if(null!=tableInfo){
             return tableInfo.getColumnList().stream()
                     .filter(item->item.getName().equals(columnName))

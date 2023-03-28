@@ -7,6 +7,8 @@ import io.github.bigbird0101.code.exception.TemplateResolveException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Map;
+
 /**
  * @author Administrator
  */
@@ -42,12 +44,12 @@ public class PatternTargetFilePrefixNameStrategy implements TargetFilePrefixName
      * @return
      */
     @Override
-    public String prefixStrategy(Template template, String srcSource) {
+    public String prefixStrategy(Template template, String srcSource,Map<String,Object> dataModel) {
         AbstractTemplate abstractTemplate= (AbstractTemplate) template;
         TemplateResolver templateResolver = abstractTemplate.getTemplateResolver();
         String resolver = null;
         try {
-            resolver = templateResolver.resolver(getPattern(), template.getTemplateVariables());
+            resolver = templateResolver.resolver(getPattern(), dataModel);
         } catch (TemplateResolveException e) {
             logger.error(e);
         }

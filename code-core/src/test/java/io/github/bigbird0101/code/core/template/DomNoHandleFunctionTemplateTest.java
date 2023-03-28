@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author bigbird-0101
@@ -24,8 +26,8 @@ class DomNoHandleFunctionTemplateTest {
    genericTemplateContext.registerTemplateDefinition(testConfigTemplateResource, TemplateDefinitionBuilder.build(
            DomNoHandleFunctionTemplate.class,"testCodeNodeXml.template"));
    final Template dao = genericTemplateContext.getTemplate("testCodeNodeXml");
-   dao.getTemplateVariables().putAll(DomScriptCodeNodeBuilderTest.doBuildData(environment));
-   final String templateResult = dao.getTemplateResult();
+     Map<String, Object> dataModel = new HashMap<>(DomScriptCodeNodeBuilderTest.doBuildData(environment));
+   final String templateResult = dao.process(dataModel);
    System.out.println(templateResult);
    Assertions.assertNotNull(templateResult);
  }

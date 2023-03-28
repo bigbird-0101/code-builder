@@ -45,7 +45,6 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
             this.templateFileClassInfoNoResolve = new TemplateFileClassInfo(getPrefix(templateFileContent), getSuffix(templateFileContent), getFunctionS(templateFileContent));
         }
         resolverResultCache.clear();
-        this.initTemplateVariables();
         deepClearCache();
         refreshed=true;
     }
@@ -66,10 +65,11 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      * @return
      */
     @Override
-    public String getTemplateResult() throws TemplateResolveException {
+    public String process(Map<String,Object> dataModel) throws TemplateResolveException {
+        LOGGER.info("process:{}  dataModel:{}",getTemplateName(),dataModel);
         doResolverTemplateBefore();
-        TemplateFileClassInfo resultCache = doResolverTemplate();
-        return doResolverTemplateAfter(resultCache);
+        TemplateFileClassInfo resultCache = doResolverTemplate(dataModel);
+        return doResolverTemplateAfter(resultCache,dataModel);
     }
 
     /**
@@ -79,20 +79,21 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
         if(!refreshed){
             this.refresh();
         }
-        initTemplateVariables();
     }
 
     /**
      * 解析模板成功之后
+     *
      * @param resultCache
+     * @param dataModel
      * @return
      */
-    protected String doResolverTemplateAfter(TemplateFileClassInfo resultCache) {
+    protected String doResolverTemplateAfter(TemplateFileClassInfo resultCache, Map<String, Object> dataModel) {
         //这里深度克隆一下对象 如果不克隆 直接传递引用 缓存将会被修改
-        TemplateFileClassInfo tempResultCache= (TemplateFileClassInfo) ObjectUtil.cloneByStream(resultCache);
+        TemplateFileClassInfo tempResultCache= ObjectUtil.cloneByStream(resultCache);
         //解析策略
         if(null!=resolverStrategy) {
-            resolverStrategy.resolverStrategy(tempResultCache);
+            resolverStrategy.resolverStrategy(tempResultCache,dataModel);
         }
         StringBuilder functionStr = new StringBuilder();
         Map<String, String> tempFunctionMap = tempResultCache.getFunctionS();
@@ -105,19 +106,19 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      * 解析模板
      * @return
      */
-    protected TemplateFileClassInfo doResolverTemplate() {
-        CacheKey cacheKey=new CacheKey(getTemplateName(),getTemplateVariables());
+    protected TemplateFileClassInfo doResolverTemplate(Map<String, Object> dataModel) {
+        CacheKey cacheKey=new CacheKey(getTemplateName(),dataModel);
         TemplateFileClassInfo resultCache= resolverResultCache.get(cacheKey);
         LOGGER.info("cacheKey is {}",cacheKey);
         LOGGER.info("cache is {}",resultCache);
         if(null==resultCache) {
-            resultCache = doBuildTemplateResultCache(cacheKey);
+            resultCache = doBuildTemplateResultCache(cacheKey,dataModel);
             resolverResultCache.put(cacheKey,resultCache);
         }
         return resultCache;
     }
 
-    protected TemplateFileClassInfo doBuildTemplateResultCache(CacheKey cacheKey) {
+    protected TemplateFileClassInfo doBuildTemplateResultCache(CacheKey cacheKey, Map<String, Object> dataModel) {
         TemplateFileClassInfo resultCache;
         String resultPrefix = this.templateFileClassInfoNoResolve.getTemplateClassPrefix();
         String resultSuffix = this.templateFileClassInfoNoResolve.getTemplateClassSuffix();
@@ -125,8 +126,8 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
 
         Iterator<Map.Entry<String, String>> functionIterator = functionS.entrySet().iterator();
         //清除前缀和后缀的{{}}代码
-        resultPrefix = getTemplateResolver().resolver(resultPrefix, getTemplateVariables());
-        resultSuffix = getTemplateResolver().resolver(resultSuffix, getTemplateVariables());
+        resultPrefix = getTemplateResolver().resolver(resultPrefix, dataModel);
+        resultSuffix = getTemplateResolver().resolver(resultSuffix, dataModel);
 
         //清除方法名和方法体的{{}}代码
         Map<String, String> tempFunctionMap = new LinkedHashMap<>(functionS.size());
@@ -135,7 +136,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
             String functionName = entry.getKey();
             String functionBody = entry.getValue().replaceAll("\\" + AbstractTemplateResolver.FUNCTION_NAME_BETWEEN_SPLIT, "");
             functionName = getNoResolverFunctionName(functionName);
-            functionBody = getTemplateResolver().resolver(functionBody, getTemplateVariables());
+            functionBody = getTemplateResolver().resolver(functionBody, dataModel);
             if (!tempFunctionMap.containsKey(functionName)) {
                 tempFunctionMap.put(functionName, functionBody);
             }

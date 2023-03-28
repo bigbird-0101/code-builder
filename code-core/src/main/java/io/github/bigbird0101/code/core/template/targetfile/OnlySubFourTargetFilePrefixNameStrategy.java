@@ -3,6 +3,8 @@ package io.github.bigbird0101.code.core.template.targetfile;
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.util.Utils;
 
+import java.util.Map;
+
 /**
  * 截断前面4个字符
  * @author fpp
@@ -29,7 +31,7 @@ public class OnlySubFourTargetFilePrefixNameStrategy implements TargetFilePrefix
      * @return
      */
     @Override
-    public String prefixStrategy(Template template, String srcSource) {
+    public String prefixStrategy(Template template, String srcSource, Map<String,Object> dataModel) {
         return Utils.getFileNameByPath(srcSource.substring(4),"\\_");
     }
 }

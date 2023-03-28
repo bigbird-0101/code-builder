@@ -126,7 +126,6 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            initTemplateConfig();
             templates.getChildren().clear();
             templates.autosize();
             String templateNameSelected = CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected();
@@ -148,7 +147,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         }
     }
 
-    private void initTemplateConfig() {
+    protected void initTemplateConfig() {
         try {
             if (selectTemplateGroup.isEmpty()) {
                 String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);

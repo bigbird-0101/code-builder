@@ -15,10 +15,9 @@ public class HelloWorldTest {
         StandardEnvironment environment=new StandardEnvironment();
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         final Template dao = genericTemplateContext.getTemplate("hello_world");
-        Map<String, Object> temp = new HashMap<>(10);
-        temp.put("helloWorld","hello world");
-        dao.getTemplateVariables().putAll(temp);
-        final String templateResult = dao.getTemplateResult();
+        Map<String, Object> dataModel = new HashMap<>(10);
+        dataModel.put("helloWorld","hello world");
+        final String templateResult = dao.process(dataModel);
         Assertions.assertNotNull(templateResult);
     }
 }

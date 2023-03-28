@@ -209,7 +209,7 @@ public abstract class AbstractEnvironment implements Environment {
                 CommonFileUtils.clearFileContent(coreConfigPath);
                 IOUtils.write(stringBuilder.toString().getBytes(StandardCharsets.UTF_8), fileOutputStream);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
     }
@@ -222,7 +222,7 @@ public abstract class AbstractEnvironment implements Environment {
                         SerializerFeature.WriteDateUseDateFormat);
                 IOUtils.write(result.getBytes(StandardCharsets.UTF_8), fileOutputStream);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
     }
