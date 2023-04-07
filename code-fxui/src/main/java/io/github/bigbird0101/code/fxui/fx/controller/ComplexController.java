@@ -442,7 +442,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
             selectedTable = (TextField) templatesOperateNode.lookup("#targetTable");
             content.getChildren().clear();
             content.getChildren().add(templatesOperateNode);
-            templatesOperateController.initTemplateConfig();
+            templatesOperateController.doInitView();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

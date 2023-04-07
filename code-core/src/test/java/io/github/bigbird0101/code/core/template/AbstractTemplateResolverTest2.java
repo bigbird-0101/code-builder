@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
  * @version 1.0.0
  * @since 2022-10-04 22:05:19
  */
-class AbstractTemplateResolverTest {
+class AbstractTemplateResolverTest2 {
 
     @Test
     void replaceVariable() {

@@ -43,7 +43,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public abstract class AbstractTemplate implements Template {
     private static final Logger LOGGER = LogManager.getLogger(AbstractTemplate.class);
 
-    private static Cache<String,String> MATCH_FILE_CONTENT_CACHE= CachePool.build(100);
+    private static final Cache<String,String> MATCH_FILE_CONTENT_CACHE= CachePool.build(100);
 
     private String templateName;
 

@@ -13,7 +13,7 @@ import java.io.File;
  * @version 1.0.0
  * @since 2022-09-27 22:47:24
  */
-class TemplateDefinitionBuilderTest {
+class TemplateDefinitionBuilderTest2 {
 
     @Test
     void build() {
@@ -24,7 +24,7 @@ class TemplateDefinitionBuilderTest {
     @Test
     void testBuild() {
         final TemplateDefinition build = TemplateDefinitionBuilder.build(
-                new File(ResourceUtil.getResourceObj("testCodeNodeXml.template").getUrl().getFile())
+                new File(ResourceUtil.getResourceObj("template/testCodeNodeXml.template").getUrl().getFile())
         );
         Assertions.assertNotNull(build);
     }

@@ -128,22 +128,25 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         try {
             templates.getChildren().clear();
             templates.autosize();
-            String templateNameSelected = CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected();
-            MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(templateNameSelected);
-            if (null != multipleTemplate) {
-                int size = 1;
-                for (Template template : multipleTemplate.getTemplates()) {
-                    VBox vBox = initTemplateInfo(template);
-                    if (size > 3) {
-                        vBox.setBorder(new Border(borderStroke));
-                    }
-                    templates.getChildren().add(vBox);
-                    size++;
-                }
-            }
-        } catch (IOException | CodeConfigException e) {
+        } catch (CodeConfigException e) {
             LOGGER.info("Template Operate init error", e);
-            e.printStackTrace();
+        }
+    }
+
+    protected void doInitView() throws IOException {
+        initTemplateConfig();
+        String templateNameSelected = CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected();
+        MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(templateNameSelected);
+        if (null != multipleTemplate) {
+            int size = 1;
+            for (Template template : multipleTemplate.getTemplates()) {
+                VBox vBox = initTemplateInfo(template);
+                if (size > 3) {
+                    vBox.setBorder(new Border(borderStroke));
+                }
+                templates.getChildren().add(vBox);
+                size++;
+            }
         }
     }
 

@@ -13,7 +13,7 @@ import java.util.Map;
  * @author Administrator
  */
 public class PatternTargetFilePrefixNameStrategy implements TargetFilePrefixNameStrategy {
-    private Logger logger = LogManager.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private static final int TYPE_VALUE=3;
 

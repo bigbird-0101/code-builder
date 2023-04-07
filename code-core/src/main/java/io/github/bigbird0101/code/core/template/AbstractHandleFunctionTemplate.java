@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.core.template;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import io.github.bigbird0101.code.core.cache.Cache;
 import io.github.bigbird0101.code.core.cache.CacheKey;
 import io.github.bigbird0101.code.core.cache.CachePool;
@@ -112,24 +113,30 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
         LOGGER.info("cacheKey is {}",cacheKey);
         LOGGER.info("cache is {}",resultCache);
         if(null==resultCache) {
-            resultCache = doBuildTemplateResultCache(cacheKey,dataModel);
+            resultCache = doBuildTemplateResultCache(dataModel);
             resolverResultCache.put(cacheKey,resultCache);
         }
         return resultCache;
     }
 
-    protected TemplateFileClassInfo doBuildTemplateResultCache(CacheKey cacheKey, Map<String, Object> dataModel) {
+    protected TemplateFileClassInfo doBuildTemplateResultCache(Map<String, Object> dataModel) {
         TemplateFileClassInfo resultCache;
         String resultPrefix = this.templateFileClassInfoNoResolve.getTemplateClassPrefix();
         String resultSuffix = this.templateFileClassInfoNoResolve.getTemplateClassSuffix();
         Map<String, String> functionS = this.templateFileClassInfoNoResolve.getFunctionS();
+        resultCache = doResolverAll(dataModel, resultPrefix, resultSuffix, functionS);
+        this.templateFileClassInfoResolved =resultCache;
+        return resultCache;
+    }
 
-        Iterator<Map.Entry<String, String>> functionIterator = functionS.entrySet().iterator();
+    protected TemplateFileClassInfo doResolverAll(Map<String, Object> dataModel, String resultPrefix, String resultSuffix, Map<String, String> functionS) {
+        TemplateFileClassInfo resultCache;
         //清除前缀和后缀的{{}}代码
-        resultPrefix = getTemplateResolver().resolver(resultPrefix, dataModel);
-        resultSuffix = getTemplateResolver().resolver(resultSuffix, dataModel);
+        resultPrefix = doResolverSourceSrc(dataModel, resultPrefix);
+        resultSuffix = doResolverSourceSrc(dataModel, resultSuffix);
 
         //清除方法名和方法体的{{}}代码
+        Iterator<Map.Entry<String, String>> functionIterator = functionS.entrySet().iterator();
         Map<String, String> tempFunctionMap = new LinkedHashMap<>(functionS.size());
         while (functionIterator.hasNext()) {
             Map.Entry<String, String> entry = functionIterator.next();
@@ -142,8 +149,11 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
             }
         }
         resultCache= new TemplateFileClassInfo(resultPrefix, resultSuffix, tempFunctionMap);
-        this.templateFileClassInfoResolved =resultCache;
         return resultCache;
+    }
+
+    protected String doResolverSourceSrc(Map<String, Object> dataModel, String sourceSrc) {
+        return StrUtil.isBlank(sourceSrc) ? sourceSrc : getTemplateResolver().resolver(sourceSrc, dataModel);
     }
 
 

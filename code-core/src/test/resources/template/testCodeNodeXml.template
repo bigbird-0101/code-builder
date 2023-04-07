@@ -19,17 +19,17 @@
 </prefix>
 <function name="delete">
     /**
-     * 删除*{tableInfo.tableComment}* 根据其id数组
+     * 删除*{tableInfo2.tableComment}* 根据其id数组
      *
-     * @param idS *{tableInfo.tableComment}*id数组
+     * @param idS *{tableInfo2.tableComment}*id数组
      * @return 返回是否成功
      */
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public boolean delete*{tableInfo.domainName}*(String idS) {
+    public boolean delete*{tableInfo2.domainName}*(String idS) {
         if (Strings.isNotBlank(idS)) {
             List&lt;String&gt; idArray = Arrays.stream(idS.split(",")).filter(Strings::isNotBlank).distinct().collect(Collectors.toList());
-            return *{tool.firstLower(*{tableInfo.domainName}*)}*Dao.delete*{tableInfo.domainName}*(idArray) == idArray.size();
+            return *{tool.firstLower(*{tableInfo2.domainName}*)}*Dao.delete*{tableInfo2.domainName}*(idArray) == idArray.size();
         }
         return false;
     }

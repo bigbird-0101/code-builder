@@ -4,19 +4,18 @@ import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.annotation.JSONType;
-import io.github.bigbird0101.code.core.cache.CacheKey;
+import com.sun.org.apache.xerces.internal.dom.DeferredAttrNSImpl;
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.config.aware.EnvironmentAware;
 import io.github.bigbird0101.code.core.domain.TemplateFileClassInfo;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.template.languagenode.*;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
+import org.w3c.dom.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +26,7 @@ import java.util.stream.Collectors;
 @JSONType(serializer = AbstractTemplate.TemplateSerializer.class)
 public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate implements EnvironmentAware {
     private Environment environment;
+    private Document context;
     public DomHandleFunctionTemplate() {
         this.setTemplateResolver(new SimpleTemplateResolver());
     }
@@ -35,11 +35,13 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
     public void refresh() {
         if(null!= getTemplateResource()) {
             try {
-                DomScriptCodeNodeBuilder domScriptCodeNodeBuilder=new DomScriptCodeNodeBuilder(XmlUtil.readXML(
-                        getTemplateResource().getInputStream()));
-                CodeNode source = domScriptCodeNodeBuilder.parse();
-                this.templateFileClassInfoNoResolve = new TemplateFileClassInfo(getPrefix(source), getSuffix(source),
-                        getFunctionS(source));
+                context = XmlUtil.readXML(getTemplateResource().getInputStream());
+                Element rootDocument = context.getDocumentElement();
+                Node prefixNode = rootDocument.getElementsByTagName("prefix").item(0);
+                Node suffixNode = rootDocument.getElementsByTagName("suffix").item(0);
+                NodeList functionNodes = rootDocument.getElementsByTagName("function");
+                this.templateFileClassInfoNoResolve = new TemplateFileClassInfo(getPrefix(prefixNode), getSuffix(suffixNode),
+                        getFunctionS(functionNodes));
             } catch (FileNotFoundException e) {
                 throw new CodeConfigException(e);
             } catch (UtilException | IOException ed) {
@@ -49,6 +51,36 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
         resolverResultCache.clear();
         deepClearCache();
         refreshed=true;
+    }
+
+    private String getSuffix(Node suffixNode) {
+        return Optional.ofNullable(suffixNode)
+                .map(Node::getTextContent)
+                .orElse(null);
+    }
+
+
+    private String getPrefix(Node prefixNode) {
+        return Optional.ofNullable(prefixNode)
+                .map(Node::getTextContent)
+                .orElse(null);
+    }
+
+
+    private Map<String, String> getFunctionS(NodeList functionNodes) {
+        if(null==functionNodes || 0==functionNodes.getLength()){
+            return Collections.emptyMap();
+        }
+        int length = functionNodes.getLength();
+        Map<String,String> result=new HashMap<>();
+        for(int a=0;a<length;a++){
+            Node item = functionNodes.item(a);
+            NamedNodeMap attributes = item.getAttributes();
+            DeferredAttrNSImpl name = (DeferredAttrNSImpl) attributes.getNamedItem("name");
+            String textContent = item.getTextContent();
+            result.put(name.getValue(),textContent);
+        }
+        return result;
     }
 
     @Override
@@ -62,15 +94,23 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
     }
 
     @Override
-    protected TemplateFileClassInfo doBuildTemplateResultCache(CacheKey cacheKey, Map<String, Object> dataModel) {
-        return super.doBuildTemplateResultCache(cacheKey, dataModel);
+    protected TemplateFileClassInfo doBuildTemplateResultCache(Map<String, Object> dataModel) {
+        TemplateFileClassInfo resultCache;
+        DomScriptCodeNodeBuilder domScriptCodeNodeBuilder=new DomScriptCodeNodeBuilder(context);
+        CodeNode source = domScriptCodeNodeBuilder.parse();
+        String resultPrefix = getPrefix(source,dataModel);
+        String resultSuffix = getSuffix(source,dataModel);
+        Map<String, String> functionS = getFunctionS(source,dataModel);
+        resultCache = doResolverAll(dataModel, resultPrefix, resultSuffix, functionS);
+        this.templateFileClassInfoResolved =resultCache;
+        return resultCache;
     }
 
-    private DynamicCodeNodeContext getCodeNodeContext() {
-        return new DynamicCodeNodeContext(new HashMap<>(),environment);
+    private DynamicCodeNodeContext getCodeNodeContext(Map<String, Object> dataModel) {
+        return new DynamicCodeNodeContext(dataModel,environment);
     }
 
-    private Map<String, String> getFunctionS(CodeNode source) {
+    private Map<String, String> getFunctionS(CodeNode source, Map<String, Object> dataModel) {
         Map<String,String> result=new HashMap<>();
         if(source instanceof MixCodeNode){
             MixCodeNode codeSource= (MixCodeNode) source;
@@ -85,7 +125,7 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
                             .map(s -> (FunctionCodeNode) s)
                             .collect(Collectors.toList());
                     for (FunctionCodeNode functionCodeNode : functionCodeNodes) {
-                        final DynamicCodeNodeContext codeNodeContext = getCodeNodeContext();
+                        final DynamicCodeNodeContext codeNodeContext = getCodeNodeContext(dataModel);
                         functionCodeNode.apply(codeNodeContext);
                         final String code = codeNodeContext.getCode();
                         final String name = functionCodeNode.getName();
@@ -97,8 +137,8 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
         return result;
     }
 
-    private String getSuffix(CodeNode source) {
-        final DynamicCodeNodeContext codeNodeContext = getCodeNodeContext();
+    private String getSuffix(CodeNode source, Map<String, Object> dataModel) {
+        final DynamicCodeNodeContext codeNodeContext = getCodeNodeContext(dataModel);
         if(source instanceof MixCodeNode){
             MixCodeNode codeSource= (MixCodeNode) source;
             final CodeNode codeNode = codeSource.getContents().get(0);
@@ -120,8 +160,8 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
         throw new TemplateResolveException("not support {} code node,except code node is mix",source.getClass().getSimpleName());
     }
 
-    private String getPrefix(CodeNode source) {
-        final DynamicCodeNodeContext codeNodeContext = getCodeNodeContext();
+    private String getPrefix(CodeNode source, Map<String, Object> dataModel) {
+        final DynamicCodeNodeContext codeNodeContext = getCodeNodeContext(dataModel);
         if(source instanceof MixCodeNode){
             MixCodeNode codeSource= (MixCodeNode) source;
             final CodeNode codeNode = codeSource.getContents().get(0);

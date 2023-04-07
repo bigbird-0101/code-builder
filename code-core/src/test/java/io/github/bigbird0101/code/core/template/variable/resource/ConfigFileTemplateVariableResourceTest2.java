@@ -19,12 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @version 1.0.0
  * @since 2022-09-25 16:31:19
  */
-class ConfigFileTemplateVariableResourceTest {
+class ConfigFileTemplateVariableResourceTest2 {
     ConfigFileTemplateVariableResource configFileTemplateVariableResource;
     @BeforeEach
     public void before(){
         configFileTemplateVariableResource=new ConfigFileTemplateVariableResource(
-                ConfigFileTemplateVariableResourceTest.class.getClassLoader()
+                ConfigFileTemplateVariableResourceTest2.class.getClassLoader()
                         .getResourceAsStream("testTemplateVariableConfigFile.properties"));
     }
 
@@ -32,7 +32,7 @@ class ConfigFileTemplateVariableResourceTest {
     @Test
     void getTemplateVariable() {
         final Map<String, Object> templateVariable = configFileTemplateVariableResource.getTemplateVariable();
-        assertEquals(3, templateVariable.size());
+        assertEquals(4, templateVariable.size());
     }
 
     @Test
@@ -58,7 +58,7 @@ class ConfigFileTemplateVariableResourceTest {
         GenericTemplateContext genericTemplateContext=new GenericTemplateContext(standardEnvironment);
         final String testConfigTemplateResource = "testConfigTemplateResource";
         genericTemplateContext.registerTemplateDefinition(testConfigTemplateResource, TemplateDefinitionBuilder.build(
-                DefaultNoHandleFunctionTemplate.class,"testTemplateVariable.template"));
+                DefaultNoHandleFunctionTemplate.class, "template/testTemplateVariable.template"));
         final Template dao = genericTemplateContext.getTemplate("testConfigTemplateResource");
         final Queue<Map<String, Object>> noShareVar = configFileTemplateVariableResource.getNoShareVar();
         Map<String,Object> dataModel=new HashMap<>();

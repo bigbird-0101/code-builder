@@ -3,9 +3,7 @@ package io.github.bigbird0101.code.core.template.languagenode;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.JSONObject;
-import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.config.StandardEnvironment;
-import io.github.bigbird0101.code.core.domain.DataSourceConfig;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
@@ -21,12 +19,12 @@ import java.util.stream.Stream;
  * @version 1.0.0
  * @since 2022-10-04 13:43:04
  */
-public class DomScriptCodeNodeBuilderTest {
+public class DomScriptCodeNodeBuilderTest2 {
 
     @Test
     void parse() throws SQLException {
         final DynamicCodeNodeContext dynamicCodeNodeContext = getDynamicCodeNodeContext();
-        final Document document = XmlUtil.readXML(ResourceUtil.getStream("testCodeNodeXml.template"));
+        final Document document = XmlUtil.readXML(ResourceUtil.getStream("template/testCodeNodeXml.template"));
         DomScriptCodeNodeBuilder domScriptCodeNodeBuilder=new DomScriptCodeNodeBuilder(document);
         final CodeNode parse = domScriptCodeNodeBuilder.parse();
         parse.apply(dynamicCodeNodeContext);
@@ -72,11 +70,13 @@ public class DomScriptCodeNodeBuilderTest {
         objects.add(jsonObject1);
         objects.add(jsonObject2);
         jsonObject.put("columnList",objects);
+        jsonObject.put("domainName","TestA");
+        jsonObject.put("tableComment","TestA");
         Map<String,Object> map=new HashMap<>();
         map.put("tableInfo2", jsonObject);
         map.put("test","ab");
         map.put("test2","ab");
-        map.put("tableInfo", DbUtil.getTableInfo(DataSourceConfig.getDataSourceConfig(standardEnvironment),"tab_test", standardEnvironment));
+//        map.put("tableInfo", DbUtil.getTableInfo(DataSourceConfig.getDataSourceConfig(standardEnvironment),"tab_test", standardEnvironment));
         return map;
     }
 }

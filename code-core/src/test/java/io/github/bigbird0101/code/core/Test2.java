@@ -8,19 +8,20 @@ import io.github.bigbird0101.code.core.factory.RootTemplateDefinition;
 import io.github.bigbird0101.code.core.template.DefaultNoHandleFunctionTemplate;
 import io.github.bigbird0101.code.core.template.HaveDependTemplateHandleFunctionTemplate;
 import io.github.bigbird0101.code.core.template.Template;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Test {
-    @org.junit.jupiter.api.Test
+public class Test2 {
+    @Test
     public void testSplitForeach(){
         String a="column in  interfaceModule.columnList";
         Stream.of(a.split(" in ")).forEach(System.out::println);
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void test() throws CodeConfigException {
         Template handleFunctionTemplate = new DefaultNoHandleFunctionTemplate();
         if(handleFunctionTemplate instanceof HaveDependTemplateHandleFunctionTemplate){
@@ -28,7 +29,7 @@ public class Test {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void testCopyProperties(){
         Template template=new HaveDependTemplateHandleFunctionTemplate();
         RootTemplateDefinition templateDefinition=new RootTemplateDefinition();
@@ -41,7 +42,7 @@ public class Test {
         System.out.println(template);
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void testDefinition(){
         String s="{\n" +
                 "\"fileName\":\"DaoFileTemplate_04.template\",\n" +
@@ -63,7 +64,7 @@ public class Test {
         System.out.println(rootTemplateDefinition);
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void test3(){
         System.out.println(StrUtil.isBlank(" "));
     }

@@ -52,7 +52,9 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
                     }
                     TableInfo tableInfo = (TableInfo) dataModel.get("tableInfo");
                     final String tableName = Optional.ofNullable(tableInfo).map(TableInfo::getTableName).orElse(null);
-                    return templateDepend.getTargetFilePrefixNameStrategy().prefixStrategy(templateDepend, tableName,dataModel);
+                    String prefixStrategy = templateDepend.getTargetFilePrefixNameStrategy().prefixStrategy(templateDepend, tableName, dataModel);
+                    TemplateTraceContext.setCurrentTemplate(currentTemplate);
+                    return prefixStrategy;
                 }else{
                     throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplate,but it use  %s[%s].%s",currentTemplate.getTemplateName(),LANG_NAME,index,"className"));
                 }
@@ -69,8 +71,10 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
                     Template templateDepend = getDependTemplate(index, (HaveDependTemplate) currentTemplate);
                     TableInfo tableInfo = (TableInfo) dataModel.get("tableInfo");
                     final String tableName = Optional.ofNullable(tableInfo).map(TableInfo::getTableName).orElse(null);
-                    return Utils.pathToPackage(templateDepend.getSrcPackage())+"."+
-                            templateDepend.getTargetFilePrefixNameStrategy().prefixStrategy(templateDepend, tableName,dataModel);
+                    String className = Utils.pathToPackage(templateDepend.getSrcPackage()) + "." +
+                            templateDepend.getTargetFilePrefixNameStrategy().prefixStrategy(templateDepend, tableName, dataModel);
+                    TemplateTraceContext.setCurrentTemplate(currentTemplate);
+                    return className;
                 }else{
                     throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplate,but it use  %s[%s].%s",currentTemplate.getTemplateName(),LANG_NAME,index,"className"));
                 }
@@ -82,7 +86,9 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
                 Template currentTemplate = TemplateTraceContext.getCurrentTemplate();
                 if(currentTemplate instanceof HaveDependTemplate){
                     Template templateDepend = getDependTemplate(index, (HaveDependTemplate) currentTemplate);
-                    return Utils.pathToPackage(templateDepend.getSrcPackage());
+                    String packageName = Utils.pathToPackage(templateDepend.getSrcPackage());
+                    TemplateTraceContext.setCurrentTemplate(currentTemplate);
+                    return packageName;
                 }else{
                     throw new TemplateResolveException(String.format("current template %s is not HaveDependTemplate but it  %s[%s].%s",currentTemplate.getTemplateName(),LANG_NAME,index,"srcPackage"));
                 }

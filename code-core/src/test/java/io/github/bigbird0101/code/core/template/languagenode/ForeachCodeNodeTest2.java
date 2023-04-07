@@ -1,14 +1,7 @@
 package io.github.bigbird0101.code.core.template.languagenode;
 
 import com.alibaba.fastjson.JSONObject;
-import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.config.StandardEnvironment;
-import io.github.bigbird0101.code.core.domain.DataSourceConfig;
-import io.github.bigbird0101.code.core.domain.TableInfo;
-import io.github.bigbird0101.code.core.template.languagenode.DynamicCodeNodeContext;
-import io.github.bigbird0101.code.core.template.languagenode.ForeachCodeNode;
-import io.github.bigbird0101.code.core.template.languagenode.MixCodeNode;
-import io.github.bigbird0101.code.core.template.languagenode.StaticTextCodeNode;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
@@ -24,26 +17,23 @@ import java.util.stream.Stream;
  * @version 1.0.0
  * @since 2022-10-01 22:05:33
  */
-class ForeachCodeNodeTest {
+class ForeachCodeNodeTest2 {
 
     @Test
     void apply() throws SQLException {
         StandardEnvironment standardEnvironment=new StandardEnvironment();
         standardEnvironment.parse();
-        final TableInfo tab_test = DbUtil.getTableInfo(DataSourceConfig.getDataSourceConfig(standardEnvironment),
-                "tab_test", standardEnvironment);
         Map<String,Object> map=new HashMap<>();
-        map.put("tableInfo",tab_test);
+        map.put("tableInfo", DomScriptCodeNodeBuilderTest2.doBuildData(null).get("tableInfo2"));
         DynamicCodeNodeContext dynamicCodeNodeContext=new DynamicCodeNodeContext(map,standardEnvironment);
         ForeachCodeNode foreachCodeNode=new ForeachCodeNode(new StaticTextCodeNode("*{column.name}*\n"),
                 ",","tableInfo.columnList", "column");
         foreachCodeNode.apply(dynamicCodeNodeContext);
         System.out.println(dynamicCodeNodeContext.getCode());
-
     }
 
     @Test
-    void apply2() throws SQLException {
+    void apply2() {
         StandardEnvironment standardEnvironment=new StandardEnvironment();
         standardEnvironment.parse();
         JSONObject jsonObject=new JSONObject();

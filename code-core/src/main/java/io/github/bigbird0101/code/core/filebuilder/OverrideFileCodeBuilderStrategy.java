@@ -30,7 +30,8 @@ public class OverrideFileCodeBuilderStrategy extends AbstractFileCodeBuilderStra
         if(template instanceof AbstractHandleFunctionTemplate){
             AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
             handleFunctionTemplate.setResolverStrategy(this);
-            return handleFunctionTemplate.process(dataModel);
+            String process = handleFunctionTemplate.process(dataModel);
+            return process;
         }else if(template instanceof AbstractNoHandleFunctionTemplate){
             return template.process(dataModel);
         }else{

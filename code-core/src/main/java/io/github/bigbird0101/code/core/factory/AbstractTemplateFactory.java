@@ -73,14 +73,7 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
             template = createTemplate(templateName, templateDefinition);
         }
         logger.info("doGetTemplate {}",templateName);
-        if(null!=TemplateTraceContext.getCurrentTemplate()&&(TemplateTraceContext.getCurrentTemplate() instanceof HaveDependTemplate)) {
-            HaveDependTemplate dependTemplate= (HaveDependTemplate) TemplateTraceContext.getCurrentTemplate();
-            if(CollectionUtil.isEmpty(dependTemplate.getDependTemplates())||!dependTemplate.getDependTemplates().contains(templateName)) {
-                TemplateTraceContext.setCurrentTemplate(template);
-            }
-        }else{
-            TemplateTraceContext.setCurrentTemplate(template);
-        }
+        TemplateTraceContext.setCurrentTemplate(template);
         return template;
     }
 

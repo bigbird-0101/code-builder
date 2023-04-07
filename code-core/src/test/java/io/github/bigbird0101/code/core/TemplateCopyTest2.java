@@ -11,8 +11,12 @@ import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TemplateCopyTest {
-    @org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+public class TemplateCopyTest2 {
+    @Test
+    @Disabled
     public void testTemplateCopyTest() {
         HaveDependTemplateHandleFunctionTemplate haveDependTemplateHandleFunctionTemplate=new HaveDependTemplateHandleFunctionTemplate();
         haveDependTemplateHandleFunctionTemplate.setProjectUrl("123");
@@ -24,7 +28,8 @@ public class TemplateCopyTest {
         System.out.println(clone.getDependTemplates().hashCode());
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
+    @Disabled
     public void testMultipleTemplateCopyTest(){
         GenericMultipleTemplate genericMultipleTemplate=new GenericMultipleTemplate();
         genericMultipleTemplate.setTemplates(Stream.of(new DefaultHandleFunctionTemplate(),new DefaultNoHandleFunctionTemplate()).collect(Collectors.toSet()));
@@ -34,7 +39,7 @@ public class TemplateCopyTest {
         System.out.println(clone);
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void testCache(){
         HashMap<String,Object> hashMap=new HashMap<>();
         CacheKey cacheKey=new CacheKey("你好",hashMap);

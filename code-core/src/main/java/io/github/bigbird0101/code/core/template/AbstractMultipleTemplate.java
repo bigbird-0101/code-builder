@@ -14,7 +14,7 @@ import java.lang.reflect.Type;
  * @version 1.0
  */
 public abstract class AbstractMultipleTemplate implements MultipleTemplate {
-    private static Logger logger= LogManager.getLogger(AbstractMultipleTemplate.class);
+    private static final Logger logger= LogManager.getLogger(AbstractMultipleTemplate.class);
     @Override
     public Object clone(){
         return ObjectUtil.cloneByStream(this);

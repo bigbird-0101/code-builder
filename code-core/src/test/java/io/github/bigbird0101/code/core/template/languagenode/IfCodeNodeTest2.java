@@ -16,7 +16,7 @@ import java.util.Map;
  * @version 1.0.0
  * @since 2022-09-30 23:00:45
  */
-class IfCodeNodeTest {
+class IfCodeNodeTest2 {
 
     @Test
     void apply() {

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
  * @version 1.0.0
  * @since 2022-09-22 22:14:36
  */
-public class DoGetTemplateAfterListenerTest {
+public class DoGetTemplateAfterListenerTest2 {
 
     @Test
     void onTemplateEvent() {
