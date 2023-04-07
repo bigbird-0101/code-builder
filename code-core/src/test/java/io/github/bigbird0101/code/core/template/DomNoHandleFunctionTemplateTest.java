@@ -16,7 +16,7 @@ import java.util.Map;
  * @version 1.0.0
  * @since 2022-10-04 20:32:10
  */
-class DomNoHandleFunctionTemplateTest2 {
+class DomNoHandleFunctionTemplateTest {
 
  @Test
  void test() throws SQLException {

@@ -1,6 +1,5 @@
 package io.github.bigbird0101.code.core.template;
 
-import io.github.bigbird0101.code.core.template.SimpleTemplateResolver;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -8,7 +7,7 @@ import org.junit.jupiter.api.Test;
  * @version 1.0.0
  * @since 2022-10-04 22:05:19
  */
-class AbstractTemplateResolverTest2 {
+class AbstractTemplateResolverTest {
 
     @Test
     void replaceVariable() {

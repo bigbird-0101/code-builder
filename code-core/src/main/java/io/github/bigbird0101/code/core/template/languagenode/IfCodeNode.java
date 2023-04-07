@@ -61,8 +61,9 @@ public class IfCodeNode implements CodeNode{
     private List<String> checkFiled(Map<String, Object> replaceKeyValue, String langTitle) {
         Set<String> keySet=replaceKeyValue.keySet();
         List<String> targetKey = new ArrayList<>(10);
+        final PostfixExpressionModule ifPostfixExpression = getIfPostfixExpression(langTitle);
         for(String key:keySet){
-            if(langTitle.contains(key)){
+            if(ifPostfixExpression.getPostfixExpression().contains(key)){
                 targetKey.add(key);
             }
         }

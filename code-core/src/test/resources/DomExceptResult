@@ -1,0 +1,26 @@
+    private String abcd;
+        ab
+        test2ab
+     这是上层循环test1123
+     这是上层循环test2123
+     这是上层循环test1123
+        这是内层循环 test11a test11b
+        这是内层循环 test12a test12b
+     这是上层循环test2123
+        这是内层循环 test21a test21b
+        这是内层循环 test22a test22b
+    /**
+     * 删除TestA 根据其id数组
+     *
+     * @param idS TestAid数组
+     * @return 返回是否成功
+     */
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public boolean deleteTestA(String idS) {
+        if (Strings.isNotBlank(idS)) {
+            List<String> idArray = Arrays.stream(idS.split(",")).filter(Strings::isNotBlank).distinct().collect(Collectors.toList());
+            return testADao.deleteTestA(idArray) == idArray.size();
+        }
+        return false;
+    }

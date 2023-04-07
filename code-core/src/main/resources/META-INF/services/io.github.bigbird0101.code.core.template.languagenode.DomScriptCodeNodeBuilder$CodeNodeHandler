@@ -4,3 +4,6 @@ io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilder$P
 io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilder$SuffixCodeNodeHandler
 io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilder$FunctionCodeNodeHandler
 io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilder$TemplateCodeNodeHandler
+io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilder$ChooseCodeNodeHandler
+io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilder$WhenCodeNodeHandler
+io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilder$OtherwiseCodeNodeHandler

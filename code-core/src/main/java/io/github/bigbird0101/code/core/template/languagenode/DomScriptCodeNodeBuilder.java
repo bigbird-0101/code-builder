@@ -134,6 +134,56 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
         }
     }
 
+    public static class ChooseCodeNodeHandler implements CodeNodeHandler{
+        @Override
+        public void handleNode(Node node, List<CodeNode> contents) {
+            List<CodeNode> whenCodeNodes=new ArrayList<>();
+            List<CodeNode> otherCodeNodes=new ArrayList<>();
+            parseWhenCodeNodes(node,whenCodeNodes,otherCodeNodes);
+            contents.add(new ChooseCodeNode(whenCodeNodes, otherCodeNodes.get(0)));
+        }
+
+        private void parseWhenCodeNodes(Node node, List<CodeNode> whenCodeNodes, List<CodeNode> otherCodeNodes) {
+            final NodeList anIf = node.getChildNodes();
+            for(int length=anIf.getLength(),b=0;b<length;b++){
+                final Node item = anIf.item(b);
+                final short nodeType = item.getNodeType();
+                if(ELEMENT_NODE==nodeType){
+                    final String nodeName = item.getNodeName();
+                    final CodeNodeHandler codeNodeHandler = CODE_NODE_HANDLER_MAP.get(nodeName);
+                    if(codeNodeHandler instanceof WhenCodeNodeHandler){
+                        WhenCodeNodeHandler whenCodeNodeHandler= (WhenCodeNodeHandler) codeNodeHandler;
+                        whenCodeNodeHandler.handleNode(item,whenCodeNodes);
+                    }
+                    if(codeNodeHandler instanceof OtherwiseCodeNodeHandler){
+                        OtherwiseCodeNodeHandler otherwiseCodeNodeHandler= (OtherwiseCodeNodeHandler) codeNodeHandler;
+                        otherwiseCodeNodeHandler.handleNode(item,otherCodeNodes);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public String getType() {
+            return "choose";
+        }
+    }
+
+    public static class WhenCodeNodeHandler implements CodeNodeHandler{
+        public static final String TEST = "test";
+        @Override
+        public void handleNode(Node node, List<CodeNode> contents) {
+            final MixCodeNode mixCodeNode = parseNode(node);
+            final String test = getAttributeOrThrow(node.getAttributes(), TEST,"Choose not get test error");
+            contents.add(new IfCodeNode(test, mixCodeNode));
+        }
+
+        @Override
+        public String getType() {
+            return "when";
+        }
+    }
+
     public static class ForeachCodeNodeHandler implements CodeNodeHandler{
         public static final String IN_REGEX = " in ";
         public static final String V_FOR = "v-for";
@@ -154,6 +204,20 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
         public String getType() {
             return "foreach";
         }
+    }
+
+    public static class OtherwiseCodeNodeHandler implements CodeNodeHandler{
+        int a;
+        @Override
+        public void handleNode(Node node, List<CodeNode> contents) {
+            final MixCodeNode mixCodeNode = parseNode(node);
+            contents.add(mixCodeNode);
+        }
+        @Override
+        public String getType() {
+            return "otherwise";
+        }
+
     }
 
     public static class PrefixCodeNodeHandler implements CodeNodeHandler{

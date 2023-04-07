@@ -1,0 +1,16 @@
+<template>
+    <choose>
+    <when test="test=='ab'">
+        ab
+        <if v-if="test=='ab'">
+        test2ab
+        </if>
+    </when>
+    <when test="test=='ac'">
+       ac
+    </when>
+    <otherwise>
+        acelse
+    </otherwise>
+    </choose>
+</template>
