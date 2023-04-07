@@ -164,11 +164,11 @@
     </profiles>
     <properties>
         <revision>3.0.4</revision>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
-        <maven.source.skip>true</maven.source.skip>
-        <gpg.skip>true</gpg.skip>
-        <checkstyle.skip>true</checkstyle.skip>
-        <skip.maven.deploy>true</skip.maven.deploy>
+        <maven.javadoc.skip>false</maven.javadoc.skip>
+        <maven.source.skip>false</maven.source.skip>
+        <gpg.skip>false</gpg.skip>
+        <checkstyle.skip>false</checkstyle.skip>
+        <skip.maven.deploy>false</skip.maven.deploy>
         <!-- Compiler settings properties -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
