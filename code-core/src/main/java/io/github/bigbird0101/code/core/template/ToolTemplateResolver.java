@@ -240,11 +240,11 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
      * 模板语言解析方法
      *
      * @param srcData         需要解析的模板数据
-     * @param replaceKeyValue 模板中的变量数据
+     * @param dataModal 模板中的变量数据
      */
     @Override
-    public String langResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
-        tableInfo= (TableInfo) replaceKeyValue.get("tableInfo");
+    public String langResolver(String srcData, Map<String, Object> dataModal) throws TemplateResolveException {
+        tableInfo= (TableInfo) dataModal.get("tableInfo");
         Matcher matcher=templateFunctionBodyPattern.matcher(srcData);
         String result="";
         while(matcher.find()){
@@ -257,10 +257,10 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
                 String titleGroup=matcherTitle.group();
                 String realTitle;
                 if(isMatchDependTemplate(titleGroup)){
-                    realTitle = getDependTemplateResolver().langResolver(title, replaceKeyValue);
+                    realTitle = getDependTemplateResolver().langResolver(title, dataModal);
                 }else {
                     Object objectTarget;
-                    objectTarget = Utils.getTargetObject(replaceKeyValue, titleGroup);
+                    objectTarget = Utils.getTargetObject(dataModal, titleGroup);
                     if (objectTarget instanceof String) {
                         realTitle = title.replaceAll(AbstractTemplateResolver.getTemplateVariableFormat(titleGroup), (String) objectTarget);
                     } else {

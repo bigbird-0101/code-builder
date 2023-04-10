@@ -20,7 +20,7 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
 
     private static final String LANG_NAME="foreach";
 
-    private static final List<String> specialCharacterList= Collections.singletonList(",");
+    private static final List<String> SPECIAL_CHARACTER_LIST = Collections.singletonList(",");
     public ForeachTemplateResolver() {
         super();
         this.resolverName=LANG_NAME;
@@ -45,10 +45,10 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
      * 模板语言解析方法
      *
      * @param srcData         需要解析的模板数据
-     * @param replaceKeyValue 模板中的变量数据
+     * @param dataModal 模板中的变量数据
      */
     @Override
-    public String langResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
+    public String langResolver(String srcData, Map<String, Object> dataModal) throws TemplateResolveException {
         String result="";
         Matcher matcher = templateFunctionBodyPattern.matcher(srcData);
         while (matcher.find()) {
@@ -64,7 +64,7 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
             String itemName= titleArray.get(0).trim();
             String itemParentNode=titleArray.get(1).trim();
             //校验字段是否存在,并返回最终的最后的对象 a.b.c 返回a对象中的b对象中的c对象
-            Object temp= Utils.getTargetObject(replaceKeyValue,itemParentNode);
+            Object temp= Utils.getTargetObject(dataModal,itemParentNode);
             String foreachResult=getLangBodyResult(temp,forEachBody,itemName);
             //去除最后一个字符为逗号的字符串
             if("true".equals(trimValue)){
@@ -84,7 +84,7 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
         String mendLastStr=Utils.getLastNewLineNull(foreachResult);
         String mendFirstStr=Utils.getFirstNewLineNull(foreachResult);
         String result = foreachResult.trim();
-        for(String special:specialCharacterList) {
+        for(String special:SPECIAL_CHARACTER_LIST) {
             int lengthTrim = result.length();
             if (special.equals(result.substring(lengthTrim - 1))) {
                 result = result.substring(0, lengthTrim - 1);

@@ -1,0 +1,18 @@
+<template>
+    <foreach v-for="column in tableInfo2.columnList">
+        <choose>
+        <when test="column.test=='ab'">
+            ab
+            <if v-if="column.test=='ab'">
+            test2ab
+            </if>
+        </when>
+        <when test="column.test=='ac'">
+           ac
+        </when>
+        <otherwise>
+            acelse
+        </otherwise>
+        </choose>
+    </foreach>
+</template>

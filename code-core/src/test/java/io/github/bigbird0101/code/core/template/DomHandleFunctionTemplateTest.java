@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.core.template;
 
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.map.MapUtil;
 import io.github.bigbird0101.code.core.config.StandardEnvironment;
@@ -52,5 +53,26 @@ class DomHandleFunctionTemplateTest {
         assertTrue(templateResult.length()>0);
         assertEquals("ab\n" +
                 "        test2ab",templateResult);
+    }
+
+    @Test
+    void test3() {
+        StandardEnvironment environment=new StandardEnvironment();
+        environment.setTemplatesPath(Objects.requireNonNull(DomHandleFunctionTemplateTest.class.getResource("/template")).toString());
+        GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
+        final Template dao = genericTemplateContext.getTemplate("testCodeChooseForeachNodeXml");
+        Map<String, Object> dataModel = MapUtil.of("tableInfo2",MapUtil.of("columnList", ListUtil.of(MapUtil.of("test","ab2"))));
+        String templateResult = dao.process(dataModel).trim();
+        assertTrue(templateResult.length()>0);
+        assertEquals("acelse",templateResult);
+        dataModel = MapUtil.of("tableInfo2",MapUtil.of("columnList", ListUtil.of(MapUtil.of("test","ac"))));
+        templateResult = dao.process(dataModel).trim();
+        assertTrue(templateResult.length()>0);
+        assertEquals("ac",templateResult);
+        dataModel = MapUtil.of("tableInfo2",MapUtil.of("columnList", ListUtil.of(MapUtil.of("test","ab"))));
+        templateResult = dao.process(dataModel).trim();
+        assertTrue(templateResult.length()>0);
+        assertEquals("ab\n" +
+                "            test2ab",templateResult);
     }
 }

@@ -23,11 +23,11 @@ public interface TemplateLangResolver extends Rule {
      * 模板语言解析方法
      *
      * @param srcData         需要解析的模板数据
-     * @param replaceKeyValue 模板中的变量数据
+     * @param dataModal 模板中的变量数据
      * @return 解析后的字符串
      * @throws TemplateResolveException 模板解析异常
      */
-    String langResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException;
+    String langResolver(String srcData, Map<String, Object> dataModal) throws TemplateResolveException;
 
     /**
      * 设置模板解析器

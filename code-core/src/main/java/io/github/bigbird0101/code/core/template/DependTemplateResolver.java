@@ -159,10 +159,10 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
      * 模板语言解析方法
      *
      * @param srcData         需要解析的模板数据
-     * @param replaceKeyValue 模板中的变量数据
+     * @param dataModal 模板中的变量数据
      */
     @Override
-    public String langResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
+    public String langResolver(String srcData, Map<String, Object> dataModal) throws TemplateResolveException {
         Matcher matcher= TEMPLATE_FUNCTION_BODY_PATTERN.matcher(srcData);
         String result="";
         while(matcher.find()){
@@ -173,7 +173,7 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
             functionTemp.setTemplateContext(templateContext);
             String mendLastStr = Utils.getLastNewLineNull(all);
             String mendFirstStr = Utils.getFirstNewLineNull(all);
-            String bodyResult=functionTemp.done(index,replaceKeyValue);
+            String bodyResult=functionTemp.done(index, dataModal);
             bodyResult= mendFirstStr +bodyResult+ mendLastStr;
             result = Utils.isEmpty(result) ? srcData.replace(all, bodyResult) : result.replace(all, bodyResult);
         }
