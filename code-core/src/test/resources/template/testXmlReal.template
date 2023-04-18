@@ -1,0 +1,57 @@
+<template>
+package *{packageName}*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import java.io.Serializable;
+import java.util.Date;
+import static com.baomidou.mybatisplus.annotation.FieldFill.INSERT;
+import static com.baomidou.mybatisplus.annotation.FieldFill.INSERT_UPDATE;
+
+/**
+ * *{tableInfo.tableComment}*对象模型
+ * @since  *{tool.currentDateTime()}*
+ * @version 1.0.0
+ * @author *{tool.author()}*
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@TableName(value = "*{tableInfo.tableName}*")
+public class *{tableInfo.domainName}* implements Serializable{
+
+    <foreach v-for="column in tableInfo.columnList">
+    /**
+      * *{column.comment}*
+      */
+    <choose>
+    <when test="column.name=='id'">
+    @TableId(value = "*{column.name}*", type = IdType.AUTO)
+    private Long id;
+    </when>
+    <when test="column.name=='create_time'">
+    @TableField(value = "create_time",fill = INSERT)
+    private Date createTime;
+    </when>
+    <when test="column.name=='create_by'">
+    @TableField(value = "create_by",fill =INSERT)
+    private String createBy;
+    </when>
+    <when test="column.name=='update_by'">
+    @TableField(value = "update_by",fill =INSERT_UPDATE)
+    private String updateBy;
+    </when>
+    <otherwise>
+    @TableField(value = "*{column.name}*")
+    private *{column.javaType}* *{column.domainPropertyName}*;
+    </otherwise>
+    </choose>
+    </foreach>
+}
+</template>

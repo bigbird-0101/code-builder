@@ -198,7 +198,7 @@
         <argline>-server -Xms256m -Xmx512m -Dfile.encoding=UTF-8
             -Djava.net.preferIPv4Stack=true -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m
         </argline>
-        <skip_maven_deploy>false</skip_maven_deploy>
+        <podam.version>7.2.11.RELEASE</podam.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -272,6 +272,12 @@
                 <groupId>org.controlsfx</groupId>
                 <artifactId>controlsfx</artifactId>
                 <version>${controlsfx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>uk.co.jemos.podam</groupId> <!-- 单元测试，随机生成 POJO 类 -->
+                <artifactId>podam</artifactId>
+                <version>${podam.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

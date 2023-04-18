@@ -50,5 +50,9 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>uk.co.jemos.podam</groupId> <!-- 单元测试，随机生成 POJO 类 -->
+            <artifactId>podam</artifactId>
+        </dependency>
     </dependencies>
 </project>

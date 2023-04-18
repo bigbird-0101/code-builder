@@ -141,6 +141,9 @@ public class ComplexController extends TemplateContextProvider implements Initia
             Optional.ofNullable(root.getChildren()
                     .filtered(s -> s.getValue().getText().equals(defaultMultipleTemplate)))
                     .ifPresent(s->{
+                        if(s.isEmpty()){
+                            return;
+                        }
                         final TreeItem<Label> labelTreeItem = s.get(0);
                         listViewTemplate.getSelectionModel().select(labelTreeItem);
                     });
@@ -277,16 +280,24 @@ public class ComplexController extends TemplateContextProvider implements Initia
             try {
                 toNewMultipleTemplateView(text);
             } catch (IOException | CodeConfigException e) {
-                e.printStackTrace();
+                FxAlerts.error(mainBox.getScene().getWindow(), "修改失败", e);
             }
         });
         copy.setOnAction(event -> {
-            copyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu);
-            AlertUtil.showInfo("复制成功");
+            try {
+                copyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu);
+                AlertUtil.showInfo("复制成功");
+            }catch (Exception e){
+                FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", e);
+            }
         });
         deepCopy.setOnAction(event -> {
-            deepCopyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu);
-            AlertUtil.showInfo("复制成功");
+            try {
+                deepCopyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu);
+                AlertUtil.showInfo("复制成功");
+            }catch (Exception e){
+                FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", e);
+            }
         });
         contextMenu.getItems().addAll(delete, edit,copy,deepCopy);
         label.setContextMenu(contextMenu);

@@ -5,7 +5,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 import static io.github.bigbird0101.code.core.template.DependTemplateResolver.TEMPLATE_FUNCTION_BODY_PATTERN;
 
@@ -16,14 +16,14 @@ import static io.github.bigbird0101.code.core.template.DependTemplateResolver.TE
 public class HaveDependTemplateNoHandleFunctionTemplate extends DefaultNoHandleFunctionTemplate  implements HaveDependTemplate{
     private static final Logger LOGGER = LogManager.getLogger(HaveDependTemplateHandleFunctionTemplate.class);
 
-    private Set<String> dependTemplates;
+    private LinkedHashSet<String> dependTemplates;
 
     @Override
-    public Set<String> getDependTemplates() {
+    public LinkedHashSet<String> getDependTemplates() {
         return dependTemplates;
     }
 
-    public void setDependTemplates(Set<String> dependTemplates) {
+    public void setDependTemplates(LinkedHashSet<String> dependTemplates) {
         this.dependTemplates = dependTemplates;
     }
 
