@@ -1,8 +1,10 @@
 package io.github.bigbird0101.code.core.template;
 
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.URLUtil;
 import io.github.bigbird0101.code.core.config.StandardEnvironment;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilderTest2;
@@ -25,7 +27,7 @@ class DomHandleFunctionTemplateTest {
     @Test
     void test() throws SQLException {
         StandardEnvironment environment=new StandardEnvironment();
-        environment.setTemplatesPath(Objects.requireNonNull(DomHandleFunctionTemplateTest.class.getResource("/template")).toString());
+        environment.setTemplatesPath(URLUtil.decode(ResourceUtil.getResource("template").getPath()));
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         final Template dao = genericTemplateContext.getTemplate("testCodeNodeXml");
         Map<String, Object> dataModel = new HashMap<>(DomScriptCodeNodeBuilderTest2.doBuildData(environment));
@@ -37,7 +39,7 @@ class DomHandleFunctionTemplateTest {
     @Test
     void test2() {
         StandardEnvironment environment=new StandardEnvironment();
-        environment.setTemplatesPath(Objects.requireNonNull(DomHandleFunctionTemplateTest.class.getResource("/template")).toString());
+        environment.setTemplatesPath(URLUtil.decode(ResourceUtil.getResource("template").getPath()));
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         final Template dao = genericTemplateContext.getTemplate("testCodeChooseNodeXml");
         Map<String, Object> dataModel = MapUtil.of("test","ad");
@@ -58,7 +60,7 @@ class DomHandleFunctionTemplateTest {
     @Test
     void test3() {
         StandardEnvironment environment=new StandardEnvironment();
-        environment.setTemplatesPath(Objects.requireNonNull(DomHandleFunctionTemplateTest.class.getResource("/template")).toString());
+        environment.setTemplatesPath(URLUtil.decode(ResourceUtil.getResource("template").getPath()));
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         final Template dao = genericTemplateContext.getTemplate("testCodeChooseForeachNodeXml");
         Map<String, Object> dataModel = MapUtil.of("tableInfo2",MapUtil.of("columnList", ListUtil.of(MapUtil.of("test","ab2"))));

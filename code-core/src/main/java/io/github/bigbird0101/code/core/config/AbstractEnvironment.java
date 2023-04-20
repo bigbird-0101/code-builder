@@ -2,6 +2,7 @@ package io.github.bigbird0101.code.core.config;
 
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -113,8 +114,8 @@ public abstract class AbstractEnvironment implements Environment {
         loadCoreConfig(coreConfigPath);
     }
     protected void loadTemplatesPath() {
-        Collection<File> files = FileUtils.listFiles(new File(ResourceUtil.getResourceObj(templatesPath).getUrl()
-                .getFile()), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
+        Collection<File> files = FileUtils.listFiles(new File(URLUtil.decode(ResourceUtil.getResourceObj(templatesPath).getUrl()
+                .getFile())), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
         files.forEach(file -> {
             String fileName = file.getName();
             TEMPLATE_FILE_NAME_URL_MAPPING.put(fileName, file.getAbsolutePath());

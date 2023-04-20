@@ -2,6 +2,7 @@ package io.github.bigbird0101.code.core.config;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.util.URLUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class PathResourceTest2 {
      @Test
      public void test() throws IOException {
-         String path = ResourceUtil.getResource("template/testCodeNodeXml.template").getPath();
+         String path = URLUtil.decode(ResourceUtil.getResource("template/testCodeNodeXml.template").getPath());
          String file = path.substring(1);
          PathResource pathResource=new PathResource(Paths.get(file));
          assertNotNull(IoUtil.readUtf8(pathResource.getInputStream()));

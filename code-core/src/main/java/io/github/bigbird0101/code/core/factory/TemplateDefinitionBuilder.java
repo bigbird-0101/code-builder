@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.core.factory;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import cn.hutool.system.SystemUtil;
 import io.github.bigbird0101.code.core.config.FileUrlResource;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
@@ -44,7 +45,7 @@ public class TemplateDefinitionBuilder {
 
     public static <T extends Template> TemplateDefinition build(Class<T> tClass,String templateFilePath){
         final GenericTemplateDefinition templateDefinition = (GenericTemplateDefinition) build(tClass);
-        final String filePath = removePrefix(getResourceObj(templateFilePath).getUrl().getFile(), SEPARATOR);
+        final String filePath = removePrefix(URLUtil.decode(getResourceObj(templateFilePath).getUrl().getFile()), SEPARATOR);
         try {
             templateDefinition.setTemplateResource(new FileUrlResource(filePath));
         } catch (MalformedURLException e) {

@@ -4,6 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -122,8 +123,8 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
      */
     protected void analysisTemplateDefinition(String templatesFilePath, JSONArray templates, Set<TemplateDefinitionHolder>
             templateDefinitionHolders, Map<String, TemplateDefinition> templateDefinitionMapTemp) throws CodeConfigException {
-        Collection<File> files = FileUtils.listFiles(new File(ResourceUtil.getResourceObj(templatesFilePath).getUrl()
-                .getFile()), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
+        Collection<File> files = FileUtils.listFiles(new File(URLUtil.decode(ResourceUtil.getResourceObj(templatesFilePath).getUrl()
+                .getFile())), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
         for(Object jsonObject:templates){
             JSONObject templateConfigInfo =(JSONObject) jsonObject;
             RootTemplateDefinition rootTemplateDefinition =JSONObject.parseObject(templateConfigInfo.toJSONString(), RootTemplateDefinition.class);
