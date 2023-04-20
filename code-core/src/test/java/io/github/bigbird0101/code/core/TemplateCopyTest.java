@@ -1,20 +1,19 @@
 package io.github.bigbird0101.code.core;
 
+import io.github.bigbird0101.code.core.cache.CacheKey;
 import io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemplate;
 import io.github.bigbird0101.code.core.template.DefaultNoHandleFunctionTemplate;
 import io.github.bigbird0101.code.core.template.GenericMultipleTemplate;
 import io.github.bigbird0101.code.core.template.HaveDependTemplateHandleFunctionTemplate;
-import io.github.bigbird0101.code.core.cache.CacheKey;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-public class TemplateCopyTest2 {
+public class TemplateCopyTest {
     @Test
     @Disabled
     public void testTemplateCopyTest() {
