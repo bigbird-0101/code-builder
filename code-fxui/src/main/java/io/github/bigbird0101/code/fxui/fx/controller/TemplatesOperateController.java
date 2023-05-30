@@ -24,7 +24,6 @@ import io.github.bigbird0101.code.util.Utils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -36,7 +35,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,7 +85,15 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     @FXML
     private FlowPane templates;
 
-     CheckBox getIsDefinedFunction() {
+    public CheckBox getIsAllTable() {
+        return isAllTable;
+    }
+
+    public TextField getTargetTable() {
+        return targetTable;
+    }
+
+    CheckBox getIsDefinedFunction() {
         return isDefinedFunction;
     }
 
@@ -108,9 +114,9 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     private File file;
     private Map<String,Map<String,List<String>>> selectTemplateGroup = new ConcurrentHashMap<>();
     private final URL resource = getClass().getResource("/views/template_info.fxml");
-    private final Insets inserts = new Insets(5, 5, 5, 0);
-    public static final BorderWidths DEFAULT = new BorderWidths(1, 0, 0, 0, false, false, false, false);
-    private final BorderStroke borderStroke = new BorderStroke(null, null, Color.BLACK, null, BorderStrokeStyle.SOLID, null, null, null, null, DEFAULT, new Insets(0, 0, 0, 0));
+//    private final Insets inserts = new Insets(5, 5, 5, 0);
+//    public static final BorderWidths DEFAULT = new BorderWidths(1, 0, 0, 0, false, false, false, false);
+//    private final BorderStroke borderStroke = new BorderStroke(null, null, Color.BLACK, null, BorderStrokeStyle.SOLID, null, null, null, null, DEFAULT, new Insets(0, 0, 0, 0));
 
     public File getFile() {
         return file;
@@ -142,7 +148,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             for (Template template : multipleTemplate.getTemplates()) {
                 VBox vBox = initTemplateInfo(template);
                 if (size > 3) {
-                    vBox.setBorder(new Border(borderStroke));
+//                    vBox.setBorder(new Border(borderStroke));
                 }
                 templates.getChildren().add(vBox);
                 size++;
@@ -209,7 +215,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             Set<String> templateFunctionNameS = handlerTemplate.getTemplateFunctionNameS();
             templateFunctionNameS.forEach(templateFunction -> {
                 CheckBox checkBox = new CheckBox(templateFunction);
-                checkBox.setPadding(inserts);
+//                checkBox.setPadding(inserts);
                 if(null!=stringListMap){
                     List<String> functionNames = stringListMap.get(templateName);
                     if (null != functionNames && functionNames.contains(templateFunction)) {

@@ -1,54 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-
-<VBox fx:id="box" stylesheets="@../css/template_operate.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.bigbird0101.code.fxui.fx.controller.TemplatesOperateController">
-    <VBox>
-          <Label fx:id="currentTemplate" alignment="CENTER" contentDisplay="CENTER" prefHeight="15.0" prefWidth="1000" textAlignment="JUSTIFY">
-         <font>
-            <Font name="System Bold" size="17.0" />
-         </font>
-          </Label>
-    </VBox>
-    <VBox>
-        <FlowPane hgap="15.0">
-            <CheckBox fx:id="isAllTable" mnemonicParsing="false" text="全库生成" />
-            <Label text="目标表名" />
-            <TextField fx:id="targetTable" />
-            <Label text="变量文件:" />
-            <Button mnemonicParsing="false" onAction="#selectVariableFile" text="选择" />
-            <Label fx:id="fileName" prefHeight="15.0" prefWidth="161.0" />
-            <Button mnemonicParsing="false" onAction="#refreshTemplate" text="刷新模板" />
-            <Button mnemonicParsing="false" onAction="#saveConfig" prefHeight="23.0" prefWidth="90.0" text="持久化配置" />
-            <VBox.margin>
-                <Insets bottom="10.0" left="55.0" top="10.0" />
-            </VBox.margin>
+<?import javafx.scene.text.Font?>
+<?import java.net.URL?>
+<VBox fx:id="box" xmlns="http://javafx.com/javafx/10.0.2-internal"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.github.bigbird0101.code.fxui.fx.controller.TemplatesOperateController">
+    <stylesheets>
+        <URL value="@../css/template_operate.css"/>
+    </stylesheets>
+    <BorderPane>
+        <top>
+            <StackPane>
+                <Label fx:id="currentTemplate" alignment="CENTER" contentDisplay="CENTER"
+                       textAlignment="CENTER">
+                    <padding>
+                        <Insets top="10" bottom="10" left="10" right="10"/>
+                    </padding>
+                    <font>
+                        <Font name="System Bold" size="18.0"/>
+                    </font>
+                </Label>
+            </StackPane>
+        </top>
+        <center>
+            <StackPane  style="-fx-padding:15px 10px 15px 45px;">
+                <VBox>
+                    <HBox spacing="15" style="-fx-padding: 5px;">
+                        <CheckBox fx:id="isAllTable" mnemonicParsing="false" text="全库生成"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="目标表名"/>
+                            <TextField fx:id="targetTable"/>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="变量文件:"/>
+                            <HBox spacing="5" alignment="CENTER_LEFT">
+                                <Button mnemonicParsing="false" onAction="#selectVariableFile" text="选择"/>
+                                <Label fx:id="fileName"/>
+                            </HBox>
+                        </HBox>
+                        <Button mnemonicParsing="false" onAction="#refreshTemplate" text="刷新模板"/>
+                        <Button mnemonicParsing="false" onAction="#saveConfig" text="持久化配置"/>
+                    </HBox>
+                    <HBox spacing="15" style="-fx-padding: 5px;" alignment="CENTER_LEFT">
+                        <HBox spacing="15" alignment="CENTER_LEFT">
+                            <Label text="字段名(多个,分开)"/>
+                            <TextField fx:id="fields"/>
+                        </HBox>
+                        <HBox spacing="15" alignment="CENTER_LEFT">
+                            <Label text="代表因子"/>
+                            <TextField fx:id="representFactor" alignment="TOP_LEFT"/>
+                        </HBox>
+                    </HBox>
+                    <HBox spacing="15" style="-fx-padding: 5px;" alignment="CENTER_LEFT">
+                        <CheckBox fx:id="isDefinedFunction" mnemonicParsing="false"
+                                  text="生成以模板方法体为模板的方法"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+        </center>
+    </BorderPane>
+    <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true"
+                style="-fx-background-color: transparent; -fx-padding: 5px;">
+        <FlowPane fx:id="templates" hgap="15" vgap="15">
         </FlowPane>
-    </VBox>
-    <VBox>
-        <FlowPane hgap="15.0">
-            <Label text="字段名(多个,分开)" />
-            <TextField fx:id="fields" />
-            <Label text="代表因子" />
-            <TextField fx:id="representFactor" alignment="TOP_LEFT" />
-         <VBox.margin>
-            <Insets left="55.0" />
-         </VBox.margin>
-        </FlowPane>
-        <Pane>
-            <CheckBox fx:id="isDefinedFunction" mnemonicParsing="false" text="生成以模板方法体为模板的方法" />
-         <VBox.margin>
-            <Insets left="55.0" top="10.0" bottom="25"/>
-         </VBox.margin>
-        </Pane>
-    </VBox>
-    <VBox>
-        <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true">
-            <FlowPane fx:id="templates">
-            </FlowPane>
-        </ScrollPane>
-    </VBox>
+    </ScrollPane>
 </VBox>

@@ -446,11 +446,11 @@ public class ComplexController extends TemplateContextProvider implements Initia
             templatesOperateNode.prefWidthProperty().bind(contentParent.widthProperty());
             TemplatesOperateController templatesOperateController=templatesOperateFxmlLoader.getController();
             templatesOperateController.getCurrentTemplate().setText("当前组合模板:"+ USER_OPERATE_CACHE.getTemplateNameSelected());
-            CheckBox checkBox = (CheckBox) templatesOperateNode.lookup("#isAllTable");
+            CheckBox checkBox = templatesOperateController.getIsAllTable();
             checkBox.selectedProperty().addListener((o, old, newVal) -> {
                 isSelectedAllTable = newVal;
             });
-            selectedTable = (TextField) templatesOperateNode.lookup("#targetTable");
+            selectedTable = templatesOperateController.getTargetTable();
             content.getChildren().clear();
             content.getChildren().add(templatesOperateNode);
             templatesOperateController.doInitView();

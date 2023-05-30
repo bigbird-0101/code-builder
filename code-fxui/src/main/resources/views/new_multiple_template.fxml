@@ -2,17 +2,34 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-
-<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.bigbird0101.code.fxui.fx.controller.MultipleTemplateController">
-   <Label layoutX="95.0" layoutY="58.0" text="组合模板名:" />
-   <TextField fx:id="multipleTemplateName" layoutX="182.0" layoutY="54.0" />
-   <FlowPane fx:id="templates" layoutX="181.0" layoutY="192.0" />
-   <Label layoutX="82.0" layoutY="118.0" text="模板的项目地址:" />
-   <TextArea fx:id="projectUrl" layoutX="182.0" layoutY="118.0" prefHeight="52.0" prefWidth="315.0" />
-   <Button fx:id="button" layoutX="424.0" layoutY="54.0" mnemonicParsing="false" onAction="#createMultipleTemplate" text="创建">
-      <font>
-         <Font size="15.0" />
-      </font></Button>
-   <Label layoutX="121.0" layoutY="192.0" text="子模板:" />
+<?import javafx.scene.text.Font?>
+<?import java.net.URL?>
+<AnchorPane fx:id="anchorPane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.bigbird0101.code.fxui.fx.controller.MultipleTemplateController">
+    <stylesheets>
+        <URL value="@../css/new_multiple_template.css" />
+    </stylesheets>
+    <VBox>
+        <HBox>
+            <Label text="组合模板名:" />
+            <TextField fx:id="multipleTemplateName" />
+        </HBox>
+        <HBox>
+            <Label text="模板的项目地址:" />
+            <TextArea fx:id="projectUrl" prefHeight="52.0" prefWidth="315.0" />
+            <Button fx:id="button" mnemonicParsing="false" onAction="#createMultipleTemplate" text="创建">
+                <font>
+                    <Font size="15.0" />
+                </font>
+            </Button>
+        </HBox>
+        <HBox fx:id="templateBox" alignment="CENTER">
+            <Label text="子模板:" />
+            <TextField fx:id="searchField" promptText="子模版名" />
+        </HBox>
+       <HBox>
+        <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="500" minWidth="600">
+            <FlowPane fx:id="templates" />
+        </ScrollPane>
+       </HBox>
+    </VBox>
 </AnchorPane>

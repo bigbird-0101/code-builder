@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.fxui.fx.controller;
 
+import cn.hutool.core.util.StrUtil;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
@@ -18,16 +19,18 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Administrator
  */
 public class MultipleTemplateController extends TemplateContextProvider implements Initializable {
+    @FXML
+    public TextField searchField;
     @FXML
     FlowPane templates;
     private final Insets insets=new Insets(0,10,10,0);
@@ -81,24 +84,23 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Set<String> templateNames = getTemplateContext().getTemplateNames();
-        templateNames.forEach(templateName->{
-            CheckBox checkBox = new CheckBox(templateName);
-            checkBox.setText(templateName);
-            checkBox.setPadding(insets);
-            templates.getChildren().add(checkBox);
-            checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                if(newValue){
-                    selectTemplateNames.add(templateName);
-                }else{
-                    selectTemplateNames.remove(templateName);
-                }
-            });
+        initTemplateCheckBox();
+        searchField.textProperty().addListener((observable,old,newValue)->{
+            if(StrUtil.isNotBlank(newValue)){
+                Set<String> templateNames = getTemplateContext().getTemplateNames();
+                Set<String> collect =
+                        templateNames.stream()
+                                .filter(s -> s.contains(newValue))
+                                .collect(Collectors.toSet());
+                initTemplateCheckBox(collect);
+            }else{
+                initTemplateCheckBox();
+            }
         });
     }
 
     @FXML
-    public void createMultipleTemplate() throws CodeConfigException, IOException {
+    public void createMultipleTemplate() throws CodeConfigException {
         if(Utils.isEmpty(multipleTemplateName.getText())){
             AlertUtil.showWarning("请填写组合模板名");
             return;
@@ -162,5 +164,26 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
         final MultipleTemplate multipleTemplate = genericTemplateContext.getMultipleTemplate(multipleTemplateName.getText());
         defaultListableTemplateFactory.refreshMultipleTemplate(multipleTemplate);
         multipleTemplate.getTemplates().forEach(defaultListableTemplateFactory::refreshTemplate);
+    }
+
+    private void initTemplateCheckBox() {
+        initTemplateCheckBox(getTemplateContext().getTemplateNames());
+    }
+
+    private void initTemplateCheckBox(Set<String> templateNames) {
+        templates.getChildren().clear();
+        templateNames.forEach(templateName->{
+            CheckBox checkBox = new CheckBox(templateName);
+            checkBox.setText(templateName);
+            checkBox.setPadding(insets);
+            templates.getChildren().add(checkBox);
+            checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                if(newValue){
+                    selectTemplateNames.add(templateName);
+                }else{
+                    selectTemplateNames.remove(templateName);
+                }
+            });
+        });
     }
 }
