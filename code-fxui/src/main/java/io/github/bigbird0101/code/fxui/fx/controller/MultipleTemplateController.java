@@ -11,6 +11,7 @@ import io.github.bigbird0101.code.core.template.MultipleTemplate;
 import io.github.bigbird0101.code.fxui.CodeBuilderApplication;
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
 import io.github.bigbird0101.code.util.Utils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -184,6 +185,22 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
                     selectTemplateNames.remove(templateName);
                 }
             });
+        });
+    }
+
+    @FXML
+    public void selectAll(ActionEvent actionEvent) {
+        templates.getChildren().forEach(checkbox->{
+            CheckBox checkBox= (CheckBox) checkbox;
+            checkBox.setSelected(true);
+        });
+    }
+
+    @FXML
+    public void clearAll(ActionEvent actionEvent) {
+        templates.getChildren().forEach(checkbox->{
+            CheckBox checkBox= (CheckBox) checkbox;
+            checkBox.setSelected(false);
         });
     }
 }

@@ -25,6 +25,8 @@
         <HBox fx:id="templateBox" alignment="CENTER">
             <Label text="子模板:" />
             <TextField fx:id="searchField" promptText="子模版名" />
+            <Button mnemonicParsing="false" onAction="#selectAll" text="全选"/>
+            <Button mnemonicParsing="false" onAction="#clearAll" text="清空"/>
         </HBox>
        <HBox>
         <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="500" minWidth="600">
