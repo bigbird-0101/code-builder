@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.util.StrUtil;
@@ -589,15 +590,15 @@ public class ComplexController extends TemplateContextProvider implements Initia
             progressTask.setOnFailed(event -> {
                 Throwable e = event.getSource().getException();
                 if (e != null) {
-                    final Throwable cause = e.getCause();
+                    final Throwable cause = ExceptionUtil.getRootCause(e);
                     logger.error("生成失败", e);
                     if(cause instanceof TemplateResolveException){
-                        FxAlerts.error(controllerWindow,"生成失败",cause.getMessage());
+                        AlertUtil.showError(e.getMessage());
                     }else {
-                        FxAlerts.error(controllerWindow, "生成失败", e);
+                        AlertUtil.showError(e.getMessage());
                     }
                 } else {
-                    FxAlerts.error(controllerWindow, "生成失败", event.getSource().getMessage());
+                    AlertUtil.showError(event.getSource().getMessage());
                 }
             });
             dialog.showAndWait();
@@ -705,6 +706,10 @@ public class ComplexController extends TemplateContextProvider implements Initia
     }
 
     private void doSetDependTemplateVariablesMapping(Template template, String tableName, Map<String, Object> dataModel){
+        if(null==template.getTargetFilePrefixNameStrategy()){
+            throw new TemplateResolveException("{} 解析异常,{}",template.getTemplateName(),
+                    "模板未指定文件名后缀策略");
+        }
         final String simpleClassName = template.getTargetFilePrefixNameStrategy().prefixStrategy(template, tableName,dataModel);
         dataModel.put("className",Utils.pathToPackage(template.getSrcPackage())+"."+simpleClassName);
         dataModel.put("simpleClassName",simpleClassName);

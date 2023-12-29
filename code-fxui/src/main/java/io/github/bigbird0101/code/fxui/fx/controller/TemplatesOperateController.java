@@ -176,12 +176,16 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 }
                 selectTemplateGroup.putIfAbsent(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected(),new HashMap<>());
                 selectTemplateGroup.forEach((k,v)->{
-                    final MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(k);
-                    final Set<String> templateNames = multipleTemplate.getTemplates().stream().map(Template::getTemplateName).collect(Collectors.toSet());
-                    final Set<String> strings = v.keySet();
-                    final Collection<String> subtract = CollUtil.subtract(strings, templateNames);
-                    for(String templateName:subtract){
-                       v.remove(templateName);
+                    try {
+                        final MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(k);
+                        final Set<String> templateNames = multipleTemplate.getTemplates().stream().map(Template::getTemplateName).collect(Collectors.toSet());
+                        final Set<String> strings = v.keySet();
+                        final Collection<String> subtract = CollUtil.subtract(strings, templateNames);
+                        for (String templateName : subtract) {
+                            v.remove(templateName);
+                        }
+                    }catch (Exception e){
+                        LOGGER.error("初始化用户配置异常: {} {} {} {} {} {}",e, DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
                     }
                 });
             }
