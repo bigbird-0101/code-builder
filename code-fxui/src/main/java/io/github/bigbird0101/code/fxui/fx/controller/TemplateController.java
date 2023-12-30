@@ -239,9 +239,17 @@ public class TemplateController extends TemplateContextProvider implements Initi
                 .filter(s->s instanceof HaveDependTemplate)
                 .map(s->(HaveDependTemplate)s)
                 .forEach(s->{
-                    if(CollectionUtil.isNotEmpty(s.getDependTemplates())){
-                        if(s.getDependTemplates().removeIf(oldTemplateName->oldTemplateName.equals(sourceTemplateName))){
-                            s.getDependTemplates().add(templateName.getText());
+                    Set<HaveDependTemplate.DependTemplate> dependTemplates = s.getDependTemplates();
+                    if(CollectionUtil.isNotEmpty(dependTemplates)){
+                        if(dependTemplates.removeIf(oldTemplateName->oldTemplateName.getTemplateName().equals(sourceTemplateName))){
+                            Optional<HaveDependTemplate.DependTemplate> first = dependTemplates.stream()
+                                    .max(Comparator.comparingInt(HaveDependTemplate.DependTemplate::getIndex));
+                            if(first.isPresent()){
+                                HaveDependTemplate.DependTemplate dependTemplate = first.get();
+                                dependTemplates.add(new HaveDependTemplate.DependTemplate(dependTemplate.getIndex()+1,templateName.getText()));
+                            }else{
+                                dependTemplates.add(new HaveDependTemplate.DependTemplate(0,templateName.getText()));
+                            }
                         }
                     }
                     defaultListableTemplateFactory.refreshTemplate(s);

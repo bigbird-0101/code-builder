@@ -96,7 +96,7 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
     }
 
     public static class RootTemplateDefinitionDeserializer implements ObjectDeserializer{
-        private static Logger logger= LogManager.getLogger(RootTemplateDefinitionDeserializer.class);
+        private static final Logger logger= LogManager.getLogger(RootTemplateDefinitionDeserializer.class);
 
         TemplateFilePrefixNameStrategyFactory templateFilePrefixNameStrategyFactory=new TemplateFilePrefixNameStrategyFactory();
 

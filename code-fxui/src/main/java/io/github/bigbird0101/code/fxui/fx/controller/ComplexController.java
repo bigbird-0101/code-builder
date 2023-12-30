@@ -495,8 +495,13 @@ public class ComplexController extends TemplateContextProvider implements Initia
             templateController.fileSuffixName.setText(template.getTargetFileSuffixName());
             if(template instanceof HaveDependTemplate) {
                 HaveDependTemplate haveDepend= (HaveDependTemplate) template;
-                if(CollectionUtil.isNotEmpty(haveDepend.getDependTemplates())) {
-                    templateController.depends.setText(String.join(",", haveDepend.getDependTemplates()));
+                Set<HaveDependTemplate.DependTemplate> dependTemplates = haveDepend.getDependTemplates();
+                if(CollectionUtil.isNotEmpty(dependTemplates)) {
+                    List<String> collect = dependTemplates.stream()
+                            .sorted(Comparator.comparingInt(HaveDependTemplate.DependTemplate::getIndex))
+                            .map(HaveDependTemplate.DependTemplate::getTemplateName)
+                            .collect(toList());
+                    templateController.depends.setText(String.join(",", collect));
                 }
             }
             TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = Optional.ofNullable(template

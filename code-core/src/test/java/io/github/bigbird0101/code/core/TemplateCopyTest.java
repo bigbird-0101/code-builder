@@ -1,11 +1,9 @@
 package io.github.bigbird0101.code.core;
 
 import io.github.bigbird0101.code.core.cache.CacheKey;
-import io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemplate;
-import io.github.bigbird0101.code.core.template.DefaultNoHandleFunctionTemplate;
-import io.github.bigbird0101.code.core.template.GenericMultipleTemplate;
-import io.github.bigbird0101.code.core.template.HaveDependTemplateHandleFunctionTemplate;
+import io.github.bigbird0101.code.core.template.*;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -19,7 +17,9 @@ public class TemplateCopyTest {
     public void testTemplateCopyTest() {
         HaveDependTemplateHandleFunctionTemplate haveDependTemplateHandleFunctionTemplate=new HaveDependTemplateHandleFunctionTemplate();
         haveDependTemplateHandleFunctionTemplate.setProjectUrl("123");
-        haveDependTemplateHandleFunctionTemplate.setDependTemplates(Stream.of("123","1234").collect(Collectors.toCollection(LinkedHashSet::new)));
+        LinkedHashSet<HaveDependTemplate.DependTemplate> collect = Stream.of("123", "1234")
+                .map(s->new HaveDependTemplate.DependTemplate(1,s)).collect(Collectors.toCollection(LinkedHashSet::new));
+        haveDependTemplateHandleFunctionTemplate.setDependTemplates(collect);
         HaveDependTemplateHandleFunctionTemplate clone =(HaveDependTemplateHandleFunctionTemplate)haveDependTemplateHandleFunctionTemplate.clone();
         System.out.println(haveDependTemplateHandleFunctionTemplate);
         System.out.println(clone);
@@ -46,6 +46,13 @@ public class TemplateCopyTest {
         System.out.println(cacheKey.equals(cacheKey2));
         System.out.println(cacheKey.hashCode());
         System.out.println(cacheKey2.hashCode());
+    }
+
+    @RepeatedTest(15)
+    public void test(){
+        LinkedHashSet<String> collect = Stream.of("你看好,中国,大国1,大国2".split(","))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        System.out.println(collect);
     }
 
 }
