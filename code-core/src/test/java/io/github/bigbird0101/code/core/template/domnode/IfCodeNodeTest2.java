@@ -1,10 +1,6 @@
-package io.github.bigbird0101.code.core.template.languagenode;
+package io.github.bigbird0101.code.core.template.domnode;
 
 import io.github.bigbird0101.code.core.config.StandardEnvironment;
-import io.github.bigbird0101.code.core.template.languagenode.DynamicCodeNodeContext;
-import io.github.bigbird0101.code.core.template.languagenode.IfCodeNode;
-import io.github.bigbird0101.code.core.template.languagenode.MixCodeNode;
-import io.github.bigbird0101.code.core.template.languagenode.StaticTextCodeNode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

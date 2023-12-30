@@ -1,19 +1,17 @@
 package io.github.bigbird0101.code.core.template;
 
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.URLUtil;
 import io.github.bigbird0101.code.core.config.StandardEnvironment;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
-import io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilderTest2;
+import io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilderTest2;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 

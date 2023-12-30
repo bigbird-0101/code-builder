@@ -1,0 +1,9 @@
+io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$IfCodeNodeHandler
+io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$ForeachCodeNodeHandler
+io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$PrefixCodeNodeHandler
+io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$SuffixCodeNodeHandler
+io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$FunctionCodeNodeHandler
+io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$TemplateCodeNodeHandler
+io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$ChooseCodeNodeHandler
+io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$WhenCodeNodeHandler
+io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$OtherwiseCodeNodeHandler

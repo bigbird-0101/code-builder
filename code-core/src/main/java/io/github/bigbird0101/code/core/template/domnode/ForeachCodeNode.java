@@ -1,8 +1,8 @@
-package io.github.bigbird0101.code.core.template.languagenode;
+package io.github.bigbird0101.code.core.template.domnode;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import io.github.bigbird0101.code.core.template.SimpleTemplateResolver;
+import io.github.bigbird0101.code.core.template.resolver.SimpleTemplateResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.util.Utils;
 

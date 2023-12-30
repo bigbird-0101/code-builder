@@ -1,4 +1,4 @@
-package io.github.bigbird0101.code.core.template;
+package io.github.bigbird0101.code.core.template.resolver;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
@@ -7,6 +7,9 @@ import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.context.TemplateContext;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextAware;
 import io.github.bigbird0101.code.core.domain.TableInfo;
+import io.github.bigbird0101.code.core.template.AbstractTemplateLangResolver;
+import io.github.bigbird0101.code.core.template.AbstractTemplateResolver;
+import io.github.bigbird0101.code.core.template.TemplateResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.util.Utils;
 
@@ -23,7 +26,6 @@ import java.util.stream.Stream;
 public class ToolTemplateResolver extends AbstractTemplateLangResolver implements TemplateContextAware {
 
     private static TableInfo tableInfo;
-    private static String mendLastStr;
     private static String mendFirstStr;
 
     private static TemplateContext templateContext;
@@ -212,7 +214,7 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
     }
 
     private static final String LANG_NAME="tool";
-    private static final Pattern templateFunctionBodyPattern= Pattern.compile("(\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*\\)\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
+    private static final Pattern templateFunctionBodyPattern= Pattern.compile("(\\s*"+ AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*\\)\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
     public static final Pattern templateGrammarPatternSuffix= Pattern.compile("(\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*)", Pattern.DOTALL);
     private Set<Pattern> excludeVariablePatten=new HashSet<>(Arrays.asList(templateGrammarPatternSuffix));
 
@@ -271,10 +273,10 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
             }
             title=titleBuilder.length()==0?title:titleBuilder.toString();
             Function functionTemp=checkFunction(function);
-            mendLastStr=Utils.getLastNewLineNull(all);
+            String mendLastStr = Utils.getLastNewLineNull(all);
             mendFirstStr=Utils.getFirstNewLineNull(all);
             String bodyResult=functionTemp.done(title);
-            bodyResult=mendFirstStr+bodyResult+mendLastStr;
+            bodyResult=mendFirstStr+bodyResult+ mendLastStr;
             result = Utils.isEmpty(result) ? srcData.replace(all, bodyResult) : result.replace(all, bodyResult);
         }
         return Utils.isEmpty(result)?srcData:result;

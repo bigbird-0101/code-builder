@@ -1,4 +1,4 @@
-package io.github.bigbird0101.code.core.template.languagenode;
+package io.github.bigbird0101.code.core.template.domnode;
 
 /**
  * @author bigbird-0101

@@ -5,7 +5,7 @@ import io.github.bigbird0101.code.core.config.StandardEnvironment;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import io.github.bigbird0101.code.core.domain.TableInfo;
 import io.github.bigbird0101.code.core.factory.TemplateDefinitionBuilder;
-import io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilderTest2;
+import io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilderTest2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

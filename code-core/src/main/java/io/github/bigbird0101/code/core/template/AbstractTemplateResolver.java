@@ -1,10 +1,11 @@
 package io.github.bigbird0101.code.core.template;
 
 import cn.hutool.core.util.StrUtil;
-import io.github.bigbird0101.code.core.context.aware.TemplateContextAware;
-import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.config.Environment;
+import io.github.bigbird0101.code.core.context.aware.TemplateContextAware;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
+import io.github.bigbird0101.code.core.exception.CodeConfigException;
+import io.github.bigbird0101.code.core.template.resolver.ToolTemplateResolver;
 import io.github.bigbird0101.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,7 +71,7 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
     /**
      * 获取模板变量{{}}的key值
      */
-    protected static Pattern templateVariableKeyPattern = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX + ")(.+?)(?=" + TEMPLATE_VARIABLE_SUFFIX + ")");
+    public static Pattern templateVariableKeyPattern = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX + ")(.+?)(?=" + TEMPLATE_VARIABLE_SUFFIX + ")");
 
     /**
      * 获取方法体的正则

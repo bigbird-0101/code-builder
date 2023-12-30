@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import static io.github.bigbird0101.code.core.template.AbstractTemplateResolver.FUNCTION_BODY_BETWEEN_SPLIT;
 import static io.github.bigbird0101.code.core.template.AbstractTemplateResolver.templateFunctionBodyPattern;
-import static io.github.bigbird0101.code.core.template.languagenode.DomScriptCodeNodeBuilder.CodeNodeHandler.TEMPALTE;
+import static io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder.CodeNodeHandler.TEMPALTE;
 
 /**
  * @author fpp

@@ -1,4 +1,4 @@
-package io.github.bigbird0101.code.core.template.languagenode;
+package io.github.bigbird0101.code.core.template.domnode;
 
 /**
  * 作为可控制方法模板当中的 方法节点语法

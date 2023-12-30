@@ -1,6 +1,9 @@
-package io.github.bigbird0101.code.core.template;
+package io.github.bigbird0101.code.core.template.resolver;
 
 import cn.hutool.core.util.StrUtil;
+import io.github.bigbird0101.code.core.template.AbstractTemplateLangResolver;
+import io.github.bigbird0101.code.core.template.AbstractTemplateResolver;
+import io.github.bigbird0101.code.core.template.TemplateResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.util.Utils;
 
@@ -16,7 +19,7 @@ import static java.util.stream.Collectors.toList;
  * @author fpp
  * @version 1.0
  */
-public class ForeachTemplateResolver extends AbstractTemplateLangResolver{
+public class ForeachTemplateResolver extends AbstractTemplateLangResolver {
 
     private static final String LANG_NAME="foreach";
 

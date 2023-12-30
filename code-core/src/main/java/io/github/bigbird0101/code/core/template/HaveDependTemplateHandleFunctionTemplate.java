@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.LinkedHashSet;
 
 import static io.github.bigbird0101.code.core.template.AbstractTemplateResolver.templateFunctionBodyPattern;
-import static io.github.bigbird0101.code.core.template.DependTemplateResolver.TEMPLATE_FUNCTION_BODY_PATTERN;
+import static io.github.bigbird0101.code.core.template.resolver.DependTemplateResolver.TEMPLATE_FUNCTION_BODY_PATTERN;
 
 /**
  * 有依赖模板的项目模板

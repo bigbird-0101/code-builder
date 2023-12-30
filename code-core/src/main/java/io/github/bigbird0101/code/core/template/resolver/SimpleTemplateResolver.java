@@ -1,5 +1,6 @@
-package io.github.bigbird0101.code.core.template;
+package io.github.bigbird0101.code.core.template.resolver;
 
+import io.github.bigbird0101.code.core.template.TemplateLangResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import static java.util.stream.Collectors.toList;
  * @version 1.0.0
  * @since 2022-10-04 17:32:08
  */
-public class SimpleTemplateResolver extends DefaultTemplateResolver{
+public class SimpleTemplateResolver extends DefaultTemplateResolver {
     @Override
     protected String doResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
         String tempResult=srcData;

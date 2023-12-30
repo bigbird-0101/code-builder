@@ -1,4 +1,4 @@
-package io.github.bigbird0101.code.core.template.languagenode;
+package io.github.bigbird0101.code.core.template.domnode;
 
 /**
  * 表示整个模板的前缀节点 用于可控制方法的模板 作为前缀

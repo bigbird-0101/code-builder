@@ -1,6 +1,10 @@
-package io.github.bigbird0101.code.core.template;
+package io.github.bigbird0101.code.core.template.resolver;
 
 import cn.hutool.core.util.StrUtil;
+import io.github.bigbird0101.code.core.template.AbstractTemplateLangResolver;
+import io.github.bigbird0101.code.core.template.AbstractTemplateResolver;
+import io.github.bigbird0101.code.core.template.ConditionJudgeSupport;
+import io.github.bigbird0101.code.core.template.TemplateResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.util.Utils;
 
@@ -14,7 +18,7 @@ import java.util.regex.Pattern;
  * @version 1.0
  * @since 2020/6/11 18:42
  */
-public class IfTemplateResolver extends AbstractTemplateLangResolver{
+public class IfTemplateResolver extends AbstractTemplateLangResolver {
     private final ConditionJudgeSupport conditionJudgeSupport=new ConditionJudgeSupport();
 
     private static final String LANG_NAME="if";

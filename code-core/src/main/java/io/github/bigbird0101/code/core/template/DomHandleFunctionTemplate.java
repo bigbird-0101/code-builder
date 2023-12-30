@@ -9,7 +9,8 @@ import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.config.aware.EnvironmentAware;
 import io.github.bigbird0101.code.core.domain.TemplateFileClassInfo;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
-import io.github.bigbird0101.code.core.template.languagenode.*;
+import io.github.bigbird0101.code.core.template.domnode.*;
+import io.github.bigbird0101.code.core.template.resolver.SimpleTemplateResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import org.w3c.dom.*;
 

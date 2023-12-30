@@ -1,8 +1,9 @@
-package io.github.bigbird0101.code.core.template.languagenode;
+package io.github.bigbird0101.code.core.template.domnode;
 
 import io.github.bigbird0101.code.util.Utils;
 
-import static cn.hutool.core.text.CharSequenceUtil.*;
+import static cn.hutool.core.text.CharSequenceUtil.isBlank;
+import static cn.hutool.core.text.CharSequenceUtil.removePrefix;
 import static cn.hutool.core.text.StrPool.LF;
 
 /**

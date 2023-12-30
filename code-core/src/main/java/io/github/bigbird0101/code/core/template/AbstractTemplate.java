@@ -2,8 +2,6 @@ package io.github.bigbird0101.code.core.template;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
@@ -12,12 +10,11 @@ import io.github.bigbird0101.code.core.cache.CachePool;
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.config.Resource;
-import io.github.bigbird0101.code.core.domain.TableInfo;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
+import io.github.bigbird0101.code.core.template.resolver.DefaultTemplateResolver;
 import io.github.bigbird0101.code.core.template.targetfile.DefaultTargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;
-import io.github.bigbird0101.code.util.Utils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,10 +24,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
