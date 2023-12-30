@@ -16,14 +16,14 @@ import static io.github.bigbird0101.code.core.template.resolver.DependTemplateRe
 public class HaveDependTemplateNoHandleFunctionTemplate extends DefaultNoHandleFunctionTemplate  implements HaveDependTemplate{
     private static final Logger LOGGER = LogManager.getLogger(HaveDependTemplateHandleFunctionTemplate.class);
 
-    private LinkedHashSet<DependTemplate> dependTemplates;
+    private LinkedHashSet<String> dependTemplates;
 
     @Override
-    public LinkedHashSet<DependTemplate> getDependTemplates() {
+    public LinkedHashSet<String> getDependTemplates() {
         return dependTemplates;
     }
 
-    public void setDependTemplates(LinkedHashSet<DependTemplate> dependTemplates) {
+    public void setDependTemplates(LinkedHashSet<String> dependTemplates) {
         this.dependTemplates = dependTemplates;
     }
 

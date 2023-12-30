@@ -212,25 +212,30 @@ public class TemplateController extends TemplateContextProvider implements Initi
         rootTemplateDefinition.setSourcesRoot(sourcesRootName.getText());
         rootTemplateDefinition.setSrcPackage(srcPackageName.getText());
         final String text = depends.getText();
-        rootTemplateDefinition.setDependTemplates(Utils.isNotEmpty(text)?Stream.of(text.split(",")).collect(Collectors.toCollection(LinkedHashSet::new)):new LinkedHashSet<>());
-
-        String newFileName = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + "/" + templateName.getText()+AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
+        String templateNameText = templateName.getText();
+        LinkedHashSet<String> dependTemplates = Utils.isNotEmpty(text) ? Stream.of(text.split(","))
+                .collect(Collectors.toCollection(LinkedHashSet::new)) : new LinkedHashSet<>();
+        logger.info("templateName {} dependTemplate {}",templateNameText,dependTemplates);
+        rootTemplateDefinition.setDependTemplates(dependTemplates);
+        String newFileName = getTemplateContext().getEnvironment()
+                .getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + "/" +
+                templateNameText +AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
         File newFile = new File(newFileName);
         if(!this.file.equals(newFile)) {
             FileUtils.copyFile(this.file, newFile);
         }
         rootTemplateDefinition.setTemplateResource(new FileUrlResource(newFile.getAbsolutePath()));
         AbstractEnvironment.putTemplateContent(newFile.getAbsolutePath(), IOUtils.toString(Files.newInputStream(newFile.toPath()), StandardCharsets.UTF_8));
-        if(isNotHave||!templateName.getText().equals(sourceTemplateName)) {
-            templateContext.registerTemplateDefinition(templateName.getText(), rootTemplateDefinition);
-            if(!templateName.getText().equals(sourceTemplateName)){
+        if(isNotHave||!templateNameText.equals(sourceTemplateName)) {
+            templateContext.registerTemplateDefinition(templateNameText, rootTemplateDefinition);
+            if(!templateNameText.equals(sourceTemplateName)){
                 defaultListableTemplateFactory.removeTemplateDefinition(sourceTemplateName);
             }
         }else{
-            templateContext.registerTemplateDefinition(templateName.getText(), rootTemplateDefinition);
+            templateContext.registerTemplateDefinition(templateNameText, rootTemplateDefinition);
         }
         defaultListableTemplateFactory.preInstantiateTemplates();
-        defaultListableTemplateFactory.refreshTemplate(templateContext.getTemplate(templateName.getText()));
+        defaultListableTemplateFactory.refreshTemplate(templateContext.getTemplate(templateNameText));
 
         //修改模板名也要修改此时依赖此模板的所依赖的模板名
         defaultListableTemplateFactory.getTemplateNames()
@@ -239,21 +244,27 @@ public class TemplateController extends TemplateContextProvider implements Initi
                 .filter(s->s instanceof HaveDependTemplate)
                 .map(s->(HaveDependTemplate)s)
                 .forEach(s->{
-                    Set<HaveDependTemplate.DependTemplate> dependTemplates = s.getDependTemplates();
-                    if(CollectionUtil.isNotEmpty(dependTemplates)){
-                        if(dependTemplates.removeIf(oldTemplateName->oldTemplateName.getTemplateName().equals(sourceTemplateName))){
-                            Optional<HaveDependTemplate.DependTemplate> first = dependTemplates.stream()
-                                    .max(Comparator.comparingInt(HaveDependTemplate.DependTemplate::getIndex));
-                            if(first.isPresent()){
-                                HaveDependTemplate.DependTemplate dependTemplate = first.get();
-                                dependTemplates.add(new HaveDependTemplate.DependTemplate(dependTemplate.getIndex()+1,templateName.getText()));
-                            }else{
-                                dependTemplates.add(new HaveDependTemplate.DependTemplate(0,templateName.getText()));
-                            }
-                        }
+                    Set<String> templates = s.getDependTemplates();
+                    if(CollectionUtil.isNotEmpty(templates)){
+                        replace(templates,sourceTemplateName,templateNameText);
                     }
                     defaultListableTemplateFactory.refreshTemplate(s);
                 });
+    }
+
+    public void replace(Set<String> sets, String old, String newValue) {
+        // 创建一个新的Set来存储结果
+        Set<String> updatedSet = new LinkedHashSet<>();
+        // 遍历原始的Set，替换元素
+        for (String item : sets) {
+            if (item.equals(old)) {
+                updatedSet.add(newValue);
+            } else {
+                updatedSet.add(item);
+            }
+        }
+        sets.clear();
+        sets.addAll(updatedSet);
     }
 
     public boolean check() {

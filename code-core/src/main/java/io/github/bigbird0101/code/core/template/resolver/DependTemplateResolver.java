@@ -49,8 +49,7 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
                     Template templateDepend = getDependTemplate(index, currentTemplateWithDepend);
                     if(null==templateDepend){
                         final String templateDependName = new ArrayList<>(currentTemplateWithDepend.getDependTemplates())
-                                .get(Integer.parseInt(index))
-                                .getTemplateName();
+                                .get(Integer.parseInt(index));
                         throw new IllegalArgumentException("depend "+templateDependName+" template is not exists ");
                     }
                     TableInfo tableInfo = (TableInfo) dataModel.get("tableInfo");
@@ -195,11 +194,11 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
         return result;
     }
 
-    private static String getSetValue(Set<HaveDependTemplate.DependTemplate> set, int index) {
+    private static String getSetValue(Set<String> set, int index) {
         int result = 0;
-        for (HaveDependTemplate.DependTemplate entry:set) {
+        for (String entry:set) {
             if(result==index){
-                return entry.getTemplateName();
+                return entry;
             }
             result++;
         }

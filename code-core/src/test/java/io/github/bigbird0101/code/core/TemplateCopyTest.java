@@ -1,7 +1,10 @@
 package io.github.bigbird0101.code.core;
 
 import io.github.bigbird0101.code.core.cache.CacheKey;
-import io.github.bigbird0101.code.core.template.*;
+import io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemplate;
+import io.github.bigbird0101.code.core.template.DefaultNoHandleFunctionTemplate;
+import io.github.bigbird0101.code.core.template.GenericMultipleTemplate;
+import io.github.bigbird0101.code.core.template.HaveDependTemplateHandleFunctionTemplate;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -17,9 +20,7 @@ public class TemplateCopyTest {
     public void testTemplateCopyTest() {
         HaveDependTemplateHandleFunctionTemplate haveDependTemplateHandleFunctionTemplate=new HaveDependTemplateHandleFunctionTemplate();
         haveDependTemplateHandleFunctionTemplate.setProjectUrl("123");
-        LinkedHashSet<HaveDependTemplate.DependTemplate> collect = Stream.of("123", "1234")
-                .map(s->new HaveDependTemplate.DependTemplate(1,s)).collect(Collectors.toCollection(LinkedHashSet::new));
-        haveDependTemplateHandleFunctionTemplate.setDependTemplates(collect);
+        haveDependTemplateHandleFunctionTemplate.setDependTemplates(Stream.of("123", "1234").collect(Collectors.toCollection(LinkedHashSet::new)));
         HaveDependTemplateHandleFunctionTemplate clone =(HaveDependTemplateHandleFunctionTemplate)haveDependTemplateHandleFunctionTemplate.clone();
         System.out.println(haveDependTemplateHandleFunctionTemplate);
         System.out.println(clone);

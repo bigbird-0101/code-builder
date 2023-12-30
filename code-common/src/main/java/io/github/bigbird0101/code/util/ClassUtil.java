@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.util;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.URLUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,24 +37,18 @@ public class ClassUtil {
         if (clazz.isInterface()) {
             try {
                 ArrayList<Class<?>> allClass = getAllClass(clazz.getPackage().getName());
-                /**
-                 * 循环判断路径下的所有类是否实现了指定的接口 并且排除接口类自己
-                 */
-                for (int i = 0; i < allClass.size(); i++) {
-                    /**
-                     * 判断是不是同一个接口
-                     */
+                for (Class<?> aClass : allClass) {
                     // isAssignableFrom:判定此 Class 对象所表示的类或接口与指定的 Class
                     // 参数所表示的类或接口是否相同，或是否是其超类或超接口
-                    if (clazz.isAssignableFrom(allClass.get(i))) {
-                        if (!clazz.equals(allClass.get(i)) && !Modifier.isAbstract(allClass.get(i).getModifiers())) {
+                    if (clazz.isAssignableFrom(aClass)) {
+                        if (!clazz.equals(aClass) && !Modifier.isAbstract(aClass.getModifiers())) {
                             // 自身并不加进去
-                            list.add(allClass.get(i));
+                            list.add(aClass);
                         }
                     }
                 }
             } catch (Exception e) {
-                LOG.error("出现异常{} {}",e,e.getMessage());
+                LOG.error("出现异常",e);
                 throw new RuntimeException("出现异常" + e.getMessage());
             }
         }
@@ -136,8 +131,9 @@ public class ClassUtil {
      */
     private static List<String> getClassNameByFile(String filePath) {
         List<String> myClassName = new ArrayList<String>();
-        File file = new File(filePath);
-        List<File> childFiles = Stream.of(Objects.requireNonNull(file.listFiles()))
+        File file = new File(URLUtil.decode(filePath));
+        File[] listFiles = file.listFiles();
+        List<File> childFiles = Stream.of(Objects.requireNonNull(listFiles))
                 .filter(s -> !s.getAbsolutePath().endsWith("test-classes"))
                 .collect(Collectors.toList());
         for (File childFile : childFiles) {
