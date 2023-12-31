@@ -29,7 +29,7 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
     private Environment environment;
     private Document context;
     public DomHandleFunctionTemplate() {
-        this.setTemplateResolver(new SimpleTemplateResolver());
+        this.setTemplateResolver(SimpleTemplateResolver.getInstance());
     }
 
     @Override
@@ -99,12 +99,31 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
         TemplateFileClassInfo resultCache;
         DomScriptCodeNodeBuilder domScriptCodeNodeBuilder=new DomScriptCodeNodeBuilder(context);
         CodeNode source = domScriptCodeNodeBuilder.parse();
+        doSetVar(source,dataModel);
         String resultPrefix = getPrefix(source,dataModel);
         String resultSuffix = getSuffix(source,dataModel);
         Map<String, String> functionS = getFunctionS(source,dataModel);
         resultCache = doResolverAll(dataModel, resultPrefix, resultSuffix, functionS);
         this.templateFileClassInfoResolved =resultCache;
         return resultCache;
+    }
+
+    private void doSetVar(CodeNode source, Map<String, Object> dataModel) {
+        if(source instanceof MixCodeNode){
+            MixCodeNode codeSource= (MixCodeNode) source;
+            final CodeNode codeNode = codeSource.getContents().get(0);
+            if(codeNode instanceof TemplateCodeNode){
+                TemplateCodeNode templateCodeNode= (TemplateCodeNode) codeNode;
+                final CodeNode contents = templateCodeNode.getCodeNode();
+                if(contents instanceof MixCodeNode){
+                    MixCodeNode mixContent= (MixCodeNode) contents;
+                    mixContent.getContents().stream()
+                            .filter(s ->(s instanceof VarCodeNode))
+                            .map(s->(VarCodeNode)s)
+                            .forEach(s-> s.apply(getCodeNodeContext(dataModel)));
+                }
+            }
+        }
     }
 
     private DynamicCodeNodeContext getCodeNodeContext(Map<String, Object> dataModel) {

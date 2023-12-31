@@ -1,0 +1,26 @@
+package io.github.bigbird0101.code.core.template.domnode;
+
+import io.github.bigbird0101.code.core.template.resolver.SimpleTemplateResolver;
+
+/**
+ * @author bigbird-0101
+ * @version 1.0.0
+ * @since 2022-09-30 22:44:29
+ */
+public class VarCodeNode implements CodeNode {
+    private static final SimpleTemplateResolver SIMPLE_TEMPLATE_RESOLVER = SimpleTemplateResolver.getInstance();
+    private final String name;
+    private final String value;
+
+    public VarCodeNode(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    @Override
+    public boolean apply(CodeNodeContext context) {
+        String resolverValue = SIMPLE_TEMPLATE_RESOLVER.resolver(value, context.getTemplateVariable());
+        context.getTemplateVariable().put(name, resolverValue);
+        return true;
+    }
+}

@@ -1,9 +1,13 @@
 <template>
+<var name="abcd4444" value="*{tool.sub(1,*{abcdeeeee}*)}*"/>
+<var name="abcd4444gg" value="*{tool.sub(1,*{abcdeeeee}*)}*"/>
 <prefix>
     private String abcd;
     <if v-if="test=='ab'">
         ab
         <if v-if="test2=='ab'">
+        *{abcd4444}*
+        *{abcd4444gg}*
         test2ab
         </if>
     </if>
@@ -11,6 +15,8 @@
      这是上层循环*{column.name}*
 </foreach>
 <foreach v-for="column in tableInfo2.columnList">
+     *{abcd4444}*
+     *{abcd4444gg}*
      这是上层循环*{column.name}*
      <foreach v-for="list in column.list">
         这是内层循环 *{list.testa}* *{list.testb}*
@@ -33,5 +39,7 @@
         }
         return false;
     }
+    *{abcd4444}*
+    *{abcd4444gg}*
 </function>
 </template>

@@ -10,7 +10,7 @@ import java.util.Map;
  * @since 2022-09-30 23:06:36
  */
 public class DynamicCodeNodeContext implements CodeNodeContext{
-    private StringBuilder stringBuilder=new StringBuilder();
+    private final StringBuilder stringBuilder=new StringBuilder();
     private final Map<String, Object> templateVariable;
 
     private final Environment environment;

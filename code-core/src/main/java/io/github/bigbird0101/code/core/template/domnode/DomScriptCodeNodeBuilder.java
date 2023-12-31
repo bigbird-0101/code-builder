@@ -69,7 +69,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
         /**
          * template节点
          */
-        String TEMPALTE="template";
+        String TEMPLATE ="template";
         /**
          * 构建 具体的{@link CodeNode} 并且加入到整体的contents当中
          * @param node 需要解析的节点
@@ -281,7 +281,22 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
 
         @Override
         public String getType() {
-            return TEMPALTE;
+            return TEMPLATE;
+        }
+    }
+
+    public static class VarCodeNodeHandler implements CodeNodeHandler{
+        @Override
+        public void handleNode(Node node, List<CodeNode> contents) {
+            final String name = getAttributeOrDefault(node.getAttributes(),"name","var not get name error");
+            final String value = getAttributeOrThrow(node.getAttributes(),"value","var not get value error");
+            VarCodeNode varCodeNode=new VarCodeNode(name,value);
+            contents.add(varCodeNode);
+        }
+
+        @Override
+        public String getType() {
+            return "var";
         }
     }
 

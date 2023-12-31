@@ -74,6 +74,7 @@ public class DomScriptCodeNodeBuilderTest2 {
         jsonObject.put("tableComment","TestA");
         Map<String,Object> map=new HashMap<>();
         map.put("tableInfo2", jsonObject);
+        map.put("abcdeeeee", "123abdcd");
         map.put("test","ab");
         map.put("test2","ab");
 //        map.put("tableInfo", DbUtil.getTableInfo(DataSourceConfig.getDataSourceConfig(standardEnvironment),"tab_test", standardEnvironment));

@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.LinkedHashSet;
 
-import static io.github.bigbird0101.code.core.template.resolver.DependTemplateResolver.TEMPLATE_FUNCTION_BODY_PATTERN;
+import static io.github.bigbird0101.code.core.template.resolver.DependTemplateResolver.DEPEND_TEMPLATE_PATTERN;
 
 /**
  * @author Administrator
@@ -29,7 +29,7 @@ public class HaveDependTemplateNoHandleFunctionTemplate extends DefaultNoHandleF
 
     @Override
     public boolean doMatch(String content) {
-        return ReUtil.isMatch(TEMPLATE_FUNCTION_BODY_PATTERN,content);
+        return ReUtil.isMatch(DEPEND_TEMPLATE_PATTERN,content);
     }
 
     @Override

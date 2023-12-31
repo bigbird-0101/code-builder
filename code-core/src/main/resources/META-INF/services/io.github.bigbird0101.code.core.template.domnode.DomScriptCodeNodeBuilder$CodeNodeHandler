@@ -7,3 +7,4 @@ io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$Templa
 io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$ChooseCodeNodeHandler
 io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$WhenCodeNodeHandler
 io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$OtherwiseCodeNodeHandler
+io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder$VarCodeNodeHandler

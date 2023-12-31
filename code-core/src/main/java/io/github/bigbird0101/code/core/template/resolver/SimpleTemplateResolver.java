@@ -28,4 +28,8 @@ public class SimpleTemplateResolver extends DefaultTemplateResolver {
         }
         return tempResult;
     }
+
+    public static SimpleTemplateResolver getInstance(){
+        return new SimpleTemplateResolver();
+    }
 }

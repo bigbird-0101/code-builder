@@ -16,7 +16,7 @@ import java.util.Set;
  * @since 2022-10-01 21:50:45
  */
 public class ForeachCodeNode implements CodeNode{
-    private static final SimpleTemplateResolver SIMPLE_TEMPLATE_RESOLVER =new SimpleTemplateResolver();
+    private static final SimpleTemplateResolver SIMPLE_TEMPLATE_RESOLVER =SimpleTemplateResolver.getInstance();
     public static final String ITEM_INDEX_PREFIX="_foreach_";
     private final CodeNode contents;
 
@@ -124,7 +124,7 @@ public class ForeachCodeNode implements CodeNode{
             final Set<String> templateVariableKey = SIMPLE_TEMPLATE_RESOLVER.getTemplateVariableKey(code);
             String result=code;
             for (String templateVariable : templateVariableKey) {
-                if(!itemizeItemStart(templateVariable)) {
+                if(!itemizeItemStart(templateVariable)&&templateVariable.startsWith(item)) {
                     result = SIMPLE_TEMPLATE_RESOLVER.replaceFirstVariable(result, templateVariable, itemizeItemStart(item, uniqueNumber));
                 }
             }

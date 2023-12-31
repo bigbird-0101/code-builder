@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.LinkedHashSet;
 
-import static io.github.bigbird0101.code.core.template.AbstractTemplateResolver.templateFunctionBodyPattern;
 import static io.github.bigbird0101.code.core.template.resolver.DependTemplateResolver.DEPEND_TEMPLATE_PATTERN;
 
 /**
@@ -15,8 +14,8 @@ import static io.github.bigbird0101.code.core.template.resolver.DependTemplateRe
  * @author Administrator
  */
 @JSONType(serializer = AbstractTemplate.TemplateSerializer.class)
-public class HaveDependTemplateHandleFunctionTemplate extends DefaultHandleFunctionTemplate implements HaveDependTemplate{
-    private static final Logger LOGGER = LogManager.getLogger(HaveDependTemplateHandleFunctionTemplate.class);
+public class HaveDependTemplateDomHandleFunctionTemplate extends DomHandleFunctionTemplate implements HaveDependTemplate{
+    private static final Logger LOGGER = LogManager.getLogger(HaveDependTemplateDomHandleFunctionTemplate.class);
 
     private LinkedHashSet<String> dependTemplates;
 
@@ -29,11 +28,18 @@ public class HaveDependTemplateHandleFunctionTemplate extends DefaultHandleFunct
         this.dependTemplates = dependTemplates;
     }
 
-    public HaveDependTemplateHandleFunctionTemplate(){
+    public HaveDependTemplateDomHandleFunctionTemplate(){
     }
 
     @Override
     public boolean doMatch(String content) {
-        return ReUtil.isMatch(templateFunctionBodyPattern, content) && ReUtil.isMatch(DEPEND_TEMPLATE_PATTERN,content);
+        return ReUtil.isMatch(DEPEND_TEMPLATE_PATTERN,content) &&
+                ReUtil.isMatch(DOM_MATCH_RULE_TEMPLATE, content) &&
+                ReUtil.isMatch(DOM_MATCH_RULE,content);
+    }
+
+    @Override
+    public int getOrder() {
+        return 480;
     }
 }

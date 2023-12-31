@@ -99,7 +99,7 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
         ;
 
         private TemplateContext templateContext;
-        private String value;
+        private final String value;
         public String getValue() {
             return value;
         }
@@ -133,7 +133,7 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
     }
 
     private static final String LANG_NAME="depend";
-    public static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*"+ AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\[\\s*(?<index>.*?)\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\s*\\)??\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
+    public static final Pattern DEPEND_TEMPLATE_PATTERN = Pattern.compile("(\\s*"+ AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\[\\s*(?<index>.*?)\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\s*\\)??\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
     protected static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*\\[\\s*.*?\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\)?\\s*)", Pattern.DOTALL);
     private final Set<Pattern> excludeVariablePatten=new HashSet<>(Collections.singletonList(TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
 
@@ -154,7 +154,7 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
 
     @Override
     public boolean matchLangResolver(String srcData) {
-        return TEMPLATE_FUNCTION_BODY_PATTERN.matcher(srcData).find();
+        return DEPEND_TEMPLATE_PATTERN.matcher(srcData).find();
     }
 
     /**
@@ -165,7 +165,7 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
      */
     @Override
     public String langResolver(String srcData, Map<String, Object> dataModal) throws TemplateResolveException {
-        Matcher matcher= TEMPLATE_FUNCTION_BODY_PATTERN.matcher(srcData);
+        Matcher matcher= DEPEND_TEMPLATE_PATTERN.matcher(srcData);
         String result="";
         while(matcher.find()){
             String function = matcher.group("function");

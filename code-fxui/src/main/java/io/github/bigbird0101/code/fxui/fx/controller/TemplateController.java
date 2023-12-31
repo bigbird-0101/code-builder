@@ -43,7 +43,7 @@ import java.util.stream.Stream;
  * @author Administrator
  */
 public class TemplateController extends TemplateContextProvider implements Initializable {
-    private static Logger logger= LogManager.getLogger(TemplateController.class);
+    private static final Logger logger= LogManager.getLogger(TemplateController.class);
 
     @FXML
     TextArea projectUrl;

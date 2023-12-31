@@ -28,7 +28,7 @@ import static io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemp
 @JSONType(serializer = AbstractTemplate.TemplateSerializer.class)
 public class DomNoHandleFunctionTemplate extends DefaultNoHandleFunctionTemplate implements EnvironmentAware {
     public DomNoHandleFunctionTemplate() {
-        this.setTemplateResolver(new SimpleTemplateResolver());
+        this.setTemplateResolver(SimpleTemplateResolver.getInstance());
     }
     private CodeNode source;
     private Environment environment;
