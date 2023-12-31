@@ -47,6 +47,7 @@ class DomNoHandleFunctionTemplateTest {
         TableInfo tableInfo = RandomUtils.randomPojo(TableInfo.class);
         tableInfo.setColumnList(columnInfos);
         dataModel.put("tableInfo",tableInfo);
+        dataModel.put("abcdeeeee", "123abdcd");
         final String templateResult = dao.process(dataModel);
         Assertions.assertNotNull(templateResult);
     }

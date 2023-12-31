@@ -1,4 +1,6 @@
 <template>
+<var name="abcd4444" value="*{tool.sub(1,*{abcdeeeee}*)}*"/>
+<var name="abcd4444gg" value="*{tool.sub(1,*{abcdeeeee}*)}*"/>
 package *{packageName}*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +27,11 @@ import static com.baomidou.mybatisplus.annotation.FieldFill.INSERT_UPDATE;
 @AllArgsConstructor
 @TableName(value = "*{tableInfo.tableName}*")
 public class *{tableInfo.domainName}* implements Serializable{
-
+    *{abcd4444}*
+    *{abcd4444gg}*
     <foreach v-for="column in tableInfo.columnList">
+    *{abcd4444}*
+    *{abcd4444gg}*
     /**
       * *{column.comment}*
       */
@@ -34,6 +39,8 @@ public class *{tableInfo.domainName}* implements Serializable{
     <when test="column.name=='id'">
     @TableId(value = "*{column.name}*", type = IdType.AUTO)
     private Long id;
+    *{abcd4444}*
+    *{abcd4444gg}*
     </when>
     <when test="column.name=='create_time'">
     @TableField(value = "create_time",fill = INSERT)
@@ -50,6 +57,8 @@ public class *{tableInfo.domainName}* implements Serializable{
     <otherwise>
     @TableField(value = "*{column.name}*")
     private *{column.javaType}* *{column.domainPropertyName}*;
+    *{abcd4444}*
+    *{abcd4444gg}*
     </otherwise>
     </choose>
     </foreach>
