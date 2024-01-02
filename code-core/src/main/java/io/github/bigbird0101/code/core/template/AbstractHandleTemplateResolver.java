@@ -44,22 +44,22 @@ public abstract class AbstractHandleTemplateResolver extends AbstractTemplateRes
     /**
      * 获取方法体的正则
      */
-    protected static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(" + TEMPLATE_VARIABLE_PREFIX + "\\s*?" + FUNCTION_BODY_BETWEEN_SPLIT + "\\s*?" + TEMPLATE_VARIABLE_SUFFIX + ")(?<title>.*?)(" + TEMPLATE_VARIABLE_PREFIX + "\\s*?/" + FUNCTION_BODY_BETWEEN_SPLIT + "\\s*?" + TEMPLATE_VARIABLE_SUFFIX + ")", Pattern.DOTALL);
+    protected static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(" + TEMPLATE_VARIABLE_PREFIX_ESCAPE + "\\s*?" + FUNCTION_BODY_BETWEEN_SPLIT + "\\s*?" + TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")(?<title>.*?)(" + TEMPLATE_VARIABLE_PREFIX_ESCAPE + "\\s*?/" + FUNCTION_BODY_BETWEEN_SPLIT + "\\s*?" + TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")", Pattern.DOTALL);
 
     /**
      * 获取前缀的正则
      */
-    protected static final Pattern TEMPLATE_PREFIX_PATTERN = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX + TEMPLATE_PREFIX_SPLIT + TEMPLATE_VARIABLE_SUFFIX + ")(.*)(?=" + TEMPLATE_VARIABLE_PREFIX + ".*/" + TEMPLATE_PREFIX_SPLIT + ".*" + TEMPLATE_VARIABLE_SUFFIX + ")", Pattern.DOTALL);
+    protected static final Pattern TEMPLATE_PREFIX_PATTERN = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX_ESCAPE + TEMPLATE_PREFIX_SPLIT + TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")(.*)(?=" + TEMPLATE_VARIABLE_PREFIX_ESCAPE + ".*/" + TEMPLATE_PREFIX_SPLIT + ".*" + TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")", Pattern.DOTALL);
 
     /**
      * 获取后缀的正则
      */
-    protected static final Pattern TEMPLATE_SUFFIX_PATTERN = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX + TEMPLATE_SUFFIX_SPLIT + TEMPLATE_VARIABLE_SUFFIX + ")(.*)(?=" + TEMPLATE_VARIABLE_PREFIX + ".*/" + TEMPLATE_SUFFIX_SPLIT + ".*" + TEMPLATE_VARIABLE_SUFFIX + ")", Pattern.DOTALL);
+    protected static final Pattern TEMPLATE_SUFFIX_PATTERN = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX_ESCAPE + TEMPLATE_SUFFIX_SPLIT + TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")(.*)(?=" + TEMPLATE_VARIABLE_PREFIX_ESCAPE + ".*/" + TEMPLATE_SUFFIX_SPLIT + ".*" + TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")", Pattern.DOTALL);
 
     /**
      * 方法名的前缀
      */
-    protected static final Pattern TEMPLATE_FUNCTION_NAME_PREFIX_SUFFIX_PATTERN = Pattern.compile("(\\s*(?<bodyPrefix>.*?)" + TEMPLATE_VARIABLE_PREFIX+")(.*)(?="+TEMPLATE_VARIABLE_SUFFIX+"(?<bodySuffix>.*)\\s*)", Pattern.DOTALL);
+    protected static final Pattern TEMPLATE_FUNCTION_NAME_PREFIX_SUFFIX_PATTERN = Pattern.compile("(\\s*(?<bodyPrefix>.*?)" + TEMPLATE_VARIABLE_PREFIX_ESCAPE +")(.*)(?="+ TEMPLATE_VARIABLE_SUFFIX_ESCAPE +"(?<bodySuffix>.*)\\s*)", Pattern.DOTALL);
 
     public AbstractHandleTemplateResolver() throws CodeConfigException {
     }

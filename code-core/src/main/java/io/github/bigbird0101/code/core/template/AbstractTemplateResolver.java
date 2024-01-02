@@ -35,13 +35,25 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
      * 模板变量的前缀标识
      * 模板变量使用 {{变量名}}
      */
-    public static final String TEMPLATE_VARIABLE_PREFIX = "\\*\\{";
+    public static final String TEMPLATE_VARIABLE_PREFIX_ESCAPE = "\\*\\{";
+
+    /**
+     * 模板变量的前缀标识
+     * 模板变量使用 {{变量名}}
+     */
+    public static final String TEMPLATE_VARIABLE_PREFIX = "*{";
 
     /**
      * 模板变量的后缀标识
      * 模板变量使用 {{变量名}}
      */
-    public static final String TEMPLATE_VARIABLE_SUFFIX = "\\}\\*";
+    public static final String TEMPLATE_VARIABLE_SUFFIX = "}*";
+
+    /**
+     * 模板变量的后缀标识
+     * 模板变量使用 {{变量名}}
+     */
+    public static final String TEMPLATE_VARIABLE_SUFFIX_ESCAPE = "\\}\\*";
 
     /**
      * 变量key pattern group
@@ -51,7 +63,8 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
     /**
      * 获取模板变量{{}}的key值
      */
-    public static final Pattern TEMPLATE_VARIABLE_KEY_PATTERN = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX + ")(?<"+TEMPLATE_VARIABLE_KEY+">.*?)(?=" + TEMPLATE_VARIABLE_SUFFIX + ")");
+    public static final Pattern TEMPLATE_VARIABLE_KEY_PATTERN = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX_ESCAPE + ")(?<"+TEMPLATE_VARIABLE_KEY+">.*?)(?=" + TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")");
+    public static final Pattern TEMPLATE_VARIABLE_KEY_PATTERN_NO_LAZY = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX_ESCAPE + ")(?<"+TEMPLATE_VARIABLE_KEY+">.*)(?=" + TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")");
 
 
     private List<TemplateLangResolver> templateLangResolverList;
@@ -212,7 +225,7 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
      * @return 获取字符串中模板变量{{}}中的值
      */
     public Set<String> getTemplateVariableKeyIncludeTool(String srcStr) {
-        Matcher matcher = TEMPLATE_VARIABLE_KEY_PATTERN.matcher(srcStr);
+        Matcher matcher = TEMPLATE_VARIABLE_KEY_PATTERN_NO_LAZY.matcher(srcStr);
         Set<String> result = new HashSet<>(10);
         while (matcher.find()) {
             String key = matcher.group(TEMPLATE_VARIABLE_KEY);
@@ -221,7 +234,7 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
                 result.add(key);
             }else{
                 getToolTemplateLangResolver()
-                        .ifPresent(s-> result.addAll(s.getToolTemplateVariableKey(key)));
+                        .ifPresent(s-> result.addAll(s.getToolTemplateVariableKey(getTemplateVariableFormat(key))));
             }
         }
         return result;
@@ -265,7 +278,7 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
         for (Map.Entry<String, Object> entryReplace : replaceKeyValue.entrySet()) {
             String key = entryReplace.getKey();
             Object value = entryReplace.getValue();
-            String tempRule = "(" + TEMPLATE_VARIABLE_PREFIX + ")(" + key + ")(" + TEMPLATE_VARIABLE_SUFFIX + ")";
+            String tempRule = "(" + TEMPLATE_VARIABLE_PREFIX_ESCAPE + ")(" + key + ")(" + TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")";
             boolean isExclude = excludeCheckTemplateVariableKey(key);
             if (isExclude) {
                 replaceTargetS = replaceTargetS.replaceAll(key, String.valueOf(value));
@@ -309,12 +322,17 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
                 s-> doBuildCompleteVariable(targetVariable+ DOT+variableSuffix));
     }
 
-    private static String doBuildCompleteVariable(String variableKey) {
-        return StrUtil.format("{}{}{}", TEMPLATE_VARIABLE_PREFIX, variableKey, TEMPLATE_VARIABLE_SUFFIX);
+    private String doBuildCompleteVariable(String variableKey) {
+        return StrUtil.format("{}{}{}", TEMPLATE_VARIABLE_PREFIX_ESCAPE, variableKey, TEMPLATE_VARIABLE_SUFFIX_ESCAPE);
     }
 
-    public static String getTemplateVariableFormat(String str){
-        return TEMPLATE_VARIABLE_PREFIX+str+TEMPLATE_VARIABLE_SUFFIX;
+    public String getTemplateVariableEscapeFormat(String str){
+        return TEMPLATE_VARIABLE_PREFIX_ESCAPE +str+ TEMPLATE_VARIABLE_SUFFIX_ESCAPE;
     }
+
+    public String getTemplateVariableFormat(String str){
+        return TEMPLATE_VARIABLE_PREFIX +str+ TEMPLATE_VARIABLE_SUFFIX;
+    }
+
 
 }

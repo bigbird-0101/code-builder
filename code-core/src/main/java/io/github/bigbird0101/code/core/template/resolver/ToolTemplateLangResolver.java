@@ -235,7 +235,7 @@ public class ToolTemplateLangResolver extends AbstractTemplateLangResolver imple
     }
 
     private static final String LANG_NAME="tool";
-    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*"+ AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*\\)\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
+    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*"+ AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE +"\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*\\)\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE +"\\s*)", Pattern.DOTALL);
     public static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*)", Pattern.DOTALL);
     private final Set<Pattern> excludeVariablePatten=new HashSet<>(Collections.singletonList(TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
 
@@ -285,7 +285,8 @@ public class ToolTemplateLangResolver extends AbstractTemplateLangResolver imple
                     Object objectTarget;
                     objectTarget = Utils.getTargetObject(dataModal, variableKey);
                     if (objectTarget instanceof String) {
-                        realTitle = titleBuilder.toString().replaceAll(AbstractTemplateResolver.getTemplateVariableFormat(variableKey), (String) objectTarget);
+                        realTitle = titleBuilder.toString().replaceAll(((AbstractTemplateResolver)getTemplateResolver())
+                                .getTemplateVariableEscapeFormat(variableKey), (String) objectTarget);
                     } else {
                         realTitle = getLangBodyResult(objectTarget, titleBuilder.toString(), variableKey.split("\\.")[0]);
                     }

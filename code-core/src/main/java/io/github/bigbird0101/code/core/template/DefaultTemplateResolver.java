@@ -33,7 +33,7 @@ public class DefaultTemplateResolver extends AbstractHandleTemplateResolver {
      */
     @Override
     public String resolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
-        srcData=srcData.replaceAll(AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX,"");
+        srcData=srcData.replaceAll(AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE +AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE,"");
         String tempResult=this.replace(replaceKeyValue, doResolver(srcData,replaceKeyValue));
         Set<String>  templateVariableKeySet=getTemplateVariableKey(tempResult);
         for (Map.Entry<String, Object> next : replaceKeyValue.entrySet()) {

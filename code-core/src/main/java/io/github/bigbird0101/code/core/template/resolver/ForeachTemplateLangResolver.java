@@ -34,7 +34,7 @@ public class ForeachTemplateLangResolver extends AbstractTemplateLangResolver {
         this.resolverName=LANG_NAME;
     }
 
-    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX + "\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\'](\\s*?)(trim=[\"|\'](?<trimValue>.*?)[\"|\'])?(\\s*?)" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX + ")(?<body>.*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX + "\\s*/"+LANG_NAME+"\\s*" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX + ")(\\s*?)", Pattern.DOTALL);
+    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE + "\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\'](\\s*?)(trim=[\"|\'](?<trimValue>.*?)[\"|\'])?(\\s*?)" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")(?<body>.*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE + "\\s*/"+LANG_NAME+"\\s*" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")(\\s*?)", Pattern.DOTALL);
     private static final Pattern TEMPLATE_GRAMMAR_PATTERN_PREFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\'])(\\s*?)(trim=[\"|\'](?<trimValue>.*?)[\"|\'])?(\\s*?)", Pattern.DOTALL);
     private static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*/"+LANG_NAME+"\\s*)", Pattern.DOTALL);
     private final Set<Pattern> excludeVariablePatten=new HashSet<>(Arrays.asList(TEMPLATE_GRAMMAR_PATTERN_PREFIX, TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
