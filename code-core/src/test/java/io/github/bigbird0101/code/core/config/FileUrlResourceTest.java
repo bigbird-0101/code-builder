@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @version 1.0.0
  * @since 2022-11-06 16:59:31
  */
-class FileUrlResourceTest2 {
+class FileUrlResourceTest {
     @Test
     public void test() throws IOException {
         URL resource = ResourceUtil.getResource("template/testCodeNodeXml.template");

@@ -152,7 +152,12 @@ public class ComplexController extends TemplateContextProvider implements Initia
             listViewTemplate.getSelectionModel().select(0);
         }
         listViewTemplate.requestFocus();
-        USER_OPERATE_CACHE.setTemplateNameSelected(listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText());
+        TreeItem<Label> selectedItem = listViewTemplate.getSelectionModel().getSelectedItem();
+        if(null!=selectedItem) {
+            USER_OPERATE_CACHE.setTemplateNameSelected(selectedItem.getValue().getText());
+        }else{
+            logger.warn("templateNameSelected is null");
+        }
         doSelectMultiple();
         listViewTemplate.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (null != newValue && !newValue.isLeaf()) {

@@ -142,6 +142,9 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     protected void doInitView() throws IOException {
         initTemplateConfig();
         String templateNameSelected = CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected();
+        if(null==templateNameSelected){
+            return;
+        }
         MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(templateNameSelected);
         if (null != multipleTemplate) {
             int size = 1;
@@ -178,7 +181,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 selectTemplateGroup.forEach((k,v)->{
                     try {
                         final MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(k);
-                        final Set<String> templateNames = multipleTemplate.getTemplates().stream().map(Template::getTemplateName).collect(Collectors.toSet());
+                        final Set<String> templateNames = multipleTemplate.getTemplates()
+                                .stream().map(Template::getTemplateName).collect(Collectors.toSet());
                         final Set<String> strings = v.keySet();
                         final Collection<String> subtract = CollUtil.subtract(strings, templateNames);
                         for (String templateName : subtract) {

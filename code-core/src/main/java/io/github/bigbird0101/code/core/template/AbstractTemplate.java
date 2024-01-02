@@ -11,7 +11,6 @@ import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.config.Resource;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
-import io.github.bigbird0101.code.core.template.resolver.DefaultTemplateResolver;
 import io.github.bigbird0101.code.core.template.targetfile.DefaultTargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;

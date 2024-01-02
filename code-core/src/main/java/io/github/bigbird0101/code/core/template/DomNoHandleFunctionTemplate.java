@@ -10,7 +10,6 @@ import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.template.domnode.CodeNode;
 import io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder;
 import io.github.bigbird0101.code.core.template.domnode.DynamicCodeNodeContext;
-import io.github.bigbird0101.code.core.template.resolver.SimpleTemplateResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 
 import java.io.FileNotFoundException;

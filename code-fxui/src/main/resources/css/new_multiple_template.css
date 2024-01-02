@@ -3,8 +3,7 @@ VBox{
     -fx-alignment:TOP_CENTER;
 }
 #templateBox{
-    -fx-padding: 10;
-    -fx-spacing: 10;
+    -fx-padding: 10 0 0 0;
 }
 HBox > ScrollPane{
     -fx-padding:10;

@@ -5,7 +5,7 @@ import io.github.bigbird0101.code.core.config.StandardEnvironment;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import io.github.bigbird0101.code.core.domain.TableInfo;
 import io.github.bigbird0101.code.core.factory.TemplateDefinitionBuilder;
-import io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilderTest2;
+import io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilderTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +29,7 @@ class DomNoHandleFunctionTemplateTest {
    genericTemplateContext.registerTemplateDefinition(testConfigTemplateResource, TemplateDefinitionBuilder.build(
            DomNoHandleFunctionTemplate.class, "template/testCodeNodeXml.template"));
    final Template dao = genericTemplateContext.getTemplate("testCodeNodeXml");
-     Map<String, Object> dataModel = new HashMap<>(DomScriptCodeNodeBuilderTest2.doBuildData(environment));
+     Map<String, Object> dataModel = new HashMap<>(DomScriptCodeNodeBuilderTest.doBuildData(environment));
    final String templateResult = dao.process(dataModel);
    Assertions.assertNotNull(templateResult);
  }

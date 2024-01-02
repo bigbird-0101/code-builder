@@ -5,7 +5,7 @@ import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextAware;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
-import io.github.bigbird0101.code.core.template.resolver.ToolTemplateResolver;
+import io.github.bigbird0101.code.core.template.resolver.ToolTemplateLangResolver;
 import io.github.bigbird0101.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,11 +32,6 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
     protected static final String CONFIG_TEMPLATE_RESOLVERS="code.project.file.template-lang-resolver";
 
     /**
-     * 方法名之间的标识
-     */
-    protected static final String FUNCTION_NAME_BETWEEN_SPLIT = "$";
-
-    /**
      * 模板变量的前缀标识
      * 模板变量使用 {{变量名}}
      */
@@ -49,49 +44,14 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
     public static final String TEMPLATE_VARIABLE_SUFFIX = "\\}\\*";
 
     /**
-     * 整个方法之间的标识
+     * 变量key pattern group
      */
-    public static final String FUNCTION_BODY_BETWEEN_SPLIT = "function";
-
-    /**
-     * 整个模板前缀的标识
-     */
-    public static final String TEMPLATE_PREFIX_SPLIT = "prefix";
-
-    /**
-     * 整个模板后缀的标识
-     */
-    public static final String TEMPLATE_SUFFIX_SPLIT = "suffix";
-
-    /**
-     * 获取方法名的正则
-     */
-    protected static Pattern templateFunctionNamePattern = Pattern.compile("(?<=\\" + FUNCTION_NAME_BETWEEN_SPLIT + ")(.+?)(?=\\" + FUNCTION_NAME_BETWEEN_SPLIT + ")");
+    public static final String TEMPLATE_VARIABLE_KEY = "variableKey";
 
     /**
      * 获取模板变量{{}}的key值
      */
-    public static Pattern templateVariableKeyPattern = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX + ")(.+?)(?=" + TEMPLATE_VARIABLE_SUFFIX + ")");
-
-    /**
-     * 获取方法体的正则
-     */
-    protected static Pattern templateFunctionBodyPattern = Pattern.compile("(" + TEMPLATE_VARIABLE_PREFIX + "\\s*?" + FUNCTION_BODY_BETWEEN_SPLIT + "\\s*?" + TEMPLATE_VARIABLE_SUFFIX + ")(?<title>.*?)(" + TEMPLATE_VARIABLE_PREFIX + "\\s*?/" + FUNCTION_BODY_BETWEEN_SPLIT + "\\s*?" + TEMPLATE_VARIABLE_SUFFIX + ")", Pattern.DOTALL);
-
-    /**
-     * 获取前缀的正则
-     */
-    protected static Pattern templatePrefixPattern = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX + TEMPLATE_PREFIX_SPLIT + TEMPLATE_VARIABLE_SUFFIX + ")(.*)(?=" + TEMPLATE_VARIABLE_PREFIX + ".*/" + TEMPLATE_PREFIX_SPLIT + ".*" + TEMPLATE_VARIABLE_SUFFIX + ")", Pattern.DOTALL);
-
-    /**
-     * 获取后缀的正则
-     */
-    protected static Pattern templateSuffixPattern = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX + TEMPLATE_SUFFIX_SPLIT + TEMPLATE_VARIABLE_SUFFIX + ")(.*)(?=" + TEMPLATE_VARIABLE_PREFIX + ".*/" + TEMPLATE_SUFFIX_SPLIT + ".*" + TEMPLATE_VARIABLE_SUFFIX + ")", Pattern.DOTALL);
-
-    /**
-     * 方法名的前缀
-     */
-    protected static Pattern templateFunctionNamePrefixSuffixPattern = Pattern.compile("(\\s*(?<bodyPrefix>.*?)" + TEMPLATE_VARIABLE_PREFIX+")(.*)(?="+TEMPLATE_VARIABLE_SUFFIX+"(?<bodySuffix>.*)\\s*)", Pattern.DOTALL);
+    public static final Pattern TEMPLATE_VARIABLE_KEY_PATTERN = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX + ")(?<"+TEMPLATE_VARIABLE_KEY+">.*?)(?=" + TEMPLATE_VARIABLE_SUFFIX + ")");
 
 
     private List<TemplateLangResolver> templateLangResolverList;
@@ -159,7 +119,7 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
                         throw new CodeConfigException(classNameLangResolver+"类文件对象实例化异常");
                     }
                 }
-                this.templateLangResolverList.add(new ToolTemplateResolver(this));
+                this.templateLangResolverList.add(new ToolTemplateLangResolver(this));
             }
         }
     }
@@ -229,17 +189,17 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
     /**
      * 获取字符串中模板变量{{}}中的值
      *
-     * @param srcStr
+     * @param srcStr srcStr
      * @return
      */
     @Override
     public Set<String> getTemplateVariableKey(String srcStr) {
-        Matcher matcher = AbstractTemplateResolver.templateVariableKeyPattern.matcher(srcStr);
+        Matcher matcher = TEMPLATE_VARIABLE_KEY_PATTERN.matcher(srcStr);
         Set<String> result = new HashSet<>(10);
         while (matcher.find()) {
-            String key = matcher.group();
+            String key = matcher.group(TEMPLATE_VARIABLE_KEY);
             //过滤掉工具解析
-            if (!ToolTemplateResolver.templateGrammarPatternSuffix.matcher(key).find()) {
+            if (!ToolTemplateLangResolver.TEMPLATE_GRAMMAR_PATTERN_SUFFIX.matcher(key).find()) {
                 result.add(key);
             }
         }
@@ -247,9 +207,36 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
     }
 
     /**
+     * 获取字符串中模板变量{{}}中的值 包含tool工具当中的变量
+     * @param srcStr srcStr
+     * @return 获取字符串中模板变量{{}}中的值
+     */
+    public Set<String> getTemplateVariableKeyIncludeTool(String srcStr) {
+        Matcher matcher = TEMPLATE_VARIABLE_KEY_PATTERN.matcher(srcStr);
+        Set<String> result = new HashSet<>(10);
+        while (matcher.find()) {
+            String key = matcher.group(TEMPLATE_VARIABLE_KEY);
+            //过滤掉工具解析
+            if (!ToolTemplateLangResolver.TEMPLATE_GRAMMAR_PATTERN_SUFFIX.matcher(key).find()) {
+                result.add(key);
+            }else{
+                getToolTemplateLangResolver()
+                        .ifPresent(s-> result.addAll(s.getToolTemplateVariableKey(key)));
+            }
+        }
+        return result;
+    }
+
+    public Optional<ToolTemplateLangResolver> getToolTemplateLangResolver(){
+        return getTemplateLangResolverList().stream().filter(s->s instanceof ToolTemplateLangResolver)
+                .map(s->(ToolTemplateLangResolver)s)
+                .findFirst();
+    }
+
+    /**
      * 校验模板变量中的值是否需要排除有可能是
      *
-     * @param key
+     * @param key key
      * @return
      */
     public boolean excludeCheckTemplateVariableKey(String key) {
@@ -295,9 +282,9 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
      * srcVariable=column.name
      * targetVariable=column2.name
      * 结果将等于 这是上层循环*{column2.name}*
-     * @param source
-     * @param srcVariable
-     * @param targetVariable
+     * @param source source
+     * @param srcVariable srcVariable
+     * @param targetVariable targetVariable
      * @return
      */
     public String replaceVariable(String source,String srcVariable,String targetVariable){
@@ -310,9 +297,9 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
      * srcVariable=column.name
      * targetVariable=column2
      * 结果将等于 这是上层循环*{column2.name}*
-     * @param source
-     * @param srcVariable
-     * @param targetVariable
+     * @param source source
+     * @param srcVariable srcVariable
+     * @param targetVariable targetVariable
      * @return
      */
     public String replaceFirstVariable(String source,String srcVariable,String targetVariable){

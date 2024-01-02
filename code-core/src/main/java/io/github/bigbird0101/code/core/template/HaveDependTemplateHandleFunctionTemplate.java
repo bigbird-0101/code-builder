@@ -7,8 +7,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.LinkedHashSet;
 
-import static io.github.bigbird0101.code.core.template.AbstractTemplateResolver.templateFunctionBodyPattern;
-import static io.github.bigbird0101.code.core.template.resolver.DependTemplateResolver.DEPEND_TEMPLATE_PATTERN;
+import static io.github.bigbird0101.code.core.template.AbstractHandleTemplateResolver.TEMPLATE_FUNCTION_BODY_PATTERN;
+import static io.github.bigbird0101.code.core.template.resolver.DependTemplateLangResolver.DEPEND_TEMPLATE_PATTERN;
 
 /**
  * 有依赖模板的项目模板
@@ -34,6 +34,6 @@ public class HaveDependTemplateHandleFunctionTemplate extends DefaultHandleFunct
 
     @Override
     public boolean doMatch(String content) {
-        return ReUtil.isMatch(templateFunctionBodyPattern, content) && ReUtil.isMatch(DEPEND_TEMPLATE_PATTERN,content);
+        return ReUtil.isMatch(TEMPLATE_FUNCTION_BODY_PATTERN, content) && ReUtil.isMatch(DEPEND_TEMPLATE_PATTERN,content);
     }
 }

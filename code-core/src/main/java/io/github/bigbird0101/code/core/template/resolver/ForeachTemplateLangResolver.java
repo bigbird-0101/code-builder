@@ -19,29 +19,29 @@ import static java.util.stream.Collectors.toList;
  * @author fpp
  * @version 1.0
  */
-public class ForeachTemplateResolver extends AbstractTemplateLangResolver {
+public class ForeachTemplateLangResolver extends AbstractTemplateLangResolver {
 
     private static final String LANG_NAME="foreach";
 
     private static final List<String> SPECIAL_CHARACTER_LIST = Collections.singletonList(",");
-    public ForeachTemplateResolver() {
+    public ForeachTemplateLangResolver() {
         super();
         this.resolverName=LANG_NAME;
     }
 
-    public ForeachTemplateResolver(TemplateResolver templateResolver) {
+    public ForeachTemplateLangResolver(TemplateResolver templateResolver) {
         super(templateResolver);
         this.resolverName=LANG_NAME;
     }
 
-    private static final Pattern templateFunctionBodyPattern= Pattern.compile("(\\s*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX + "\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\'](\\s*?)(trim=[\"|\'](?<trimValue>.*?)[\"|\'])?(\\s*?)" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX + ")(?<body>.*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX + "\\s*/"+LANG_NAME+"\\s*" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX + ")(\\s*?)", Pattern.DOTALL);
-    private static final Pattern templateGrammarPatternPrefix= Pattern.compile("(\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\'])(\\s*?)(trim=[\"|\'](?<trimValue>.*?)[\"|\'])?(\\s*?)", Pattern.DOTALL);
-    private static final Pattern templateGrammarPatternSuffix= Pattern.compile("(\\s*/"+LANG_NAME+"\\s*)", Pattern.DOTALL);
-    private Set<Pattern> excludeVariablePatten=new HashSet<>(Arrays.asList(templateGrammarPatternPrefix, templateGrammarPatternSuffix));
+    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX + "\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\'](\\s*?)(trim=[\"|\'](?<trimValue>.*?)[\"|\'])?(\\s*?)" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX + ")(?<body>.*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX + "\\s*/"+LANG_NAME+"\\s*" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX + ")(\\s*?)", Pattern.DOTALL);
+    private static final Pattern TEMPLATE_GRAMMAR_PATTERN_PREFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*v-for=[\"|\'](?<title>.*?)[\"|\'])(\\s*?)(trim=[\"|\'](?<trimValue>.*?)[\"|\'])?(\\s*?)", Pattern.DOTALL);
+    private static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*/"+LANG_NAME+"\\s*)", Pattern.DOTALL);
+    private final Set<Pattern> excludeVariablePatten=new HashSet<>(Arrays.asList(TEMPLATE_GRAMMAR_PATTERN_PREFIX, TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
 
     @Override
     public boolean matchLangResolver(String srcData) {
-        return templateFunctionBodyPattern.matcher(srcData).find();
+        return TEMPLATE_FUNCTION_BODY_PATTERN.matcher(srcData).find();
     }
 
     /**
@@ -53,7 +53,7 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver {
     @Override
     public String langResolver(String srcData, Map<String, Object> dataModal) throws TemplateResolveException {
         String result="";
-        Matcher matcher = templateFunctionBodyPattern.matcher(srcData);
+        Matcher matcher = TEMPLATE_FUNCTION_BODY_PATTERN.matcher(srcData);
         while (matcher.find()) {
             String forEachBody = matcher.group("body");
             String forEachTitle = matcher.group("title");
@@ -80,7 +80,7 @@ public class ForeachTemplateResolver extends AbstractTemplateLangResolver {
 
     /**
      * 去除字符串首尾两边的特殊符号
-     * @param foreachResult
+     * @param foreachResult foreachResult
      * @return
      */
     private String doRemoveTrimCharacter(String foreachResult) {

@@ -18,12 +18,12 @@ import java.util.regex.Pattern;
  * @author fpp
  * @version 1.0
  */
-public class DependTemplateResolver extends AbstractTemplateLangResolver implements TemplateContextAware {
-    private static final Logger LOGGER = LogManager.getLogger(DependTemplateResolver.class);
+public class DependTemplateLangResolver extends AbstractTemplateLangResolver implements TemplateContextAware {
+    private static final Logger LOGGER = LogManager.getLogger(DependTemplateLangResolver.class);
 
     private TemplateContext templateContext;
 
-    public DependTemplateResolver() {
+    public DependTemplateLangResolver() {
         super();
         this.resolverName=LANG_NAME;
     }
@@ -137,7 +137,7 @@ public class DependTemplateResolver extends AbstractTemplateLangResolver impleme
     protected static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*\\[\\s*.*?\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\)?\\s*)", Pattern.DOTALL);
     private final Set<Pattern> excludeVariablePatten=new HashSet<>(Collections.singletonList(TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
 
-    public DependTemplateResolver(TemplateResolver templateResolver) {
+    public DependTemplateLangResolver(TemplateResolver templateResolver) {
         super(templateResolver);
         this.resolverName=LANG_NAME;
     }

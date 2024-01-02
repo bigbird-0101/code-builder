@@ -12,7 +12,7 @@ import org.w3c.dom.NodeList;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static io.github.bigbird0101.code.core.template.AbstractTemplateResolver.*;
+import static io.github.bigbird0101.code.core.template.AbstractHandleTemplateResolver.*;
 import static java.util.stream.Collectors.toList;
 import static org.w3c.dom.Node.*;
 
@@ -88,16 +88,16 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
 
         /**
          * 设置配置信息
-         * @param properties
+         * @param properties properties
          */
         @Override
         default void setProperties(Properties properties) {}
 
         /**
          * 获取NamedNodeMap 当中的属性 如果没有获取到 就返回默认值
-         * @param namedNodeMap
-         * @param name
-         * @param defaultValue
+         * @param namedNodeMap namedNodeMap
+         * @param name name
+         * @param defaultValue defaultValue
          * @return
          */
         default String getAttributeOrDefault(NamedNodeMap namedNodeMap, String name, String defaultValue){
@@ -107,9 +107,9 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
 
         /**
          * 获取NamedNodeMap 当中的属性 如果没有获取到 就抛出异常
-         * @param namedNodeMap
-         * @param name
-         * @param errorMsg
+         * @param namedNodeMap namedNodeMap
+         * @param name name
+         * @param errorMsg errorMsg
          * @return
          */
         default String getAttributeOrThrow(NamedNodeMap namedNodeMap, String name, String errorMsg){

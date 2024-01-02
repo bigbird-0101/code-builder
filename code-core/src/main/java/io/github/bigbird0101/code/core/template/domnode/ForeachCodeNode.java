@@ -2,7 +2,7 @@ package io.github.bigbird0101.code.core.template.domnode;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import io.github.bigbird0101.code.core.template.resolver.SimpleTemplateResolver;
+import io.github.bigbird0101.code.core.template.SimpleTemplateResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.util.Utils;
 
@@ -121,7 +121,7 @@ public class ForeachCodeNode implements CodeNode{
 
         @Override
         public void appendCode(String code) {
-            final Set<String> templateVariableKey = SIMPLE_TEMPLATE_RESOLVER.getTemplateVariableKey(code);
+            final Set<String> templateVariableKey = SIMPLE_TEMPLATE_RESOLVER.getTemplateVariableKeyIncludeTool(code);
             String result=code;
             for (String templateVariable : templateVariableKey) {
                 if(!itemizeItemStart(templateVariable)&&templateVariable.startsWith(item)) {

@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.core.template;
 
+import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.XmlUtil;
@@ -10,11 +11,9 @@ import io.github.bigbird0101.code.core.config.aware.EnvironmentAware;
 import io.github.bigbird0101.code.core.domain.TemplateFileClassInfo;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.template.domnode.*;
-import io.github.bigbird0101.code.core.template.resolver.SimpleTemplateResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import org.w3c.dom.*;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,10 +42,11 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
                 NodeList functionNodes = rootDocument.getElementsByTagName("function");
                 this.templateFileClassInfoNoResolve = new TemplateFileClassInfo(getPrefix(prefixNode), getSuffix(suffixNode),
                         getFunctionS(functionNodes));
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 throw new CodeConfigException(e);
-            } catch (UtilException | IOException ed) {
-                throw new TemplateResolveException("dom {} template Resolve error {}",getTemplateName(),ed.getMessage());
+            } catch (UtilException ed) {
+                Throwable rootCause = ExceptionUtil.getRootCause(ed);
+                throw new TemplateResolveException("dom {} template Resolve error {},line:",getTemplateName(),rootCause.toString());
             }
         }
         resolverResultCache.clear();
@@ -201,11 +201,6 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
             }
         }
         throw new TemplateResolveException("not support {} code node,except code node is mix",source.getClass().getSimpleName());
-    }
-
-    @Override
-    public TemplateResolver getTemplateResolver() {
-        return super.getTemplateResolver();
     }
 
     @Override

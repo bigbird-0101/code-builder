@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.LinkedHashSet;
 
-import static io.github.bigbird0101.code.core.template.resolver.DependTemplateResolver.DEPEND_TEMPLATE_PATTERN;
+import static io.github.bigbird0101.code.core.template.resolver.DependTemplateLangResolver.DEPEND_TEMPLATE_PATTERN;
 
 /**
  * @author Administrator

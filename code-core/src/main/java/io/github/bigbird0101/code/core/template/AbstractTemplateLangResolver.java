@@ -57,32 +57,27 @@ public abstract class AbstractTemplateLangResolver implements TemplateLangResolv
         if(targetObject instanceof Collection){
             Collection<?> collection= (Collection<?>) targetObject;
             for(Object object:collection){
-                HashMap<String,Object> replaceKey=new HashMap<>();
-                replaceKey.put(targetObjectKey,object);
-                String replaceResult=this.templateResolver.resolver(body,replaceKey);
-                if(StrUtil.isNotBlank(replaceResult.trim())) {
-                    stringBuilder.append(tempStamp)
-                            .append(StrUtil.removeSuffix(StrUtil.removePrefix(replaceResult,tempStamp),lastNewLineNull));
-                    if(!lastNewLineNull.contains(StrUtil.LF)) {
-                        stringBuilder.append(lastNewLineNull);
-                    }
-                }
+                append(body, targetObjectKey, stringBuilder, tempStamp, lastNewLineNull, object);
             }
         }else{
-            HashMap<String,Object> replaceKey=new HashMap<>();
-            replaceKey.put(targetObjectKey,targetObject);
-            String replaceResult=this.templateResolver.resolver(body,replaceKey);
-            if(StrUtil.isNotBlank(replaceResult.trim())) {
-                stringBuilder.append(tempStamp)
-                        .append(StrUtil.removeSuffix(StrUtil.removePrefix(replaceResult,tempStamp),lastNewLineNull));
-                if(!lastNewLineNull.contains(StrUtil.LF)) {
-                    stringBuilder.append(lastNewLineNull);
-                }
-            }
+            append(body, targetObjectKey, stringBuilder, tempStamp, lastNewLineNull, targetObject);
         }
         return stringBuilder.toString();
     }
 
+    private void append(String body, String targetObjectKey, StringBuilder stringBuilder, String tempStamp,
+                        String lastNewLineNull, Object object) {
+        HashMap<String,Object> replaceKey=new HashMap<>();
+        replaceKey.put(targetObjectKey,object);
+        String replaceResult=this.templateResolver.resolver(body,replaceKey);
+        if(StrUtil.isNotBlank(replaceResult.trim())) {
+            stringBuilder.append(tempStamp)
+                    .append(StrUtil.removeSuffix(StrUtil.removePrefix(replaceResult,tempStamp),lastNewLineNull));
+            if(!lastNewLineNull.contains(StrUtil.LF)) {
+                stringBuilder.append(lastNewLineNull);
+            }
+        }
+    }
 
 
 }

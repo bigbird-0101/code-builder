@@ -1,9 +1,7 @@
-package io.github.bigbird0101.code.core.template.resolver;
+package io.github.bigbird0101.code.core.template;
 
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
-import io.github.bigbird0101.code.core.template.AbstractTemplateResolver;
-import io.github.bigbird0101.code.core.template.TemplateLangResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 
 import java.util.Map;
@@ -14,7 +12,7 @@ import java.util.Set;
  * @author fpp
  * @version 1.0
  */
-public class DefaultTemplateResolver extends AbstractTemplateResolver {
+public class DefaultTemplateResolver extends AbstractHandleTemplateResolver {
 
 
     public DefaultTemplateResolver() throws CodeConfigException {

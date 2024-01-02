@@ -9,13 +9,13 @@ import io.github.bigbird0101.code.core.domain.DefinedFunctionDomain;
 import io.github.bigbird0101.code.core.domain.TemplateFileClassInfo;
 import io.github.bigbird0101.code.core.exception.CodeBuilderException;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
-import io.github.bigbird0101.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Matcher;
+
+import static io.github.bigbird0101.code.core.template.AbstractHandleTemplateResolver.FUNCTION_NAME_BETWEEN_SPLIT;
 
 /**
  * 需要对方法进行操作的模板
@@ -85,8 +85,8 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     /**
      * 解析模板成功之后
      *
-     * @param resultCache
-     * @param dataModel
+     * @param resultCache resultCache
+     * @param dataModel dataModel
      * @return
      */
     protected String doResolverTemplateAfter(TemplateFileClassInfo resultCache, Map<String, Object> dataModel) {
@@ -141,8 +141,8 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
         while (functionIterator.hasNext()) {
             Map.Entry<String, String> entry = functionIterator.next();
             String functionName = entry.getKey();
-            String functionBody = entry.getValue().replaceAll("\\" + AbstractTemplateResolver.FUNCTION_NAME_BETWEEN_SPLIT, "");
-            functionName = getNoResolverFunctionName(functionName);
+            String functionBody = entry.getValue().replaceAll("\\" + FUNCTION_NAME_BETWEEN_SPLIT, "");
+            functionName = getTemplateResolver().getNoResolverFunctionName(functionName);
             functionBody = getTemplateResolver().resolver(functionBody, dataModel);
             if (!tempFunctionMap.containsKey(functionName)) {
                 tempFunctionMap.put(functionName, functionBody);
@@ -164,12 +164,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      * @return 模板内容的后缀
      */
     public String getSuffix(String templateContent) {
-        Matcher matcher = AbstractTemplateResolver.templateSuffixPattern.matcher(templateContent);
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return "";
-        }
+        return getTemplateResolver().getSuffix(templateContent);
     }
 
     /**
@@ -179,12 +174,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      * @return 模板内容的后缀
      */
     public String getPrefix(String templateContent) {
-        Matcher matcher = AbstractTemplateResolver.templatePrefixPattern.matcher(templateContent);
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return "";
-        }
+        return getTemplateResolver().getPrefix(templateContent);
     }
 
 
@@ -195,17 +185,12 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
      * @return 模板方法的内容
      */
     public Map<String, String> getFunctionS(String templateContent) {
-        Matcher matcher = AbstractTemplateResolver.templateFunctionBodyPattern.matcher(templateContent);
-        Map<String, String> functions = new LinkedHashMap<>(10);
-        while (matcher.find()) {
-            String group = matcher.group("title");
-            Matcher functionNameMather = AbstractTemplateResolver.templateFunctionNamePattern.matcher(group);
-            String functionName = functionNameMather.find() ? functionNameMather.group() : "";
-            if (!Utils.isEmpty(functionName)) {
-                functions.put(functionName, group);
-            }
-        }
-        return functions;
+        return getTemplateResolver().getFunctionS(templateContent);
+    }
+
+    @Override
+    public AbstractHandleTemplateResolver getTemplateResolver() {
+        return (AbstractHandleTemplateResolver) super.getTemplateResolver();
     }
 
     public TemplateFileClassInfo getTemplateFileClassInfoWhenResolved() {
@@ -225,19 +210,9 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     public Set<String> getTemplateFunctionNameS() {
         Set<String> functionNameS=new HashSet<>(templateFileClassInfoNoResolve.getFunctionS().keySet().size());
         for(String functionName: templateFileClassInfoNoResolve.getFunctionS().keySet()){
-            functionNameS.add(getNoResolverFunctionName(functionName));
+            functionNameS.add(getTemplateResolver().getNoResolverFunctionName(functionName));
         }
         return functionNameS;
     }
 
-    public String getNoResolverFunctionName(String srcFunctionName) {
-        Matcher matcher=AbstractTemplateResolver.templateFunctionNamePrefixSuffixPattern.matcher(srcFunctionName);
-        if(matcher.find()){
-            String prefix=matcher.group("bodyPrefix");
-            String suffix=matcher.group("bodySuffix");
-            return prefix+suffix;
-        }else{
-            return srcFunctionName;
-        }
-    }
 }

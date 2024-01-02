@@ -7,7 +7,6 @@ import io.github.bigbird0101.code.util.Utils;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  *
@@ -29,7 +28,7 @@ public class ConditionJudgeSupport {
             for(String postfix:postfixExpression){
                 if(postfix.equals(key)){
                     targetKey.add(key);
-                }else if(postfix.contains(".")&&Arrays.asList(postfix.split("\\.")).contains(key)){
+                }else if(postfix.contains(".")&&StrUtil.split(postfix,StrUtil.DOT).contains(key)){
                     targetKey.add(key);
                 }
             }
@@ -69,13 +68,13 @@ public class ConditionJudgeSupport {
         List<String> tempArray;
         String title=null;
         if(str.contains(AND_STRING)) {
-            tempArray = Stream.of(str.split(AND_STRING)).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+            tempArray = StrUtil.split(str,AND_STRING).stream().filter(StrUtil::isNotBlank).collect(Collectors.toList());
             title=AND_STRING;
         }else if (str.contains(OR_STRING)){
-            tempArray = Stream.of(str.split("\\||")).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+            tempArray = StrUtil.split(str,OR_STRING).stream().filter(StrUtil::isNotBlank).collect(Collectors.toList());
             title=OR_STRING;
         }else{
-            tempArray = Stream.of(str.split(AND_STRING)).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+            tempArray = StrUtil.split(str,OR_STRING).stream().filter(StrUtil::isNotBlank).collect(Collectors.toList());
         }
         for (String content:tempArray) {
             //查看第一个是不是!不等于号
@@ -92,16 +91,16 @@ public class ConditionJudgeSupport {
                     if (splitArray.length!=2) {
                         throw new TemplateResolveException(str + "语法错误");
                     }
-                    result.add(splitArray[0]);
+                    result.add(splitArray[0].trim());
                     if(hasSpecial) {
                         result.add("!");
                     }
-                    result.add(splitArray[1]);
-                    result.add(special);
+                    result.add(splitArray[1].trim());
+                    result.add(special.trim());
                 }
             }
             if (tempSet.isEmpty()) {
-                result.add(content);
+                result.add(content.trim());
                 if(hasSpecial) {
                     result.add("!");
                 }
@@ -121,6 +120,9 @@ public class ConditionJudgeSupport {
     private  boolean computeIfPostfixExpression(PostfixExpressionModule postfixExpressionModule, Object targetObject){
         Stack<String> stack=new Stack<>();
         List<String> postfixExpression = postfixExpressionModule.getPostfixExpression();
+        if(postfixExpression.size()==1){
+            return Boolean.parseBoolean(String.valueOf(targetObject));
+        }
         String title = postfixExpressionModule.getTitle();
         for(String value:postfixExpression){
             if(!SPECIAL_SET.contains(value)&&!value.contains("!")){

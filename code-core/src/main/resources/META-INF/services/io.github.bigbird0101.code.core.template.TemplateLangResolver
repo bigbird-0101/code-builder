@@ -1,4 +1,4 @@
-io.github.bigbird0101.code.core.template.resolver.ForeachTemplateResolver
-io.github.bigbird0101.code.core.template.resolver.IfTemplateResolver
-io.github.bigbird0101.code.core.template.resolver.ToolTemplateResolver
-io.github.bigbird0101.code.core.template.resolver.DependTemplateResolver
+io.github.bigbird0101.code.core.template.resolver.ForeachTemplateLangResolver
+io.github.bigbird0101.code.core.template.resolver.IfTemplateLangResolver
+io.github.bigbird0101.code.core.template.resolver.ToolTemplateLangResolver
+io.github.bigbird0101.code.core.template.resolver.DependTemplateLangResolver

@@ -5,8 +5,8 @@ import com.alibaba.fastjson.annotation.JSONType;
 
 import java.util.regex.Pattern;
 
-import static io.github.bigbird0101.code.core.template.AbstractTemplateResolver.FUNCTION_BODY_BETWEEN_SPLIT;
-import static io.github.bigbird0101.code.core.template.AbstractTemplateResolver.templateFunctionBodyPattern;
+import static io.github.bigbird0101.code.core.template.AbstractHandleTemplateResolver.FUNCTION_BODY_BETWEEN_SPLIT;
+import static io.github.bigbird0101.code.core.template.AbstractHandleTemplateResolver.TEMPLATE_FUNCTION_BODY_PATTERN;
 import static io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder.CodeNodeHandler.TEMPLATE;
 
 /**
@@ -30,7 +30,7 @@ public class DefaultHandleFunctionTemplate extends AbstractHandleFunctionTemplat
 
     @Override
     public boolean doMatch(String content) {
-        return ReUtil.isMatch(templateFunctionBodyPattern, content);
+        return ReUtil.isMatch(TEMPLATE_FUNCTION_BODY_PATTERN, content);
     }
 
     @Override

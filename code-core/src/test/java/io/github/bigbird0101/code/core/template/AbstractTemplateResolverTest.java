@@ -1,6 +1,5 @@
 package io.github.bigbird0101.code.core.template;
 
-import io.github.bigbird0101.code.core.template.resolver.SimpleTemplateResolver;
 import org.junit.jupiter.api.Test;
 
 /**

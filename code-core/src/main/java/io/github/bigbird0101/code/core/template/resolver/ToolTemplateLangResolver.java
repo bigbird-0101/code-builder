@@ -23,27 +23,48 @@ import java.util.stream.Stream;
  * @author fpp
  * @version 1.0
  */
-public class ToolTemplateResolver extends AbstractTemplateLangResolver implements TemplateContextAware {
+public class ToolTemplateLangResolver extends AbstractTemplateLangResolver implements TemplateContextAware {
 
     private static TableInfo tableInfo;
     private static String mendFirstStr;
 
     private static TemplateContext templateContext;
 
-    public ToolTemplateResolver() {
+    public ToolTemplateLangResolver() {
         super();
         this.resolverName=LANG_NAME;
     }
 
     @Override
     public void setTemplateContext(TemplateContext templateContext) {
-        ToolTemplateResolver.templateContext =templateContext;
+        ToolTemplateLangResolver.templateContext =templateContext;
     }
 
     /**
      * 工具类方法枚举
      */
     private enum Function{
+        /**
+         * 替换字符串
+         * 用新的字符串替换allString中老的字符串
+         * tool.rep(allStr,oldStr,newStr)
+         */
+        REP("rep"){
+            @Override
+            String done(String src) {
+                final LinkedList<String> collect = Stream.of(src.split(","))
+                        .collect(Collectors.toCollection(LinkedList::new));
+                final int size = collect.size();
+                int i = 3;
+                if(size != i){
+                    throw new TemplateResolveException("tool rep method [{}],src split , size, must = 3 ",src);
+                }
+                String allString = collect.get(0);
+                String oldString = collect.get(1);
+                String newString = collect.get(2);
+                return allString.replace(oldString,newString);
+            }
+        },
         /**
          * 只允许
          * tool.sub(1,factory)  截取index 从1开始到末尾的字符串 bc
@@ -203,7 +224,7 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
 
         ;
 
-        private String value;
+        private final String value;
         public String getValue() {
             return value;
         }
@@ -214,11 +235,11 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
     }
 
     private static final String LANG_NAME="tool";
-    private static final Pattern templateFunctionBodyPattern= Pattern.compile("(\\s*"+ AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*\\)\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
-    public static final Pattern templateGrammarPatternSuffix= Pattern.compile("(\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*)", Pattern.DOTALL);
-    private Set<Pattern> excludeVariablePatten=new HashSet<>(Arrays.asList(templateGrammarPatternSuffix));
+    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*"+ AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX+"\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*\\)\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX+"\\s*)", Pattern.DOTALL);
+    public static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*)", Pattern.DOTALL);
+    private final Set<Pattern> excludeVariablePatten=new HashSet<>(Collections.singletonList(TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
 
-    public ToolTemplateResolver(TemplateResolver templateResolver) {
+    public ToolTemplateLangResolver(TemplateResolver templateResolver) {
         super(templateResolver);
         this.resolverName=LANG_NAME;
     }
@@ -235,7 +256,7 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
 
     @Override
     public boolean matchLangResolver(String srcData) {
-        return templateFunctionBodyPattern.matcher(srcData).find();
+        return TEMPLATE_FUNCTION_BODY_PATTERN.matcher(srcData).find();
     }
 
     /**
@@ -247,28 +268,29 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
     @Override
     public String langResolver(String srcData, Map<String, Object> dataModal) throws TemplateResolveException {
         tableInfo= (TableInfo) dataModal.get("tableInfo");
-        Matcher matcher=templateFunctionBodyPattern.matcher(srcData);
+        Matcher matcher= TEMPLATE_FUNCTION_BODY_PATTERN.matcher(srcData);
         String result="";
         while(matcher.find()){
             String title = matcher.group("title");
             String function = matcher.group("function");
             String all=matcher.group(0);
-            Matcher matcherTitle=AbstractTemplateResolver.templateVariableKeyPattern.matcher(title);
-            StringBuilder titleBuilder=new StringBuilder();
-            while(matcherTitle.find()){
-                String titleGroup=matcherTitle.group();
+            Set<String> variableKeySet=getTemplateResolver().getTemplateVariableKey(title);
+            StringBuilder titleBuilder=new StringBuilder(title);
+            for(String variableKey:variableKeySet){
                 String realTitle;
-                if(isMatchDependTemplate(titleGroup)){
-                    realTitle = getDependTemplateResolver().langResolver(title, dataModal);
+                if(isMatchDependTemplate(variableKey)){
+                    String finalTitle = titleBuilder.toString();
+                    realTitle = getDependTemplateResolver().map(s->s.langResolver(finalTitle, dataModal)).orElse(finalTitle);
                 }else {
                     Object objectTarget;
-                    objectTarget = Utils.getTargetObject(dataModal, titleGroup);
+                    objectTarget = Utils.getTargetObject(dataModal, variableKey);
                     if (objectTarget instanceof String) {
-                        realTitle = title.replaceAll(AbstractTemplateResolver.getTemplateVariableFormat(titleGroup), (String) objectTarget);
+                        realTitle = titleBuilder.toString().replaceAll(AbstractTemplateResolver.getTemplateVariableFormat(variableKey), (String) objectTarget);
                     } else {
-                        realTitle = getLangBodyResult(objectTarget, title, titleGroup.split("\\.")[0]);
+                        realTitle = getLangBodyResult(objectTarget, titleBuilder.toString(), variableKey.split("\\.")[0]);
                     }
                 }
+                titleBuilder.setLength(0);
                 titleBuilder.append(realTitle);
             }
             title=titleBuilder.length()==0?title:titleBuilder.toString();
@@ -282,20 +304,32 @@ public class ToolTemplateResolver extends AbstractTemplateLangResolver implement
         return Utils.isEmpty(result)?srcData:result;
     }
 
-    private DependTemplateResolver getDependTemplateResolver(){
+    public Set<String> getToolTemplateVariableKey(String src){
+        Matcher matcher= TEMPLATE_FUNCTION_BODY_PATTERN.matcher(src);
+        Set<String> set=new HashSet<>();
+        while(matcher.find()){
+            String title = matcher.group("title");
+            Set<String> templateVariableKey = getTemplateResolver().getTemplateVariableKey(title);
+            set.addAll(templateVariableKey);
+        }
+        return set;
+    }
+
+    private Optional<DependTemplateLangResolver> getDependTemplateResolver(){
         final AbstractTemplateResolver templateResolver = (AbstractTemplateResolver)getTemplateResolver();
-        return templateResolver.getTemplateLangResolverList()
-                .stream().filter(s->s instanceof DependTemplateResolver)
-                .map(s->(DependTemplateResolver)s)
-                .findFirst().orElse(null);
+        return Optional.ofNullable(templateResolver)
+                .flatMap(b -> b.getTemplateLangResolverList()
+                .stream().filter(s -> s instanceof DependTemplateLangResolver)
+                .map(s -> (DependTemplateLangResolver) s)
+                .findFirst());
     }
 
     private boolean isMatchDependTemplate(String title){
-        final DependTemplateResolver dependTemplateResolver = getDependTemplateResolver();
-        if(null==dependTemplateResolver){
-            return false;
-        }
-        return dependTemplateResolver.getExcludeVariablePatten().stream().anyMatch(s->s.matcher(title).find());
+        Optional<DependTemplateLangResolver> templateResolver = getDependTemplateResolver();
+        return templateResolver.map(dependTemplateResolver -> dependTemplateResolver.getExcludeVariablePatten()
+                .stream()
+                .anyMatch(s -> s.matcher(title).find()))
+                .orElse(false);
     }
 
     private Function checkFunction(String functionName) {

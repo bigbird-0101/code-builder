@@ -19,12 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @version 1.0.0
  * @since 2022-09-25 16:31:19
  */
-class ConfigFileTemplateVariableResourceTest2 {
+class ConfigFileTemplateVariableResourceTest {
     ConfigFileTemplateVariableResource configFileTemplateVariableResource;
     @BeforeEach
     public void before(){
         configFileTemplateVariableResource=new ConfigFileTemplateVariableResource(
-                ConfigFileTemplateVariableResourceTest2.class.getClassLoader()
+                ConfigFileTemplateVariableResourceTest.class.getClassLoader()
                         .getResourceAsStream("testTemplateVariableConfigFile.properties"));
     }
 

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @version 1.0.0
  * @since 2022-11-06 16:59:19
  */
-class PathResourceTest2 {
+class PathResourceTest {
      @Test
      public void test() throws IOException {
          String path = URLUtil.decode(ResourceUtil.getResource("template/testCodeNodeXml.template").getPath());

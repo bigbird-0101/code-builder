@@ -18,18 +18,18 @@ import java.util.regex.Pattern;
  * @version 1.0
  * @since 2020/6/11 18:42
  */
-public class IfTemplateResolver extends AbstractTemplateLangResolver {
+public class IfTemplateLangResolver extends AbstractTemplateLangResolver {
     private final ConditionJudgeSupport conditionJudgeSupport=new ConditionJudgeSupport();
 
     private static final String LANG_NAME="if";
     private final Set<Pattern> excludeVariablePatten=new HashSet<>(Arrays.asList(TEMPLATE_GRAMMAR_PATTERN_PREFIX,TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
 
-    public IfTemplateResolver() {
+    public IfTemplateLangResolver() {
         super();
         this.resolverName=LANG_NAME;
     }
 
-    public IfTemplateResolver(TemplateResolver template) {
+    public IfTemplateLangResolver(TemplateResolver template) {
         super(template);
         this.resolverName=LANG_NAME;
     }

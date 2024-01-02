@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HelloWorldTest2 {
+public class HelloWorldTest {
     @Test
     public void helloWorld() {
         StandardEnvironment environment=new StandardEnvironment();

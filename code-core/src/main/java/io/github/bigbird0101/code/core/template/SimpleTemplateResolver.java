@@ -1,6 +1,7 @@
-package io.github.bigbird0101.code.core.template.resolver;
+package io.github.bigbird0101.code.core.template;
 
-import io.github.bigbird0101.code.core.template.TemplateLangResolver;
+import io.github.bigbird0101.code.core.template.resolver.DependTemplateLangResolver;
+import io.github.bigbird0101.code.core.template.resolver.ToolTemplateLangResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class SimpleTemplateResolver extends DefaultTemplateResolver {
     protected String doResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
         String tempResult=srcData;
         final List<TemplateLangResolver> templateLangResolverList = getTemplateLangResolverList()
-                .stream().filter(s->((s instanceof ToolTemplateResolver)||s instanceof DependTemplateResolver)).collect(toList());
+                .stream().filter(s->((s instanceof ToolTemplateLangResolver)||s instanceof DependTemplateLangResolver)).collect(toList());
         for (TemplateLangResolver resolver: templateLangResolverList){
             if(resolver.matchLangResolver(tempResult)){
                 tempResult= resolver.langResolver(tempResult, replaceKeyValue);

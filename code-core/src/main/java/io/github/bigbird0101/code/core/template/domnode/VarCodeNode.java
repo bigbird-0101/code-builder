@@ -1,6 +1,6 @@
 package io.github.bigbird0101.code.core.template.domnode;
 
-import io.github.bigbird0101.code.core.template.resolver.SimpleTemplateResolver;
+import io.github.bigbird0101.code.core.template.SimpleTemplateResolver;
 
 /**
  * @author bigbird-0101
