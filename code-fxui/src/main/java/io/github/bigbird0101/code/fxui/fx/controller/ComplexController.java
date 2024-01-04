@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.thread.ThreadFactoryBuilder;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
 import cn.hutool.system.UserInfo;
@@ -48,7 +49,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -117,7 +117,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
     private List<String> tableSelected = new ArrayList<>(10);
     private static boolean isSelectedAllTable = false;
     private TextField selectedTable;
-    private final Insets insets = new Insets(0, 10, 10, 0);
     private VBox templatesOperateNode;
     private FXMLLoader templatesOperateFxmlLoader;
     final ThreadPoolExecutor DO_ANALYSIS_TEMPLATE = ExecutorBuilder.create()
@@ -173,7 +172,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
 
     private void init(){
         initView();
-        initData();
+        ThreadUtil.execute(this::initData);
     }
 
     private void initData() {

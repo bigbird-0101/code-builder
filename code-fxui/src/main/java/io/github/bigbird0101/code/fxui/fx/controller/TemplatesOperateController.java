@@ -26,7 +26,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
@@ -140,7 +139,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         }
     }
 
-    protected void doInitView() throws IOException {
+    protected void doInitView(){
         initTemplateConfig();
         String templateNameSelected = CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected();
         if(null==templateNameSelected){
@@ -148,14 +147,14 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         }
         MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(templateNameSelected);
         if (null != multipleTemplate) {
-            int size = 1;
             for (Template template : multipleTemplate.getTemplates()) {
-                VBox vBox = initTemplateInfo(template);
-                if (size > 3) {
-//                    vBox.setBorder(new Border(borderStroke));
+                VBox vBox;
+                try {
+                    vBox = initTemplateInfo(template);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
                 templates.getChildren().add(vBox);
-                size++;
             }
         }
     }
@@ -213,18 +212,17 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     }
 
     public void initTemplateInfo(VBox root, Template template) {
-        Scene scene = new Scene(root);
+//        Scene scene = new Scene(root);
         String templateName = template.getTemplateName();
-        FlowPane flowPane = (FlowPane) scene.lookup("#functionPane");
-        doSetTemplateNameLabel(scene, templateName);
-        CheckBox templateNameCheckBox = (CheckBox) scene.lookup("#templateName");
+        FlowPane flowPane = (FlowPane) root.lookup("#functionPane");
+        doSetTemplateNameLabel(root, templateName);
+        CheckBox templateNameCheckBox = (CheckBox) root.lookup("#templateName");
         Map<String, List<String>> stringListMap = selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected());
         if (template instanceof AbstractHandleFunctionTemplate) {
             AbstractHandleFunctionTemplate handlerTemplate = (AbstractHandleFunctionTemplate) template;
             Set<String> templateFunctionNameS = handlerTemplate.getTemplateFunctionNameS();
             templateFunctionNameS.forEach(templateFunction -> {
                 CheckBox checkBox = new CheckBox(templateFunction);
-//                checkBox.setPadding(inserts);
                 if(null!=stringListMap){
                     List<String> functionNames = stringListMap.get(templateName);
                     if (null != functionNames && functionNames.contains(templateFunction)) {
@@ -268,23 +266,23 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 }
             }
         });
-        initProjectUrlViewData(template, scene);
+        initProjectUrlViewData(template, root);
     }
 
-    private static void initProjectUrlViewData(Template template, Scene scene) {
-        TextArea projectUrlTextArea = (TextArea) scene.lookup("#projectUrl");
+    private static void initProjectUrlViewData(Template template, Node parentNode) {
+        TextArea projectUrlTextArea = (TextArea) parentNode.lookup("#projectUrl");
         projectUrlTextArea.setText(Utils.convertTruePathIfNotNull(template.getProjectUrl()));
 
-        TextField moduleNameTextField = (TextField) scene.lookup("#moduleName");
+        TextField moduleNameTextField = (TextField) parentNode.lookup("#moduleName");
         moduleNameTextField.setText(Utils.isEmpty(template.getModule())?"/":Utils.convertTruePathIfNotNull(template.getModule()));
 
-        TextField sourcesRootTextField = (TextField) scene.lookup("#sourcesRoot");
+        TextField sourcesRootTextField = (TextField) parentNode.lookup("#sourcesRoot");
         sourcesRootTextField.setText(Utils.convertTruePathIfNotNull(Utils.setIfNull(template.getSourcesRoot(), DEFAULT_SOURCES_ROOT)));
 
-        TextField srcPackageTextField = (TextField) scene.lookup("#srcPackage");
+        TextField srcPackageTextField = (TextField) parentNode.lookup("#srcPackage");
         srcPackageTextField.setText(Utils.convertTruePathIfNotNull(template.getSrcPackage()));
 
-        ImageView editTemplate = (ImageView) scene.lookup("#editTemplate");
+        ImageView editTemplate = (ImageView) parentNode.lookup("#editTemplate");
         editTemplate.setOnMouseClicked(event -> {
             final File templateFile;
             try {
@@ -300,7 +298,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 throw new RuntimeException(e);
             }
         });
-        ImageView openTargetFile = (ImageView) scene.lookup("#openTargetFile");
+        ImageView openTargetFile = (ImageView) parentNode.lookup("#openTargetFile");
         openTargetFile.setOnMouseClicked(event -> {
             final File templateFile;
             final Path path = Paths.get(template.getProjectUrl(), template.getModule(), template.getSourcesRoot(),
@@ -316,7 +314,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         });
     }
 
-    private static void doSetTemplateNameLabel(Scene scene, String templateName) {
+    private static void doSetTemplateNameLabel(Node scene, String templateName) {
         Label templateNameLabel = (Label) scene.lookup("#templateNameLabel");
         templateNameLabel.setText("模板名:"+ templateName);
         templateNameLabel.setOnMouseClicked(event -> {
@@ -434,6 +432,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected());
             operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate.getTemplateName());
             initialize(null,null);
+            doInitView();
+            templates.requestLayout();
             CachePool.clearAll();
             AlertUtil.showInfo("刷新成功");
         } catch (CodeConfigException | TemplateResolveException e) {
