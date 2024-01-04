@@ -8,16 +8,20 @@ import io.github.bigbird0101.code.util.Utils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static cn.hutool.core.text.StrPool.*;
+
 /**
  *
  * @author pengpeng_fu@infinova.com.cn
  * @date 2023-04-10 09:52
  */
 public class ConditionJudgeSupport {
-    public static final Set<String> SPECIAL_SET =new HashSet<>(Arrays.asList("!=","==",">","<",">=","<="));
+    public static final Set<String> SPECIAL_SET =new LinkedHashSet<>(Arrays.asList("!=","==",">","<",">=","<="," in "," not in "));
+    public static final Set<String> SPECIAL_SET_TRIM=SPECIAL_SET.stream().map(String::trim).collect(Collectors.toCollection(LinkedHashSet::new));
 
     public static final String AND_STRING = "&&";
     public static final String OR_STRING = "||";
+    protected static final String PREFIX = "'";
 
     public List<String> checkFiled(Map<String, Object> dataModal, String langTitle) {
         Set<String> keySet=dataModal.keySet();
@@ -28,7 +32,7 @@ public class ConditionJudgeSupport {
             for(String postfix:postfixExpression){
                 if(postfix.equals(key)){
                     targetKey.add(key);
-                }else if(postfix.contains(".")&&StrUtil.split(postfix,StrUtil.DOT).contains(key)){
+                }else if(postfix.contains(DOT)&&StrUtil.split(postfix, DOT).contains(key)){
                     targetKey.add(key);
                 }
             }
@@ -47,15 +51,16 @@ public class ConditionJudgeSupport {
      * @return
      */
     public boolean meetConditions(String test, List<String> targetKeyList, Map<String, Object> replaceKeyValue) {
+        Map<String,Object> objectMap=new HashMap<>();
         for (String targetKey:targetKeyList){
             Object targetObject=replaceKeyValue.get(targetKey);
-            StaticLog.info(" if语句满足条件目标对象 {}",targetObject);
+            StaticLog.info(" if语句 {} 满足条件目标对象 {}",targetKey,targetObject);
             if(null==targetObject){
                 throw new TemplateResolveException("if 语句中 由于{}源对象为空 不能解析条件语句 {}",targetKey,test);
             }
-            return computeIfPostfixExpression(getIfPostfixExpression(test),targetObject);
+            objectMap.put(targetKey,targetObject);
         }
-        return false;
+        return computeIfPostfixExpression(getIfPostfixExpression(test),objectMap);
     }
 
     /**
@@ -82,7 +87,7 @@ public class ConditionJudgeSupport {
             content=hasSpecial?content.substring(1):content;
             Set<String> tempSet = new HashSet<>();
             for (String special : SPECIAL_SET) {
-                if (content.indexOf(special) > 0) {
+                if (content.indexOf(special) > 0 && !content.contains("not" + special)) {
                     if (tempSet.contains(content)) {
                         throw new TemplateResolveException(str + "语法错误");
                     }
@@ -91,70 +96,112 @@ public class ConditionJudgeSupport {
                     if (splitArray.length!=2) {
                         throw new TemplateResolveException(str + "语法错误");
                     }
-                    result.add(splitArray[0].trim());
+                    String splitPrefix = splitArray[0].trim();
+                    if (splitPrefix.contains(StrUtil.SPACE)) {
+                        throw new TemplateResolveException(str + "语法错误");
+                    }
+                    result.add(splitPrefix);
                     if(hasSpecial) {
                         result.add("!");
                     }
-                    result.add(splitArray[1].trim());
+                    String splitSuffix = splitArray[1].trim();
+                    if (splitSuffix.contains(StrUtil.SPACE)) {
+                        throw new TemplateResolveException(str + "语法错误");
+                    }
+                    result.add(splitSuffix);
                     result.add(special.trim());
                 }
             }
             if (tempSet.isEmpty()) {
-                result.add(content.trim());
+                result.add(StrUtil.removePrefix(content.trim(),"!"));
                 if(hasSpecial) {
                     result.add("!");
                 }
-
             }
         }
-        StaticLog.info(" if语句解析后的结果 {}",result.toString());
+        StaticLog.info(" if语句解析的后缀表达式的结果 {}",result.toString());
         return new PostfixExpressionModule(result,title);
     }
 
     /**
      * 计算后缀表达式
      * @param postfixExpressionModule 后缀表达式模型
-     * @param targetObject 目标对象
+     * @param targetObjectMap 目标对象
      * @return
      */
-    private  boolean computeIfPostfixExpression(PostfixExpressionModule postfixExpressionModule, Object targetObject){
+    private  boolean computeIfPostfixExpression(PostfixExpressionModule postfixExpressionModule, Map<String,Object> targetObjectMap){
         Stack<String> stack=new Stack<>();
         List<String> postfixExpression = postfixExpressionModule.getPostfixExpression();
         if(postfixExpression.size()==1){
-            return Boolean.parseBoolean(String.valueOf(targetObject));
+            return Boolean.parseBoolean(String.valueOf(targetObjectMap.values().stream().findFirst().orElse(null)));
         }
         String title = postfixExpressionModule.getTitle();
         for(String value:postfixExpression){
-            if(!SPECIAL_SET.contains(value)&&!value.contains("!")){
+            if(!SPECIAL_SET_TRIM.contains(value)&&!value.contains("!")){
                 stack.push(value);
             }else if("!".equals(value)){
                 String filed=stack.pop();
-                Object temp;
-                temp = Utils.getObjectFieldValue(filed,targetObject);
+                Object temp=getRealObject(getTargetObject(targetObjectMap,filed), filed);
                 if(temp instanceof Boolean){
                     stack.push(String.valueOf(!(Boolean)temp));
+                }else if(temp instanceof String){
+                    stack.push(String.valueOf(!Boolean.parseBoolean((String) temp)));
                 }
             }else if("==".equals(value)||"!=".equals(value)){
                 String value1=stack.pop();
-                String value3=stack.pop();
-                Object temp;
-                Object temp3;
-                if(!value1.startsWith("'")&&!value1.endsWith("'")) {
-                    temp = Utils.getObjectFieldValue(value1, targetObject);
-                    temp = null == temp ? value1 : temp;
-                }else{
-                    temp= StrUtil.removeSuffix(StrUtil.removePrefix(value1,"'"),"'");
-                }
-                if(!value3.startsWith("'")&&!value3.endsWith("'")) {
-                    temp3 = Utils.getObjectFieldValue(value3, targetObject);
-                    temp3 = null == temp3 ? value3 : temp3;
-                }else{
-                    temp3= StrUtil.removeSuffix(StrUtil.removePrefix(value3,"'"),"'");
-                }
-                if (String.valueOf(temp).equals(String.valueOf(temp3))) {
+                String value2=stack.pop();
+                Object temp1 = getRealObject(getTargetObject(targetObjectMap,value1), value1);
+                Object temp2 = getRealObject(getTargetObject(targetObjectMap,value2), value2);
+                if (String.valueOf(temp1).equals(String.valueOf(temp2))) {
                     stack.push(String.valueOf("==".equals(value)));
                 } else {
                     stack.push(String.valueOf(!"==".equals(value)));
+                }
+            }else if("not in".equals(value)){
+                String value1=stack.pop();
+                String value2=stack.pop().trim();
+                if(StrUtil.isSurround(value1,BRACKET_START,BRACKET_END)){
+                    Object temp2 = getRealObject(getTargetObject(targetObjectMap,value2), value2);
+                    String strip = StrUtil.strip(value1, BRACKET_START, BRACKET_END);
+                    stack.push(String.valueOf(StrUtil.split(strip,COMMA)
+                            .stream()
+                            .map(s-> StrUtil.strip(s,PREFIX,PREFIX))
+                            .noneMatch(s->s.equals(String.valueOf(temp2)))));
+                }else {
+                    Object temp1 = getRealObject(getTargetObject(targetObjectMap,value1), value1);
+                    Object temp2 = getRealObject(getTargetObject(targetObjectMap,value2), value2);
+                    if(temp1 instanceof Collection){
+                        Collection<?> temp1Collection= (Collection<?>) temp1;
+                        boolean anyMatch = temp1Collection.stream()
+                                .map(s -> StrUtil.strip(String.valueOf(s), PREFIX, PREFIX))
+                                .noneMatch(s -> s.equals(String.valueOf(temp2)));
+                        stack.push(String.valueOf(anyMatch));
+                    }else {
+                        stack.push(String.valueOf(!StrUtil.contains(String.valueOf(temp2), String.valueOf(temp1))));
+                    }
+                }
+            }else if("in".equals(value)){
+                String value1=stack.pop();
+                String value2=stack.pop().trim();
+                if(StrUtil.isSurround(value1,BRACKET_START,BRACKET_END)){
+                    Object temp2 = getRealObject(getTargetObject(targetObjectMap,value2), value2);
+                    String strip = StrUtil.strip(value1, BRACKET_START, BRACKET_END);
+                    stack.push(String.valueOf(StrUtil.split(strip,COMMA)
+                            .stream()
+                            .map(s-> StrUtil.strip(s,PREFIX,PREFIX))
+                            .anyMatch(s->s.equals(String.valueOf(temp2)))));
+                }else {
+                    Object temp2 = getRealObject(getTargetObject(targetObjectMap,value2), value2);
+                    Object temp1 = getRealObject(getTargetObject(targetObjectMap,value1), value1);
+                    if(temp1 instanceof Collection){
+                        Collection<?> temp1Collection= (Collection<?>) temp1;
+                        boolean anyMatch = temp1Collection.stream()
+                                .map(s -> StrUtil.strip(String.valueOf(s), PREFIX, PREFIX))
+                                .anyMatch(s -> s.equals(String.valueOf(temp2)));
+                        stack.push(String.valueOf(anyMatch));
+                    }else {
+                        stack.push(String.valueOf(StrUtil.contains(String.valueOf(temp2), String.valueOf(temp1))));
+                    }
                 }
             }
         }
@@ -164,6 +211,31 @@ public class ConditionJudgeSupport {
             return stack.contains("true");
         }
         return Boolean.parseBoolean(stack.pop());
+    }
+
+    private Object getRealObject(Object targetObject, String stringField) {
+        if(null==targetObject){
+            return StrUtil.isSurround(stringField,PREFIX,PREFIX)?
+                    StrUtil.strip(stringField.trim(), PREFIX, PREFIX):
+                    stringField;
+        }
+        Object result;
+        if(StrUtil.isSurround(stringField,PREFIX,PREFIX)){
+            result= StrUtil.strip(stringField.trim(), PREFIX, PREFIX);
+        }else{
+            result = Utils.getObjectFieldValue(stringField, targetObject);
+            result = null == result ? stringField : result;
+        }
+        return result;
+    }
+
+    private Object getTargetObject(Map<String,Object> targetObjMap,String field){
+        return targetObjMap.getOrDefault(field,targetObjMap.entrySet()
+                .stream()
+                .filter(s->StrUtil.split(field,DOT).stream().anyMatch(b->b.equals(s.getKey())))
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElse(null));
     }
 
 

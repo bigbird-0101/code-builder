@@ -64,7 +64,6 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
      * 获取模板变量{{}}的key值
      */
     public static final Pattern TEMPLATE_VARIABLE_KEY_PATTERN = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX_ESCAPE + ")(?<"+TEMPLATE_VARIABLE_KEY+">.*?)(?=" + TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")");
-    public static final Pattern TEMPLATE_VARIABLE_KEY_PATTERN_NO_LAZY = Pattern.compile("(?<=" + TEMPLATE_VARIABLE_PREFIX_ESCAPE + ")(?<"+TEMPLATE_VARIABLE_KEY+">.*)(?=" + TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")");
 
 
     private List<TemplateLangResolver> templateLangResolverList;
@@ -225,16 +224,15 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
      * @return 获取字符串中模板变量{{}}中的值
      */
     public Set<String> getTemplateVariableKeyIncludeTool(String srcStr) {
-        Matcher matcher = TEMPLATE_VARIABLE_KEY_PATTERN_NO_LAZY.matcher(srcStr);
         Set<String> result = new HashSet<>(10);
+        getToolTemplateLangResolver()
+                .ifPresent(s-> result.addAll(s.getToolTemplateVariableKey(srcStr)));
+        Matcher matcher = TEMPLATE_VARIABLE_KEY_PATTERN.matcher(srcStr);
         while (matcher.find()) {
             String key = matcher.group(TEMPLATE_VARIABLE_KEY);
             //过滤掉工具解析
             if (!ToolTemplateLangResolver.TEMPLATE_GRAMMAR_PATTERN_SUFFIX.matcher(key).find()) {
                 result.add(key);
-            }else{
-                getToolTemplateLangResolver()
-                        .ifPresent(s-> result.addAll(s.getToolTemplateVariableKey(getTemplateVariableFormat(key))));
             }
         }
         return result;

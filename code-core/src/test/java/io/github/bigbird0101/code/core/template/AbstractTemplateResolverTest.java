@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.core.template;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -13,13 +14,13 @@ class AbstractTemplateResolverTest {
     void replaceVariable() {
         SimpleTemplateResolver simpleTemplateResolver=new SimpleTemplateResolver();
         final String s = simpleTemplateResolver.replaceVariable("这是上层循环*{column.name}*", "column.name", "column2.name");
-        System.out.println(s);
+        Assertions.assertEquals("这是上层循环*{column2.name}*",s);
     }
 
     @Test
     void replaceVariable2() {
         SimpleTemplateResolver simpleTemplateResolver=new SimpleTemplateResolver();
         final String s = simpleTemplateResolver.replaceFirstVariable("这是上层循环*{column.name}*", "column.name", "column2");
-        System.out.println(s);
+        Assertions.assertEquals("这是上层循环*{column2.name}*",s);
     }
 }

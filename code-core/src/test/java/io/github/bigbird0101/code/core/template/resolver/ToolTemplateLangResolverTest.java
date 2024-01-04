@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.core.template.resolver;
 
+import io.github.bigbird0101.code.core.template.DefaultTemplateResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +19,7 @@ public class ToolTemplateLangResolverTest {
     @BeforeEach
     void setUp() {
         toolTemplateLangResolverTest = new ToolTemplateLangResolver();
+        toolTemplateLangResolverTest.setTemplateResolver(new DefaultTemplateResolver());
     }
     @Test
     void testRep() {

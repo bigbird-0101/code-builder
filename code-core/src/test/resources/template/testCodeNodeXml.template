@@ -18,6 +18,7 @@
      *{abcd4444}*
      *{abcd4444gg}*
      *{tool.firstLower(*{abcd4444ggdd}*)}*
+     *{tool.firstLower(*{column.name}*)}*
      这是上层循环*{column.name}*
      <foreach v-for="list in column.list">
         这是内层循环 *{list.testa}* *{list.testb}*

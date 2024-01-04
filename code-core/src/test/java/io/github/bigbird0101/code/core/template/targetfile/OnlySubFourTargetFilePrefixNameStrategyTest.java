@@ -23,7 +23,7 @@ class OnlySubFourTargetFilePrefixNameStrategyTest {
 
     @Test
     void testPrefixStrategy() {
-        assertEquals("result",
+        assertEquals("Ource",
                 onlySubFourTargetFilePrefixNameStrategyUnderTest.prefixStrategy(null, "srcSource", new HashMap<>()));
     }
 }
