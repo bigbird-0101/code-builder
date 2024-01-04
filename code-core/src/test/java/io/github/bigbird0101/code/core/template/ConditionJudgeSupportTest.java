@@ -60,15 +60,15 @@ class ConditionJudgeSupportTest {
         Map<String, Object> dataModal = new HashMap<>();
         dataModal.put("test","true");
         // Run the test
-        List<String> resultList = conditionJudgeSupportUnderTest.checkFiled(dataModal, "test  not in  ['true','true2']");
-        boolean result = conditionJudgeSupportUnderTest.meetConditions("test  not in  ['true','true2']", resultList,
+        List<String> resultList = conditionJudgeSupportUnderTest.checkFiled(dataModal, "test  not in  ['true', 'true2']");
+        boolean result = conditionJudgeSupportUnderTest.meetConditions("test  not in  ['true', 'true2']", resultList,
                 dataModal);
         // Verify the results
         assertFalse(result);
 
         // Run the test
-        resultList = conditionJudgeSupportUnderTest.checkFiled(dataModal, "test  not in  ['true1','true2']");
-        result = conditionJudgeSupportUnderTest.meetConditions("test  not in   ['true1','true2']", resultList,
+        resultList = conditionJudgeSupportUnderTest.checkFiled(dataModal, "test  not in  ['true1', 'true2']");
+        result = conditionJudgeSupportUnderTest.meetConditions("test  not in   ['true1', 'true2']", resultList,
                 dataModal);
         // Verify the results
         assertTrue(result);
@@ -81,15 +81,15 @@ class ConditionJudgeSupportTest {
         Map<String, Object> dataModal = new HashMap<>();
         dataModal.put("test","true");
         // Run the test
-        List<String> resultList = conditionJudgeSupportUnderTest.checkFiled(dataModal, "test in  ['true','true2']");
-        boolean result = conditionJudgeSupportUnderTest.meetConditions("test in  ['true','true2']", resultList,
+        List<String> resultList = conditionJudgeSupportUnderTest.checkFiled(dataModal, "test in  ['true', 'true2']");
+        boolean result = conditionJudgeSupportUnderTest.meetConditions("test in  ['true', 'true2']", resultList,
                 dataModal);
         // Verify the results
         assertTrue(result);
 
         // Run the test
-        resultList = conditionJudgeSupportUnderTest.checkFiled(dataModal, "test in  ['true1','true2']");
-        result = conditionJudgeSupportUnderTest.meetConditions("test in   ['true1','true2']", resultList,
+        resultList = conditionJudgeSupportUnderTest.checkFiled(dataModal, "test in  ['true1', 'true2']");
+        result = conditionJudgeSupportUnderTest.meetConditions("test in   ['true1', 'true2']", resultList,
                 dataModal);
         // Verify the results
         assertFalse(result);

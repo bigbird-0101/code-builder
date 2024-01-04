@@ -105,7 +105,8 @@ public class ConditionJudgeSupport {
                         result.add("!");
                     }
                     String splitSuffix = splitArray[1].trim();
-                    if (splitSuffix.contains(StrUtil.SPACE)) {
+                    if (!StrUtil.isSurround(splitSuffix, BRACKET_START,BRACKET_END)
+                            && splitSuffix.contains(StrUtil.SPACE)) {
                         throw new TemplateResolveException(str + "语法错误");
                     }
                     result.add(splitSuffix);
@@ -165,7 +166,7 @@ public class ConditionJudgeSupport {
                     String strip = StrUtil.strip(value1, BRACKET_START, BRACKET_END);
                     stack.push(String.valueOf(StrUtil.split(strip,COMMA)
                             .stream()
-                            .map(s-> StrUtil.strip(s,PREFIX,PREFIX))
+                            .map(s-> StrUtil.strip(s,PREFIX,PREFIX).trim())
                             .noneMatch(s->s.equals(String.valueOf(temp2)))));
                 }else {
                     Object temp1 = getRealObject(getTargetObject(targetObjectMap,value1), value1);
@@ -173,7 +174,7 @@ public class ConditionJudgeSupport {
                     if(temp1 instanceof Collection){
                         Collection<?> temp1Collection= (Collection<?>) temp1;
                         boolean anyMatch = temp1Collection.stream()
-                                .map(s -> StrUtil.strip(String.valueOf(s), PREFIX, PREFIX))
+                                .map(s -> StrUtil.strip(String.valueOf(s), PREFIX, PREFIX).trim())
                                 .noneMatch(s -> s.equals(String.valueOf(temp2)));
                         stack.push(String.valueOf(anyMatch));
                     }else {
@@ -188,7 +189,7 @@ public class ConditionJudgeSupport {
                     String strip = StrUtil.strip(value1, BRACKET_START, BRACKET_END);
                     stack.push(String.valueOf(StrUtil.split(strip,COMMA)
                             .stream()
-                            .map(s-> StrUtil.strip(s,PREFIX,PREFIX))
+                            .map(s-> StrUtil.strip(s,PREFIX,PREFIX).trim())
                             .anyMatch(s->s.equals(String.valueOf(temp2)))));
                 }else {
                     Object temp2 = getRealObject(getTargetObject(targetObjectMap,value2), value2);
@@ -196,7 +197,7 @@ public class ConditionJudgeSupport {
                     if(temp1 instanceof Collection){
                         Collection<?> temp1Collection= (Collection<?>) temp1;
                         boolean anyMatch = temp1Collection.stream()
-                                .map(s -> StrUtil.strip(String.valueOf(s), PREFIX, PREFIX))
+                                .map(s -> StrUtil.strip(String.valueOf(s), PREFIX, PREFIX).trim())
                                 .anyMatch(s -> s.equals(String.valueOf(temp2)));
                         stack.push(String.valueOf(anyMatch));
                     }else {
