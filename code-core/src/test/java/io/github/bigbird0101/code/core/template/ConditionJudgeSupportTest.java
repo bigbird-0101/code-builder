@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.core.template;
 
+import cn.hutool.core.map.MapUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -206,4 +207,25 @@ class ConditionJudgeSupportTest {
         // Verify the results
         assertTrue(result);
     }
+
+
+    @Test
+    void testCheckFiledMeetConditionsNotIn3() {
+        // Setup
+        Map<String, Object> dataModal = new HashMap<>();
+        dataModal.put("column", MapUtil.builder().put("javaType","String").put("name","created_by").build());
+        // Run the test
+        List<String> resultList = conditionJudgeSupportUnderTest.checkFiled(dataModal, "column.name not in " +
+                "['id','create_time','create_by', " +
+                "'update_time', 'update_by', 'created_time', 'created_by', 'updated_time', " +
+                "'updated_by'] && column.javaType=='String'");
+        boolean result = conditionJudgeSupportUnderTest.meetConditions("column.name not in " +
+                        "['id','create_time','create_by', " +
+                        "'update_time', 'update_by', 'created_time', 'created_by', 'updated_time', " +
+                        "'updated_by'] && column.javaType=='String'", resultList,
+                dataModal);
+        // Verify the results
+        assertFalse(result);
+    }
+
 }

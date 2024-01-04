@@ -15,6 +15,7 @@ import io.github.bigbird0101.code.core.factory.OperateTemplateBeanFactory;
 import io.github.bigbird0101.code.core.template.AbstractHandleFunctionTemplate;
 import io.github.bigbird0101.code.core.template.MultipleTemplate;
 import io.github.bigbird0101.code.core.template.Template;
+import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.fxui.CodeBuilderApplication;
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
 import io.github.bigbird0101.code.fxui.common.TooltipUtil;
@@ -435,7 +436,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             initialize(null,null);
             CachePool.clearAll();
             AlertUtil.showInfo("刷新成功");
-        } catch (CodeConfigException e) {
+        } catch (CodeConfigException | TemplateResolveException e) {
             AlertUtil.showError("refresh error :" + e.getMessage());
         }
     }

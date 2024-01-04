@@ -166,7 +166,7 @@ public class ConditionJudgeSupport {
                     String strip = StrUtil.strip(value1, BRACKET_START, BRACKET_END);
                     stack.push(String.valueOf(StrUtil.split(strip,COMMA)
                             .stream()
-                            .map(s-> StrUtil.strip(s,PREFIX,PREFIX).trim())
+                            .map(s-> StrUtil.strip(s.trim(),PREFIX,PREFIX))
                             .noneMatch(s->s.equals(String.valueOf(temp2)))));
                 }else {
                     Object temp1 = getRealObject(getTargetObject(targetObjectMap,value1), value1);
@@ -174,7 +174,7 @@ public class ConditionJudgeSupport {
                     if(temp1 instanceof Collection){
                         Collection<?> temp1Collection= (Collection<?>) temp1;
                         boolean anyMatch = temp1Collection.stream()
-                                .map(s -> StrUtil.strip(String.valueOf(s), PREFIX, PREFIX).trim())
+                                .map(s -> StrUtil.strip(String.valueOf(s).trim(), PREFIX, PREFIX))
                                 .noneMatch(s -> s.equals(String.valueOf(temp2)));
                         stack.push(String.valueOf(anyMatch));
                     }else {
@@ -189,7 +189,7 @@ public class ConditionJudgeSupport {
                     String strip = StrUtil.strip(value1, BRACKET_START, BRACKET_END);
                     stack.push(String.valueOf(StrUtil.split(strip,COMMA)
                             .stream()
-                            .map(s-> StrUtil.strip(s,PREFIX,PREFIX).trim())
+                            .map(s-> StrUtil.strip(s.trim(),PREFIX,PREFIX))
                             .anyMatch(s->s.equals(String.valueOf(temp2)))));
                 }else {
                     Object temp2 = getRealObject(getTargetObject(targetObjectMap,value2), value2);
@@ -197,7 +197,7 @@ public class ConditionJudgeSupport {
                     if(temp1 instanceof Collection){
                         Collection<?> temp1Collection= (Collection<?>) temp1;
                         boolean anyMatch = temp1Collection.stream()
-                                .map(s -> StrUtil.strip(String.valueOf(s), PREFIX, PREFIX).trim())
+                                .map(s -> StrUtil.strip(String.valueOf(s).trim(), PREFIX, PREFIX))
                                 .anyMatch(s -> s.equals(String.valueOf(temp2)));
                         stack.push(String.valueOf(anyMatch));
                     }else {
