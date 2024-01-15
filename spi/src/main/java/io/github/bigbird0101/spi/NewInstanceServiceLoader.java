@@ -1,11 +1,6 @@
 package io.github.bigbird0101.spi;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
 
 /**
  * SPI service loader for new instance for every call.
@@ -32,7 +27,12 @@ public final class NewInstanceServiceLoader {
     private static <T> void registerServiceClass(final Class<T> service, final T instance) {
         Collection<Class<?>> serviceClasses = SERVICE_MAP.get(service);
         if (null == serviceClasses) {
-            serviceClasses = new LinkedHashSet<>();
+            synchronized (SERVICE_MAP) {
+                serviceClasses = SERVICE_MAP.get(service);
+                if(null==serviceClasses) {
+                    serviceClasses = new LinkedHashSet<>();
+                }
+            }
         }
         serviceClasses.add(instance.getClass());
         SERVICE_MAP.put(service, serviceClasses);
@@ -45,13 +45,17 @@ public final class NewInstanceServiceLoader {
      * @param <T>     type of service
      * @return service instances
      */
-    @SuppressWarnings("unchecked")
     public static <T> Collection<T> newServiceInstances(final Class<T> service) {
-        Collection<T> result = new LinkedList<>();
         if (null == SERVICE_MAP.get(service)) {
             register(service);
-            return newServiceInstances(service);
+            return doNewServiceInstances(service);
         }
+        return doNewServiceInstances(service);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Collection<T> doNewServiceInstances(Class<T> service) {
+        Collection<T> result = new LinkedList<>();
         for (Class<?> each : SERVICE_MAP.get(service)) {
             try {
                 result.add((T) each.newInstance());

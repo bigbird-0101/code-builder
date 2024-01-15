@@ -43,6 +43,16 @@ public final class SPIServiceLoader {
         return result;
     }
 
+    /**
+     * Create new instance for type based SPI.
+     *
+     * @param type  SPI type
+     * @return SPI instance
+     */
+    public static <T extends TypeBasedSPI> T newService(final Class<T> classType,final String type) {
+        return newService(classType,type,null);
+    }
+
     private static <T extends TypeBasedSPI> Collection<T> loadTypeBasedServices(final Class<T> classType, final String type) {
         return NewInstanceServiceLoader.newServiceInstances(classType).stream()
                 .filter(input -> type.equalsIgnoreCase(input.getType()))

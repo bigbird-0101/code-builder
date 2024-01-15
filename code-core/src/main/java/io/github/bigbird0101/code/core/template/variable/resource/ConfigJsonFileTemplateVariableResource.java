@@ -1,13 +1,12 @@
 package io.github.bigbird0101.code.core.template.variable.resource;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.json.JSONUtil;
 import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,16 +18,16 @@ import java.util.Properties;
  * @version 1.0.0
  * @since 2022-09-24 23:35:56
  */
-public class ConfigFileTemplateVariableResource extends AbstractNoShareVarTemplateVariableResource{
+public class ConfigJsonFileTemplateVariableResource extends AbstractNoShareVarTemplateVariableResource{
     private InputStream configFilePathStream;
 
     Map<String,Object> temp=new HashMap<>();
 
-    public ConfigFileTemplateVariableResource() {
+    public ConfigJsonFileTemplateVariableResource() {
         this(null);
     }
 
-    public ConfigFileTemplateVariableResource(InputStream configFilePathStream) {
+    public ConfigJsonFileTemplateVariableResource(InputStream configFilePathStream) {
         this.configFilePathStream = configFilePathStream;
     }
 
@@ -38,17 +37,10 @@ public class ConfigFileTemplateVariableResource extends AbstractNoShareVarTempla
             StaticLog.debug("getTemplateVariable get cache");
             return temp;
         }
-        final Properties properties = new Properties();
-        try (InputStreamReader fileInputStream = new InputStreamReader(configFilePathStream, StandardCharsets.UTF_8)) {
-            properties.load(fileInputStream);
-            properties.forEach((k, v) -> {
-                String value= (String) v;
-                if(JSONUtil.isTypeJSON(value)){
-                    temp.put((String) k, JSONObject.parse(value));
-                }else {
-                    temp.put((String) k, value);
-                }
-            });
+        try {
+            Map<String,Object> object = JSONObject.<JSONObject>parseObject(configFilePathStream, StandardCharsets.UTF_8,
+                    new TypeReference<Map<String,Object>>(){}.getType());
+            temp.putAll(object);
             return temp;
         } catch (IOException e) {
             return MapUtil.empty();
@@ -57,7 +49,7 @@ public class ConfigFileTemplateVariableResource extends AbstractNoShareVarTempla
 
     @Override
     public String getType() {
-        return "properties";
+        return "json";
     }
 
     @Override
@@ -68,7 +60,7 @@ public class ConfigFileTemplateVariableResource extends AbstractNoShareVarTempla
     @Override
     public void setProperties(Properties properties) {
         if(null==configFilePathStream) {
-            configFilePathStream= (InputStream) properties.get("fileInputStream");
+            configFilePathStream= (InputStream) properties.get(TemplateVariableResource.FILE_INPUT_STREAM);
         }
     }
 }

@@ -15,18 +15,21 @@ public interface TypeBasedSPI {
      * @return type
      */
     String getType();
-
     /**
-     * Get properties.
+     * Judge whether default service provider.
      *
-     * @return properties of algorithm
+     * @return is default service provider or not
      */
-    Properties getProperties();
+    default boolean isDefault() {
+        return false;
+    }
 
     /**
      * Set properties.
      *
      * @param properties properties of algorithm
      */
-    void setProperties(Properties properties);
+    default void setProperties(Properties properties){
+
+    }
 }

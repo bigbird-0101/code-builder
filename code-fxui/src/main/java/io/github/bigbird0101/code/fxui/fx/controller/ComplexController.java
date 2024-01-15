@@ -2,6 +2,7 @@ package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.exceptions.ExceptionUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.thread.ThreadUtil;
@@ -33,6 +34,7 @@ import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.core.template.targetfile.DefaultTargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;
+import io.github.bigbird0101.code.core.template.variable.resource.AbstractNoShareVarTemplateVariableResource;
 import io.github.bigbird0101.code.core.template.variable.resource.ConfigFileTemplateVariableResource;
 import io.github.bigbird0101.code.core.template.variable.resource.DataSourceTemplateVariableResource;
 import io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource;
@@ -44,6 +46,7 @@ import io.github.bigbird0101.code.fxui.fx.component.FxAlerts;
 import io.github.bigbird0101.code.fxui.fx.component.FxProgressDialog;
 import io.github.bigbird0101.code.fxui.fx.component.ProgressTask;
 import io.github.bigbird0101.code.util.Utils;
+import io.github.bigbird0101.spi.SPIServiceLoader;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
@@ -72,6 +75,7 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
@@ -564,7 +568,8 @@ public class ComplexController extends TemplateContextProvider implements Initia
                     }
                 }
             }
-            if (this.tableSelected.isEmpty() && null == templatesOperateController.getFile()) {
+            File templateVariableFile = templatesOperateController.getFile();
+            if (this.tableSelected.isEmpty() && null == templateVariableFile) {
                 AlertUtil.showWarning("请输入一个表名或者选择一个变量文件");
                 return;
             }
@@ -573,14 +578,19 @@ public class ComplexController extends TemplateContextProvider implements Initia
             if (logger.isInfoEnabled()) {
                 logger.info("选中的模板名 {}", templatesOperateController.getSelectTemplateGroup().keySet());
             }
-            ConfigFileTemplateVariableResource configFileTemplateVariableResource=null;
-            if (null != templatesOperateController.getFile()) {
+            AbstractNoShareVarTemplateVariableResource configFileTemplateVariableResource=null;
+            if (null != templateVariableFile) {
+                InputStream inputStream = Files.newInputStream(templateVariableFile.toPath());
+                Properties properties = new Properties();
+                properties.put(TemplateVariableResource.FILE_INPUT_STREAM,inputStream);
+                TemplateVariableResource templateVariableResource = SPIServiceLoader.newService(TemplateVariableResource.class,
+                        FileUtil.getSuffix(templateVariableFile),properties);
                 configFileTemplateVariableResource=new ConfigFileTemplateVariableResource(
-                        Files.newInputStream(templatesOperateController.getFile().toPath()));
+                        inputStream);
             }
             final FileBuilder fileBuilder = getFileBuilder(fileBuilderEnum, coreConfig);
             final long l = System.currentTimeMillis();
-            ConfigFileTemplateVariableResource finalConfigFileTemplateVariableResource = configFileTemplateVariableResource;
+            AbstractNoShareVarTemplateVariableResource finalConfigFileTemplateVariableResource = configFileTemplateVariableResource;
             ProgressTask progressTask = new ProgressTask() {
                 @Override
                 protected void execute() {
@@ -618,7 +628,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
     }
 
     public void concurrentDoBuild(FileBuilder fileBuilder,
-                                  ConfigFileTemplateVariableResource propertiesVariable,
+                                  AbstractNoShareVarTemplateVariableResource propertiesVariable,
                                   BiConsumer<Integer, Integer> onProgressUpdate) {
         List<CompletableFuture<Boolean>> task=new ArrayList<>();
         if(!tableSelected.isEmpty()) {
@@ -627,7 +637,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 DataSourceTemplateVariableResource dataSourceTemplateVariableResource = new DataSourceTemplateVariableResource(
                         tableName,  getTemplateContext().getEnvironment());
                 final Queue<Map<String, Object>> noShareVar = Optional.ofNullable(propertiesVariable)
-                        .map(ConfigFileTemplateVariableResource::getNoShareVar).orElse(new LinkedList<>());
+                        .map(AbstractNoShareVarTemplateVariableResource::getNoShareVar).orElse(new LinkedList<>());
                 doBuildTemplate(new DoBuildTemplateParam.Builder()
                         .fileBuilder(fileBuilder)
                         .templateVariableResources(Arrays.asList(propertiesVariable,dataSourceTemplateVariableResource))

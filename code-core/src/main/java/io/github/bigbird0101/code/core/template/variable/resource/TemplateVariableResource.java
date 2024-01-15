@@ -1,5 +1,7 @@
 package io.github.bigbird0101.code.core.template.variable.resource;
 
+import io.github.bigbird0101.spi.TypeBasedSPI;
+
 import java.util.*;
 
 /**
@@ -8,9 +10,11 @@ import java.util.*;
  * @version 1.0.0
  * @since 2022-09-24 23:11:48
  */
-public interface TemplateVariableResource {
+public interface TemplateVariableResource extends TypeBasedSPI {
     String DEFAULT_SRC_RESOURCE_KEY="SrcSourceName";
     String DEFAULT_SRC_RESOURCE_VALUE="TempTemplate";
+    String FILE_INPUT_STREAM = "fileInputStream";
+
     /**
      * 获取模板变量资源
      * @return
@@ -19,8 +23,8 @@ public interface TemplateVariableResource {
 
     /**
      * 合并多个模板变量
-     * @param templateVariableResources
-     * @return
+     * @param templateVariableResources templateVariableResources
+     * @return 模板变量
      */
     default Map<String,Object> mergeTemplateVariable(List<TemplateVariableResource> templateVariableResources){
         Map<String,Object> result=new HashMap<>();
@@ -33,8 +37,8 @@ public interface TemplateVariableResource {
 
     /**
      * 合并多个模板变量
-     * @param templateVariableResources
-     * @return
+     * @param templateVariableResources templateVariableResources
+     * @return 模板变量
      */
     default Map<String,Object> mergeTemplateVariable(TemplateVariableResource... templateVariableResources){
         return mergeTemplateVariable(Arrays.asList(templateVariableResources));
