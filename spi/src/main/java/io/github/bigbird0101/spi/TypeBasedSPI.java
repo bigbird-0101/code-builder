@@ -25,11 +25,11 @@ public interface TypeBasedSPI {
     }
 
     /**
-     * Set properties.
+     * init properties.
      *
      * @param properties properties of algorithm
      */
-    default void setProperties(Properties properties){
+    default void init(Properties properties){
 
     }
 }

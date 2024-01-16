@@ -257,7 +257,7 @@ public class DbUtil {
     private static String getDomainName(String tableName, Environment environment) {
         final String propertyOrDefault = environment.getPropertyOrDefault("code.table_name_to_domain_name", TableNameToDomainName.DEFAULT);
         final Properties properties = environment.getPropertySources().convertProperties();
-        return new TableNameToDomainNameServiceLoader(TableNameToDomainName.class).newService(propertyOrDefault,properties).buildDomainName(tableName);
+        return new TableNameToDomainNameServiceLoader(TableNameToDomainName.class).loadService(propertyOrDefault,properties).buildDomainName(tableName);
     }
 
     /**

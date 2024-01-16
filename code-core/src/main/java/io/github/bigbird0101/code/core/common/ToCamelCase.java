@@ -27,7 +27,7 @@ public class ToCamelCase implements TableNameToDomainName {
     }
 
     @Override
-    public void setProperties(Properties properties) {
+    public void init(Properties properties) {
 
     }
 }

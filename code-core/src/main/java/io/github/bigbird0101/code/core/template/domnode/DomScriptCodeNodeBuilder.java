@@ -2,7 +2,6 @@ package io.github.bigbird0101.code.core.template.domnode;
 
 import cn.hutool.core.util.StrUtil;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
-import io.github.bigbird0101.spi.NewInstanceServiceLoader;
 import io.github.bigbird0101.spi.TypeBasedSPI;
 import io.github.bigbird0101.spi.TypeBasedSPIServiceLoader;
 import org.w3c.dom.NamedNodeMap;
@@ -33,7 +32,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
 
     private void initHandler() {
         CODE_NODE_HANDLER_MAP.putAll(new CodeNodeHandlerTypeBasedSPIServiceLoader(CodeNodeHandler.class)
-                .newServiceMap(new Properties()));
+                .loadServiceMap(new Properties()));
     }
 
     @Override
@@ -78,20 +77,11 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
         void handleNode(Node node, List<CodeNode> contents);
 
         /**
-         * 获取配置信息
-         * @return
-         */
-        @Override
-        default Properties getProperties() {
-            return null;
-        }
-
-        /**
          * 设置配置信息
          * @param properties properties
          */
         @Override
-        default void setProperties(Properties properties) {}
+        default void init(Properties properties) {}
 
         /**
          * 获取NamedNodeMap 当中的属性 如果没有获取到 就返回默认值
@@ -304,9 +294,6 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
      * {@link CodeNodeHandler} spi loader
      */
     protected static class CodeNodeHandlerTypeBasedSPIServiceLoader extends TypeBasedSPIServiceLoader<CodeNodeHandler>{
-        static{
-            NewInstanceServiceLoader.register(CodeNodeHandler.class);
-        }
         protected CodeNodeHandlerTypeBasedSPIServiceLoader(Class<CodeNodeHandler> classType) {
             super(classType);
         }

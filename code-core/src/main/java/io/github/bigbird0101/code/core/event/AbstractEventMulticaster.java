@@ -1,7 +1,7 @@
 package io.github.bigbird0101.code.core.event;
 
 import cn.hutool.log.StaticLog;
-import io.github.bigbird0101.spi.NewInstanceServiceLoader;
+import io.github.bigbird0101.spi.SPIServiceLoader;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -18,8 +18,7 @@ public abstract class AbstractEventMulticaster implements EventMulticaster {
     private final Set<BasicCodeListener<?>> listenerSet=new HashSet<>();
 
     {
-        NewInstanceServiceLoader.register(BasicCodeListener.class);
-        NewInstanceServiceLoader.newServiceInstances(BasicCodeListener.class)
+        SPIServiceLoader.loadServiceInstances(BasicCodeListener.class)
                 .forEach(this::addListener);
     }
 

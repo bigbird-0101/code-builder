@@ -66,7 +66,7 @@ public class ConfigFileTemplateVariableResource extends AbstractNoShareVarTempla
     }
 
     @Override
-    public void setProperties(Properties properties) {
+    public void init(Properties properties) {
         if(null==configFilePathStream) {
             configFilePathStream= (InputStream) properties.get("fileInputStream");
         }

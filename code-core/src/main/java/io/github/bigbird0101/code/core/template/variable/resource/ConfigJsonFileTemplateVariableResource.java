@@ -58,7 +58,7 @@ public class ConfigJsonFileTemplateVariableResource extends AbstractNoShareVarTe
     }
 
     @Override
-    public void setProperties(Properties properties) {
+    public void init(Properties properties) {
         if(null==configFilePathStream) {
             configFilePathStream= (InputStream) properties.get(TemplateVariableResource.FILE_INPUT_STREAM);
         }

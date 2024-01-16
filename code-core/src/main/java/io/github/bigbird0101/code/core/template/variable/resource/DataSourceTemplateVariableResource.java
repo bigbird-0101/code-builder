@@ -76,7 +76,7 @@ public class DataSourceTemplateVariableResource implements TemplateVariableResou
     }
 
     @Override
-    public void setProperties(Properties properties) {
+    public void init(Properties properties) {
         this.tableName = (String) properties.get("tableName");
         this.environment = (Environment) properties.get("environment");
     }

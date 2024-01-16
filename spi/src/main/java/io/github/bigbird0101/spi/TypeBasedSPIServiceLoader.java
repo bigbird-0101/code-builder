@@ -42,19 +42,19 @@ public abstract class TypeBasedSPIServiceLoader<T extends TypeBasedSPI> {
      * @param props SPI properties
      * @return SPI instance
      */
-    public final T newService(final String type, final Properties props) {
-        Collection<T> typeBasedServices = loadTypeBasedServices(type);
+    public final T loadService(final String type, final Properties props) {
+        Collection<T> typeBasedServices = loadServices(type);
         if (typeBasedServices.isEmpty()) {
-            throw new RuntimeException(String.format("Invalid `%s` SPI type `%s`.", classType.getName(), type));
+            throw new IllegalStateException(String.format("Invalid `%s` SPI type `%s`.", classType.getName(), type));
         }
         T result = typeBasedServices.iterator().next();
-        result.setProperties(props);
+        result.init(props);
         return result;
     }
 
-    public final Map<String,T> newServiceMap(final Properties props){
-        return NewInstanceServiceLoader.newServiceInstances(classType).stream()
-                .peek(s-> s.setProperties(props))
+    public final Map<String,T> loadServiceMap(final Properties props){
+        return SPIServiceLoader.loadServiceInstances(classType).stream()
+                .peek(s-> s.init(props))
                 .collect(Collectors.toMap(TypeBasedSPI::getType, s->s));
     }
 
@@ -63,22 +63,22 @@ public abstract class TypeBasedSPIServiceLoader<T extends TypeBasedSPI> {
      *
      * @return type based SPI instance
      */
-    public final T newService() {
+    public final T loadService() {
         T result = loadFirstTypeBasedService();
-        result.setProperties(new Properties());
+        result.init(new Properties());
         return result;
     }
 
-    private Collection<T> loadTypeBasedServices(final String type) {
-        return NewInstanceServiceLoader.newServiceInstances(classType).stream()
+    private Collection<T> loadServices(final String type) {
+        return SPIServiceLoader.loadServiceInstances(classType).stream()
                 .filter(input -> type.equalsIgnoreCase(input.getType()))
                 .collect(Collectors.toList());
     }
 
     private T loadFirstTypeBasedService() {
-        Collection<T> instances = NewInstanceServiceLoader.newServiceInstances(classType);
+        Collection<T> instances = SPIServiceLoader.loadServiceInstances(classType);
         if (instances.isEmpty()) {
-            throw new RuntimeException(String.format("Invalid `%s` SPI, no implementation class load from SPI.", classType.getName()));
+            throw new IllegalStateException(String.format("Invalid `%s` SPI, no implementation class load from SPI.", classType.getName()));
         }
         return instances.iterator().next();
     }

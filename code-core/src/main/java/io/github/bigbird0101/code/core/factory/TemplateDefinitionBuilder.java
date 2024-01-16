@@ -55,7 +55,7 @@ public class TemplateDefinitionBuilder {
     }
 
     public static TemplateDefinition build(File templateFile){
-        final LinkedList<Template> templates = SPIServiceLoader.newServicesOrdered(Template.class);
+        final LinkedList<Template> templates = SPIServiceLoader.loadServicesOrdered(Template.class);
         for(Template template:templates){
             if(template.match(templateFile)){
                 final GenericTemplateDefinition templateDefinition = (GenericTemplateDefinition) build(template.getClass());

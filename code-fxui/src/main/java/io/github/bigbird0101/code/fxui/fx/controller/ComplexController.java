@@ -583,7 +583,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 InputStream inputStream = Files.newInputStream(templateVariableFile.toPath());
                 Properties properties = new Properties();
                 properties.put(TemplateVariableResource.FILE_INPUT_STREAM,inputStream);
-                TemplateVariableResource templateVariableResource = SPIServiceLoader.newService(TemplateVariableResource.class,
+                TemplateVariableResource templateVariableResource = SPIServiceLoader.loadService(TemplateVariableResource.class,
                         FileUtil.getSuffix(templateVariableFile),properties);
                 configFileTemplateVariableResource=new ConfigFileTemplateVariableResource(
                         inputStream);

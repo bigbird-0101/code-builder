@@ -22,8 +22,8 @@ public final class SPIServiceLoader {
      * @return service instances
      */
     @SuppressWarnings("unchecked")
-    public static <T> Collection<T> newServiceInstances(final Class<T> service) {
-        return NewInstanceServiceLoader.newServiceInstances(service);
+    public static <T> Collection<T> loadServiceInstances(final Class<T> service) {
+        return SPIServiceContext.loadServiceInstances(service);
     }
 
     /**
@@ -33,13 +33,13 @@ public final class SPIServiceLoader {
      * @param props SPI properties
      * @return SPI instance
      */
-    public static <T extends TypeBasedSPI> T newService(final Class<T> classType,final String type, final Properties props) {
-        Collection<T> typeBasedServices = loadTypeBasedServices(classType,type);
+    public static <T extends TypeBasedSPI> T loadService(final Class<T> classType, final String type, final Properties props) {
+        Collection<T> typeBasedServices = loadServices(classType,type);
         if (typeBasedServices.isEmpty()) {
             throw new RuntimeException(String.format("Invalid `%s` SPI type `%s`.", classType.getName(), type));
         }
         T result = typeBasedServices.iterator().next();
-        result.setProperties(props);
+        result.init(props);
         return result;
     }
 
@@ -49,18 +49,18 @@ public final class SPIServiceLoader {
      * @param type  SPI type
      * @return SPI instance
      */
-    public static <T extends TypeBasedSPI> T newService(final Class<T> classType,final String type) {
-        return newService(classType,type,null);
+    public static <T extends TypeBasedSPI> T loadService(final Class<T> classType, final String type) {
+        return loadService(classType,type,null);
     }
 
-    private static <T extends TypeBasedSPI> Collection<T> loadTypeBasedServices(final Class<T> classType, final String type) {
-        return NewInstanceServiceLoader.newServiceInstances(classType).stream()
+    private static <T extends TypeBasedSPI> Collection<T> loadServices(final Class<T> classType, final String type) {
+        return SPIServiceContext.loadServiceInstances(classType).stream()
                 .filter(input -> type.equalsIgnoreCase(input.getType()))
                 .collect(Collectors.toList());
     }
 
-    public static <T extends OrderAware> LinkedList<T> newServicesOrdered(final Class<T> classType){
-        return NewInstanceServiceLoader.newServiceInstances(classType).stream()
+    public static <T extends OrderAware> LinkedList<T> loadServicesOrdered(final Class<T> classType){
+        return SPIServiceContext.loadServiceInstances(classType).stream()
                 .sorted(Comparator.comparingInt(OrderAware::getOrder))
                 .collect(Collectors.toCollection(LinkedList::new));
     }
