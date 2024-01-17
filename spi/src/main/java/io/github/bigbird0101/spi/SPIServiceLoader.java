@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
  * @since 2022-11-05 23:14:33
  */
 public final class SPIServiceLoader {
+    private SPIServiceLoader(){
+
+    }
     /**
      * New service instances.
      *
@@ -21,7 +24,6 @@ public final class SPIServiceLoader {
      * @param <T>     type of service
      * @return service instances
      */
-    @SuppressWarnings("unchecked")
     public static <T> Collection<T> loadServiceInstances(final Class<T> service) {
         return SPIServiceContext.loadServiceInstances(service);
     }
@@ -60,8 +62,12 @@ public final class SPIServiceLoader {
     }
 
     public static <T extends OrderAware> LinkedList<T> loadServicesOrdered(final Class<T> classType){
+        return loadServicesOrdered(classType,Comparator.comparingInt(OrderAware::getOrder));
+    }
+
+    public static <T extends OrderAware> LinkedList<T> loadServicesOrdered(final Class<T> classType,final Comparator<T> comparator){
         return SPIServiceContext.loadServiceInstances(classType).stream()
-                .sorted(Comparator.comparingInt(OrderAware::getOrder))
+                .sorted(comparator)
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 }
