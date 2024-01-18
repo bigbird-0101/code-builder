@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author pengpeng_fu@infinova.com.cn
+ * @author bigbird-0101
  * @date 2024-01-02 17:16
  */
 public abstract class AbstractHandleTemplateResolver extends AbstractTemplateResolver{

@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * 配置文件模板变量资源
@@ -23,8 +22,11 @@ public class ConfigJsonFileTemplateVariableResource extends AbstractNoShareVarTe
 
     Map<String,Object> temp=new HashMap<>();
 
+    public void setConfigFilePathStream(InputStream configFilePathStream) {
+        this.configFilePathStream = configFilePathStream;
+    }
+
     public ConfigJsonFileTemplateVariableResource() {
-        this(null);
     }
 
     public ConfigJsonFileTemplateVariableResource(InputStream configFilePathStream) {
@@ -50,17 +52,5 @@ public class ConfigJsonFileTemplateVariableResource extends AbstractNoShareVarTe
     @Override
     public String getType() {
         return "json";
-    }
-
-    @Override
-    public Properties getProperties() {
-        return null;
-    }
-
-    @Override
-    public void init(Properties properties) {
-        if(null==configFilePathStream) {
-            configFilePathStream= (InputStream) properties.get(TemplateVariableResource.FILE_INPUT_STREAM);
-        }
     }
 }

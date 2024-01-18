@@ -14,7 +14,6 @@ import io.github.bigbird0101.code.core.exception.CodeConfigException;
 
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * 数据库当中的模板资源
@@ -23,12 +22,9 @@ import java.util.Properties;
  * @since 2022-09-24 23:14:30
  */
 public class DataSourceTemplateVariableResource implements TemplateVariableResource{
-    private String tableName;
-    private Environment environment;
+    private final String tableName;
+    private final Environment environment;
     private static final Cache<String,TableInfo> TABLE_INFO_CACHE= CachePool.build(10);
-    public DataSourceTemplateVariableResource() {
-        this(null,null);
-    }
 
     public DataSourceTemplateVariableResource(String tableName, Environment environment) {
         this.tableName = tableName;
@@ -70,14 +66,4 @@ public class DataSourceTemplateVariableResource implements TemplateVariableResou
         return "datasource";
     }
 
-    @Override
-    public Properties getProperties() {
-        return null;
-    }
-
-    @Override
-    public void init(Properties properties) {
-        this.tableName = (String) properties.get("tableName");
-        this.environment = (Environment) properties.get("environment");
-    }
 }

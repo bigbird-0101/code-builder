@@ -35,7 +35,6 @@ import io.github.bigbird0101.code.core.template.targetfile.DefaultTargetFilePref
 import io.github.bigbird0101.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.variable.resource.AbstractNoShareVarTemplateVariableResource;
-import io.github.bigbird0101.code.core.template.variable.resource.ConfigFileTemplateVariableResource;
 import io.github.bigbird0101.code.core.template.variable.resource.DataSourceTemplateVariableResource;
 import io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
@@ -47,6 +46,7 @@ import io.github.bigbird0101.code.fxui.fx.component.FxProgressDialog;
 import io.github.bigbird0101.code.fxui.fx.component.ProgressTask;
 import io.github.bigbird0101.code.util.Utils;
 import io.github.bigbird0101.spi.SPIServiceLoader;
+import io.github.bigbird0101.spi.inject.instance.InstanceContext;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
@@ -581,12 +581,9 @@ public class ComplexController extends TemplateContextProvider implements Initia
             AbstractNoShareVarTemplateVariableResource configFileTemplateVariableResource=null;
             if (null != templateVariableFile) {
                 InputStream inputStream = Files.newInputStream(templateVariableFile.toPath());
-                Properties properties = new Properties();
-                properties.put(TemplateVariableResource.FILE_INPUT_STREAM,inputStream);
-                TemplateVariableResource templateVariableResource = SPIServiceLoader.loadService(TemplateVariableResource.class,
-                        FileUtil.getSuffix(templateVariableFile),properties);
-                configFileTemplateVariableResource=new ConfigFileTemplateVariableResource(
-                        inputStream);
+                InstanceContext.getInstance().register(TemplateVariableResource.FILE_INPUT_STREAM,inputStream);
+                configFileTemplateVariableResource = (AbstractNoShareVarTemplateVariableResource) SPIServiceLoader
+                        .loadService(TemplateVariableResource.class,FileUtil.getSuffix(templateVariableFile));
             }
             final FileBuilder fileBuilder = getFileBuilder(fileBuilderEnum, coreConfig);
             final long l = System.currentTimeMillis();

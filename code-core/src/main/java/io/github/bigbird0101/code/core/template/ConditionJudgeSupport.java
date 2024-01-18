@@ -12,7 +12,7 @@ import static cn.hutool.core.text.StrPool.*;
 
 /**
  *
- * @author pengpeng_fu@infinova.com.cn
+ * @author bigbird-0101
  * @date 2023-04-10 09:52
  */
 public class ConditionJudgeSupport {

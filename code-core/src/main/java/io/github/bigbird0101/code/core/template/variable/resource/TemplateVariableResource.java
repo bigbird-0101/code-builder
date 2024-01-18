@@ -13,7 +13,7 @@ import java.util.*;
 public interface TemplateVariableResource extends TypeBasedSPI {
     String DEFAULT_SRC_RESOURCE_KEY="SrcSourceName";
     String DEFAULT_SRC_RESOURCE_VALUE="TempTemplate";
-    String FILE_INPUT_STREAM = "fileInputStream";
+    String FILE_INPUT_STREAM = "configFilePathStream";
 
     /**
      * 获取模板变量资源

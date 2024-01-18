@@ -2,8 +2,6 @@ package io.github.bigbird0101.code.core.common;
 
 import cn.hutool.core.util.StrUtil;
 
-import java.util.Properties;
-
 /**
  * 下划线转驼峰
  * @author bigbird-0101
@@ -15,19 +13,8 @@ public class ToCamelCase implements TableNameToDomainName {
     public String buildDomainName(String tableName) {
         return StrUtil.upperFirst(StrUtil.toCamelCase(tableName));
     }
-
     @Override
     public String getType() {
         return DEFAULT;
-    }
-
-    @Override
-    public Properties getProperties() {
-        return null;
-    }
-
-    @Override
-    public void init(Properties properties) {
-
     }
 }

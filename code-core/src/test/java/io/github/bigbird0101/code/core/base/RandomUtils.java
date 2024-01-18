@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 /**
  * 随机工具类
  *
- * @author pengpeng_fu@infinova.com.cn
+ * @author bigbird-0101
  */
 public class RandomUtils {
 

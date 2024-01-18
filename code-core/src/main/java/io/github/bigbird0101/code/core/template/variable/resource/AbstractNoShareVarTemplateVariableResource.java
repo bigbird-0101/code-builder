@@ -9,6 +9,9 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * @author bigbird-0101
+ */
 public abstract class AbstractNoShareVarTemplateVariableResource implements TemplateVariableResource {
     /**
      * 非共享变量的前缀 必须是数组不是数组就是一个普通的变量 可以是json数组和其他类型的数组  如果有多个变量则以最短的长度为准

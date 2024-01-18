@@ -4,8 +4,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @author bigbird-0101
+ */
 public final class InstanceContext {
     private static volatile InstanceContext instanceContext;
+    private final Map<String,Object> pool=new ConcurrentHashMap<>();
+
     private InstanceContext() {
     }
 
@@ -20,7 +25,6 @@ public final class InstanceContext {
         return instanceContext;
     }
 
-    private final Map<String,Object> pool=new ConcurrentHashMap<>();
 
     public void register(String name,Object object){
         Object exists = pool.get(name);

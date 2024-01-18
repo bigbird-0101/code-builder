@@ -4,6 +4,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson.JSONObject;
+import io.github.bigbird0101.spi.annotation.Inject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,14 +22,15 @@ import java.util.Properties;
  */
 public class ConfigFileTemplateVariableResource extends AbstractNoShareVarTemplateVariableResource{
     private InputStream configFilePathStream;
-
     Map<String,Object> temp=new HashMap<>();
-
     public ConfigFileTemplateVariableResource() {
-        this(null);
     }
 
     public ConfigFileTemplateVariableResource(InputStream configFilePathStream) {
+        this.configFilePathStream = configFilePathStream;
+    }
+    @Inject
+    public void setConfigFilePathStream(InputStream configFilePathStream) {
         this.configFilePathStream = configFilePathStream;
     }
 
@@ -60,15 +62,4 @@ public class ConfigFileTemplateVariableResource extends AbstractNoShareVarTempla
         return "properties";
     }
 
-    @Override
-    public Properties getProperties() {
-        return null;
-    }
-
-    @Override
-    public void init(Properties properties) {
-        if(null==configFilePathStream) {
-            configFilePathStream= (InputStream) properties.get("fileInputStream");
-        }
-    }
 }

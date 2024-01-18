@@ -6,12 +6,13 @@ import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.core.template.TemplateTraceContext;
-import io.github.bigbird0101.code.util.ClassUtil;
 import io.github.bigbird0101.code.fxui.fx.MinWindow;
 import io.github.bigbird0101.code.fxui.fx.cache.UserOperateCache;
 import io.github.bigbird0101.code.fxui.fx.component.FxApp;
 import io.github.bigbird0101.code.fxui.fx.controller.ComplexController;
+import io.github.bigbird0101.code.util.ClassUtil;
 import io.github.bigbird0101.code.util.Utils;
+import io.github.bigbird0101.spi.inject.instance.InstanceContext;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -139,6 +140,7 @@ public class CodeBuilderApplication extends Application {
     @Override
     public void stop() {
         TemplateTraceContext.clear();
+        InstanceContext.getInstance().destroy();
     }
 
     /**

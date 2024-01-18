@@ -18,7 +18,7 @@ class SPIServiceContext {
     private SPIServiceContext() {
     }
 
-    public static SPIServiceContext getInstance(){
+    static SPIServiceContext getInstance(){
         if(null==serviceContext){
             synchronized (SPIServiceContext.class){
                 if(null==serviceContext){

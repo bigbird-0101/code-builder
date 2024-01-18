@@ -10,7 +10,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author pengpeng_fu@infinova.com.cn
+ * @author bigbird-0101
  * @date 2024-01-02 14:15
  */
 public class ToolTemplateLangResolverTest {
