@@ -18,4 +18,9 @@ public class AggregateSPIServiceInjector implements SPIServiceInjector{
     public <T> T getInstance(Class<T> type, String name) {
         return injectors.stream().map(s->s.getInstance(type,name)).findFirst().orElse(null);
     }
+
+    @Override
+    public String getType() {
+        return "Aggregate";
+    }
 }

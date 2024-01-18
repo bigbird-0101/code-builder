@@ -13,4 +13,9 @@ public class DefaultSPIServiceInjector implements SPIServiceInjector{
         }
         return null;
     }
+
+    @Override
+    public String getType() {
+        return "Default";
+    }
 }

@@ -19,7 +19,7 @@ class SPIServiceContextTest {
         Set<Collection<TestSPI>> list=new HashSet<>();
         List<Future<Collection<TestSPI>>> listFuture=new ArrayList<>();
         for(int a=0;a<1000;a++) {
-            Future<Collection<TestSPI>> submit = executorService.submit(() -> SPIServiceContext.loadServiceInstances(TestSPI.class));
+            Future<Collection<TestSPI>> submit = executorService.submit(() -> SPIServiceContext.getInstance().loadServiceInstances(TestSPI.class));
             listFuture.add(submit);
         }
         for (Future<Collection<TestSPI>> collectionFuture:listFuture){

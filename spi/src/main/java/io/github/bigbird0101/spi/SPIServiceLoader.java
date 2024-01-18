@@ -25,7 +25,7 @@ public final class SPIServiceLoader {
      * @return service instances
      */
     public static <T> Collection<T> loadServiceInstances(final Class<T> service) {
-        return SPIServiceContext.loadServiceInstances(service);
+        return SPIServiceContext.getInstance().loadServiceInstances(service);
     }
 
     /**
@@ -56,7 +56,7 @@ public final class SPIServiceLoader {
     }
 
     private static <T extends TypeBasedSPI> Collection<T> loadServices(final Class<T> classType, final String type) {
-        return SPIServiceContext.loadServiceInstances(classType).stream()
+        return SPIServiceContext.getInstance().loadServiceInstances(classType).stream()
                 .filter(input -> type.equalsIgnoreCase(input.getType()))
                 .collect(Collectors.toList());
     }
@@ -66,7 +66,7 @@ public final class SPIServiceLoader {
     }
 
     public static <T extends OrderAware> LinkedList<T> loadServicesOrdered(final Class<T> classType,final Comparator<T> comparator){
-        return SPIServiceContext.loadServiceInstances(classType).stream()
+        return SPIServiceContext.getInstance().loadServiceInstances(classType).stream()
                 .sorted(comparator)
                 .collect(Collectors.toCollection(LinkedList::new));
     }
