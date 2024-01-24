@@ -178,7 +178,7 @@ public class ConditionJudgeSupport {
                                 .noneMatch(s -> s.equals(String.valueOf(temp2)));
                         stack.push(String.valueOf(anyMatch));
                     }else {
-                        stack.push(String.valueOf(!StrUtil.contains(String.valueOf(temp2), String.valueOf(temp1))));
+                        stack.push(String.valueOf(!StrUtil.contains(String.valueOf(temp1), String.valueOf(temp2))));
                     }
                 }
             }else if("in".equals(value)){
@@ -201,7 +201,7 @@ public class ConditionJudgeSupport {
                                 .anyMatch(s -> s.equals(String.valueOf(temp2)));
                         stack.push(String.valueOf(anyMatch));
                     }else {
-                        stack.push(String.valueOf(StrUtil.contains(String.valueOf(temp2), String.valueOf(temp1))));
+                        stack.push(String.valueOf(StrUtil.contains(String.valueOf(temp1), String.valueOf(temp2))));
                     }
                 }
             }
