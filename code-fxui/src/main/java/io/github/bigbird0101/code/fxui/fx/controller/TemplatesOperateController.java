@@ -212,7 +212,6 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     }
 
     public void initTemplateInfo(VBox root, Template template) {
-//        Scene scene = new Scene(root);
         String templateName = template.getTemplateName();
         FlowPane flowPane = (FlowPane) root.lookup("#functionPane");
         doSetTemplateNameLabel(root, templateName);

@@ -11,13 +11,13 @@ import io.github.bigbird0101.code.core.template.MultipleTemplate;
 import io.github.bigbird0101.code.fxui.CodeBuilderApplication;
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
 import io.github.bigbird0101.code.util.Utils;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -32,6 +32,32 @@ import java.util.stream.Collectors;
 public class MultipleTemplateController extends TemplateContextProvider implements Initializable {
     @FXML
     public TextField searchField;
+    @FXML
+    public HBox templateBox;
+    @FXML
+    public HBox module;
+    @FXML
+    public TextField moduleNameOld;
+    @FXML
+    public TextField moduleNameNew;
+    @FXML
+    public Button replaceModule;
+    @FXML
+    public HBox sourcesRootName;
+    @FXML
+    public TextField sourcesRootNameOld;
+    @FXML
+    public TextField sourcesRootNameNew;
+    @FXML
+    public Button replaceSourcesRootName;
+    @FXML
+    public HBox srcPackageName;
+    @FXML
+    public TextField srcPackageNameOld;
+    @FXML
+    public Button replaceSrcPackageName;
+    @FXML
+    public TextField srcPackageNameNew;
     @FXML
     FlowPane templates;
     private final Insets insets=new Insets(0,10,10,0);
@@ -75,6 +101,18 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
         return button;
     }
 
+    public HBox getModule() {
+        return module;
+    }
+
+    public HBox getSourcesRootName() {
+        return sourcesRootName;
+    }
+
+    public HBox getSrcPackageName() {
+        return srcPackageName;
+    }
+
     public FlowPane getTemplates() {
         return templates;
     }
@@ -101,7 +139,7 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
     }
 
     @FXML
-    public void createMultipleTemplate() throws CodeConfigException {
+    public void createOrUpdateMultipleTemplate() throws CodeConfigException {
         if(Utils.isEmpty(multipleTemplateName.getText())){
             AlertUtil.showWarning("请填写组合模板名");
             return;
@@ -130,6 +168,10 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
         });
         AlertUtil.showInfo("Success!");
         ((Stage)anchorPane.getScene().getWindow()).close();
+        doRefreshMainView();
+    }
+
+    private void doRefreshMainView() {
         if(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected().equals(multipleTemplateName.getText())||
                 sourceMultipleTemplateName.equals(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected())){
             CodeBuilderApplication.USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateName.getText());
@@ -189,7 +231,7 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
     }
 
     @FXML
-    public void selectAll(ActionEvent actionEvent) {
+    public void selectAll() {
         templates.getChildren().forEach(checkbox->{
             CheckBox checkBox= (CheckBox) checkbox;
             checkBox.setSelected(true);
@@ -197,10 +239,75 @@ public class MultipleTemplateController extends TemplateContextProvider implemen
     }
 
     @FXML
-    public void clearAll(ActionEvent actionEvent) {
+    public void clearAll() {
         templates.getChildren().forEach(checkbox->{
             CheckBox checkBox= (CheckBox) checkbox;
             checkBox.setSelected(false);
         });
+    }
+
+    @FXML
+    public void replaceModule() {
+        String newModule = moduleNameNew.getText();
+        String oldModule = moduleNameOld.getText();
+        if(StrUtil.hasBlank(newModule,oldModule)){
+            AlertUtil.showWarning("替换的模块名,新旧都不能为空");
+            return;
+        }
+        MultipleTemplate multipleTemplate = getMultipleTemplate();
+        multipleTemplate.getTemplates().forEach(s->{
+            String moduleSrc = s.getModule();
+            moduleSrc=StrUtil.replace(moduleSrc,oldModule,newModule);
+            s.setModule(moduleSrc);
+            DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory)
+                    getTemplateContext().getTemplateFactory();
+            operateTemplateBeanFactory.refreshTemplate(s);
+        });
+        doRefreshMainView();
+    }
+
+    private MultipleTemplate getMultipleTemplate() {
+        String templateNameSelected = CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected();
+        return getTemplateContext().getMultipleTemplate(templateNameSelected);
+    }
+
+    @FXML
+    public void replaceSourcesRootName() {
+        String newSourcesRootName = sourcesRootNameNew.getText();
+        String oldSourcesRootName = sourcesRootNameOld.getText();
+        if(StrUtil.hasBlank(newSourcesRootName,oldSourcesRootName)){
+            AlertUtil.showWarning("替换的源码包根路径名,新旧都不能为空");
+            return;
+        }
+        MultipleTemplate multipleTemplate = getMultipleTemplate();
+        multipleTemplate.getTemplates().forEach(s->{
+            String sourcesRoot = s.getSourcesRoot();
+            sourcesRoot=StrUtil.replace(sourcesRoot,oldSourcesRootName,newSourcesRootName);
+            s.setSourcesRoot(sourcesRoot);
+            DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory)
+                    getTemplateContext().getTemplateFactory();
+            operateTemplateBeanFactory.refreshTemplate(s);
+        });
+        doRefreshMainView();
+    }
+
+    @FXML
+    public void replaceSrcPackageName() {
+        String newSrcPackageName = srcPackageNameNew.getText();
+        String oldSrcPackageName = srcPackageNameOld.getText();
+        if(StrUtil.hasBlank(newSrcPackageName,oldSrcPackageName)){
+            AlertUtil.showWarning("替换的源码包名,新旧都不能为空");
+            return;
+        }
+        MultipleTemplate multipleTemplate = getMultipleTemplate();
+        multipleTemplate.getTemplates().forEach(s->{
+            String srcPackage = s.getSrcPackage();
+            srcPackage=StrUtil.replace(srcPackage,oldSrcPackageName,newSrcPackageName);
+            s.setSrcPackage(srcPackage);
+            DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory)
+                    getTemplateContext().getTemplateFactory();
+            operateTemplateBeanFactory.refreshTemplate(s);
+        });
+        doRefreshMainView();
     }
 }
