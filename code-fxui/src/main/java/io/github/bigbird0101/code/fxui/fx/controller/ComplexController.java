@@ -802,6 +802,9 @@ public class ComplexController extends TemplateContextProvider implements Initia
         if (isEdit) {
             multipleTemplateController.setMode(0);
             multipleTemplateController.getButton().setText("修改");
+            multipleTemplateController.getModule().setVisible(true);
+            multipleTemplateController.getSourcesRootName().setVisible(true);
+            multipleTemplateController.getSrcPackageName().setVisible(true);
             multipleTemplateController.getMultipleTemplateName().setText(multipleTemplateName);
             multipleTemplateController.setSourceMultipleTemplateName(multipleTemplateName);
             MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(multipleTemplateName);

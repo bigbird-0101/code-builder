@@ -96,6 +96,26 @@ class ConditionJudgeSupportTest {
         assertFalse(result);
     }
 
+    @Test
+    void testCheckFiledMeetConditionsIn23() {
+        // Setup
+        Map<String, Object> dataModal = new HashMap<>();
+        dataModal.put("test","true");
+        // Run the test
+        List<String> resultList = conditionJudgeSupportUnderTest.checkFiled(dataModal, "test in 'true'");
+        boolean result = conditionJudgeSupportUnderTest.meetConditions("test in 'true'", resultList,
+                dataModal);
+        // Verify the results
+        assertTrue(result);
+
+        // Run the test
+        resultList = conditionJudgeSupportUnderTest.checkFiled(dataModal, "test in  'true1'");
+        result = conditionJudgeSupportUnderTest.meetConditions("test in  'true1'", resultList,
+                dataModal);
+        // Verify the results
+        assertTrue(result);
+    }
+
 
     @Test
     void testCheckFiledMeetConditionsIn2() {

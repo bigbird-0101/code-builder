@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
@@ -9,29 +10,77 @@
         <URL value="@../css/new_multiple_template.css" />
     </stylesheets>
     <VBox>
-        <HBox>
-            <Label text="组合模板名:" />
-            <TextField fx:id="multipleTemplateName" />
-        </HBox>
-        <HBox>
-            <Label text="模板的项目地址:" />
-            <TextArea fx:id="projectUrl" prefHeight="52.0" prefWidth="315.0" />
-            <Button fx:id="button" mnemonicParsing="false" onAction="#createMultipleTemplate" text="创建">
-                <font>
-                    <Font size="15.0" />
-                </font>
-            </Button>
-        </HBox>
-        <HBox fx:id="templateBox" alignment="CENTER">
-            <Label text="子模板:" />
-            <TextField fx:id="searchField" promptText="子模版名" />
-            <Button mnemonicParsing="false" onAction="#selectAll" text="全选"/>
-            <Button mnemonicParsing="false" onAction="#clearAll" text="清空"/>
-        </HBox>
-       <HBox>
-        <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="500" minWidth="600">
-            <FlowPane fx:id="templates" />
-        </ScrollPane>
-       </HBox>
+        <BorderPane>
+            <center>
+                <VBox>
+                <HBox>
+                    <Label text="组合模板名:" />
+                    <TextField fx:id="multipleTemplateName" />
+                </HBox>
+                <HBox>
+                    <Label text="模板的项目地址:" />
+                    <TextArea fx:id="projectUrl" prefHeight="52.0" prefWidth="315.0" />
+                </HBox>
+                <HBox visible="false" fx:id="module">
+                    <Label text="模板的模块地址:" />
+                    <Label text="旧:" />
+                    <TextField fx:id="moduleNameOld" prefWidth="215.0" />
+                    <Label text="新:" />
+                    <TextField fx:id="moduleNameNew" prefWidth="215.0" />
+                    <Button fx:id="replaceModule" mnemonicParsing="false" onAction="#replaceModule" text="替换">
+                        <font>
+                            <Font size="15.0" />
+                        </font>
+                    </Button>
+                </HBox>
+                <HBox visible="false" fx:id="sourcesRootName">
+                    <Label text="模板的源码包根路径名:" />
+                    <Label text="旧:" />
+                    <TextField fx:id="sourcesRootNameOld" prefWidth="215.0" />
+                    <Label text="新:" />
+                    <TextField fx:id="sourcesRootNameNew" prefWidth="215.0" />
+                    <Button fx:id="replaceSourcesRootName" mnemonicParsing="false" onAction="#replaceSourcesRootName" text="替换">
+                        <font>
+                            <Font size="15.0" />
+                        </font>
+                    </Button>
+                </HBox>
+                <HBox visible="false" fx:id="srcPackageName">
+                    <Label text="模板的源码包名:" />
+                    <Label text="旧:" />
+                    <TextField fx:id="srcPackageNameOld" prefWidth="215.0" />
+                    <Label text="新:" />
+                    <TextField fx:id="srcPackageNameNew" prefWidth="215.0" />
+                    <Button fx:id="replaceSrcPackageName" mnemonicParsing="false" onAction="#replaceSrcPackageName" text="替换">
+                        <font>
+                            <Font size="15.0" />
+                        </font>
+                    </Button>
+                </HBox>
+                <HBox fx:id="templateBox" alignment="CENTER">
+                    <Label text="子模板:" />
+                    <TextField fx:id="searchField" promptText="子模版名" />
+                    <Button mnemonicParsing="false" onAction="#selectAll" text="全选"/>
+                    <Button mnemonicParsing="false" onAction="#clearAll" text="清空"/>
+                </HBox>
+                <HBox>
+                    <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="500" minWidth="600">
+                        <FlowPane fx:id="templates" />
+                    </ScrollPane>
+                </HBox>
+                </VBox>
+
+            </center>
+            <right>
+                <Button fx:id="button" mnemonicParsing="false" onAction="#createOrUpdateMultipleTemplate" text="创建">
+                    <font>
+                        <Font size="15.0" />
+                    </font>
+                </Button>
+            </right>
+            <padding>
+                <Insets right="50.0" top="20"/>
+            </padding>
+        </BorderPane>
     </VBox>
 </AnchorPane>
