@@ -5,10 +5,22 @@ import cn.hutool.log.StaticLog;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.util.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
-import static cn.hutool.core.text.StrPool.*;
+import static cn.hutool.core.text.StrPool.BRACKET_END;
+import static cn.hutool.core.text.StrPool.BRACKET_START;
+import static cn.hutool.core.text.StrPool.COMMA;
+import static cn.hutool.core.text.StrPool.DOT;
 
 /**
  *

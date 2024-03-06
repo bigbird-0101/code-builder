@@ -4,13 +4,24 @@ import cn.hutool.core.collection.CollectionUtil;
 import io.github.bigbird0101.code.core.context.TemplateContext;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextAware;
 import io.github.bigbird0101.code.core.domain.TableInfo;
-import io.github.bigbird0101.code.core.template.*;
+import io.github.bigbird0101.code.core.template.AbstractTemplateLangResolver;
+import io.github.bigbird0101.code.core.template.AbstractTemplateResolver;
+import io.github.bigbird0101.code.core.template.HaveDependTemplate;
+import io.github.bigbird0101.code.core.template.Template;
+import io.github.bigbird0101.code.core.template.TemplateResolver;
+import io.github.bigbird0101.code.core.template.TemplateTraceContext;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.util.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

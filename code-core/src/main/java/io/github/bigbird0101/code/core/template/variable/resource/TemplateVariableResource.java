@@ -2,7 +2,12 @@ package io.github.bigbird0101.code.core.template.variable.resource;
 
 import io.github.bigbird0101.spi.TypeBasedSPI;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 
 /**
  * 模板变量资源

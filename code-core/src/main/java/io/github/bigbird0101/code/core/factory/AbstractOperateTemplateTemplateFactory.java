@@ -12,7 +12,13 @@ import io.github.bigbird0101.code.core.exception.CreateTemplateException;
 import io.github.bigbird0101.code.core.factory.config.MultipleTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.TemplatePostProcessor;
-import io.github.bigbird0101.code.core.template.*;
+import io.github.bigbird0101.code.core.template.DefaultHandleFunctionTemplate;
+import io.github.bigbird0101.code.core.template.DefaultNoHandleFunctionTemplate;
+import io.github.bigbird0101.code.core.template.GenericMultipleTemplate;
+import io.github.bigbird0101.code.core.template.HaveDependTemplateHandleFunctionTemplate;
+import io.github.bigbird0101.code.core.template.HaveDependTemplateNoHandleFunctionTemplate;
+import io.github.bigbird0101.code.core.template.MultipleTemplate;
+import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.util.Utils;
 
 import java.util.HashSet;

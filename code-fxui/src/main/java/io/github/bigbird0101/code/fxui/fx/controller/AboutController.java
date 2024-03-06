@@ -2,7 +2,7 @@ package io.github.bigbird0101.code.fxui.fx.controller;
 
 import javafx.fxml.FXML;
 
-import java.awt.*;
+import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;

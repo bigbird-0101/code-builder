@@ -10,12 +10,29 @@ import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.config.aware.EnvironmentAware;
 import io.github.bigbird0101.code.core.domain.TemplateFileClassInfo;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
-import io.github.bigbird0101.code.core.template.domnode.*;
+import io.github.bigbird0101.code.core.template.domnode.CodeNode;
+import io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilder;
+import io.github.bigbird0101.code.core.template.domnode.DynamicCodeNodeContext;
+import io.github.bigbird0101.code.core.template.domnode.FunctionCodeNode;
+import io.github.bigbird0101.code.core.template.domnode.MixCodeNode;
+import io.github.bigbird0101.code.core.template.domnode.PrefixCodeNode;
+import io.github.bigbird0101.code.core.template.domnode.StaticTextCodeNode;
+import io.github.bigbird0101.code.core.template.domnode.SuffixCodeNode;
+import io.github.bigbird0101.code.core.template.domnode.TemplateCodeNode;
+import io.github.bigbird0101.code.core.template.domnode.VarCodeNode;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**

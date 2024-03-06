@@ -8,12 +8,21 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Stream;
 
-import static io.github.bigbird0101.code.core.template.AbstractHandleTemplateResolver.*;
+import static io.github.bigbird0101.code.core.template.AbstractHandleTemplateResolver.FUNCTION_BODY_BETWEEN_SPLIT;
+import static io.github.bigbird0101.code.core.template.AbstractHandleTemplateResolver.TEMPLATE_PREFIX_SPLIT;
+import static io.github.bigbird0101.code.core.template.AbstractHandleTemplateResolver.TEMPLATE_SUFFIX_SPLIT;
 import static java.util.stream.Collectors.toList;
-import static org.w3c.dom.Node.*;
+import static org.w3c.dom.Node.CDATA_SECTION_NODE;
+import static org.w3c.dom.Node.ELEMENT_NODE;
+import static org.w3c.dom.Node.TEXT_NODE;
 
 /**
  * @author bigbird-0101
