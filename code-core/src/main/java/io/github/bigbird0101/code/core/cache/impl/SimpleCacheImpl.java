@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author fpp
  */
 public class SimpleCacheImpl<K,C> implements Cache<K,C>, Serializable {
-	private Map<K,C> cache;
+	private final Map<K,C> cache;
 
 	@Override
 	public boolean equals(Object o) {

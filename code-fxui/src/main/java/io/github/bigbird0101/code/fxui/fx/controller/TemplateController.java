@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.FileUrlResource;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
@@ -186,7 +187,11 @@ public class TemplateController extends TemplateContextProvider implements Initi
                                 .filter(labelTreeItem -> labelTreeItem.getValue().getText().equals(multipleTemplate.getTemplateName()))
                                 .findFirst()
                                 .ifPresent(s->{
-                                    final TreeItem<Label> labelTreeItem = s.getChildren().filtered(v -> v.getValue().getText().equals(sourceTemplateName)).stream().findFirst().get();
+                                    final TreeItem<Label> labelTreeItem = s.getChildren()
+                                            .filtered(v -> v.getValue().getText().equals(sourceTemplateName))
+                                            .stream()
+                                            .findFirst()
+                                            .get();
                                     int i=s.getChildren().indexOf(labelTreeItem);
                                     final TreeItem<Label> andInitTemplateView = complexController.getAndInitTemplateView(newTemplate, multipleTemplate.getTemplateName(), s);
                                     s.getChildren().set(i,andInitTemplateView);
@@ -211,7 +216,8 @@ public class TemplateController extends TemplateContextProvider implements Initi
         TemplateDefinition templateDefinition = templateContext.getTemplateDefinition(sourceTemplateName);
         boolean isNotHave = null == templateDefinition;
         RootTemplateDefinition rootTemplateDefinition =isNotHave?new RootTemplateDefinition(): (RootTemplateDefinition) templateDefinition;
-        TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = templateFilePrefixNameStrategyFactory.getTemplateFilePrefixNameStrategy(Utils.setIfNull(filePrefixNameStrategyValue, 1));
+        TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = templateFilePrefixNameStrategyFactory
+                .getTemplateFilePrefixNameStrategy(ObjectUtil.defaultIfNull(filePrefixNameStrategyValue, 1));
         if(targetFilePrefixNameStrategy instanceof PatternTargetFilePrefixNameStrategy){
             PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy= (PatternTargetFilePrefixNameStrategy) targetFilePrefixNameStrategy;
             patternTemplateFilePrefixNameStrategy.setPattern(filePrefixNameStrategyPattern.getText());

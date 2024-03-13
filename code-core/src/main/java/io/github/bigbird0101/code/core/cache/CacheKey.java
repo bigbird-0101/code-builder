@@ -17,13 +17,13 @@ public class CacheKey {
     /**
      * 模板名
      */
-    private String templateName;
+    private final String templateName;
     /**
      * 解析模板时传的map参数
      */
-    private Map<String, Object> map;
+    private final Map<String, Object> map;
 
-    private int hashCode;
+    private final int hashCode;
     public CacheKey(String templateName, Map<String, Object> map) {
         this.templateName = templateName;
         this.map = map;

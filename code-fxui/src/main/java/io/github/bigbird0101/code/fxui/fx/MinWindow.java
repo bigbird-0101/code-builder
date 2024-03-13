@@ -23,27 +23,27 @@ import java.net.URL;
 public final class MinWindow {
  
     private static MinWindow instance;
-    private static MenuItem showItem;
-    private static MenuItem exitItem;
-    private static TrayIcon trayIcon;
+    private static final MenuItem SHOW_ITEM;
+    private static final MenuItem EXIT_ITEM;
+    private static final TrayIcon TRAY_ICON;
     private static ActionListener showListener;
     private static ActionListener exitListener;
     private static MouseAdapter mouseListener;
-    private static Logger logger= LogManager.getLogger(MinWindow.class);
+    private static final Logger logger= LogManager.getLogger(MinWindow.class);
  
     static{
         //执行stage.close()方法,窗口不直接退出
         Platform.setImplicitExit(false);
         //菜单项(打开)中文乱码的问题是编译器的锅,如果使用IDEA,需要在Run-Edit Configuration在LoginApplication中的VM Options中添加-Dfile.encoding=GBK
         //如果使用Eclipse,需要右键Run as-选择Run Configuration,在第二栏Arguments选项中的VM Options中添加-Dfile.encoding=GBK
-        showItem = new MenuItem("OPEN");
+        SHOW_ITEM = new MenuItem("OPEN");
         //菜单项(退出)
-        exitItem = new MenuItem("EXT");
+        EXIT_ITEM = new MenuItem("EXT");
         //此处不能选择ico格式的图片,要使用16*16的png格式的图片
         URL url = MinWindow.class.getClassLoader().getResource("images/icon.png");
         Image image = Toolkit.getDefaultToolkit().getImage(url);
         //系统托盘图标
-        trayIcon = new TrayIcon(image);
+        TRAY_ICON = new TrayIcon(image);
         //初始化监听事件(空)
         showListener = e -> Platform.runLater(() -> {});
         exitListener = e -> {};
@@ -66,17 +66,17 @@ public final class MinWindow {
                 return;
             }
             //设置图标尺寸自动适应
-            trayIcon.setImageAutoSize(true);
+            TRAY_ICON.setImageAutoSize(true);
             //系统托盘
             SystemTray tray = SystemTray.getSystemTray();
             //弹出式菜单组件
             final PopupMenu popup = new PopupMenu();
-            popup.add(showItem);
-            popup.add(exitItem);
-            trayIcon.setPopupMenu(popup);
+            popup.add(SHOW_ITEM);
+            popup.add(EXIT_ITEM);
+            TRAY_ICON.setPopupMenu(popup);
             //鼠标移到系统托盘,会显示提示文本
-            trayIcon.setToolTip("code-builder");
-            tray.add(trayIcon);
+            TRAY_ICON.setToolTip("code-builder");
+            tray.add(TRAY_ICON);
         } catch (Exception e) {
             //系统托盘添加失败
             logger.error(Thread.currentThread().getStackTrace()[ 1 ].getClassName() + ":系统添加失败", e);
@@ -88,13 +88,13 @@ public final class MinWindow {
      */
     public void listen(Stage stage){
         //防止报空指针异常
-        if(showListener == null || exitListener == null || mouseListener == null || showItem == null || exitItem == null || trayIcon == null){
+        if(showListener == null || exitListener == null || mouseListener == null || SHOW_ITEM == null || EXIT_ITEM == null || TRAY_ICON == null){
             return;
         }
         //移除原来的事件
-        showItem.removeActionListener(showListener);
-        exitItem.removeActionListener(exitListener);
-        trayIcon.removeMouseListener(mouseListener);
+        SHOW_ITEM.removeActionListener(showListener);
+        EXIT_ITEM.removeActionListener(exitListener);
+        TRAY_ICON.removeMouseListener(mouseListener);
         //行为事件: 点击"打开"按钮,显示窗口
         showListener = e -> Platform.runLater(() -> showStage(stage));
         //行为事件: 点击"退出"按钮, 就退出系统
@@ -112,10 +112,10 @@ public final class MinWindow {
             }
         };
         //给菜单项添加事件
-        showItem.addActionListener(showListener);
-        exitItem.addActionListener(exitListener);
+        SHOW_ITEM.addActionListener(showListener);
+        EXIT_ITEM.addActionListener(exitListener);
         //给系统托盘添加鼠标响应事件
-        trayIcon.addMouseListener(mouseListener);
+        TRAY_ICON.addMouseListener(mouseListener);
     }
  
     /**

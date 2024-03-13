@@ -65,7 +65,7 @@ public class ClassUtil {
     /**
      * 从一个指定路径下查找所有的类
      *
-     * @param packageName
+     * @param packageName packageName
      */
     private static ArrayList<Class<?>> getAllClass(String packageName) {
 
@@ -105,16 +105,16 @@ public class ClassUtil {
         if (url != null) {
             String type = url.getProtocol();
             LOG.debug("file type : " + type);
-            if (type.equals("file")) {
+            if ("file".equals(type)) {
                 String fileSearchPath = url.getPath();
                 LOG.debug("fileSearchPath: " + fileSearchPath);
                 fileSearchPath = fileSearchPath.substring(0, fileSearchPath.indexOf("/classes"));
                 LOG.debug("fileSearchPath: " + fileSearchPath);
                 fileNames = getClassNameByFile(fileSearchPath);
-            } else if (type.equals("jar")) {
+            } else if ("jar".equals(type)) {
                 try {
-                    JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
-                    JarFile jarFile = jarURLConnection.getJarFile();
+                    JarURLConnection jar = (JarURLConnection) url.openConnection();
+                    JarFile jarFile = jar.getJarFile();
                     fileNames = getClassNameByJar(jarFile);
                 } catch (java.io.IOException e) {
                     throw new RuntimeException("open Package URL failed：" + e.getMessage());

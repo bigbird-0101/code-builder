@@ -9,11 +9,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -29,29 +27,15 @@ public abstract class Utils {
     private static final Logger LOGGER = LogManager.getLogger(Utils.class);
 
     public static boolean isEmpty(String str) {
-        if (str == null || "".equals(str.trim())) {
-            return true;
-        }
-        return false;
+        return str == null || str.trim().isEmpty();
     }
 
-    public static boolean isEmpty(Set set) {
-        if (set == null || 0==set.size()) {
-            return true;
-        }
-        return false;
+    public static boolean isEmpty(Set<?> set) {
+        return set == null || set.isEmpty();
     }
 
     public static boolean isNotEmpty(String str) {
         return !isEmpty(str);
-    }
-
-    public static <T> T setIfNull(T source, T defaultValue) {
-        if (null == source || (source instanceof String && isEmpty((String) source))) {
-            return defaultValue;
-        } else {
-            return source;
-        }
     }
 
     public static String convertTruePathIfNotNull(String source) {
@@ -123,23 +107,6 @@ public abstract class Utils {
         return result.toString();
     }
 
-
-    /**
-     * 获得栈数据
-     * @param stack 栈数据
-     * @param bool true 弹出  false 获取
-     **/
-    private static String getStack(Stack<String> stack, boolean bool) {
-        String result = null;
-        try {
-            if (bool) {
-                return stack.pop();
-            }
-            return stack.peek();
-        } catch (EmptyStackException e) {
-        }
-        return result;
-    }
 
     /**
      * 获取字符串的第一个换行和空格

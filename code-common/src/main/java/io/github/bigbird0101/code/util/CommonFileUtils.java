@@ -3,12 +3,9 @@ package io.github.bigbird0101.code.util;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Objects;
 
@@ -43,15 +40,6 @@ public abstract class CommonFileUtils {
         return fileName;
     }
 
-    /**
-     *
-     * @param fileName 文件名
-     * @return 获取文件流
-     */
-    public static InputStream getFileInputStream(String fileName) {
-        return getDefaultClassLoader().getResourceAsStream(fileName);
-    }
-
 
     /**
      *
@@ -80,24 +68,6 @@ public abstract class CommonFileUtils {
     /**
      *
      * @param fileName 文件名
-     * @return 获取配置文件流
-     */
-    public static InputStream getConfigFileInput(String fileName) {
-        try {
-            return Files.newInputStream(Paths.get(URLDecoder.decode(getFilePath(fileName), "UTF-8")));
-        } catch (IOException e) {
-            try {
-                return getFileInputStream(URLDecoder.decode(fileName, "UTF-8"));
-            } catch (UnsupportedEncodingException ex) {
-                ex.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    /**
-     *
-     * @param fileName 文件名
      * @return 获取配置文件输出流
      * @throws FileNotFoundException 文件没找到
      */
@@ -105,9 +75,8 @@ public abstract class CommonFileUtils {
         try {
             return new FileOutputStream(URLDecoder.decode(getFilePath(fileName), "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     /**

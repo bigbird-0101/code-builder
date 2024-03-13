@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson.JSON;
@@ -286,7 +287,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         moduleNameTextField.setText(Utils.isEmpty(template.getModule())?"/":Utils.convertTruePathIfNotNull(template.getModule()));
 
         TextField sourcesRootTextField = (TextField) parentNode.lookup("#sourcesRoot");
-        sourcesRootTextField.setText(Utils.convertTruePathIfNotNull(Utils.setIfNull(template.getSourcesRoot(), DEFAULT_SOURCES_ROOT)));
+        sourcesRootTextField.setText(Utils.convertTruePathIfNotNull(ObjectUtil.defaultIfNull(template.getSourcesRoot(), DEFAULT_SOURCES_ROOT)));
 
         TextField srcPackageTextField = (TextField) parentNode.lookup("#srcPackage");
         srcPackageTextField.setText(Utils.convertTruePathIfNotNull(template.getSrcPackage()));

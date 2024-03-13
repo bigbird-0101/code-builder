@@ -89,7 +89,7 @@ public class DbUtil {
      * @return java数据类型
      */
     public static String getJavaTypeByJdbcType(String jdbcType, boolean isUnsign, int maxLength) {
-        if (jdbcType == null || jdbcType.trim().length() == 0) {
+        if (jdbcType == null || jdbcType.trim().isEmpty()) {
             return null;
         }
         jdbcType = jdbcType.toLowerCase();
@@ -329,7 +329,7 @@ public class DbUtil {
      */
     public static List<String> getAllTableName(DataSourceConfig dataSourceConfigPojo) {
         List<String> tableNameS;
-        Connection connection = null;
+        Connection connection;
         try {
             connection = DbUtil.getConnection(dataSourceConfigPojo);
             tableNameS = new ArrayList<>();
