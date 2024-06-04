@@ -95,6 +95,9 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
             Node item = functionNodes.item(a);
             NamedNodeMap attributes = item.getAttributes();
             DeferredAttrNSImpl name = (DeferredAttrNSImpl) attributes.getNamedItem("name");
+            if (null == name) {
+                throw new TemplateResolveException("this dom template {} index = {} no get function name ", getTemplateName(), a);
+            }
             String textContent = item.getTextContent();
             result.put(name.getValue(),textContent);
         }

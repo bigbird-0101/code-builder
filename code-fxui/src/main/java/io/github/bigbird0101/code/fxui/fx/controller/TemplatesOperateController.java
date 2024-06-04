@@ -214,6 +214,10 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 selectTemplateGroup.putIfAbsent(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected(),new HashMap<>());
                 selectTemplateGroup.forEach((k,v)->{
                     try {
+                        if (k == null || v == null) {
+                            LOGGER.error("user save config error {}", selectTemplateGroup);
+                            return;
+                        }
                         final MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(k);
                         final Set<String> templateNames = multipleTemplate.getTemplates()
                                 .stream().map(Template::getTemplateName).collect(Collectors.toSet());

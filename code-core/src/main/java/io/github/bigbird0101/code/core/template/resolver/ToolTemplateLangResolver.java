@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static cn.hutool.core.text.CharSequenceUtil.strip;
+
 /**
  * @author fpp
  * @version 1.0
@@ -66,8 +68,8 @@ public class ToolTemplateLangResolver extends AbstractTemplateLangResolver imple
                     throw new TemplateResolveException("tool rep method [{}],src split , size, must = 3 ",src);
                 }
                 String allString = collect.get(0);
-                String oldString = collect.get(1);
-                String newString = collect.get(2);
+                String oldString = strip(collect.get(1), "'", "'");
+                String newString = strip(collect.get(2), "'", "'");
                 return allString.replace(oldString,newString);
             }
         },
