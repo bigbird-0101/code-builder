@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import org.controlsfx.control.CheckComboBox?>
 <?import java.net.URL?>
 <VBox fx:id="box" xmlns="http://javafx.com/javafx/10.0.2-internal"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -31,7 +40,7 @@
                         <CheckBox fx:id="isAllTable" mnemonicParsing="false" text="全库生成"/>
                         <HBox spacing="10" alignment="CENTER_LEFT">
                             <Label text="目标表名"/>
-                            <TextField fx:id="targetTable"/>
+                            <CheckComboBox fx:id="targetTable" maxWidth="200" minWidth="200"/>
                         </HBox>
                         <HBox spacing="10" alignment="CENTER_LEFT">
                             <Label text="变量文件:"/>

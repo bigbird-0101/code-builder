@@ -8,8 +8,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import io.github.bigbird0101.code.core.cache.CachePool;
+import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.config.StringPropertySource;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
+import io.github.bigbird0101.code.core.domain.DataSourceConfig;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 import io.github.bigbird0101.code.core.factory.OperateTemplateBeanFactory;
@@ -43,6 +45,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.CheckComboBox;
+import org.controlsfx.control.IndexedCheckModel;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -79,7 +83,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
     @FXML
      Label currentTemplate;
     @FXML
-     TextField targetTable;
+    CheckComboBox<String> targetTable;
     @FXML
     CheckBox isDefinedFunction;
     @FXML
@@ -100,7 +104,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         return isAllTable;
     }
 
-    public TextField getTargetTable() {
+    public CheckComboBox<String> getTargetTable() {
         return targetTable;
     }
 
@@ -145,8 +149,19 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         try {
             templates.getChildren().clear();
             templates.autosize();
+            initData();
         } catch (CodeConfigException e) {
             LOGGER.info("Template Operate init error", e);
+        }
+    }
+
+    private void initData() {
+        try {
+            List<String> allTableName = DbUtil.getAllTableName(DataSourceConfig.getDataSourceConfig(getTemplateContext()
+                    .getEnvironment()));
+            targetTable.getItems().addAll(allTableName);
+        }catch (Exception e){
+            LOGGER.error(e);
         }
     }
 
@@ -180,7 +195,15 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                     fields.setText(Optional.ofNullable(pageInputSnapshot.getFields()).orElse(StrUtil.EMPTY));
                     isDefinedFunction.setSelected(Optional.ofNullable(pageInputSnapshot.getDefinedFunction()).orElse(false));
                     representFactor.setText(Optional.ofNullable(pageInputSnapshot.getRepresentFactor()).orElse(StrUtil.EMPTY));
-                    targetTable.setText(Optional.ofNullable(pageInputSnapshot.getTableNames()).orElse(StrUtil.EMPTY));
+                    IndexedCheckModel<String> checkModel = targetTable.getCheckModel();
+                    Optional.ofNullable(pageInputSnapshot.getTableNames())
+                            .map(s-> s.split(","))
+                            .ifPresent(s-> {
+                                for (String s1 : s) {
+                                    checkModel.check(s1);
+                                }
+                            });
+
                     isAllTable.setSelected(Optional.ofNullable(pageInputSnapshot.getSelectTableAll()).orElse(false));
                 }
                 if (!selectTemplateGroup.isEmpty()) {
@@ -407,7 +430,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                         .withFields(fields.getText())
                         .withRepresentFactor(representFactor.getText())
                         .withSelectTemplateGroup(selectTemplateGroup)
-                        .withTableNames(targetTable.getText())
+                        .withTableNames(String.join(",", targetTable.getCheckModel().getCheckedItems()))
                         .withDefinedFunction(isDefinedFunction.isSelected())
                         .withSelectTableAll(isAllTable.isSelected())
                         .build();

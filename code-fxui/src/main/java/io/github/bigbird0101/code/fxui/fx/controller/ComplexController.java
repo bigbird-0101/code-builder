@@ -54,6 +54,7 @@ import io.github.bigbird0101.code.util.Utils;
 import io.github.bigbird0101.spi.SPIServiceLoader;
 import io.github.bigbird0101.spi.inject.instance.InstanceContext;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -83,6 +84,7 @@ import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.CheckComboBox;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -142,7 +144,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
      */
     private List<String> tableSelected = new ArrayList<>(10);
     private static boolean isSelectedAllTable = false;
-    private TextField selectedTable;
+    private CheckComboBox<String> selectedTable;
     private VBox templatesOperateNode;
     private FXMLLoader templatesOperateFxmlLoader;
     final ThreadPoolExecutor DO_ANALYSIS_TEMPLATE = ExecutorBuilder.create()
@@ -183,6 +185,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         }else{
             logger.warn("templateNameSelected is null");
         }
+        init();
         doSelectMultiple();
         listViewTemplate.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (null != newValue && !newValue.isLeaf()) {
@@ -193,7 +196,6 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 doSelectMultiple();
             }
         });
-        init();
     }
 
     private void init(){
@@ -584,10 +586,13 @@ public class ComplexController extends TemplateContextProvider implements Initia
             if (isSelectedAllTable) {
                 this.tableSelected = new ArrayList<>(this.tableAll);
             } else {
-                if (Utils.isNotEmpty(selectedTable.getText())) {
-                    if (!this.tableSelected.contains(selectedTable.getText())) {
-                        this.tableSelected.add(selectedTable.getText());
-                    }
+                ObservableList<String> checkedItems = selectedTable.getCheckModel().getCheckedItems();
+                if (!checkedItems.isEmpty()) {
+                    checkedItems.forEach(s -> {
+                        if (!this.tableSelected.contains(s)) {
+                            this.tableSelected.add(s);
+                        }
+                    });
                 }
             }
             File templateVariableFile = templatesOperateController.getFile();
