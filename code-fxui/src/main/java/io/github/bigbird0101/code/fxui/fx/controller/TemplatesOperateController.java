@@ -187,8 +187,8 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
 
     protected void initTemplateConfig() {
         try {
+            String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
             if (selectTemplateGroup.isEmpty()) {
-                String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
                 if (Utils.isNotEmpty(property)) {
                     final PageInputSnapshot pageInputSnapshot = JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {});
                     selectTemplateGroup =Optional.ofNullable(pageInputSnapshot.getSelectTemplateGroup()).orElse(new HashMap<>());
@@ -219,7 +219,6 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                     }
                 });
             } else {
-                String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
                 if (Utils.isNotEmpty(property)) {
                     final PageInputSnapshot pageInputSnapshot = JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {
                     });
