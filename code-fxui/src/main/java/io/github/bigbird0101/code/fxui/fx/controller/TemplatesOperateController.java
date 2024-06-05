@@ -192,19 +192,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                 if (Utils.isNotEmpty(property)) {
                     final PageInputSnapshot pageInputSnapshot = JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {});
                     selectTemplateGroup =Optional.ofNullable(pageInputSnapshot.getSelectTemplateGroup()).orElse(new HashMap<>());
-                    fields.setText(Optional.ofNullable(pageInputSnapshot.getFields()).orElse(StrUtil.EMPTY));
-                    isDefinedFunction.setSelected(Optional.ofNullable(pageInputSnapshot.getDefinedFunction()).orElse(false));
-                    representFactor.setText(Optional.ofNullable(pageInputSnapshot.getRepresentFactor()).orElse(StrUtil.EMPTY));
-                    IndexedCheckModel<String> checkModel = targetTable.getCheckModel();
-                    Optional.ofNullable(pageInputSnapshot.getTableNames())
-                            .map(s-> s.split(","))
-                            .ifPresent(s-> {
-                                for (String s1 : s) {
-                                    checkModel.check(s1);
-                                }
-                            });
-
-                    isAllTable.setSelected(Optional.ofNullable(pageInputSnapshot.getSelectTableAll()).orElse(false));
+                    doSetView(pageInputSnapshot);
                 }
                 if (!selectTemplateGroup.isEmpty()) {
                     if (LOGGER.isInfoEnabled()) {
@@ -230,12 +218,35 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
                         LOGGER.error("初始化用户配置异常: {} {} {} {} {} {}",e, DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
                     }
                 });
+            } else {
+                String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
+                if (Utils.isNotEmpty(property)) {
+                    final PageInputSnapshot pageInputSnapshot = JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {
+                    });
+                    doSetView(pageInputSnapshot);
+                }
             }
         } catch (Exception e) {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("初始化用户配置异常: {} {} {} {} {} {}",e, DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
             }
         }
+    }
+
+    private void doSetView(PageInputSnapshot pageInputSnapshot) {
+        fields.setText(Optional.ofNullable(pageInputSnapshot.getFields()).orElse(StrUtil.EMPTY));
+        isDefinedFunction.setSelected(Optional.ofNullable(pageInputSnapshot.getDefinedFunction()).orElse(false));
+        representFactor.setText(Optional.ofNullable(pageInputSnapshot.getRepresentFactor()).orElse(StrUtil.EMPTY));
+        IndexedCheckModel<String> checkModel = targetTable.getCheckModel();
+        Optional.ofNullable(pageInputSnapshot.getTableNames())
+                .map(s -> s.split(","))
+                .ifPresent(s -> {
+                    for (String s1 : s) {
+                        checkModel.check(s1);
+                    }
+                });
+
+        isAllTable.setSelected(Optional.ofNullable(pageInputSnapshot.getSelectTableAll()).orElse(false));
     }
 
     public VBox initTemplateInfo(Template template) throws IOException {
