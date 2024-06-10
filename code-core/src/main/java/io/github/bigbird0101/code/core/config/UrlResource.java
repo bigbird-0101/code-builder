@@ -6,12 +6,10 @@ import cn.hutool.core.util.URLUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 
 /**
  * @author bigbird-0101
@@ -22,6 +20,9 @@ public class UrlResource extends AbstractResource{
     private URL url;
 
     private URI uri;
+
+    private InputStream repeatableInputStream;
+
     public UrlResource(URL url) {
          this.url=url;
          this.uri=null;
@@ -44,17 +45,11 @@ public class UrlResource extends AbstractResource{
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
-        URLConnection con = this.url.openConnection();
-        try {
-            return con.getInputStream();
+    public synchronized InputStream getInputStream() throws IOException {
+        if(null==repeatableInputStream){
+            repeatableInputStream=new RepeatableInputStream(URLUtil.getStream(url));
         }
-        catch (IOException ex) {
-            if (con instanceof HttpURLConnection) {
-                ((HttpURLConnection) con).disconnect();
-            }
-            throw ex;
-        }
+        return repeatableInputStream;
     }
 
     @Override

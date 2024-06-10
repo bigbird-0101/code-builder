@@ -51,8 +51,7 @@ class ConfigFileTemplateVariableResourceTest {
         StandardEnvironment standardEnvironment=new StandardEnvironment();
         GenericTemplateContext genericTemplateContext=new GenericTemplateContext(standardEnvironment);
         final Template dao = genericTemplateContext.getTemplate("Dao");
-        HashMap<String, Object> objectObjectHashMap = new HashMap<>();
-        objectObjectHashMap.putAll(configFileTemplateVariableResource.getTemplateVariable());
+        HashMap<String, Object> objectObjectHashMap = new HashMap<>(configFileTemplateVariableResource.getTemplateVariable());
         Assertions.assertThrows(TemplateResolveException.class, ()-> dao.process(objectObjectHashMap));
     }
 

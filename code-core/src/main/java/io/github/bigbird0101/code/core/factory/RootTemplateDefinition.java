@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import io.github.bigbird0101.code.core.template.AbstractHandleFunctionTemplate;
 import io.github.bigbird0101.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.TemplateFilePrefixNameStrategyFactory;
@@ -14,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author fpp
@@ -47,7 +49,8 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
 
     @Override
     public boolean isHandleFunction() {
-        return isHandleFunction;
+        return Optional.ofNullable(isHandleFunction).map(s-> AbstractHandleFunctionTemplate.class
+                .isAssignableFrom(getTemplateClass())).orElse(false);
     }
 
     public void setDependTemplates(LinkedHashSet<String> dependTemplates) {

@@ -300,7 +300,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
     }
 
     /**
-     * {@link CodeNodeHandler} spi loader
+     * {@link CodeNodeHandler} code-spi loader
      */
     protected static class CodeNodeHandlerTypeBasedSPIServiceLoader extends TypeBasedSPIServiceLoader<CodeNodeHandler>{
         protected CodeNodeHandlerTypeBasedSPIServiceLoader(Class<CodeNodeHandler> classType) {

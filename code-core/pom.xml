@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>spi</artifactId>
+            <artifactId>code-spi</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

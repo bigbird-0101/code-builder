@@ -15,7 +15,7 @@ import java.util.List;
  * @version 1.0
  */
 public abstract class TemplateContextProvider {
-    private Logger logger= LogManager.getLogger(TemplateContextProvider.class);
+    private final Logger logger= LogManager.getLogger(TemplateContextProvider.class);
 
     private static TemplateContext templateContext;
 

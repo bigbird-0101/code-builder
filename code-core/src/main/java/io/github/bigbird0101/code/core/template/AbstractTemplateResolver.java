@@ -114,7 +114,7 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
             }
             this.templateLangResolverList.add(item);
         });
-        if(templateLangResolverList.size()==0&& LOGGER.isWarnEnabled()){
+        if(templateLangResolverList.isEmpty() && LOGGER.isWarnEnabled()){
             LOGGER.warn("template lang resolver load failed");
         }
     }
@@ -131,7 +131,6 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
                     } catch (NoSuchMethodException e) {
                         throw new CodeConfigException(classNameLangResolver+"类文件构造函数异常");
                     } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
                         throw new CodeConfigException("配置文件:"+CONFIG_TEMPLATE_RESOLVERS+"配置项,类"+classNameLangResolver+"未找到");
                     } catch (ReflectiveOperationException e) {
                         throw new CodeConfigException(classNameLangResolver+"类文件对象实例化异常");

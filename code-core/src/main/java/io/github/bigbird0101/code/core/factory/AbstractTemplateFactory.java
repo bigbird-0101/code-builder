@@ -1,13 +1,13 @@
 package io.github.bigbird0101.code.core.factory;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ServiceLoaderUtil;
 import io.github.bigbird0101.code.core.config.aware.EnvironmentAware;
+import io.github.bigbird0101.code.core.exception.NoSuchMultipleTemplateDefinitionException;
+import io.github.bigbird0101.code.core.exception.NoSuchTemplateDefinitionException;
 import io.github.bigbird0101.code.core.factory.aware.TemplateFactoryAware;
 import io.github.bigbird0101.code.core.factory.config.MultipleTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.TemplatePostProcessor;
-import io.github.bigbird0101.code.core.template.HaveDependTemplate;
 import io.github.bigbird0101.code.core.template.MultipleTemplate;
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.core.template.TemplateTraceContext;
@@ -15,7 +15,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -59,7 +58,9 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
         MultipleTemplate multipleTemplate = getSingletonMultipleTemplate(templateName);
         if (null == multipleTemplate) {
             MultipleTemplateDefinition multipleTemplateDefinition = getMultipleTemplateDefinition(templateName);
-            Objects.requireNonNull(multipleTemplateDefinition,"not found "+templateName+" multiple template definition");
+            if(null==multipleTemplateDefinition) {
+                throw new NoSuchMultipleTemplateDefinitionException("not found " + templateName + " multiple template definition");
+            }
             multipleTemplate = createMultipleTemplate(templateName, multipleTemplateDefinition);
         }
         return multipleTemplate;
@@ -69,7 +70,9 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
         Template template = getSingletonTemplate(templateName);
         if (null == template) {
             TemplateDefinition templateDefinition = getTemplateDefinition(templateName);
-            Objects.requireNonNull(templateDefinition,"not found "+templateName+" template definition");
+            if(null==templateDefinition) {
+                throw new NoSuchTemplateDefinitionException("not found "+templateName+" template definition");
+            }
             template = createTemplate(templateName, templateDefinition);
         }
         logger.info("doGetTemplate {}",templateName);

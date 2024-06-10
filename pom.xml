@@ -9,7 +9,7 @@
         <module>code-core</module>
         <module>code-common</module>
         <module>code-fxui</module>
-        <module>spi</module>
+        <module>code-spi</module>
         <module>code-distribution</module>
     </modules>
     <packaging>pom</packaging>
@@ -225,7 +225,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>spi</artifactId>
+                <artifactId>code-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
