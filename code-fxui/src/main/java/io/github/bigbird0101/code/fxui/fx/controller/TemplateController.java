@@ -52,6 +52,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH;
+import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
+
 /**
  * @author Administrator
  */
@@ -236,8 +239,8 @@ public class TemplateController extends TemplateContextProvider implements Initi
         logger.info("templateName {} dependTemplate {}",templateNameText,dependTemplates);
         rootTemplateDefinition.setDependTemplates(dependTemplates);
         String newFileName = getTemplateContext().getEnvironment()
-                .getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + "/" +
-                templateNameText +AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
+                .getProperty(DEFAULT_CORE_TEMPLATE_FILES_PATH) + File.separator +
+                templateNameText + DEFAULT_TEMPLATE_FILE_SUFFIX;
         File newFile = new File(newFileName);
         if(!this.file.equals(newFile)) {
             FileUtils.copyFile(this.file, newFile);

@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.core.template.targetfile;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import io.github.bigbird0101.code.core.template.Template;
 
 import java.io.Serializable;
@@ -15,6 +16,7 @@ public interface TargetFilePrefixNameStrategy extends Serializable {
      * 获取命名策略代表值
      * @return
      */
+    @JSONField(name = "value")
     int getTypeValue();
     /**
      * 命名策略

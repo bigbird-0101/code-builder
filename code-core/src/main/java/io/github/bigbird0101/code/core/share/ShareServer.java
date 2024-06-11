@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.core.share;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
@@ -13,6 +14,7 @@ import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
 import io.github.bigbird0101.code.core.exception.NoSuchTemplateDefinitionException;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
+import io.github.bigbird0101.code.core.factory.RootTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.MultipleTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
 import io.github.bigbird0101.code.core.template.AbstractTemplate;
@@ -43,9 +45,9 @@ public class ShareServer extends TemplateContextProvider {
     }
 
     public void start() {
-        PathHandler pathHandler = new PathHandler();
-        server.addAction(TEMPLATE, pathHandler);
-        server.addAction(MULTIPLE_TEMPLATE, pathHandler);
+        GenericAction genericAction = new GenericAction();
+        server.addAction(TEMPLATE, genericAction);
+        server.addAction(MULTIPLE_TEMPLATE, genericAction);
         server.start();
     }
 
@@ -53,7 +55,7 @@ public class ShareServer extends TemplateContextProvider {
         server.getRawServer().stop(1000);
     }
 
-    class PathHandler implements Action {
+    class GenericAction implements Action {
         private final GenericTemplateContext templateContext = (GenericTemplateContext) getTemplateContext();
         private final  DefaultListableTemplateFactory factory = templateContext.getTemplateFactory();
         @Override
@@ -72,7 +74,7 @@ public class ShareServer extends TemplateContextProvider {
                         response.sendError(404, String.format("%s template is not find", t));
                         return;
                     }
-                    JSONObject json = getTemplateJson(templateDefinition);
+                    JSONObject json = getTemplateJson(templateDefinition, t);
                     response.write(json.toString());
                 } else if (path.startsWith(MULTIPLE_TEMPLATE)) {
                     MultipleTemplateDefinition multipleTemplateDefinition = factory
@@ -85,7 +87,7 @@ public class ShareServer extends TemplateContextProvider {
                     JSONObject templateMaps=new JSONObject();
                     json.put("templateMaps",templateMaps);
                     factory.getTemplateNames()
-                            .forEach(s-> templateMaps.put(s,getTemplateJson(factory.getTemplateDefinition(s))));
+                            .forEach(s -> templateMaps.put(s, getTemplateJson(factory.getTemplateDefinition(s), s)));
                     response.write(json.toString());
                 }
             } catch (NoSuchTemplateDefinitionException exception) {
@@ -94,6 +96,26 @@ public class ShareServer extends TemplateContextProvider {
                 LOGGER.error("{} template is error",t,exception);
                 response.sendError(500, String.format("%s template is error %s", t,exception.getMessage()));
             }
+        }
+
+        private JSONObject getTemplateJson(TemplateDefinition templateDefinition, String templateName) {
+            JSONObject json = getTemplateJson(templateDefinition);
+            JSONObject dependTemplates = new JSONObject();
+            if (templateDefinition instanceof RootTemplateDefinition) {
+                RootTemplateDefinition rootTemplateDefinition = (RootTemplateDefinition) templateDefinition;
+                if (CollUtil.isNotEmpty(rootTemplateDefinition.getDependTemplates())) {
+                    rootTemplateDefinition.getDependTemplates().forEach(s -> {
+                        TemplateDefinition dependTemplateDefinition = factory.getTemplateDefinition(s);
+                        JSONObject templateJson = getTemplateJson(dependTemplateDefinition, s);
+                        dependTemplates.put(s, templateJson);
+                    });
+                }
+            }
+            if (!dependTemplates.isEmpty()) {
+                json.put("dependTemplateMaps", dependTemplates);
+            }
+            json.put("templateName", templateName);
+            return json;
         }
 
         private JSONObject getTemplateJson(TemplateDefinition templateDefinition) {

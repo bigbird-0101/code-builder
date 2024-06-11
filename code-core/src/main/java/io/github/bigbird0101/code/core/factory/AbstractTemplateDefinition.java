@@ -19,6 +19,7 @@ public abstract class AbstractTemplateDefinition implements TemplateDefinition {
 
     private String srcPackage;
 
+    @JSONField(serialize = false)
     private Resource templateResource;
 
     @JSONField(alternateNames = {"templateClassName"})

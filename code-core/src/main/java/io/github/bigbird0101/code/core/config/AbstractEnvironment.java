@@ -106,8 +106,8 @@ public abstract class AbstractEnvironment implements Environment {
     public void parse() throws CodeConfigException {
         try {
             loadCoreConfig();
-            getPropertySources().addPropertySource(new StringPropertySource(DEFAULT_CORE_TEMPLATE_PATH, getTemplateConfigPath()));
-            getPropertySources().addPropertySource(new StringPropertySource(DEFAULT_CORE_TEMPLATE_FILES_PATH, getTemplatesPath()));
+            getPropertySources().addPropertySource(new StringPropertySource(DEFAULT_CORE_TEMPLATE_PATH, getDecodeFilePath(getTemplateConfigPath())));
+            getPropertySources().addPropertySource(new StringPropertySource(DEFAULT_CORE_TEMPLATE_FILES_PATH, getDecodeFilePath(getTemplatesPath())));
             loadTemplatesPath();
             logger.info("config parse down");
         } catch (Throwable e) {
@@ -123,8 +123,7 @@ public abstract class AbstractEnvironment implements Environment {
         loadCoreConfig(coreConfigPath);
     }
     protected void loadTemplatesPath() {
-        Collection<File> files = FileUtils.listFiles(new File(URLUtil.decode(ResourceUtil.getResourceObj(templatesPath).getUrl()
-                .getFile())), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
+        Collection<File> files = FileUtils.listFiles(new File(getDecodeFilePath(templatesPath)), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
         files.forEach(file -> {
             String fileName = file.getName();
             TEMPLATE_FILE_NAME_URL_MAPPING.put(fileName, file.getAbsolutePath());
@@ -139,6 +138,11 @@ public abstract class AbstractEnvironment implements Environment {
                 }
             }
         });
+    }
+
+    private String getDecodeFilePath(String path) {
+        return URLUtil.decode(ResourceUtil.getResourceObj(path).getUrl()
+                .getFile());
     }
 
     public void loadCoreConfig(String fileName) throws IOException {

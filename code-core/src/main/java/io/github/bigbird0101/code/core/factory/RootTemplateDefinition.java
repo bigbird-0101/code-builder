@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.ObjectSerializer;
 import io.github.bigbird0101.code.core.template.AbstractHandleFunctionTemplate;
 import io.github.bigbird0101.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;
@@ -12,6 +14,7 @@ import io.github.bigbird0101.code.core.template.targetfile.TemplateFilePrefixNam
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -27,7 +30,8 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
 
     private Boolean isHandleFunction;
 
-    @JSONField(deserializeUsing = RootTemplateDefinitionDeserializer.class,alternateNames = {"filePrefixNameStrategy"})
+    @JSONField(deserializeUsing = RootTemplateDefinitionDeserializer.class, serializeUsing = RootTemplateDefinitionDeserializer.class, alternateNames = {"filePrefixNameStrategy",
+            "targetFilePrefixNameStrategy"}, name = "filePrefixNameStrategy")
     private TargetFilePrefixNameStrategy targetFilePrefixNameStrategy;
 
     @JSONField(defaultValue = "[]")
@@ -49,8 +53,8 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
 
     @Override
     public boolean isHandleFunction() {
-        return Optional.ofNullable(isHandleFunction).map(s-> AbstractHandleFunctionTemplate.class
-                .isAssignableFrom(getTemplateClass())).orElse(false);
+        return Optional.ofNullable(isHandleFunction).orElse(AbstractHandleFunctionTemplate.class
+                .isAssignableFrom(getTemplateClass()));
     }
 
     public void setDependTemplates(LinkedHashSet<String> dependTemplates) {
@@ -98,12 +102,13 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
         return Objects.hash(super.hashCode(), targetFileSuffixName, isHandleFunction, targetFilePrefixNameStrategy, dependTemplates);
     }
 
-    public static class RootTemplateDefinitionDeserializer implements ObjectDeserializer{
-        private static final Logger logger= LogManager.getLogger(RootTemplateDefinitionDeserializer.class);
+    public static class RootTemplateDefinitionDeserializer implements ObjectDeserializer, ObjectSerializer {
+        private static final Logger logger = LogManager.getLogger(RootTemplateDefinitionDeserializer.class);
 
-        TemplateFilePrefixNameStrategyFactory templateFilePrefixNameStrategyFactory=new TemplateFilePrefixNameStrategyFactory();
+        TemplateFilePrefixNameStrategyFactory templateFilePrefixNameStrategyFactory = new TemplateFilePrefixNameStrategyFactory();
 
         @Override
+        @SuppressWarnings("unchecked")
         public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
             JSONObject jsonObject = parser.parseObject();
             try {
@@ -114,8 +119,8 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
                     ((PatternTargetFilePrefixNameStrategy) filePrefixNameStrategy).setPattern(pattern);
                 }
                 return (T) filePrefixNameStrategy;
-            }catch (Exception e){
-                logger.error("RootTemplateDefinitionDeserializer error {},{},{}",e,e.getMessage(),jsonObject);
+            } catch (Exception e) {
+                logger.error("RootTemplateDefinitionDeserializer error {},{},{}", e, e.getMessage(), jsonObject);
                 return null;
             }
         }
@@ -123,6 +128,22 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
         @Override
         public int getFastMatchToken() {
             return 0;
+        }
+
+        @Override
+        public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+            JSONObject jsonObject = new JSONObject();
+            TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = (TargetFilePrefixNameStrategy) object;
+            if (null != targetFilePrefixNameStrategy) {
+                int typeValue = targetFilePrefixNameStrategy.getTypeValue();
+                jsonObject.put("value", typeValue);
+                if (targetFilePrefixNameStrategy instanceof PatternTargetFilePrefixNameStrategy) {
+                    PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy =
+                            (PatternTargetFilePrefixNameStrategy) targetFilePrefixNameStrategy;
+                    jsonObject.put("pattern", patternTemplateFilePrefixNameStrategy.getPattern());
+                }
+            }
+            serializer.write(jsonObject);
         }
     }
 }

@@ -45,11 +45,8 @@ public class UrlResource extends AbstractResource{
     }
 
     @Override
-    public synchronized InputStream getInputStream() throws IOException {
-        if(null==repeatableInputStream){
-            repeatableInputStream=new RepeatableInputStream(URLUtil.getStream(url));
-        }
-        return repeatableInputStream;
+    public InputStream getInputStream() throws IOException {
+        return URLUtil.getStream(url);
     }
 
     @Override
