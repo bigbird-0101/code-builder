@@ -5,7 +5,7 @@ import cn.hutool.core.util.ObjectUtil;
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.FileUrlResource;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
-import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
+import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 import io.github.bigbird0101.code.core.factory.RootTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
@@ -37,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.CheckComboBox;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +51,6 @@ import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH;
 import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
@@ -58,8 +58,8 @@ import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT
 /**
  * @author Administrator
  */
-public class TemplateController extends TemplateContextProvider implements Initializable {
-    private static final Logger logger= LogManager.getLogger(TemplateController.class);
+public class AbstractTemplateController extends AbstractTemplateContextProvider implements Initializable {
+    private static final Logger logger = LogManager.getLogger(AbstractTemplateController.class);
 
     @FXML
     TextArea projectUrl;
@@ -86,7 +86,7 @@ public class TemplateController extends TemplateContextProvider implements Initi
     @FXML
     Button button;
     @FXML
-    TextField depends;
+    CheckComboBox<String> depends;
     @FXML
     ComboBox<String> selectTemplateClassName;
 
@@ -101,7 +101,7 @@ public class TemplateController extends TemplateContextProvider implements Initi
      */
     private int mode = 1;
 
-    public TemplateController() {
+    public AbstractTemplateController() {
     }
 
     public void setSourceTemplateName(String sourceTemplateName) {
@@ -232,10 +232,8 @@ public class TemplateController extends TemplateContextProvider implements Initi
         rootTemplateDefinition.setProjectUrl(projectUrl.getText());
         rootTemplateDefinition.setSourcesRoot(sourcesRootName.getText());
         rootTemplateDefinition.setSrcPackage(srcPackageName.getText());
-        final String text = depends.getText();
         String templateNameText = templateName.getText();
-        LinkedHashSet<String> dependTemplates = Utils.isNotEmpty(text) ? Stream.of(text.split(","))
-                .collect(Collectors.toCollection(LinkedHashSet::new)) : new LinkedHashSet<>();
+        LinkedHashSet<String> dependTemplates = new LinkedHashSet<>(depends.getCheckModel().getCheckedItems());
         logger.info("templateName {} dependTemplate {}",templateNameText,dependTemplates);
         rootTemplateDefinition.setDependTemplates(dependTemplates);
         String newFileName = getTemplateContext().getEnvironment()
@@ -306,7 +304,8 @@ public class TemplateController extends TemplateContextProvider implements Initi
             return false;
         }
         try {
-            if(Class.forName(selectTemplateClassName.getSelectionModel().getSelectedItem()).newInstance() instanceof HaveDependTemplate&&Utils.isEmpty(depends.getText())){
+            if (Class.forName(selectTemplateClassName.getSelectionModel().getSelectedItem()).newInstance()
+                    instanceof HaveDependTemplate && depends.getCheckModel().getCheckedItems().isEmpty()) {
                 AlertUtil.showError("该模板为依赖型模板,请填写依赖模板名!");
                 return false;
             }
@@ -315,8 +314,8 @@ public class TemplateController extends TemplateContextProvider implements Initi
         }
 
 
-        if(Utils.isNotEmpty(depends.getText())){
-            final Set<String> collect = Stream.of(depends.getText().split(",")).collect(Collectors.toSet());
+        if (!depends.getCheckModel().getCheckedItems().isEmpty()) {
+            final List<String> collect = depends.getCheckModel().getCheckedItems();
             for(String dependTemplateName:collect){
                 if(!getTemplateContext().getTemplateNames().contains(dependTemplateName)){
                     AlertUtil.showError(String.format("所依赖的%s模板不存在",dependTemplateName));

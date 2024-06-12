@@ -89,11 +89,11 @@ public abstract class AbstractTemplate implements Template {
     }
 
     public AbstractTemplate(String templeFileName) throws CodeConfigException {
-        this(templeFileName, new DefaultTemplateResolver());
+        this(templeFileName, new DefaultAbstractTemplateResolver());
     }
 
     public AbstractTemplate(String templeFileName, Environment environment) throws CodeConfigException {
-        this(templeFileName, new DefaultTemplateResolver(environment));
+        this(templeFileName, new DefaultAbstractTemplateResolver(environment));
     }
 
     public AbstractTemplate(String templeFileName, TemplateResolver templateResolver) {

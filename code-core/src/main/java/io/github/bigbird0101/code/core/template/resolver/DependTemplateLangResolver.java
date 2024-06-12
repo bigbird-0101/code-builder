@@ -5,7 +5,7 @@ import io.github.bigbird0101.code.core.context.TemplateContext;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextAware;
 import io.github.bigbird0101.code.core.domain.TableInfo;
 import io.github.bigbird0101.code.core.template.AbstractTemplateLangResolver;
-import io.github.bigbird0101.code.core.template.AbstractTemplateResolver;
+import io.github.bigbird0101.code.core.template.AbstractAbstractTemplateResolver;
 import io.github.bigbird0101.code.core.template.HaveDependTemplate;
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.core.template.TemplateResolver;
@@ -144,7 +144,7 @@ public class DependTemplateLangResolver extends AbstractTemplateLangResolver imp
     }
 
     private static final String LANG_NAME="depend";
-    public static final Pattern DEPEND_TEMPLATE_PATTERN = Pattern.compile("(\\s*"+ AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE +"\\s*"+LANG_NAME+"\\s*\\[\\s*(?<index>.*?)\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\s*\\)??\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE +"\\s*)", Pattern.DOTALL);
+    public static final Pattern DEPEND_TEMPLATE_PATTERN = Pattern.compile("(\\s*" + AbstractAbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE + "\\s*" + LANG_NAME + "\\s*\\[\\s*(?<index>.*?)\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\s*\\)??\\s*" + AbstractAbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE + "\\s*)", Pattern.DOTALL);
     protected static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*\\[\\s*.*?\\s*\\]\\s*\\.(?<function>.*?)\\(?\\s*\\)?\\s*)", Pattern.DOTALL);
     private final Set<Pattern> excludeVariablePatten=new HashSet<>(Collections.singletonList(TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
 

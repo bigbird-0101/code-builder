@@ -4,7 +4,9 @@ import io.github.bigbird0101.code.core.config.FileUrlResource;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
+import io.github.bigbird0101.code.core.factory.config.MultipleTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
+import io.github.bigbird0101.code.core.template.MultipleTemplate;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -18,46 +20,38 @@ import static java.nio.file.Files.newInputStream;
 
 /**
  * @author bigbird-0101
- * @date 2024-06-11 22:40
+ * @date 2024-06-12 20:22
  */
-public class TemplateDefinitionWrapper extends AbstractTemplateContextProvider {
-    private TemplateDefinition templateDefinition;
-    private String templateName;
-    private List<TemplateDefinitionWrapper> dependTemplateDefinitionList;
+public class MultipleTemplateDefinitionWrapper extends AbstractTemplateContextProvider {
+    private final String multipleTemplateName;
+    private final MultipleTemplateDefinition multipleTemplateDefinition;
+    private final List<TemplateDefinitionWrapper> templateDefinitionWrapperList;
 
-    public TemplateDefinitionWrapper(TemplateDefinition templateDefinition, String templateName, List<TemplateDefinitionWrapper> dependTemplateDefinitionList) {
-        this.templateDefinition = templateDefinition;
-        this.templateName = templateName;
-        this.dependTemplateDefinitionList = dependTemplateDefinitionList;
+
+    public MultipleTemplateDefinitionWrapper(String multipleTemplateName, MultipleTemplateDefinition
+            multipleTemplateDefinition, List<TemplateDefinitionWrapper> templateDefinitionWrapperList) {
+        this.multipleTemplateName = multipleTemplateName;
+        this.multipleTemplateDefinition = multipleTemplateDefinition;
+        this.templateDefinitionWrapperList = templateDefinitionWrapperList;
     }
 
-    public TemplateDefinition getTemplateDefinition() {
-        return templateDefinition;
+    public String getMultipleTemplateName() {
+        return multipleTemplateName;
     }
 
-    public void setTemplateDefinition(TemplateDefinition templateDefinition) {
-        this.templateDefinition = templateDefinition;
+    public MultipleTemplateDefinition getMultipleTemplateDefinition() {
+        return multipleTemplateDefinition;
     }
 
-    public List<TemplateDefinitionWrapper> getDependTemplateDefinitionList() {
-        return dependTemplateDefinitionList;
+    public List<TemplateDefinitionWrapper> getTemplateDefinitionWrapperList() {
+        return templateDefinitionWrapperList;
     }
 
-    public void setDependTemplateDefinitionList(List<TemplateDefinitionWrapper> dependTemplateDefinitionList) {
-        this.dependTemplateDefinitionList = dependTemplateDefinitionList;
-    }
-
-    public String getTemplateName() {
-        return templateName;
-    }
-
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
-    public void registerAndRefreshTemplate() {
+    public void registerAndRefreshMultipleTemplate() {
         List<TemplateDefinitionWrapper> sortWrapper = new ArrayList<>();
-        sortGetDependTemplateDefinitionList(this, sortWrapper);
+        for (TemplateDefinitionWrapper templateDefinitionWrapper : getTemplateDefinitionWrapperList()) {
+            templateDefinitionWrapper.sortGetDependTemplateDefinitionList(templateDefinitionWrapper, sortWrapper);
+        }
         GenericTemplateContext templateContext = (GenericTemplateContext) getTemplateContext();
         DefaultListableTemplateFactory defaultListableTemplateFactory = templateContext.getTemplateFactory();
         for (TemplateDefinitionWrapper templateDefinitionWrapper : sortWrapper) {
@@ -74,13 +68,10 @@ public class TemplateDefinitionWrapper extends AbstractTemplateContextProvider {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    public void sortGetDependTemplateDefinitionList(TemplateDefinitionWrapper templateDefinitionWrapper,
-                                                    List<TemplateDefinitionWrapper> sortWrapper) {
-        for (TemplateDefinitionWrapper templateDefinitionWrapperTemp : templateDefinitionWrapper.getDependTemplateDefinitionList()) {
-            sortGetDependTemplateDefinitionList(templateDefinitionWrapperTemp, sortWrapper);
-        }
-        sortWrapper.add(templateDefinitionWrapper);
+        templateContext.registerMultipleTemplateDefinition(getMultipleTemplateName(), getMultipleTemplateDefinition());
+        defaultListableTemplateFactory.preInstantiateTemplates();
+        final MultipleTemplate multipleTemplate = templateContext.getMultipleTemplate(getMultipleTemplateName());
+        defaultListableTemplateFactory.refreshMultipleTemplate(multipleTemplate);
+        multipleTemplate.getTemplates().forEach(defaultListableTemplateFactory::refreshTemplate);
     }
 }

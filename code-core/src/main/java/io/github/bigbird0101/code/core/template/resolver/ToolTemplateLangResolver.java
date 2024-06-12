@@ -7,8 +7,8 @@ import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.context.TemplateContext;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextAware;
 import io.github.bigbird0101.code.core.domain.TableInfo;
+import io.github.bigbird0101.code.core.template.AbstractAbstractTemplateResolver;
 import io.github.bigbird0101.code.core.template.AbstractTemplateLangResolver;
-import io.github.bigbird0101.code.core.template.AbstractTemplateResolver;
 import io.github.bigbird0101.code.core.template.TemplateResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.util.Utils;
@@ -243,7 +243,7 @@ public class ToolTemplateLangResolver extends AbstractTemplateLangResolver imple
     }
 
     private static final String LANG_NAME="tool";
-    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*"+ AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE +"\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*\\)\\s*"+AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE +"\\s*)", Pattern.DOTALL);
+    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*" + AbstractAbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE + "\\s*" + LANG_NAME + "\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*\\)\\s*" + AbstractAbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE + "\\s*)", Pattern.DOTALL);
     public static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*\\.(?<function>.*?)\\(\\s*(?<title>.*?)\\s*)", Pattern.DOTALL);
     private final Set<Pattern> excludeVariablePatten=new HashSet<>(Collections.singletonList(TEMPLATE_GRAMMAR_PATTERN_SUFFIX));
 
@@ -293,7 +293,7 @@ public class ToolTemplateLangResolver extends AbstractTemplateLangResolver imple
                     Object objectTarget;
                     objectTarget = Utils.getTargetObject(dataModal, variableKey);
                     if (objectTarget instanceof String) {
-                        realTitle = titleBuilder.toString().replaceAll(((AbstractTemplateResolver)getTemplateResolver())
+                        realTitle = titleBuilder.toString().replaceAll(((AbstractAbstractTemplateResolver) getTemplateResolver())
                                 .getTemplateVariableEscapeFormat(variableKey), (String) objectTarget);
                     } else {
                         realTitle = getLangBodyResult(objectTarget, titleBuilder.toString(), variableKey.split("\\.")[0]);
@@ -325,7 +325,7 @@ public class ToolTemplateLangResolver extends AbstractTemplateLangResolver imple
     }
 
     private Optional<DependTemplateLangResolver> getDependTemplateResolver(){
-        final AbstractTemplateResolver templateResolver = (AbstractTemplateResolver)getTemplateResolver();
+        final AbstractAbstractTemplateResolver templateResolver = (AbstractAbstractTemplateResolver) getTemplateResolver();
         return Optional.ofNullable(templateResolver)
                 .flatMap(b -> b.getTemplateLangResolverList()
                 .stream().filter(s -> s instanceof DependTemplateLangResolver)

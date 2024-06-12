@@ -15,7 +15,9 @@
     <Menu mnemonicParsing="false" text="模板">
       <Menu mnemonicParsing="false" text="新建">
         <MenuItem mnemonicParsing="false" onAction="#addTemplate" text="模板"/>
+        <MenuItem mnemonicParsing="false" text="导入模板" onAction="#importTemplate"/>
         <MenuItem mnemonicParsing="false" text="组合模板" onAction="#addMultipleTemplate"/>
+        <MenuItem mnemonicParsing="false" text="导入组合模板" onAction="#importMultipleTemplate"/>
       </Menu>
       <MenuItem mnemonicParsing="false" text="Quit"/>
     </Menu>

@@ -19,7 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static io.github.bigbird0101.code.core.template.AbstractHandleTemplateResolver.FUNCTION_NAME_BETWEEN_SPLIT;
+import static io.github.bigbird0101.code.core.template.AbstractHandleAbstractTemplateResolver.FUNCTION_NAME_BETWEEN_SPLIT;
 
 /**
  * 需要对方法进行操作的模板
@@ -193,8 +193,8 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     }
 
     @Override
-    public AbstractHandleTemplateResolver getTemplateResolver() {
-        return (AbstractHandleTemplateResolver) super.getTemplateResolver();
+    public AbstractHandleAbstractTemplateResolver getTemplateResolver() {
+        return (AbstractHandleAbstractTemplateResolver) super.getTemplateResolver();
     }
 
     public TemplateFileClassInfo getTemplateFileClassInfoWhenResolved() {

@@ -1,8 +1,8 @@
 package io.github.bigbird0101.code.core.template.resolver;
 
 import cn.hutool.core.util.StrUtil;
+import io.github.bigbird0101.code.core.template.AbstractAbstractTemplateResolver;
 import io.github.bigbird0101.code.core.template.AbstractTemplateLangResolver;
-import io.github.bigbird0101.code.core.template.AbstractTemplateResolver;
 import io.github.bigbird0101.code.core.template.ConditionJudgeSupport;
 import io.github.bigbird0101.code.core.template.TemplateResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
@@ -38,7 +38,7 @@ public class IfTemplateLangResolver extends AbstractTemplateLangResolver {
         this.resolverName=LANG_NAME;
     }
 
-    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE + "\\s*"+LANG_NAME+"\\s*v-if=[\"|\'](?<title>.*?)[\"|\']" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")(?<body>.*?)(" + AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE + "\\s*/"+LANG_NAME+"\\s*" + AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")(\\s*?)", Pattern.DOTALL);
+    private static final Pattern TEMPLATE_FUNCTION_BODY_PATTERN = Pattern.compile("(\\s*?)(" + AbstractAbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE + "\\s*" + LANG_NAME + "\\s*v-if=[\"|\'](?<title>.*?)[\"|\']" + AbstractAbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")(?<body>.*?)(" + AbstractAbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE + "\\s*/" + LANG_NAME + "\\s*" + AbstractAbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE + ")(\\s*?)", Pattern.DOTALL);
     private static final Pattern TEMPLATE_GRAMMAR_PATTERN_PREFIX = Pattern.compile("(\\s*"+LANG_NAME+"\\s*v-if=[\"|\'](?<title>.*?)[\"|\'])", Pattern.DOTALL);
     private static final Pattern TEMPLATE_GRAMMAR_PATTERN_SUFFIX = Pattern.compile("(\\s*/"+LANG_NAME+"\\s*)", Pattern.DOTALL);
 

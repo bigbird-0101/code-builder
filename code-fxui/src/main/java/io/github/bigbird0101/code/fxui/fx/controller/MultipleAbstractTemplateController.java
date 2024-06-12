@@ -2,7 +2,7 @@ package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.util.StrUtil;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
-import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
+import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 import io.github.bigbird0101.code.core.factory.GenericMultipleTemplateDefinition;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * @author Administrator
  */
-public class MultipleTemplateController extends TemplateContextProvider implements Initializable {
+public class MultipleAbstractTemplateController extends AbstractTemplateContextProvider implements Initializable {
     @FXML
     public TextField searchField;
     @FXML

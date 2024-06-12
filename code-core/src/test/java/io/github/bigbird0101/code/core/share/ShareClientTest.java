@@ -22,6 +22,9 @@ class ShareClientTest {
 
     @Test
     void multipleTemplate() {
+        MultipleTemplateDefinitionWrapper multipleTemplateDefinitionWrapper =
+                shareClient.multipleTemplate("http://localhost:4321/multiple-template?t=Spring代码模板");
+        System.out.println(multipleTemplateDefinitionWrapper);
     }
 
     @Test

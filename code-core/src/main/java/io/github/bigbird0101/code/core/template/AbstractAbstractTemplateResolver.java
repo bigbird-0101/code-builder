@@ -2,8 +2,8 @@ package io.github.bigbird0101.code.core.template;
 
 import cn.hutool.core.util.StrUtil;
 import io.github.bigbird0101.code.core.config.Environment;
+import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.context.aware.TemplateContextAware;
-import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.template.resolver.ToolTemplateLangResolver;
 import io.github.bigbird0101.code.util.Utils;
@@ -31,9 +31,9 @@ import static cn.hutool.core.text.StrPool.DOT;
  * @version 1.0
  * @since 2020/6/15 13:29
  */
-public abstract class AbstractTemplateResolver  extends TemplateContextProvider implements TemplateResolver, Serializable {
+public abstract class AbstractAbstractTemplateResolver extends AbstractTemplateContextProvider implements TemplateResolver, Serializable {
 
-    private static final Logger LOGGER = LogManager.getLogger(AbstractTemplateResolver.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractAbstractTemplateResolver.class);
 
     protected static final String CONFIG_TEMPLATE_RESOLVERS="code.project.file.template-lang-resolver";
 
@@ -92,12 +92,12 @@ public abstract class AbstractTemplateResolver  extends TemplateContextProvider 
         this.environment = environment;
     }
 
-    public AbstractTemplateResolver() throws CodeConfigException {
+    public AbstractAbstractTemplateResolver() throws CodeConfigException {
         init();
         initTemplateLangResolverListWhenConfig(null);
     }
 
-    public AbstractTemplateResolver(Environment environment) throws CodeConfigException {
+    public AbstractAbstractTemplateResolver(Environment environment) throws CodeConfigException {
         init();
         this.environment=environment;
         initTemplateLangResolverListWhenConfig(environment);

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+      prefWidth="600.0"
+      xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.github.bigbird0101.code.fxui.fx.controller.ImportShareTemplateController">
+    <Label layoutX="100.0" layoutY="76.0" text="地址:"/>
+    <TextArea fx:id="url" layoutX="139.0" layoutY="72.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="100.0"
+              prefWidth="400.0" style="-fx-font-weight: 700;" wrapText="true">
+        <font>
+            <Font size="13.0"/>
+        </font>
+    </TextArea>
+    <Button fx:id="copy" layoutX="536.0" layoutY="34.0" text="导入"/>
+</Pane>

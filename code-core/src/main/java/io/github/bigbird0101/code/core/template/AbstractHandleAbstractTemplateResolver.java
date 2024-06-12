@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * @author bigbird-0101
  * @date 2024-01-02 17:16
  */
-public abstract class AbstractHandleTemplateResolver extends AbstractTemplateResolver{
+public abstract class AbstractHandleAbstractTemplateResolver extends AbstractAbstractTemplateResolver {
     /**
      * 方法名之间的标识
      */
@@ -61,10 +61,10 @@ public abstract class AbstractHandleTemplateResolver extends AbstractTemplateRes
      */
     protected static final Pattern TEMPLATE_FUNCTION_NAME_PREFIX_SUFFIX_PATTERN = Pattern.compile("(\\s*(?<bodyPrefix>.*?)" + TEMPLATE_VARIABLE_PREFIX_ESCAPE +")(.*)(?="+ TEMPLATE_VARIABLE_SUFFIX_ESCAPE +"(?<bodySuffix>.*)\\s*)", Pattern.DOTALL);
 
-    public AbstractHandleTemplateResolver() throws CodeConfigException {
+    public AbstractHandleAbstractTemplateResolver() throws CodeConfigException {
     }
 
-    public AbstractHandleTemplateResolver(Environment environment) throws CodeConfigException {
+    public AbstractHandleAbstractTemplateResolver(Environment environment) throws CodeConfigException {
         super(environment);
     }
 

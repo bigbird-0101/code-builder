@@ -2,7 +2,7 @@ package io.github.bigbird0101.code.core.template.domnode;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import io.github.bigbird0101.code.core.template.SimpleTemplateResolver;
+import io.github.bigbird0101.code.core.template.SimpleAbstractTemplateResolver;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.util.Utils;
 
@@ -16,7 +16,7 @@ import java.util.Set;
  * @since 2022-10-01 21:50:45
  */
 public class ForeachCodeNode implements CodeNode{
-    private static final SimpleTemplateResolver SIMPLE_TEMPLATE_RESOLVER =SimpleTemplateResolver.getInstance();
+    private static final SimpleAbstractTemplateResolver SIMPLE_TEMPLATE_RESOLVER = SimpleAbstractTemplateResolver.getInstance();
     public static final String ITEM_INDEX_PREFIX="_foreach_";
     private final CodeNode contents;
 

@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.config.StringPropertySource;
-import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
+import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -25,7 +25,7 @@ import java.util.ResourceBundle;
 /**
  * @author Administrator
  */
-public class AddEditConfigController extends TemplateContextProvider implements Initializable {
+public class AddEditConfigController extends AbstractTemplateContextProvider implements Initializable {
     private static final Logger logger= LogManager.getLogger(AddEditConfigController.class);
 
     @FXML

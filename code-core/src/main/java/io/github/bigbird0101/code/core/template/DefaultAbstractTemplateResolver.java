@@ -12,14 +12,14 @@ import java.util.Set;
  * @author fpp
  * @version 1.0
  */
-public class DefaultTemplateResolver extends AbstractHandleTemplateResolver {
+public class DefaultAbstractTemplateResolver extends AbstractHandleAbstractTemplateResolver {
 
 
-    public DefaultTemplateResolver() throws CodeConfigException {
+    public DefaultAbstractTemplateResolver() throws CodeConfigException {
         super();
     }
 
-    public DefaultTemplateResolver(Environment environment) throws CodeConfigException {
+    public DefaultAbstractTemplateResolver(Environment environment) throws CodeConfigException {
         super(environment);
     }
 
@@ -33,7 +33,7 @@ public class DefaultTemplateResolver extends AbstractHandleTemplateResolver {
      */
     @Override
     public String resolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
-        srcData=srcData.replaceAll(AbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE +AbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE,"");
+        srcData = srcData.replaceAll(AbstractAbstractTemplateResolver.TEMPLATE_VARIABLE_PREFIX_ESCAPE + AbstractAbstractTemplateResolver.TEMPLATE_VARIABLE_SUFFIX_ESCAPE, "");
         String tempResult=this.replace(replaceKeyValue, doResolver(srcData,replaceKeyValue));
         Set<String>  templateVariableKeySet=getTemplateVariableKey(tempResult);
         for (Map.Entry<String, Object> next : replaceKeyValue.entrySet()) {

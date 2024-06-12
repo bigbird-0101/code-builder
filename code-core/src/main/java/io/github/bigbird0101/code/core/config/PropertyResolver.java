@@ -24,6 +24,17 @@ public interface PropertyResolver extends Serializable {
     <T> T getProperty(String propertyKey, Class<T> targetClass);
 
     /**
+     * 获取属性值
+     *
+     * @param propertyKey  属性key
+     * @param targetClass  属性值Class
+     * @param defaultValue 默认值
+     * @return 属性值
+     */
+    default <T> T getPropertyOrDefault(String propertyKey, Class<T> targetClass, T defaultValue) {
+        return Optional.ofNullable(getProperty(propertyKey, targetClass)).orElse(defaultValue);
+    }
+    /**
      * 如果没有获取到配置就取默认值
      * @param propertyKey 属性key
      * @param defaultValue 默认值

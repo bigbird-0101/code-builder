@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
-<VBox fx:id="vBox" prefHeight="600.0" prefWidth="740.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.bigbird0101.code.fxui.fx.controller.TemplateController">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.CheckComboBox?>
+<VBox fx:id="vBox" prefHeight="600.0" prefWidth="740.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="io.github.bigbird0101.code.fxui.fx.controller.AbstractTemplateController">
     <AnchorPane prefHeight="534.0" prefWidth="640.0" VBox.vgrow="ALWAYS">
         <Label layoutX="82.0" layoutY="60.0" text="项目地址:" />
         <TextArea fx:id="projectUrl" layoutX="182.0" layoutY="49.0" prefHeight="52.0" prefWidth="315.0" />
@@ -26,7 +34,7 @@
         <FlowPane fx:id="filePrefixNameStrategy" layoutX="180.0" layoutY="436.0" />
       <Label layoutX="77.0" layoutY="402.0" text="依赖的模板:" />
         <Label fx:id="fileName" layoutX="240.0" layoutY="245.0" prefHeight="15.0" prefWidth="176.0" />
-      <TextField fx:id="depends" layoutX="181.0" layoutY="397.0" />
+        <CheckComboBox fx:id="depends" maxWidth="200" minWidth="200" layoutX="181.0" layoutY="397.0"/>
         <FlowPane fx:id="filePrefixNameStrategyPane" layoutX="70.0" layoutY="459.0" visible="false">
         <Label layoutX="62.0" layoutY="383.0" prefHeight="23.0" prefWidth="100.0" text="文件前缀名正则:" />
         <TextField fx:id="filePrefixNameStrategyPattern" layoutX="1123.0" layoutY="422.0" prefWidth="255.0">

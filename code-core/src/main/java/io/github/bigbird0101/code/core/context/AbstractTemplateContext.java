@@ -2,7 +2,7 @@ package io.github.bigbird0101.code.core.context;
 
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.Environment;
-import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
+import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.event.BasicCodeEvent;
 import io.github.bigbird0101.code.core.event.BasicCodeListener;
 import io.github.bigbird0101.code.core.event.EventMulticaster;
@@ -33,13 +33,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author fpp
  */
 public abstract class AbstractTemplateContext implements ConfigurableTemplateContext, TemplateDefinitionRegistry, MultipleTemplateDefinitionRegistry {
-    private static Logger logger= LogManager.getLogger(AbstractTemplateContext.class);
+    private static final Logger logger = LogManager.getLogger(AbstractTemplateContext.class);
 
     private final List<TemplateFactoryPostProcessor> templateFactoryPostProcessors=new CopyOnWriteArrayList<>();
 
     private Environment environment;
 
-    private TemplateScanner allTypeTemplateScanner;
+    private final TemplateScanner allTypeTemplateScanner;
 
     private EventMulticaster eventMulticaster;
 
@@ -50,7 +50,7 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
     public AbstractTemplateContext(Environment environment, TemplateScanner allTypeTemplateScanner) {
         this.environment = environment;
         this.allTypeTemplateScanner = allTypeTemplateScanner;
-        TemplateContextProvider.setTemplateContext(this);
+        AbstractTemplateContextProvider.setTemplateContext(this);
     }
 
     @Override

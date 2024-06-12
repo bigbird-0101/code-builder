@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
@@ -10,7 +11,7 @@ import com.alibaba.fastjson.TypeReference;
 import io.github.bigbird0101.code.core.cache.CachePool;
 import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.config.StringPropertySource;
-import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
+import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.domain.DataSourceConfig;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
@@ -70,7 +71,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @since 2021/1/7 22:55
  */
-public class TemplatesOperateController extends TemplateContextProvider implements Initializable {
+public class TemplatesOperateController extends AbstractTemplateContextProvider implements Initializable {
 
     private static final Logger LOGGER = LogManager.getLogger(TemplatesOperateController.class);
 
@@ -149,7 +150,7 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
         try {
             templates.getChildren().clear();
             templates.autosize();
-            initData();
+            ThreadUtil.execAsync(this::initData);
         } catch (CodeConfigException e) {
             LOGGER.info("Template Operate init error", e);
         }
@@ -453,7 +454,6 @@ public class TemplatesOperateController extends TemplateContextProvider implemen
             TooltipUtil.showToast("保存成功");
         } catch (CodeConfigException e) {
             AlertUtil.showError("save config error :" + e.getMessage());
-            e.printStackTrace();
         }
     }
 

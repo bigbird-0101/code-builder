@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.config.StringPropertySource;
-import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
+import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,7 +29,7 @@ import java.util.ResourceBundle;
 /**
  * @author Administrator
  */
-public class ConfigController extends TemplateContextProvider implements Initializable {
+public class ConfigController extends AbstractTemplateContextProvider implements Initializable {
     private static final Logger logger= LogManager.getLogger(ConfigController.class);
 
     @FXML

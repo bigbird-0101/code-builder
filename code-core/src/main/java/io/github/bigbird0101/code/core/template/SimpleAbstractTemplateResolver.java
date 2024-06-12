@@ -16,7 +16,7 @@ import static java.util.stream.Collectors.toList;
  * @version 1.0.0
  * @since 2022-10-04 17:32:08
  */
-public class SimpleTemplateResolver extends DefaultTemplateResolver {
+public class SimpleAbstractTemplateResolver extends DefaultAbstractTemplateResolver {
     @Override
     protected String doResolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
         String tempResult=srcData;
@@ -30,7 +30,7 @@ public class SimpleTemplateResolver extends DefaultTemplateResolver {
         return tempResult;
     }
 
-    public static SimpleTemplateResolver getInstance(){
-        return new SimpleTemplateResolver();
+    public static SimpleAbstractTemplateResolver getInstance() {
+        return new SimpleAbstractTemplateResolver();
     }
 }

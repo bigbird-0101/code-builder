@@ -1,12 +1,10 @@
 package io.github.bigbird0101.code.core.context.aware;
 
 import io.github.bigbird0101.code.core.context.TemplateContext;
+import io.github.bigbird0101.code.core.template.AbstractAbstractTemplateResolver;
 import io.github.bigbird0101.code.core.template.AbstractTemplate;
-import io.github.bigbird0101.code.core.template.AbstractTemplateResolver;
 import io.github.bigbird0101.code.core.template.TemplateLangResolver;
 import io.github.bigbird0101.code.core.template.TemplateTraceContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
@@ -14,19 +12,17 @@ import java.util.List;
  * @author fpp
  * @version 1.0
  */
-public abstract class TemplateContextProvider {
-    private final Logger logger= LogManager.getLogger(TemplateContextProvider.class);
-
+public abstract class AbstractTemplateContextProvider {
     private static TemplateContext templateContext;
 
     public static void setTemplateContext(TemplateContext templateContext) {
-        TemplateContextProvider.templateContext = templateContext;
+        AbstractTemplateContextProvider.templateContext = templateContext;
     }
 
     public static void doPushEventTemplateContextAware() {
         AbstractTemplate currentTemplate = (AbstractTemplate) TemplateTraceContext.getCurrentTemplate();
         if(null!=currentTemplate) {
-            AbstractTemplateResolver templateResolver = (AbstractTemplateResolver) currentTemplate.getTemplateResolver();
+            AbstractAbstractTemplateResolver templateResolver = (AbstractAbstractTemplateResolver) currentTemplate.getTemplateResolver();
             List<TemplateLangResolver> templateLangResolverList = templateResolver.getTemplateLangResolverList();
             for (TemplateLangResolver templateLangResolver : templateLangResolverList) {
                 if (templateLangResolver instanceof TemplateContextAware) {

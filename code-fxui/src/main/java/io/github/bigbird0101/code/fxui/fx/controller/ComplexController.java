@@ -17,7 +17,7 @@ import io.github.bigbird0101.code.core.config.CoreConfig;
 import io.github.bigbird0101.code.core.config.FileUrlResource;
 import io.github.bigbird0101.code.core.context.AbstractTemplateContext;
 import io.github.bigbird0101.code.core.context.TemplateContext;
-import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
+import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.domain.DataSourceConfig;
 import io.github.bigbird0101.code.core.domain.DefinedFunctionDomain;
 import io.github.bigbird0101.code.core.domain.ProjectTemplateInfoConfig;
@@ -34,6 +34,7 @@ import io.github.bigbird0101.code.core.filebuilder.FileBuilderFactory;
 import io.github.bigbird0101.code.core.filebuilder.FileCodeBuilderStrategy;
 import io.github.bigbird0101.code.core.filebuilder.OverrideFileCodeBuilderStrategy;
 import io.github.bigbird0101.code.core.filebuilder.definedfunction.DefaultDefinedFunctionResolver;
+import io.github.bigbird0101.code.core.share.AbstractShareServerProvider;
 import io.github.bigbird0101.code.core.template.HaveDependTemplate;
 import io.github.bigbird0101.code.core.template.MultipleTemplate;
 import io.github.bigbird0101.code.core.template.Template;
@@ -56,6 +57,7 @@ import io.github.bigbird0101.spi.inject.instance.InstanceContext;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -85,6 +87,7 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.CheckComboBox;
+import org.controlsfx.control.IndexedCheckModel;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -119,7 +122,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * @author fpp
  */
-public class ComplexController extends TemplateContextProvider implements Initializable {
+public class ComplexController extends AbstractTemplateContextProvider implements Initializable {
     @FXML
     VBox mainBox;
     @FXML
@@ -187,7 +190,9 @@ public class ComplexController extends TemplateContextProvider implements Initia
         }
         init();
         doSelectMultiple();
-        listViewTemplate.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        listViewTemplate.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> {
             if (null != newValue && !newValue.isLeaf()) {
                 USER_OPERATE_CACHE.setTemplateNameSelected(newValue.getValue().getText());
                 if (logger.isInfoEnabled()) {
@@ -200,7 +205,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
 
     private void init(){
         initView();
-        ThreadUtil.execute(this::initData);
+        ThreadUtil.execAsync(this::initData);
     }
 
     private void initData() {
@@ -296,6 +301,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         MenuItem edit = new MenuItem("编辑");
         MenuItem copy = new MenuItem("复制");
         MenuItem deepCopy = new MenuItem("递归复制");
+        MenuItem copyShareUrl = new MenuItem("分享模版地址");
 
         delete.setOnAction(event -> {
             if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm("您确定删除该组合模板吗").getButtonData()) {
@@ -332,7 +338,22 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", e);
             }
         });
-        contextMenu.getItems().addAll(delete, edit,copy,deepCopy);
+        copyShareUrl.setOnAction(event -> {
+            Stage secondWindow = new Stage();
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/share_url.fxml"));
+                Parent parent = fxmlLoader.load();
+                ShareController controller = fxmlLoader.getController();
+                String multipleTemplateShareUrl = AbstractShareServerProvider.getShareServer().getMultipleTemplateShareUrl(multipleTemplateName);
+                controller.setUrl(multipleTemplateShareUrl);
+                secondWindow.setTitle("分享");
+                secondWindow.setScene(new Scene(parent));
+                secondWindow.show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        contextMenu.getItems().addAll(delete, edit, copy, deepCopy, copyShareUrl);
         label.setContextMenu(contextMenu);
         return item;
     }
@@ -404,6 +425,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         MenuItem register = new MenuItem("删除");
         MenuItem edit = new MenuItem("编辑");
         MenuItem copy = new MenuItem("复制");
+        MenuItem copyShareUrl = new MenuItem("分享模版地址");
         TemplateContext templateContext = getTemplateContext();
         DefaultListableTemplateFactory defaultListableTemplateFactory = (DefaultListableTemplateFactory) templateContext.getTemplateFactory();
         TreeItem<Label> labelTreeItem = new TreeItem<>(label);
@@ -418,7 +440,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         });
         edit.setOnAction(event -> {
             try {
-                toNewTemplateView(template);
+                toNewTemplateView(template, multipleTemplateName);
             } catch (Exception e) {
                 FxAlerts.error(mainBox.getScene().getWindow(), "修改页加载失败", e);
             }
@@ -432,8 +454,25 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", e);
             }
         });
+        copyShareUrl.setOnAction(event -> {
+            Stage secondWindow = new Stage();
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/share_url.fxml"));
+                Parent parent = fxmlLoader.load();
+                ShareController controller = fxmlLoader.getController();
+                String multipleTemplateShareUrl = AbstractShareServerProvider.getShareServer()
+                        .getTemplateShareUrl(template.getTemplateName());
+                controller.setUrl(multipleTemplateShareUrl);
+                secondWindow.setTitle("分享");
+                secondWindow.setScene(new Scene(parent));
+                secondWindow.show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
-        contextMenu.getItems().addAll(register, edit,copy);
+
+        contextMenu.getItems().addAll(register, edit, copy, copyShareUrl);
         label.setContextMenu(contextMenu);
         return labelTreeItem;
     }
@@ -472,24 +511,24 @@ public class ComplexController extends TemplateContextProvider implements Initia
     }
 
     public void doSelectMultiple() {
+        templatesOperateFxmlLoader = new FXMLLoader(getClass().getResource("/views/templates_operate.fxml"));
         try {
-            templatesOperateFxmlLoader = new FXMLLoader(getClass().getResource("/views/templates_operate.fxml"));
             templatesOperateNode = templatesOperateFxmlLoader.load();
-            templatesOperateNode.prefHeightProperty().bind(contentParent.heightProperty());
-            templatesOperateNode.prefWidthProperty().bind(contentParent.widthProperty());
-            TemplatesOperateController templatesOperateController=templatesOperateFxmlLoader.getController();
-            templatesOperateController.getCurrentTemplate().setText("当前组合模板:"+ USER_OPERATE_CACHE.getTemplateNameSelected());
-            CheckBox checkBox = templatesOperateController.getIsAllTable();
-            checkBox.selectedProperty().addListener((o, old, newVal) -> {
-                isSelectedAllTable = newVal;
-            });
-            selectedTable = templatesOperateController.getTargetTable();
-            content.getChildren().clear();
-            content.getChildren().add(templatesOperateNode);
-            templatesOperateController.doInitView();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        templatesOperateNode.prefHeightProperty().bind(contentParent.heightProperty());
+        templatesOperateNode.prefWidthProperty().bind(contentParent.widthProperty());
+        TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
+        templatesOperateController.getCurrentTemplate().setText("当前组合模板:" + USER_OPERATE_CACHE.getTemplateNameSelected());
+        CheckBox checkBox = templatesOperateController.getIsAllTable();
+        checkBox.selectedProperty().addListener((o, old, newVal) -> {
+            isSelectedAllTable = newVal;
+        });
+        selectedTable = templatesOperateController.getTargetTable();
+        content.getChildren().clear();
+        content.getChildren().add(templatesOperateNode);
+        templatesOperateController.doInitView();
     }
 
     /**
@@ -501,15 +540,15 @@ public class ComplexController extends TemplateContextProvider implements Initia
 
     @FXML
     public void addTemplate() throws IOException {
-        toNewTemplateView(null);
+        toNewTemplateView(null, USER_OPERATE_CACHE.getTemplateNameSelected());
     }
 
-    public void toNewTemplateView(Template template) throws IOException {
+    public void toNewTemplateView(Template template, String multipleTemplateName) throws IOException {
         Stage secondWindow = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/new_template.fxml"));
         Parent root = fxmlLoader.load();
         boolean isEdit = null != template;
-        TemplateController templateController = fxmlLoader.getController();
+        AbstractTemplateController templateController = fxmlLoader.getController();
         if (isEdit) {
             templateController.setMode(0);
             templateController.setSourceTemplateName(template.getTemplateName());
@@ -530,7 +569,16 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 if(CollectionUtil.isNotEmpty(haveDepend.getDependTemplates())) {
                     String value = String.join(",", haveDepend.getDependTemplates());
                     logger.info("src templateName {},dependTemplate {}",template.getTemplateName(),value);
-                    templateController.depends.setText(value);
+                    getTemplateContext().getMultipleTemplate(multipleTemplateName)
+                            .getTemplates().stream()
+                            .map(Template::getTemplateName)
+                            .filter(s -> !s.equals(template.getTemplateName()))
+                            .forEach(s -> templateController.depends.getItems().add(s));
+                    CheckComboBox<String> depends = templateController.depends;
+                    IndexedCheckModel<String> checkModel = depends.getCheckModel();
+                    for (String s1 : haveDepend.getDependTemplates()) {
+                        checkModel.check(s1);
+                    }
                 }
             }
             TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = Optional.ofNullable(template
@@ -544,6 +592,11 @@ public class ComplexController extends TemplateContextProvider implements Initia
                 PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy = (PatternTargetFilePrefixNameStrategy) targetFilePrefixNameStrategy;
                 templateController.filePrefixNameStrategyPattern.setText(patternTemplateFilePrefixNameStrategy.getPattern());
             }
+        } else {
+            getTemplateContext().getMultipleTemplate(multipleTemplateName)
+                    .getTemplates().stream()
+                    .map(Template::getTemplateName)
+                    .forEach(s -> templateController.depends.getItems().add(s));
         }
         Scene scene = new Scene(root);
         secondWindow.setTitle(isEdit ? "编辑模板" : "新建模板");
@@ -787,7 +840,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
     @FXML
     public void about() throws IOException {
         Stage secondWindow = new Stage();
-        Parent root = new FXMLLoader(this.getClass().getClassLoader().getResource("about.fxml")).load();
+        Parent root = new FXMLLoader(this.getClass().getResource("/views/about.fxml")).load();
         secondWindow.setTitle("关于");
         secondWindow.setScene(new Scene(root));
         secondWindow.show();
@@ -800,7 +853,7 @@ public class ComplexController extends TemplateContextProvider implements Initia
         Stage secondWindow = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/new_multiple_template.fxml"));
         Parent root = fxmlLoader.load();
-        MultipleTemplateController multipleTemplateController = fxmlLoader.getController();
+        MultipleAbstractTemplateController multipleTemplateController = fxmlLoader.getController();
         multipleTemplateController.setListViewTemplate(listViewTemplate);
         multipleTemplateController.setComplexController(this);
         boolean isEdit = null != multipleTemplateName;
@@ -835,6 +888,29 @@ public class ComplexController extends TemplateContextProvider implements Initia
         fileCodeBuilderStrategy.setDefinedFunctionResolver(new DefaultDefinedFunctionResolver());
         fileBuilder.setFileCodeBuilderStrategy(fileCodeBuilderStrategy);
         doBuild(FileBuilderEnum.OVERRIDE);
+    }
+
+    @FXML
+    public void importTemplate(ActionEvent actionEvent) {
+        openImportShareTemplate();
+    }
+
+    private void openImportShareTemplate() {
+        Stage secondWindow = new Stage();
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/import_share_template.fxml"));
+            Parent parent = fxmlLoader.load();
+            secondWindow.setTitle("导入分享");
+            secondWindow.setScene(new Scene(parent));
+            secondWindow.show();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @FXML
+    public void importMultipleTemplate() {
+        openImportShareTemplate();
     }
 
     public static final class DoBuildTemplateParam{

@@ -19,11 +19,11 @@ class AbstractHandleTemplateResolverTest {
     @Mock
     private Environment mockEnvironment;
 
-    private AbstractHandleTemplateResolver abstractHandleTemplateResolverUnderTest;
+    private AbstractHandleAbstractTemplateResolver abstractHandleTemplateResolverUnderTest;
 
     @BeforeEach
     void setUp() {
-        abstractHandleTemplateResolverUnderTest = new AbstractHandleTemplateResolver(mockEnvironment) {
+        abstractHandleTemplateResolverUnderTest = new AbstractHandleAbstractTemplateResolver(mockEnvironment) {
             @Override
             public String resolver(String srcData, Map<String, Object> replaceKeyValue) throws TemplateResolveException {
                 return null;

@@ -16,8 +16,8 @@ public class TemplateResolverEnvironmentTemplatePostProcessor implements Templat
         if(template instanceof AbstractTemplate){
             AbstractTemplate abstractTemplate= (AbstractTemplate) template;
             final TemplateResolver templateResolver = abstractTemplate.getTemplateResolver();
-            if(templateResolver instanceof AbstractTemplateResolver){
-                AbstractTemplateResolver abstractTemplateResolver= (AbstractTemplateResolver) templateResolver;
+            if (templateResolver instanceof AbstractAbstractTemplateResolver) {
+                AbstractAbstractTemplateResolver abstractTemplateResolver = (AbstractAbstractTemplateResolver) templateResolver;
                 abstractTemplateResolver.setEnvironment(environment);
             }
         }

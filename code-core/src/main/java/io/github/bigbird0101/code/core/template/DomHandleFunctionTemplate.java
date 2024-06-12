@@ -45,7 +45,7 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
     private Environment environment;
     private Document context;
     public DomHandleFunctionTemplate() {
-        this.setTemplateResolver(SimpleTemplateResolver.getInstance());
+        this.setTemplateResolver(SimpleAbstractTemplateResolver.getInstance());
     }
 
     @Override

@@ -1,6 +1,6 @@
 package io.github.bigbird0101.code.core.template.domnode;
 
-import io.github.bigbird0101.code.core.template.SimpleTemplateResolver;
+import io.github.bigbird0101.code.core.template.SimpleAbstractTemplateResolver;
 
 /**
  * @author bigbird-0101
@@ -8,7 +8,7 @@ import io.github.bigbird0101.code.core.template.SimpleTemplateResolver;
  * @since 2022-09-30 22:44:29
  */
 public class VarCodeNode implements CodeNode {
-    private static final SimpleTemplateResolver SIMPLE_TEMPLATE_RESOLVER = SimpleTemplateResolver.getInstance();
+    private static final SimpleAbstractTemplateResolver SIMPLE_TEMPLATE_RESOLVER = SimpleAbstractTemplateResolver.getInstance();
     private final String name;
     private final String value;
 

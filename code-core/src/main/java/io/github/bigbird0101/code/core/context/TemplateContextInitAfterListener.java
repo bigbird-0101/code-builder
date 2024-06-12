@@ -1,6 +1,6 @@
 package io.github.bigbird0101.code.core.context;
 
-import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
+import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.event.TemplateContextListener;
 
 /**
@@ -11,6 +11,6 @@ import io.github.bigbird0101.code.core.event.TemplateContextListener;
 public class TemplateContextInitAfterListener extends TemplateContextListener<TemplateContextInitAfterEvent> {
     @Override
     protected void onTemplateContextEvent(TemplateContextInitAfterEvent templateContextInitAfterEvent) {
-        TemplateContextProvider.doPushEventTemplateContextAware();
+        AbstractTemplateContextProvider.doPushEventTemplateContextAware();
     }
 }

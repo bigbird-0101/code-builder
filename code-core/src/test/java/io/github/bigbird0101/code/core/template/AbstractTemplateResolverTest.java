@@ -12,14 +12,14 @@ class AbstractTemplateResolverTest {
 
     @Test
     void replaceVariable() {
-        SimpleTemplateResolver simpleTemplateResolver=new SimpleTemplateResolver();
+        SimpleAbstractTemplateResolver simpleTemplateResolver = new SimpleAbstractTemplateResolver();
         final String s = simpleTemplateResolver.replaceVariable("这是上层循环*{column.name}*", "column.name", "column2.name");
         Assertions.assertEquals("这是上层循环*{column2.name}*",s);
     }
 
     @Test
     void replaceVariable2() {
-        SimpleTemplateResolver simpleTemplateResolver=new SimpleTemplateResolver();
+        SimpleAbstractTemplateResolver simpleTemplateResolver = new SimpleAbstractTemplateResolver();
         final String s = simpleTemplateResolver.replaceFirstVariable("这是上层循环*{column.name}*", "column.name", "column2");
         Assertions.assertEquals("这是上层循环*{column2.name}*",s);
     }

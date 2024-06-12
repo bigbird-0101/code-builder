@@ -3,7 +3,9 @@ package io.github.bigbird0101.code.fxui;
 import cn.hutool.system.UserInfo;
 import io.github.bigbird0101.code.core.config.StandardEnvironment;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
-import io.github.bigbird0101.code.core.context.aware.TemplateContextProvider;
+import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
+import io.github.bigbird0101.code.core.share.AbstractShareServerProvider;
+import io.github.bigbird0101.code.core.share.ShareServer;
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.core.template.TemplateTraceContext;
 import io.github.bigbird0101.code.fxui.fx.MinWindow;
@@ -120,7 +122,11 @@ public class CodeBuilderApplication extends Application {
         }
         environment.setContextTemplateInitRefresh(true);
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
-        TemplateContextProvider.setTemplateContext(genericTemplateContext);
+        AbstractTemplateContextProvider.setTemplateContext(genericTemplateContext);
+        ShareServer shareServer = new ShareServer();
+        shareServer.init();
+        shareServer.start();
+        AbstractShareServerProvider.setShareServer(shareServer);
         CompletableFuture.runAsync(()-> ClassUtil.getAllClassByInterface(Template.class));
     }
 
@@ -133,13 +139,14 @@ public class CodeBuilderApplication extends Application {
                 Configurator.reconfigure(source.getURI());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("setLogFilePath", e);
         }
     }
 
     @Override
     public void stop() {
         TemplateTraceContext.clear();
+        AbstractShareServerProvider.getShareServer().destroy();
         InstanceContext.getInstance().destroy();
     }
 
