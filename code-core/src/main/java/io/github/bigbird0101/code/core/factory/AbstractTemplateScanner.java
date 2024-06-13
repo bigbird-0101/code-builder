@@ -5,7 +5,6 @@ import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.github.bigbird0101.code.core.config.FileUrlResource;
@@ -13,23 +12,21 @@ import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
 import io.github.bigbird0101.code.util.Utils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static io.github.bigbird0101.code.core.config.AbstractEnvironment.getConfigContent;
+import static java.util.Collections.emptySet;
 
 /**
  * 所有模板扫描器
@@ -37,24 +34,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public abstract class AbstractTemplateScanner implements TemplateScanner {
     private static final Logger LOGGER = LogManager.getLogger(AbstractTemplateScanner.class);
-
-    private static final String DEFAULT_FILE_SUFFIX_NAME="java";
-    private static final Boolean DEFAULT_IS_HANDLE_FUNCTION=true;
     private static final String DEFAULT_TEMPLATE_FILE_SUFFIX = ".template";
-
-    public JSONObject getConfigContent(String templatesFilePath) throws CodeConfigException {
-        String result;
-        try {
-            result = IOUtils.toString(ResourceUtil.getResourceObj(templatesFilePath).getStream(), UTF_8);
-        } catch (IOException e) {
-            if(LOGGER.isErrorEnabled()){
-                LOGGER.error("template config error {} ",e.getMessage());
-            }
-            throw new CodeConfigException(e);
-        }
-        return (JSONObject) JSON.parse(result);
-    }
-
     @Override
     public AllTemplateDefinitionHolder scanner(String templatesFilePath, String templateConfigPath) throws CodeConfigException {
         Assert.notBlank(templatesFilePath);
@@ -79,18 +59,18 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
             allTemplateDefinitionHolder.setTemplateDefinitionHolders(templateDefinitionHolders);
             allTemplateDefinitionHolder.setMultipleTemplateDefinitionHolders(multipleTemplateDefinitionHolders);
         }else {
-            allTemplateDefinitionHolder.setMultipleTemplateDefinitionHolders(Collections.emptySet());
-            allTemplateDefinitionHolder.setTemplateDefinitionHolders(Collections.emptySet());
+            allTemplateDefinitionHolder.setMultipleTemplateDefinitionHolders(emptySet());
+            allTemplateDefinitionHolder.setTemplateDefinitionHolders(emptySet());
         }
         return allTemplateDefinitionHolder;
     }
 
     /**
      * 解析组合模板定义
-     * @param multipleTemplates
-     * @param multipleTemplateDefinitionHolders
-     * @param templateDefinitionMapTemp
-     * @throws CodeConfigException
+     * @param multipleTemplates multipleTemplates
+     * @param multipleTemplateDefinitionHolders multipleTemplateDefinitionHolders
+     * @param templateDefinitionMapTemp templateDefinitionMapTemp
+     * @throws CodeConfigException CodeConfigException
      */
     protected void analysisMultipleTemplateDefinition(JSONArray multipleTemplates, Set<MultipleTemplateDefinitionHolder> multipleTemplateDefinitionHolders, Map<String, TemplateDefinition> templateDefinitionMapTemp) throws CodeConfigException {
         if(null!=multipleTemplates&&!multipleTemplates.isEmpty()){
@@ -121,11 +101,11 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
 
     /**
      * 解析模板定义
-     * @param templatesFilePath
-     * @param templates
-     * @param templateDefinitionHolders
-     * @param templateDefinitionMapTemp
-     * @throws CodeConfigException
+     * @param templatesFilePath templatesFilePath
+     * @param templates templates
+     * @param templateDefinitionHolders templateDefinitionHolders
+     * @param templateDefinitionMapTemp templateDefinitionMapTemp
+     * @throws CodeConfigException CodeConfigException
      */
     protected void analysisTemplateDefinition(String templatesFilePath, JSONArray templates, Set<TemplateDefinitionHolder>
             templateDefinitionHolders, Map<String, TemplateDefinition> templateDefinitionMapTemp) throws CodeConfigException {

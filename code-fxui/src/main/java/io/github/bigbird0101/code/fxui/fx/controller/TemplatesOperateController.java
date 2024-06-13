@@ -66,6 +66,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static cn.hutool.core.comparator.CompareUtil.compare;
+
 /**
  * @author fpp
  * @version 1.0
@@ -169,12 +171,14 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
     protected void doInitView(){
         initTemplateConfig();
         String templateNameSelected = CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected();
-        if(null==templateNameSelected){
+        if (StrUtil.isBlank(templateNameSelected)) {
             return;
         }
         MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(templateNameSelected);
         if (null != multipleTemplate) {
-            for (Template template : multipleTemplate.getTemplates()) {
+            for (Template template : multipleTemplate.getTemplates().stream()
+                    .sorted((o1, o2) -> compare(o1.hashCode(), o2.hashCode()))
+                    .collect(Collectors.toList())) {
                 VBox vBox;
                 try {
                     vBox = initTemplateInfo(template);
@@ -438,13 +442,19 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                     operateTemplateBeanFactory.refreshTemplate(template);
                 }
             }
-            if (!selectTemplateGroup.isEmpty()) {
+            if (!selectTemplateGroup.isEmpty() || getTemplateContext().getMultipleTemplateNames().isEmpty()) {
+                Map<String, Map<String, List<String>>> templateGroup = selectTemplateGroup.entrySet()
+                        .stream()
+                        .filter(s -> StrUtil.isNotBlank(s.getKey())
+                                && CollUtil.isNotEmpty(s.getValue())
+                                && getTemplateContext().getMultipleTemplateNames().contains(s.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                 final PageInputSnapshot build = PageInputSnapshot.Builder
                         .builder()
                         .withCurrentMultipleTemplate(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected())
                         .withFields(fields.getText())
                         .withRepresentFactor(representFactor.getText())
-                        .withSelectTemplateGroup(selectTemplateGroup)
+                        .withSelectTemplateGroup(templateGroup)
                         .withTableNames(String.join(",", targetTable.getCheckModel().getCheckedItems()))
                         .withDefinedFunction(isDefinedFunction.isSelected())
                         .withSelectTableAll(isAllTable.isSelected())
@@ -476,12 +486,15 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
     public void refreshTemplate() {
         try {
             OperateTemplateBeanFactory operateTemplateBeanFactory = (OperateTemplateBeanFactory) getTemplateContext().getTemplateFactory();
-            MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected());
-            operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate.getTemplateName());
-            initialize(null,null);
-            doInitView();
-            templates.requestLayout();
-            CachePool.clearAll();
+            String templateNameSelected = CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected();
+            if (StrUtil.isNotBlank(templateNameSelected)) {
+                MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(templateNameSelected);
+                operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate.getTemplateName());
+                initialize(null, null);
+                doInitView();
+                templates.requestLayout();
+                CachePool.clearAll();
+            }
             AlertUtil.showInfo("刷新成功");
         } catch (CodeConfigException | TemplateResolveException e) {
             AlertUtil.showError("refresh error :" + e.getMessage());
