@@ -3,25 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>code-builder-parent</artifactId>
+        <artifactId>code-builder</artifactId>
         <groupId>io.github.bigbird-0101</groupId>
         <version>${revision}</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <artifactId>code-distribution</artifactId>
 
     <modules>
-        <module>code-all</module>
+        <module>code-bom</module>
     </modules>
-
-    <profiles>
-    <profile>
-        <id>release</id>
-        <modules>
-            <module>code-all</module>
-        </modules>
-    </profile>
-    </profiles>
 </project>

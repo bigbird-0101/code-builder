@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.bigbird-0101</groupId>
-    <artifactId>code-builder-parent</artifactId>
+    <artifactId>code-builder</artifactId>
     <version>${revision}</version>
     <modules>
         <module>code-core</module>
@@ -13,7 +13,6 @@
         <module>code-distribution</module>
     </modules>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
     <description>easy code builder</description>
     <url>https://github.com/bigbird-0101/code-builder</url>
 
@@ -184,7 +183,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <mysql-connector-java-version>8.0.30</mysql-connector-java-version>
         <postgresql-connector-java-version>42.4.1</postgresql-connector-java-version>
-        <junit-version>4.13.1</junit-version>
         <fastjson-version>1.2.83</fastjson-version>
         <common-io-version>2.8.0</common-io-version>
         <log4j-version>2.17.1</log4j-version>
@@ -204,20 +202,11 @@
         <java_source_version>1.8</java_source_version>
         <java_target_version>1.8</java_target_version>
         <file_encoding>UTF-8</file_encoding>
-        <arguments/>
-        <argline>-server -Xms256m -Xmx512m -Dfile.encoding=UTF-8
-            -Djava.net.preferIPv4Stack=true -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m
-        </argline>
         <podam.version>7.2.11.RELEASE</podam.version>
         <mockito.version>3.12.4</mockito.version>
     </properties>
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>code-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>code-common</artifactId>
@@ -226,6 +215,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>code-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>code-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -244,19 +238,16 @@
                 <version>${postgresql-connector-java-version}</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit-version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
                 <version>${fastjson-version}</version>
             </dependency>
             <dependency>
                 <groupId>cn.hutool</groupId>
-                <artifactId>hutool-all</artifactId>
+                <artifactId>hutool-bom</artifactId>
                 <version>${hutool-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -275,7 +266,13 @@
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
                 <version>${jupiter.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -310,6 +307,33 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>uk.co.jemos.podam</groupId> <!-- 单元测试，随机生成 POJO 类 -->
+            <artifactId>podam</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <!-- Used for packaging NOTICE & LICENSE to each sub-module jar-->
@@ -374,14 +398,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven_surefire_version}</version>
-                <configuration>
-                    <useSystemClassLoader>true</useSystemClassLoader>
-                    <forkMode>once</forkMode>
-                    <argLine>${argline} ${jacocoArgLine}</argLine>
-                    <systemProperties>
-                        <!-- common shared -->
-                    </systemProperties>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -4,7 +4,6 @@ import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.LFUCache;
 import cn.hutool.core.util.RuntimeUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.db.meta.TableType;
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.domain.DataSourceConfig;
 import io.github.bigbird0101.code.core.domain.TableInfo;
@@ -309,7 +308,7 @@ public class DbUtil {
             }
         }
         String tableComment = "";
-        try (ResultSet rs = connection.getMetaData().getTables(connection.getCatalog(), connection.getSchema(), tableName, new String[]{TableType.TABLE.value()})) {
+        try (ResultSet rs = connection.getMetaData().getTables(connection.getCatalog(), connection.getSchema(), tableName, new String[]{"TABLE"})) {
             if (null != rs) {
                 if (rs.next()) {
                     String tableCommentTemp=rs.getString("REMARKS");
