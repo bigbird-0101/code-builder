@@ -1,6 +1,5 @@
 package io.github.bigbird0101.code.core.context;
 
-import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.event.BasicCodeEvent;
@@ -28,6 +27,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH;
+import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH;
 
 /**
  * @author fpp
@@ -102,7 +104,10 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
             }
             DefaultListableTemplateFactory templateFactory = obtainFreshTemplateFactory();
             prepareTemplateFactory(templateFactory);
-            AllTemplateDefinitionHolder allTemplateDefinitionHolder = allTypeTemplateScanner.scanner(environment.getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH), environment.getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH));
+            String templateFilesPath = environment.getProperty(DEFAULT_CORE_TEMPLATE_FILES_PATH);
+            String templateConfigFilePath = environment.getProperty(DEFAULT_CORE_TEMPLATE_PATH);
+            AllTemplateDefinitionHolder allTemplateDefinitionHolder = allTypeTemplateScanner.scanner(templateFilesPath,
+                    templateConfigFilePath);
             //get TemplateFactory
             //register TemplateDefinition
             registerTemplateDefinitionAndMultipleTemplateDefinition(allTemplateDefinitionHolder, templateFactory);

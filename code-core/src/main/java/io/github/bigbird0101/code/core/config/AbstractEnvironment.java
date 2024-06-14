@@ -1,5 +1,8 @@
 package io.github.bigbird0101.code.core.config;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.Resource;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
@@ -33,6 +36,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static cn.hutool.core.text.StrPool.SLASH;
+
 /**
  * @author fpp
  * @version 1.0
@@ -48,6 +53,8 @@ public abstract class AbstractEnvironment implements Environment {
      * 容器初始化时，是否需要刷新模板
      */
     public static final String CODE_CONTEXT_TEMPLATE_INIT_REFRESH="code.context.template.init.refresh";
+    public static final String MULTIPLE_TEMPLATES = "multipleTemplates";
+    public static final String TEMPLATES = "templates";
     private final transient MultiplePropertySources DEFAULT_MULTIPLE = new MultiplePropertySources();
     private final transient PropertySourcesPropertyResolver propertySourcesPropertyResolver = new PropertySourcesPropertyResolver(DEFAULT_MULTIPLE);
     private static final Map<String, String> TEMPLATE_FILE_URL_CONTENT_MAPPING = new HashMap<>();
@@ -106,8 +113,11 @@ public abstract class AbstractEnvironment implements Environment {
     public void parse() throws CodeConfigException {
         try {
             loadCoreConfig();
-            getPropertySources().addPropertySource(new StringPropertySource(DEFAULT_CORE_TEMPLATE_PATH, getDecodeFilePath(getTemplateConfigPath())));
-            getPropertySources().addPropertySource(new StringPropertySource(DEFAULT_CORE_TEMPLATE_FILES_PATH, getDecodeFilePath(getTemplatesPath())));
+            PropertySources propertySources = getPropertySources();
+            propertySources.addPropertySource(new StringPropertySource(DEFAULT_CORE_TEMPLATE_PATH,
+                    getDecodeFilePath(getTemplateConfigPath())));
+            propertySources.addPropertySource(new StringPropertySource(DEFAULT_CORE_TEMPLATE_FILES_PATH,
+                    getDecodeFilePath(getTemplatesPath())));
             loadTemplatesPath();
             logger.info("config parse down");
         } catch (Throwable e) {
@@ -141,8 +151,12 @@ public abstract class AbstractEnvironment implements Environment {
     }
 
     private String getDecodeFilePath(String path) {
-        return URLUtil.decode(ResourceUtil.getResourceObj(path).getUrl()
-                .getFile());
+        Resource resourceObj = ResourceUtil.getResourceObj(path);
+        String decodePath = URLUtil.decode(resourceObj.getUrl().getFile());
+        if (StrUtil.startWith(decodePath, SLASH) && FileUtil.isWindows()) {
+            decodePath = StrUtil.removePrefix(decodePath, SLASH);
+        }
+        return decodePath;
     }
 
     public void loadCoreConfig(String fileName) throws IOException {
@@ -174,15 +188,9 @@ public abstract class AbstractEnvironment implements Environment {
             isTemplateCorePath = propertySources[0].getName().equals(DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE);
         }
         if (isTemplateCorePath) {
-            JSONObject configContent = null;
-            try {
-                configContent = getConfigContent(templateConfigPath);
-            } catch (CodeConfigException e) {
-                e.printStackTrace();
-            }
-            assert configContent != null;
-            JSONArray multipleTemplates = configContent.getJSONArray("multipleTemplates");
-            JSONArray templates = configContent.getJSONArray("templates");
+            JSONObject configContent = getConfigContent(templateConfigPath);
+            JSONArray multipleTemplates = configContent.getJSONArray(MULTIPLE_TEMPLATES);
+            JSONArray templates = configContent.getJSONArray(TEMPLATES);
             Arrays.stream(propertySources).forEach(propertySource -> {
                 if (propertySource.getSource() instanceof Template) {
                     Template template = (Template) propertySource.getSource();
@@ -199,7 +207,7 @@ public abstract class AbstractEnvironment implements Environment {
                     }
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("name", template.getTemplateName());
-                    jsonObject.put("templates", template.getTemplates().stream().map(Template::getTemplateName).toArray());
+                    jsonObject.put(TEMPLATES, template.getTemplates().stream().map(Template::getTemplateName).toArray());
                     multipleTemplates.add(jsonObject);
                 }
             });
@@ -249,26 +257,20 @@ public abstract class AbstractEnvironment implements Environment {
             isTemplateCorePath = propertySources[0].getName().equals(DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE);
         }
         if (isTemplateCorePath) {
-            JSONObject configContent = null;
-            try {
-                configContent = getConfigContent(templateConfigPath);
-            } catch (CodeConfigException e) {
-                e.printStackTrace();
-            }
-            assert configContent != null;
-            JSONArray multipleTemplates = configContent.getJSONArray("multipleTemplates");
-            JSONArray templates = configContent.getJSONArray("templates");
+            JSONObject configContent = getConfigContent(templateConfigPath);
+            JSONArray multipleTemplates = configContent.getJSONArray(MULTIPLE_TEMPLATES);
+            JSONArray templates = configContent.getJSONArray(TEMPLATES);
             Arrays.stream(propertySources).forEach(propertySource -> {
                 if (propertySource.getSource() instanceof Template) {
                     Template template = (Template) propertySource.getSource();
                     int index = IsHaveTemplate(templates, template.getTemplateName());
-                    if(index>0) {
+                    if (index >= 0) {
                         templates.remove(index);
                     }
                 } else if (propertySource.getSource() instanceof MultipleTemplate) {
                     MultipleTemplate template = (MultipleTemplate) propertySource.getSource();
                     int index = IsHaveTemplate(multipleTemplates, template.getTemplateName());
-                    if(index>0) {
+                    if (index >= 0) {
                         multipleTemplates.remove(index);
                     }
                 }
@@ -292,14 +294,21 @@ public abstract class AbstractEnvironment implements Environment {
         return -1;
     }
 
-    public JSONObject getConfigContent(String templatesFilePath) throws CodeConfigException {
+    public static JSONObject getConfigContent(String templatesFilePath) throws CodeConfigException {
         String result;
         try {
             result = IOUtils.toString(Files.newInputStream(Paths.get(templatesFilePath)), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new CodeConfigException(e);
         }
-        return (JSONObject) JSON.parse(result);
+        JSONObject parse = (JSONObject) JSON.parse(result);
+        if (CollUtil.isEmpty(parse)) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(MULTIPLE_TEMPLATES, new JSONArray());
+            jsonObject.put(TEMPLATES, new JSONArray());
+            return jsonObject;
+        }
+        return parse;
     }
 
     /**

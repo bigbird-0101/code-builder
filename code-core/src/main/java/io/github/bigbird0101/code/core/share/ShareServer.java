@@ -40,8 +40,7 @@ public class ShareServer extends AbstractTemplateContextProvider {
     private int port;
 
     public void init() {
-        port = 4321;
-        int property = getTemplateContext().getEnvironment().getPropertyOrDefault("share.server.port",
+        port = getTemplateContext().getEnvironment().getPropertyOrDefault("share.server.port",
                 int.class, 4321);
         server = HttpUtil.createServer(port);
         RuntimeUtil.addShutdownHook(this::destroy);
@@ -67,7 +66,7 @@ public class ShareServer extends AbstractTemplateContextProvider {
     }
 
     public void destroy() {
-        server.getRawServer().stop(1000);
+        server.getRawServer().stop(0);
     }
 
     class GenericAction implements Action {
@@ -102,7 +101,7 @@ public class ShareServer extends AbstractTemplateContextProvider {
                     JSONObject templateMaps=new JSONObject();
                     json.put(TEMPLATE_MAPS, templateMaps);
                     json.put(TEMPLATE_NAME, t);
-                    factory.getTemplateNames()
+                    multipleTemplateDefinition.getTemplateNames()
                             .forEach(s -> templateMaps.put(s, getTemplateJson(factory.getTemplateDefinition(s), s)));
                     response.write(json.toString());
                 }

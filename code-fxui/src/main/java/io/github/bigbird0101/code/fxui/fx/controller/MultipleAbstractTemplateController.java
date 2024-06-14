@@ -8,7 +8,6 @@ import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 import io.github.bigbird0101.code.core.factory.GenericMultipleTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.RootTemplateDefinition;
 import io.github.bigbird0101.code.core.template.MultipleTemplate;
-import io.github.bigbird0101.code.fxui.CodeBuilderApplication;
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
 import io.github.bigbird0101.code.util.Utils;
 import javafx.fxml.FXML;
@@ -31,6 +30,8 @@ import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static io.github.bigbird0101.code.fxui.CodeBuilderApplication.USER_OPERATE_CACHE;
 
 /**
  * @author Administrator
@@ -178,11 +179,14 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
     }
 
     private void doRefreshMainView() {
-        if(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected().equals(multipleTemplateName.getText())||
-                sourceMultipleTemplateName.equals(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected())){
-            CodeBuilderApplication.USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateName.getText());
-            complexController.doSelectMultiple();
+        if (StrUtil.isBlank(USER_OPERATE_CACHE.getTemplateNameSelected())) {
+            USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateName.getText());
+        } else if (multipleTemplateName.getText().equals(USER_OPERATE_CACHE.getTemplateNameSelected()) ||
+                (StrUtil.isNotBlank(sourceMultipleTemplateName) && sourceMultipleTemplateName.equals(USER_OPERATE_CACHE.getTemplateNameSelected()))) {
+            USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateName.getText());
         }
+        complexController.initMultipleTemplateViews();
+        complexController.doSelectMultiple();
     }
 
     /**
@@ -273,7 +277,7 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
     }
 
     private MultipleTemplate getMultipleTemplate() {
-        String templateNameSelected = CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected();
+        String templateNameSelected = USER_OPERATE_CACHE.getTemplateNameSelected();
         return getTemplateContext().getMultipleTemplate(templateNameSelected);
     }
 

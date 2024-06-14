@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.comparator.CompareUtil;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
@@ -154,6 +155,11 @@ public class ComplexController extends AbstractTemplateContextProvider implement
             .setCorePoolSize(5)
             .setThreadFactory(ThreadFactoryBuilder.create().setNamePrefix("DO_ANALYSIS_TEMPLATE").build())
             .build();
+
+    public FXMLLoader getTemplatesOperateFxmlLoader() {
+        return templatesOperateFxmlLoader;
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         content.prefWidthProperty().bind(contentParent.widthProperty());
@@ -267,14 +273,26 @@ public class ComplexController extends AbstractTemplateContextProvider implement
 
     /**
      * 初始化所有的组合模板视图
-     * @param root
+     * @param root root
      */
     public void initMultipleTemplateViews(TreeItem<Label> root){
-        Set<String> multipleTemplateNames = getTemplateContext().getMultipleTemplateNames();
+        root.getChildren().clear();
+        List<String> multipleTemplateNames = getTemplateContext().getMultipleTemplateNames()
+                .stream()
+                .sorted((o1, o2) -> CompareUtil.compare(o1.hashCode(), o2.hashCode()))
+                .collect(toList());
         for (String multipleTemplateName : multipleTemplateNames) {
             final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
             root.getChildren().add(labelTreeItem);
         }
+    }
+
+    /**
+     * 初始化所有的组合模板视图
+     */
+    public void initMultipleTemplateViews() {
+        initMultipleTemplateViews(listViewTemplate.getRoot());
+        doSelectMultiple();
     }
 
     /**
@@ -290,17 +308,18 @@ public class ComplexController extends AbstractTemplateContextProvider implement
         item.setExpanded(true);
         TemplateContext templateContext = getTemplateContext();
         DefaultListableTemplateFactory defaultListableTemplateFactory = (DefaultListableTemplateFactory) templateContext.getTemplateFactory();
-        try {
-            List<TreeItem<Label>> collect = templateContext.getMultipleTemplate(multipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, multipleTemplateName, item)).collect(toList());
-            item.getChildren().addAll(item.getChildren().size(),collect);
-        } catch (CodeConfigException e) {
-            e.printStackTrace();
-        }
+        List<TreeItem<Label>> collect = templateContext.getMultipleTemplate(multipleTemplateName)
+                .getTemplates()
+                .stream()
+                .map(template -> getAndInitTemplateView(template, multipleTemplateName, item))
+                .collect(toList());
+        item.getChildren().addAll(item.getChildren().size(), collect);
         ContextMenu contextMenu = new ContextMenu();
         MenuItem delete = new MenuItem("删除");
         MenuItem edit = new MenuItem("编辑");
         MenuItem copy = new MenuItem("复制");
         MenuItem deepCopy = new MenuItem("递归复制");
+        MenuItem importTemplate = new MenuItem("导入模版");
         MenuItem copyShareUrl = new MenuItem("分享模版地址");
 
         delete.setOnAction(event -> {
@@ -310,8 +329,16 @@ public class ComplexController extends AbstractTemplateContextProvider implement
                 defaultListableTemplateFactory.removeMultipleTemplateDefinition(text);
                 defaultListableTemplateFactory.removeMultipleTemplate(text);
                 listViewTemplate.getRoot().getChildren().remove(listViewTemplate.getSelectionModel().getSelectedItem());
-                USER_OPERATE_CACHE.setTemplateNameSelected(defaultListableTemplateFactory.getMultipleTemplateNames().stream().findFirst().orElse(""));
+                USER_OPERATE_CACHE.setTemplateNameSelected(defaultListableTemplateFactory.getMultipleTemplateNames()
+                        .stream()
+                        .findFirst()
+                        .orElse(""));
                 doSelectMultiple();
+                if (getTemplateContext().getMultipleTemplateNames().isEmpty()) {
+                    final TemplatesOperateController controller = templatesOperateFxmlLoader.getController();
+                    controller.saveConfig();
+                    controller.refreshTemplate();
+                }
             }
         });
         edit.setOnAction(event -> {
@@ -353,9 +380,15 @@ public class ComplexController extends AbstractTemplateContextProvider implement
                 throw new RuntimeException(e);
             }
         });
-        contextMenu.getItems().addAll(delete, edit, copy, deepCopy, copyShareUrl);
+        importTemplate.setOnAction(event -> openImportShareTemplate(multipleTemplateName));
+        contextMenu.getItems().addAll(delete, edit, copy, deepCopy, importTemplate, copyShareUrl);
         label.setContextMenu(contextMenu);
         return item;
+    }
+
+    public void refreshTemplate() {
+        final TemplatesOperateController controller = templatesOperateFxmlLoader.getController();
+        controller.refreshTemplate();
     }
 
     private void copyMultipleTemplate(TreeItem<Label> root, DefaultListableTemplateFactory defaultListableTemplateFactory, ContextMenu contextMenu) {
@@ -415,8 +448,8 @@ public class ComplexController extends AbstractTemplateContextProvider implement
     /**
      * 初始化模板视图
      *
-     * @param template
-     * @param item
+     * @param template template
+     * @param item item
      */
     public TreeItem<Label> getAndInitTemplateView(Template template, String multipleTemplateName, TreeItem<Label> item) {
         Label label = new Label(template.getTemplateName());
@@ -426,6 +459,7 @@ public class ComplexController extends AbstractTemplateContextProvider implement
         MenuItem edit = new MenuItem("编辑");
         MenuItem copy = new MenuItem("复制");
         MenuItem copyShareUrl = new MenuItem("分享模版地址");
+        MenuItem replaceTemplateUrl = new MenuItem("替换模版内容");
         TemplateContext templateContext = getTemplateContext();
         DefaultListableTemplateFactory defaultListableTemplateFactory = (DefaultListableTemplateFactory) templateContext.getTemplateFactory();
         TreeItem<Label> labelTreeItem = new TreeItem<>(label);
@@ -436,6 +470,7 @@ public class ComplexController extends AbstractTemplateContextProvider implement
                 multipleTemplate.getTemplates().remove(template);
                 defaultListableTemplateFactory.refreshMultipleTemplate(multipleTemplate);
                 item.getChildren().remove(labelTreeItem);
+                initMultipleTemplateViews();
             }
         });
         edit.setOnAction(event -> {
@@ -470,9 +505,24 @@ public class ComplexController extends AbstractTemplateContextProvider implement
                 throw new RuntimeException(e);
             }
         });
+        replaceTemplateUrl.setOnAction(event -> {
+            Stage secondWindow = new Stage();
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/import_share_template.fxml"));
+                Parent parent = fxmlLoader.load();
+                ImportShareTemplateController controller = fxmlLoader.getController();
+                controller.setReplaceButtonText();
+                controller.setComplexController(this);
+                controller.setOldTemplateName(template.getTemplateName());
+                secondWindow.setTitle("替换");
+                secondWindow.setScene(new Scene(parent));
+                secondWindow.show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
-
-        contextMenu.getItems().addAll(register, edit, copy, copyShareUrl);
+        contextMenu.getItems().addAll(register, edit, copy, copyShareUrl, replaceTemplateUrl);
         label.setContextMenu(contextMenu);
         return labelTreeItem;
     }
@@ -520,11 +570,10 @@ public class ComplexController extends AbstractTemplateContextProvider implement
         templatesOperateNode.prefHeightProperty().bind(contentParent.heightProperty());
         templatesOperateNode.prefWidthProperty().bind(contentParent.widthProperty());
         TemplatesOperateController templatesOperateController = templatesOperateFxmlLoader.getController();
-        templatesOperateController.getCurrentTemplate().setText("当前组合模板:" + USER_OPERATE_CACHE.getTemplateNameSelected());
+        String templateNameSelected = Optional.ofNullable(USER_OPERATE_CACHE.getTemplateNameSelected()).orElse("");
+        templatesOperateController.getCurrentTemplate().setText("当前组合模板:" + templateNameSelected);
         CheckBox checkBox = templatesOperateController.getIsAllTable();
-        checkBox.selectedProperty().addListener((o, old, newVal) -> {
-            isSelectedAllTable = newVal;
-        });
+        checkBox.selectedProperty().addListener((o, old, newVal) -> isSelectedAllTable = newVal);
         selectedTable = templatesOperateController.getTargetTable();
         content.getChildren().clear();
         content.getChildren().add(templatesOperateNode);
@@ -892,15 +941,18 @@ public class ComplexController extends AbstractTemplateContextProvider implement
 
     @FXML
     public void importTemplate(ActionEvent actionEvent) {
-        openImportShareTemplate();
+        openImportShareTemplate(null);
     }
 
-    private void openImportShareTemplate() {
+    private void openImportShareTemplate(String multipleTemplateName) {
         Stage secondWindow = new Stage();
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/import_share_template.fxml"));
             Parent parent = fxmlLoader.load();
-            secondWindow.setTitle("导入分享");
+            ImportShareTemplateController controller = fxmlLoader.getController();
+            controller.setComplexController(this);
+            controller.setMultipleTemplateName(multipleTemplateName);
+            secondWindow.setTitle(StrUtil.isNotBlank(multipleTemplateName) ? "导入模版" : "导入分享");
             secondWindow.setScene(new Scene(parent));
             secondWindow.show();
         } catch (IOException e) {
@@ -910,7 +962,7 @@ public class ComplexController extends AbstractTemplateContextProvider implement
 
     @FXML
     public void importMultipleTemplate() {
-        openImportShareTemplate();
+        openImportShareTemplate(null);
     }
 
     public static final class DoBuildTemplateParam{

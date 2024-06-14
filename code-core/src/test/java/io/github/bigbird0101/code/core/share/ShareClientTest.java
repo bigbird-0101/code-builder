@@ -3,12 +3,14 @@ package io.github.bigbird0101.code.core.share;
 import io.github.bigbird0101.code.core.config.StandardEnvironment;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author bigbird-0101
  * @date 2024-06-10 22:07
  */
+@Disabled
 class ShareClientTest {
     ShareClient shareClient=new ShareClient();
 

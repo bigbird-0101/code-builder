@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.fxui;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.system.UserInfo;
 import io.github.bigbird0101.code.core.config.StandardEnvironment;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
@@ -35,7 +36,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Administrator
@@ -67,7 +67,12 @@ public class CodeBuilderApplication extends Application {
             }else if(buttonType.equals(restart)){
                 restart(primaryStage);
             }else if(buttonType.equals(out)){
+                logger.info("see you again");
+                stop();
+                logger.info("Platform exit start ");
                 Platform.exit();
+                logger.info("Platform exit end ");
+                logger.info("System exit start ");
                 System.exit(0);
             }else{
                 event.consume();
@@ -123,11 +128,17 @@ public class CodeBuilderApplication extends Application {
         environment.setContextTemplateInitRefresh(true);
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         AbstractTemplateContextProvider.setTemplateContext(genericTemplateContext);
-        ShareServer shareServer = new ShareServer();
-        shareServer.init();
-        shareServer.start();
-        AbstractShareServerProvider.setShareServer(shareServer);
-        CompletableFuture.runAsync(()-> ClassUtil.getAllClassByInterface(Template.class));
+        ThreadUtil.execAsync(() -> {
+            try {
+                ShareServer shareServer = new ShareServer();
+                shareServer.init();
+                shareServer.start();
+                AbstractShareServerProvider.setShareServer(shareServer);
+            } catch (Exception exception) {
+                logger.error("shareServer start failed", exception);
+            }
+        });
+        ThreadUtil.execAsync(() -> ClassUtil.getAllClassByInterface(Template.class));
     }
 
     public void setLogFilePath(String logFilePath){
