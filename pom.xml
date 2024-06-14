@@ -179,8 +179,8 @@
         <checkstyle.skip>false</checkstyle.skip>
         <skip.maven.deploy>false</skip.maven.deploy>
         <!-- Compiler settings properties -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <mysql-connector-java-version>8.0.30</mysql-connector-java-version>
         <postgresql-connector-java-version>42.4.1</postgresql-connector-java-version>
         <fastjson-version>1.2.83</fastjson-version>
@@ -204,6 +204,7 @@
         <file_encoding>UTF-8</file_encoding>
         <podam.version>7.2.11.RELEASE</podam.version>
         <mockito.version>3.12.4</mockito.version>
+        <javafx.version>21</javafx.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -226,6 +227,16 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>code-fxui</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-fxml</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${javafx.version}</version>
             </dependency>
             <dependency>
                 <groupId>mysql</groupId>

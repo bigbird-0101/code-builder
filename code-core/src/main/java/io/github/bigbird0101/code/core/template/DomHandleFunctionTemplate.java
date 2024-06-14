@@ -5,7 +5,6 @@ import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.annotation.JSONType;
-import com.sun.org.apache.xerces.internal.dom.DeferredAttrNSImpl;
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.config.aware.EnvironmentAware;
 import io.github.bigbird0101.code.core.domain.TemplateFileClassInfo;
@@ -94,12 +93,12 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
         for(int a=0;a<length;a++){
             Node item = functionNodes.item(a);
             NamedNodeMap attributes = item.getAttributes();
-            DeferredAttrNSImpl name = (DeferredAttrNSImpl) attributes.getNamedItem("name");
+            Node name = attributes.getNamedItem("name");
             if (null == name) {
                 throw new TemplateResolveException("this dom template {} index = {} no get function name ", getTemplateName(), a);
             }
             String textContent = item.getTextContent();
-            result.put(name.getValue(),textContent);
+            result.put(name.getTextContent(), textContent);
         }
         return result;
     }
