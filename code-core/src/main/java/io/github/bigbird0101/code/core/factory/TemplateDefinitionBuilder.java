@@ -6,9 +6,9 @@ import cn.hutool.system.SystemUtil;
 import io.github.bigbird0101.code.core.config.FileUrlResource;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
+import io.github.bigbird0101.code.core.spi.SPIServiceLoader;
 import io.github.bigbird0101.code.core.template.DefaultNoHandleFunctionTemplate;
 import io.github.bigbird0101.code.core.template.Template;
-import io.github.bigbird0101.spi.SPIServiceLoader;
 
 import java.io.File;
 import java.net.MalformedURLException;

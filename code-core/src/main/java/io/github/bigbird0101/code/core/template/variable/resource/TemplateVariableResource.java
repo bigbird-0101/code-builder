@@ -1,6 +1,6 @@
 package io.github.bigbird0101.code.core.template.variable.resource;
 
-import io.github.bigbird0101.spi.TypeBasedSPI;
+import io.github.bigbird0101.code.core.spi.TypeBasedSPI;
 
 import java.util.Arrays;
 import java.util.HashMap;

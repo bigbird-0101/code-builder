@@ -1,6 +1,6 @@
 package io.github.bigbird0101.code.core.common;
 
-import io.github.bigbird0101.spi.TypeBasedSPI;
+import io.github.bigbird0101.code.core.spi.TypeBasedSPI;
 
 /**
  * @author bigbird-0101

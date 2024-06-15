@@ -1,6 +1,6 @@
 package io.github.bigbird0101.code.core.common;
 
-import io.github.bigbird0101.spi.TypeBasedSPIServiceLoader;
+import io.github.bigbird0101.code.core.spi.TypeBasedSPIServiceLoader;
 
 /**
  * @author bigbird-0101

@@ -4,7 +4,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson.JSONObject;
-import io.github.bigbird0101.spi.annotation.Inject;
+import io.github.bigbird0101.code.core.spi.annotation.Inject;
 
 import java.io.IOException;
 import java.io.InputStream;

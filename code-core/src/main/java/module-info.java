@@ -19,6 +19,8 @@ open module code.core {
     exports io.github.bigbird0101.code.core.template.variable.resource;
     exports io.github.bigbird0101.code.core.event;
     exports io.github.bigbird0101.code.core.cache;
+    exports io.github.bigbird0101.code.core.spi.inject.instance;
+    exports io.github.bigbird0101.code.core.spi;
     requires hutool.core;
     requires hutool.json;
     requires hutool.cache;
@@ -26,12 +28,11 @@ open module code.core {
     requires hutool.system;
     requires hutool.http;
     requires fastjson;
-    requires code.common;
     requires java.sql;
     requires org.apache.logging.log4j;
-    requires code.spi;
     requires org.apache.commons.io;
     requires jdk.httpserver;
+    requires code.common;
 
     uses io.github.bigbird0101.code.core.template.Template;
     uses io.github.bigbird0101.code.core.common.TableNameToDomainName;
@@ -43,4 +44,5 @@ open module code.core {
     uses io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;
     uses io.github.bigbird0101.code.core.template.TemplateLangResolver;
     uses io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource;
+    uses io.github.bigbird0101.code.core.spi.inject.SPIServiceInjector;
 }

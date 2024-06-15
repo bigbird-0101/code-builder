@@ -1,9 +1,9 @@
 package io.github.bigbird0101.code.core.template.domnode;
 
 import cn.hutool.core.util.StrUtil;
+import io.github.bigbird0101.code.core.spi.TypeBasedSPI;
+import io.github.bigbird0101.code.core.spi.TypeBasedSPIServiceLoader;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
-import io.github.bigbird0101.spi.TypeBasedSPI;
-import io.github.bigbird0101.spi.TypeBasedSPIServiceLoader;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

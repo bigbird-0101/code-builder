@@ -1,6 +1,6 @@
 package io.github.bigbird0101.code.core.template;
 
-import io.github.bigbird0101.spi.order.OrderAware;
+import io.github.bigbird0101.code.core.spi.order.OrderAware;
 
 import java.io.File;
 

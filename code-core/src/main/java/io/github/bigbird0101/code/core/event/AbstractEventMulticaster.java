@@ -1,7 +1,7 @@
 package io.github.bigbird0101.code.core.event;
 
 import cn.hutool.log.StaticLog;
-import io.github.bigbird0101.spi.SPIServiceLoader;
+import io.github.bigbird0101.code.core.spi.SPIServiceLoader;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

@@ -1,3 +1,0 @@
-io.github.bigbird0101.spi.inject.DependObjectSPIServiceInjector
-io.github.bigbird0101.spi.inject.DefaultSPIServiceInjector
-io.github.bigbird0101.spi.inject.AggregateSPIServiceInjector

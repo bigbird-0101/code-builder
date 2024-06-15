@@ -1,7 +1,7 @@
 package io.github.bigbird0101.code.core.template.variable.resource;
 
 import cn.hutool.core.io.FileUtil;
-import io.github.bigbird0101.spi.SPIServiceLoader;
+import io.github.bigbird0101.code.core.spi.SPIServiceLoader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
