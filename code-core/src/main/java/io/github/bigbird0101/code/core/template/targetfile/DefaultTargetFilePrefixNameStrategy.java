@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.core.template.targetfile;
 
+import io.github.bigbird0101.code.core.exception.CodeBuilderException;
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.util.Utils;
 
@@ -32,6 +33,11 @@ public class DefaultTargetFilePrefixNameStrategy implements TargetFilePrefixName
      */
     @Override
     public String prefixStrategy(Template template, String srcSource, Map<String,Object> dataModel) {
-        return Utils.getFileNameByPath(srcSource.substring(4),"\\_")+Utils.getFileNameByPath(template.getSrcPackage(),"\\/");
+        try {
+            return Utils.getFileNameByPath(srcSource.substring(4), "\\_") +
+                    Utils.getFileNameByPath(template.getSrcPackage(), "\\/");
+        } catch (Exception e) {
+            throw new CodeBuilderException(String.format("模版 %s 生成文件名异常", template.getTemplateName()), e);
+        }
     }
 }

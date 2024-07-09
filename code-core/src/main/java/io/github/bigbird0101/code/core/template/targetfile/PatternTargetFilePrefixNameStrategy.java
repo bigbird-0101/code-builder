@@ -21,7 +21,7 @@ public class PatternTargetFilePrefixNameStrategy implements TargetFilePrefixName
     /**
      * 获取命名策略代表值
      *
-     * @return
+     * @return 命名策略代表值
      */
     @Override
     public int getTypeValue() {

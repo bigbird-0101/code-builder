@@ -26,6 +26,7 @@ import io.github.bigbird0101.code.fxui.common.TooltipUtil;
 import io.github.bigbird0101.code.fxui.fx.bean.PageInputSnapshot;
 import io.github.bigbird0101.code.fxui.fx.component.FxAlerts;
 import io.github.bigbird0101.code.util.Utils;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -242,12 +243,17 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         isDefinedFunction.setSelected(Optional.ofNullable(pageInputSnapshot.getDefinedFunction()).orElse(false));
         representFactor.setText(Optional.ofNullable(pageInputSnapshot.getRepresentFactor()).orElse(StrUtil.EMPTY));
         IndexedCheckModel<String> checkModel = targetTable.getCheckModel();
-        Optional.ofNullable(pageInputSnapshot.getTableNames())
+        String tableNames = pageInputSnapshot.getTableNames();
+        LOGGER.info("tableNames {}", tableNames);
+        Optional.ofNullable(tableNames)
                 .map(s -> s.split(","))
                 .ifPresent(s -> {
-                    for (String s1 : s) {
-                        checkModel.check(s1);
-                    }
+                    LOGGER.info("targetTable item {}", targetTable.getItems());
+                    targetTable.getItems().addListener((ListChangeListener<String>) c -> {
+                        for (String s1 : s) {
+                            checkModel.check(s1);
+                        }
+                    });
                 });
 
         isAllTable.setSelected(Optional.ofNullable(pageInputSnapshot.getSelectTableAll()).orElse(false));
