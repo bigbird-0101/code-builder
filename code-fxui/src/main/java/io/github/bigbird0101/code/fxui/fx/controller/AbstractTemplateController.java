@@ -18,6 +18,7 @@ import io.github.bigbird0101.code.core.template.targetfile.TemplateFilePrefixNam
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
 import io.github.bigbird0101.code.util.ClassUtil;
 import io.github.bigbird0101.code.util.Utils;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -95,7 +96,7 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
     private final Insets insets = new Insets(0, 10, 10, 0);
     private String sourceTemplateName;
     private ComplexController complexController;
-
+    private final Set<String> selectDepends = new LinkedHashSet<>();
     /**
      * 0-修改模式 1-添加模式
      */
@@ -145,6 +146,16 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
         ArrayList<Class<?>> allClassByInterface = ClassUtil.getAllClassByInterface(Template.class);
         List<String> collect = allClassByInterface.stream().map(Class::getName).collect(Collectors.toList());
         selectTemplateClassName.getItems().addAll(collect);
+        selectDepends.clear();
+        depends.getCheckModel().getCheckedItems().addListener((ListChangeListener<String>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    selectDepends.addAll(change.getAddedSubList());
+                } else if (change.wasRemoved()) {
+                    change.getRemoved().forEach(selectDepends::remove);
+                }
+            }
+        });
     }
 
     @FXML
@@ -233,7 +244,7 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
         rootTemplateDefinition.setSourcesRoot(sourcesRootName.getText());
         rootTemplateDefinition.setSrcPackage(srcPackageName.getText());
         String templateNameText = templateName.getText();
-        LinkedHashSet<String> dependTemplates = new LinkedHashSet<>(depends.getCheckModel().getCheckedItems());
+        LinkedHashSet<String> dependTemplates = new LinkedHashSet<>(selectDepends);
         logger.info("templateName {} dependTemplate {}",templateNameText,dependTemplates);
         rootTemplateDefinition.setDependTemplates(dependTemplates);
         String newFileName = getTemplateContext().getEnvironment()
