@@ -1,7 +1,6 @@
 package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
@@ -26,6 +25,7 @@ import io.github.bigbird0101.code.fxui.common.TooltipUtil;
 import io.github.bigbird0101.code.fxui.fx.bean.PageInputSnapshot;
 import io.github.bigbird0101.code.fxui.fx.component.FxAlerts;
 import io.github.bigbird0101.code.util.Utils;
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -153,7 +153,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         try {
             templates.getChildren().clear();
             templates.autosize();
-            ThreadUtil.execAsync(this::initData);
+            Platform.runLater(this::initData);
         } catch (CodeConfigException e) {
             LOGGER.info("Template Operate init error", e);
         }
@@ -163,6 +163,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         try {
             List<String> allTableName = DbUtil.getAllTableName(DataSourceConfig.getDataSourceConfig(getTemplateContext()
                     .getEnvironment()));
+            targetTable.getItems().clear();
             targetTable.getItems().addAll(allTableName);
         }catch (Exception e){
             LOGGER.error(e);
@@ -243,19 +244,26 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         isDefinedFunction.setSelected(Optional.ofNullable(pageInputSnapshot.getDefinedFunction()).orElse(false));
         representFactor.setText(Optional.ofNullable(pageInputSnapshot.getRepresentFactor()).orElse(StrUtil.EMPTY));
         IndexedCheckModel<String> checkModel = targetTable.getCheckModel();
-        String tableNames = pageInputSnapshot.getTableNames();
-        LOGGER.info("tableNames {}", tableNames);
-        Optional.ofNullable(tableNames)
-                .map(s -> s.split(","))
-                .ifPresent(s -> {
-                    LOGGER.info("targetTable item {}", targetTable.getItems());
-                    targetTable.getItems().addListener((ListChangeListener<String>) c -> {
-                        for (String s1 : s) {
-                            checkModel.check(s1);
-                        }
-                    });
-                });
-
+        targetTable.getItems().addListener((ListChangeListener<String>) c -> {
+            if (c.next()) {
+                String tableNames = pageInputSnapshot.getTableNames();
+                LOGGER.info("tableNames {}", tableNames);
+                Optional.ofNullable(tableNames)
+                        .map(s -> s.split(","))
+                        .ifPresent(s -> {
+                            checkModel.clearChecks();
+                            if (!targetTable.getItems().isEmpty()) {
+                                LOGGER.info("targetTable item {}", targetTable.getItems());
+                                for (String s1 : s) {
+                                    LOGGER.debug("all select {} targetTable item select {}", s, s1);
+                                    checkModel.check(s1);
+                                }
+                            } else {
+                                LOGGER.warn("targetTable item is empty");
+                            }
+                        });
+            }
+        });
         isAllTable.setSelected(Optional.ofNullable(pageInputSnapshot.getSelectTableAll()).orElse(false));
     }
 
