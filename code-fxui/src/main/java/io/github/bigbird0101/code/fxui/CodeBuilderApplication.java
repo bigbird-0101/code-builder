@@ -157,7 +157,10 @@ public class CodeBuilderApplication extends Application {
     @Override
     public void stop() {
         TemplateTraceContext.clear();
-        AbstractShareServerProvider.getShareServer().destroy();
+        try {
+            AbstractShareServerProvider.getShareServer().destroy();
+        } catch (Throwable ignored) {
+        }
         InstanceContext.getInstance().destroy();
     }
 

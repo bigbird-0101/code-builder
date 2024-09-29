@@ -12,12 +12,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.ResourceBundle;
 
 /**
@@ -26,6 +28,7 @@ import java.util.ResourceBundle;
  * @since 2021/1/12 19:29
  */
 public class ImportShareTemplateController extends AbstractTemplateContextProvider implements Initializable {
+    public static final String CONTENT = "当前导入的模版包含依赖模版，是否同步导入依赖模版？";
     @FXML
     public TextArea url;
     @FXML
@@ -74,10 +77,22 @@ public class ImportShareTemplateController extends AbstractTemplateContextProvid
                     } else if (shareClient.isTemplateShareUrl(urlText)) {
                         if (StrUtil.isNotBlank(multipleTemplateName)) {
                             TemplateDefinitionWrapper templateDefinitionWrapper = shareClient.template(urlText);
-                            templateDefinitionWrapper.registerAndRefreshTemplate(multipleTemplateName);
+                            if (!templateDefinitionWrapper.getDependTemplateDefinitionList().isEmpty() &&
+                                    ButtonType.OK.getButtonData() == AlertUtil.showConfirm(CONTENT).getButtonData()) {
+                                templateDefinitionWrapper.registerAndRefreshTemplate(multipleTemplateName);
+                            } else {
+                                templateDefinitionWrapper.setDependTemplateDefinitionList(Collections.emptyList());
+                                templateDefinitionWrapper.registerAndRefreshTemplate(multipleTemplateName);
+                            }
                         } else {
                             TemplateDefinitionWrapper templateDefinitionWrapper = shareClient.template(urlText);
-                            templateDefinitionWrapper.registerAndRefreshTemplate();
+                            if (!templateDefinitionWrapper.getDependTemplateDefinitionList().isEmpty() &&
+                                    ButtonType.OK.getButtonData() == AlertUtil.showConfirm(CONTENT).getButtonData()) {
+                                templateDefinitionWrapper.registerAndRefreshTemplate();
+                            } else {
+                                templateDefinitionWrapper.setDependTemplateDefinitionList(Collections.emptyList());
+                                templateDefinitionWrapper.registerAndRefreshTemplate();
+                            }
                         }
                         complexController.initMultipleTemplateViews();
                         AlertUtil.showInfo("导入成功");

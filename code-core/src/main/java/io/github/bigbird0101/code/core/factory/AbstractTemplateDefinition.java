@@ -51,6 +51,13 @@ public abstract class AbstractTemplateDefinition implements TemplateDefinition {
         if (beanClassObject == null) {
             throw new IllegalStateException("No template class specified on bean definition");
         }
+        if (beanClassObject instanceof String) {
+            try {
+                return Class.forName((String) beanClassObject);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException(e);
+            }
+        }
         if (!(beanClassObject instanceof Class)) {
             throw new IllegalStateException(
                     "template class name [" + beanClassObject + "] has not been resolved into an actual Class");

@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.core.share;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.RuntimeUtil;
 import cn.hutool.core.util.StrUtil;
@@ -23,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.net.BindException;
 
 import static io.github.bigbird0101.code.core.share.ShareConstant.DEPEND_TEMPLATE_MAPS;
 import static io.github.bigbird0101.code.core.share.ShareConstant.TEMPLATE_CONTENT;
@@ -42,8 +44,16 @@ public class ShareServer extends AbstractTemplateContextProvider {
     public void init() {
         port = getTemplateContext().getEnvironment().getPropertyOrDefault("share.server.port",
                 int.class, 4321);
-        server = HttpUtil.createServer(port);
         RuntimeUtil.addShutdownHook(this::destroy);
+        try {
+            server = HttpUtil.createServer(port);
+        } catch (IORuntimeException ioRuntimeException) {
+            if (ioRuntimeException.getCause() instanceof BindException) {
+                int usableLocalPort = NetUtil.getUsableLocalPort();
+                server = HttpUtil.createServer(usableLocalPort);
+                this.port = usableLocalPort;
+            }
+        }
     }
 
     public String getUrl() {

@@ -55,7 +55,10 @@ public class ShareClient extends AbstractTemplateContextProvider {
             MultipleTemplateDefinition multipleTemplateDefinition = JSONObject.parseObject(input, GenericMultipleTemplateDefinition.class);
             String multipleTemplateName = jsonObject.getString(ShareConstant.TEMPLATE_NAME);
             JSONObject templateMaps = jsonObject.getJSONObject(ShareConstant.TEMPLATE_MAPS);
-            List<TemplateDefinitionWrapper> templateDefinitionWrappers = templateMaps.values().stream().map(object -> {
+            List<TemplateDefinitionWrapper> templateDefinitionWrappers = templateMaps
+                    .values()
+                    .stream()
+                    .map(object -> {
                 JSONObject jsonObjectTemplate = (JSONObject) object;
                 GenericTemplateDefinition genericTemplateDefinition = getGenericTemplateDefinition(jsonObjectTemplate);
                 List<TemplateDefinitionWrapper> collect = getDependTemplateDefinitionWrappers(jsonObjectTemplate);
@@ -63,12 +66,10 @@ public class ShareClient extends AbstractTemplateContextProvider {
             }).collect(Collectors.toList());
             return new MultipleTemplateDefinitionWrapper(multipleTemplateName, multipleTemplateDefinition, templateDefinitionWrappers);
         } else {
-            if (response.getStatus() == HTTP_NOT_FOUND) {
-                throw new NoSuchMultipleTemplateDefinitionException(response.body());
-            } else {
+            if (response.getStatus() != HTTP_NOT_FOUND) {
                 LOGGER.error("require {} error {}", url, response.body());
-                throw new NoSuchMultipleTemplateDefinitionException(response.body());
             }
+            throw new NoSuchMultipleTemplateDefinitionException(response.body());
         }
     }
 
@@ -82,12 +83,10 @@ public class ShareClient extends AbstractTemplateContextProvider {
             List<TemplateDefinitionWrapper> collect = getDependTemplateDefinitionWrappers(jsonObject);
             return new TemplateDefinitionWrapper(o, jsonObject.getString(ShareConstant.TEMPLATE_NAME), collect);
         } else {
-            if (response.getStatus() == HTTP_NOT_FOUND) {
-                throw new NoSuchTemplateDefinitionException(response.body());
-            } else {
+            if (response.getStatus() != HTTP_NOT_FOUND) {
                 LOGGER.error("require {} error {}", url, response.body());
-                throw new NoSuchTemplateDefinitionException(response.body());
             }
+            throw new NoSuchTemplateDefinitionException(response.body());
         }
     }
 
@@ -137,12 +136,10 @@ public class ShareClient extends AbstractTemplateContextProvider {
             JSONObject jsonObject = (JSONObject) JSONObject.parse(input);
             return jsonObject.getString(ShareConstant.TEMPLATE_CONTENT);
         }else{
-            if(response.getStatus()== HTTP_NOT_FOUND){
-                throw new NoSuchTemplateDefinitionException(response.body());
-            }else{
+            if (response.getStatus() != HTTP_NOT_FOUND) {
                 LOGGER.error("require {} error {}", url, response.body());
-                throw new NoSuchTemplateDefinitionException(response.body());
             }
+            throw new NoSuchTemplateDefinitionException(response.body());
         }
     }
 }

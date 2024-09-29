@@ -12,6 +12,9 @@ public abstract class AbstractShareServerProvider {
     }
 
     public static ShareServer getShareServer() {
+        if (null == shareServer) {
+            throw new IllegalStateException("共享服务未初始化或者初始化异常");
+        }
         return shareServer;
     }
 }
