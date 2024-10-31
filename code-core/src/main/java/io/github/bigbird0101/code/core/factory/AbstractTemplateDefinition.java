@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.core.factory;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.annotation.JSONField;
 import io.github.bigbird0101.code.core.config.Resource;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
@@ -128,4 +129,7 @@ public abstract class AbstractTemplateDefinition implements TemplateDefinition {
         return Objects.hash(projectUrl, module, sourcesRoot, srcPackage, templateResource, templateClass);
     }
 
+    public Object clone() {
+        return ObjectUtil.cloneByStream(this);
+    }
 }

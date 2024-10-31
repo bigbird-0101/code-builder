@@ -10,7 +10,7 @@ import io.github.bigbird0101.code.fxui.fx.controller.TemplatesOperateController;
  * @since 2022-09-21 22:21:40
  */
 public class DoGetTemplateAfterEvent extends TemplateEvent {
-    private TemplatesOperateController templatesOperateController;
+    private final TemplatesOperateController templatesOperateController;
 
     public DoGetTemplateAfterEvent(Template template,TemplatesOperateController templatesOperateController) {
         super(template);

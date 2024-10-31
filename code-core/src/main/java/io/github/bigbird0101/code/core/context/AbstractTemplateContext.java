@@ -90,6 +90,21 @@ public abstract class AbstractTemplateContext implements ConfigurableTemplateCon
         }
     }
 
+    @Override
+    public void addListener(BasicCodeListener<?> listener) {
+        addBasicCodeListener(listener);
+    }
+
+    @Override
+    public void removeListener(BasicCodeListener<?> listener) {
+        getEventMulticaster().removeListener(listener);
+    }
+
+    @Override
+    public void multicastEvent(BasicCodeEvent event) {
+        getEventMulticaster().multicastEvent(event);
+    }
+
     public void publishEvent(BasicCodeEvent basicCodeEvent){
         getEventMulticaster().multicastEvent(basicCodeEvent);
     }

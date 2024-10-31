@@ -78,4 +78,6 @@ public interface TemplateDefinition extends Cloneable, Serializable {
      * @param templateClassName 模板className
      */
     void setTemplateClassName(String templateClassName);
+
+
 }

@@ -45,7 +45,7 @@ public class GenericMultipleTemplate extends AbstractMultipleTemplate{
      * @param templateResolverStrategy 模板解析策略  k-为模板名 键值为模板解析策略
      */
     @Override
-    public void setResolverStrategys(Map<String, ResolverStrategy> templateResolverStrategy) {
+    public void setResolverStrategies(Map<String, ResolverStrategy> templateResolverStrategy) {
         this.templates.forEach(item -> {
             if (item instanceof AbstractHandleFunctionTemplate && templateResolverStrategy.containsKey(item.getTemplateName())) {
                 ((AbstractHandleFunctionTemplate) item).setResolverStrategy(templateResolverStrategy.get(item.getTemplateName()));

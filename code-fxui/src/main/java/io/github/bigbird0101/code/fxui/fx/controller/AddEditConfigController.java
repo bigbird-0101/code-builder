@@ -7,6 +7,7 @@ import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.config.StringPropertySource;
 import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
+import io.github.bigbird0101.code.fxui.event.DatasourceConfigUpdateEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -104,6 +105,7 @@ public class AddEditConfigController extends AbstractTemplateContextProvider imp
                 new StringPropertySource(StrUtil.format("code.datasource.{}.username",dataSourceNameText), userNameText),
                 new StringPropertySource(StrUtil.format("code.datasource.{}.password",dataSourceNameText), passwordText));
         AlertUtil.showInfo("Success!");
+        getTemplateContext().multicastEvent(new DatasourceConfigUpdateEvent(new Object()));
         configController.initialize(null,null);
         ((Stage) main.getScene().getWindow()).close();
     }

@@ -1,6 +1,5 @@
 package io.github.bigbird0101.code.core.factory;
 
-import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -90,11 +89,6 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
                 targetFileSuffixName.equals(that.targetFileSuffixName) &&
                 targetFilePrefixNameStrategy.equals(that.targetFilePrefixNameStrategy) &&
                 dependTemplates.equals(that.dependTemplates);
-    }
-
-    @Override
-    public Object clone() {
-        return ObjectUtil.cloneByStream(this);
     }
 
     @Override

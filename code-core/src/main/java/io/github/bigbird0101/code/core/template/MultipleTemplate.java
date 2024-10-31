@@ -18,18 +18,18 @@ public interface MultipleTemplate extends Cloneable, Serializable {
 
     /**
      * 设置模板名称
-     * @param templateName
+     * @param templateName templateName
      */
     void setTemplateName(String templateName);
     /**
      * 获取多个模板集合
-     * @return
+     * @return 模板集合
      */
     Set<Template> getTemplates();
 
     /**
      * 设置模板集合
-     * @param templates
+     * @param templates templates
      */
     void setTemplates(Set<Template> templates);
 
@@ -37,7 +37,7 @@ public interface MultipleTemplate extends Cloneable, Serializable {
      * 设置模板解析策略
      * @param templateResolverStrategy 模板解析策略  k-为模板名 键值为模板解析策略
      */
-    default void setResolverStrategys(Map<String, ResolverStrategy> templateResolverStrategy){
+    default void setResolverStrategies(Map<String, ResolverStrategy> templateResolverStrategy) {
 
     }
 }

@@ -1,7 +1,7 @@
 package io.github.bigbird0101.code.core.common;
 
+import cn.hutool.cache.Cache;
 import cn.hutool.cache.CacheUtil;
-import cn.hutool.cache.impl.LFUCache;
 import cn.hutool.core.util.RuntimeUtil;
 import cn.hutool.core.util.StrUtil;
 import io.github.bigbird0101.code.core.config.Environment;
@@ -25,7 +25,7 @@ import java.util.Properties;
  * @since 2020/6/2 18:54
  */
 public class DbUtil {
-    public static final LFUCache<String, Connection> CONNECTION_LFU_CACHE = CacheUtil.newLFUCache(2);
+    public static final Cache<String, Connection> CONNECTION_LFU_CACHE = CacheUtil.newLFUCache(2);
     static {
         RuntimeUtil.addShutdownHook(() -> CONNECTION_LFU_CACHE.forEach(s -> {
             try {
@@ -225,9 +225,9 @@ public class DbUtil {
     /**
      * 获取数据库连接
      *
-     * @param dataSourceConfigPojo
+     * @param dataSourceConfigPojo dataSourceConfigPojo
      * @return 获取数据库连接
-     * @throws SQLException
+     * @throws SQLException SQLException
      */
     private static Connection getConnection(DataSourceConfig dataSourceConfigPojo) throws SQLException {
         String quDongName = dataSourceConfigPojo.getQuDongName();

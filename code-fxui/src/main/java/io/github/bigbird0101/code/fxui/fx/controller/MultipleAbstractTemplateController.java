@@ -1,13 +1,18 @@
 package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.util.StrUtil;
+import io.github.bigbird0101.code.core.config.AbstractEnvironment;
+import io.github.bigbird0101.code.core.config.FileUrlResource;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
+import io.github.bigbird0101.code.core.factory.AbstractTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 import io.github.bigbird0101.code.core.factory.GenericMultipleTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.RootTemplateDefinition;
+import io.github.bigbird0101.code.core.template.HaveDependTemplate;
 import io.github.bigbird0101.code.core.template.MultipleTemplate;
+import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
 import io.github.bigbird0101.code.util.Utils;
 import javafx.fxml.FXML;
@@ -24,13 +29,23 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH;
+import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
 import static io.github.bigbird0101.code.fxui.CodeBuilderApplication.USER_OPERATE_CACHE;
 
 /**
@@ -65,6 +80,14 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
     public Button replaceSrcPackageName;
     @FXML
     public TextField srcPackageNameNew;
+    @FXML
+    public HBox templateName;
+    @FXML
+    public TextField templateNameOld;
+    @FXML
+    public TextField templateNameNew;
+    @FXML
+    public Button replaceTemplateName;
     @FXML
     FlowPane templates;
     private final Insets insets=new Insets(0,10,10,0);
@@ -110,6 +133,10 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
 
     public HBox getModule() {
         return module;
+    }
+
+    public HBox getTemplateName() {
+        return templateName;
     }
 
     public HBox getSourcesRootName() {
@@ -173,12 +200,12 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
             final int i = listViewTemplate.getRoot().getChildren().indexOf(labelTreeItemOld);
             listViewTemplate.getRoot().getChildren().set(i,labelTreeItemNew);
         });
-        AlertUtil.showInfo("Success!");
-        ((Stage)anchorPane.getScene().getWindow()).close();
         doRefreshMainView();
     }
 
     private void doRefreshMainView() {
+        AlertUtil.showInfo("Success!");
+        ((Stage) anchorPane.getScene().getWindow()).close();
         if (StrUtil.isBlank(USER_OPERATE_CACHE.getTemplateNameSelected())) {
             USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateName.getText());
         } else if (multipleTemplateName.getText().equals(USER_OPERATE_CACHE.getTemplateNameSelected()) ||
@@ -320,4 +347,56 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         });
         doRefreshMainView();
     }
+
+    @FXML
+    public void replaceTemplateName() {
+        String templateNameOldStr = templateNameOld.getText();
+        String templateNameNewText = Optional.ofNullable(templateNameNew.getText()).orElse("");
+        if (StrUtil.hasBlank(templateNameOldStr)) {
+            AlertUtil.showWarning("旧的模版名不能为空");
+            return;
+        }
+        MultipleTemplate multipleTemplate = getMultipleTemplate();
+        Set<Template> newTemplates = new LinkedHashSet<>(multipleTemplate.getTemplates());
+        DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory)
+                getTemplateContext().getTemplateFactory();
+        multipleTemplate.getTemplates().forEach(t -> {
+            String templateNameSrc = t.getTemplateName();
+            String templateNameNewSrc = StrUtil.replace(templateNameSrc, templateNameOldStr, templateNameNewText);
+            if (!templateNameNewSrc.equals(templateNameSrc)) {
+                newTemplates.remove(t);
+                operateTemplateBeanFactory.removeTemplate(templateNameSrc);
+                AbstractTemplateDefinition templateDefinition = (AbstractTemplateDefinition) operateTemplateBeanFactory.getTemplateDefinition(templateNameSrc);
+                operateTemplateBeanFactory.removeTemplateDefinition(templateNameSrc);
+                try {
+                    File oldFile = t.getTemplateResource().getFile();
+                    AbstractTemplateDefinition fromClone = (AbstractTemplateDefinition) templateDefinition.clone();
+                    String newFileName = getTemplateContext().getEnvironment()
+                            .getProperty(DEFAULT_CORE_TEMPLATE_FILES_PATH) + File.separator +
+                            templateNameNewSrc + DEFAULT_TEMPLATE_FILE_SUFFIX;
+                    File newFile = new File(newFileName);
+                    if (!oldFile.equals(newFile)) {
+                        FileUtils.copyFile(oldFile, newFile);
+                    }
+                    fromClone.setTemplateResource(new FileUrlResource(newFile.getAbsolutePath()));
+                    AbstractEnvironment.putTemplateContent(newFile.getAbsolutePath(), IOUtils.toString(Files.newInputStream(newFile.toPath()), StandardCharsets.UTF_8));
+                    operateTemplateBeanFactory.registerTemplateDefinition(templateNameNewSrc, fromClone);
+                    operateTemplateBeanFactory.preInstantiateTemplates();
+                    Template template = getTemplateContext().getTemplate(templateNameNewSrc);
+                    newTemplates.add(template);
+                    operateTemplateBeanFactory.refreshTemplate(template);
+
+                    //修改模板名也要修改此时依赖此模板的所依赖的模板名
+                    HaveDependTemplate.updateDependTemplate(operateTemplateBeanFactory, templateNameSrc, templateNameNewSrc);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        multipleTemplate.setTemplates(newTemplates);
+        operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate);
+        doRefreshMainView();
+    }
+
+
 }

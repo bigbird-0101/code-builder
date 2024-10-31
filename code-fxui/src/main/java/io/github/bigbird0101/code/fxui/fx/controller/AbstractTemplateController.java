@@ -1,6 +1,5 @@
 package io.github.bigbird0101.code.fxui.fx.controller;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.FileUrlResource;
@@ -137,11 +136,7 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
         filePrefixNameStrategyToggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             RadioButton radioButton = (RadioButton) newValue;
             this.filePrefixNameStrategyValue = Integer.valueOf(radioButton.getText());
-            if (filePrefixNameStrategyValue == 3) {
-                filePrefixNameStrategyPane.setVisible(true);
-            } else {
-                filePrefixNameStrategyPane.setVisible(false);
-            }
+            filePrefixNameStrategyPane.setVisible(filePrefixNameStrategyValue == 3);
         });
         ArrayList<Class<?>> allClassByInterface = ClassUtil.getAllClassByInterface(Template.class);
         List<String> collect = allClassByInterface.stream().map(Class::getName).collect(Collectors.toList());
@@ -268,33 +263,7 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
         defaultListableTemplateFactory.refreshTemplate(templateContext.getTemplate(templateNameText));
 
         //修改模板名也要修改此时依赖此模板的所依赖的模板名
-        defaultListableTemplateFactory.getTemplateNames()
-                .stream()
-                .map(defaultListableTemplateFactory::getTemplate)
-                .filter(s->s instanceof HaveDependTemplate)
-                .map(s->(HaveDependTemplate)s)
-                .forEach(s->{
-                    Set<String> templates = s.getDependTemplates();
-                    if(CollectionUtil.isNotEmpty(templates)){
-                        replace(templates,sourceTemplateName,templateNameText);
-                    }
-                    defaultListableTemplateFactory.refreshTemplate(s);
-                });
-    }
-
-    public void replace(Set<String> sets, String old, String newValue) {
-        // 创建一个新的Set来存储结果
-        Set<String> updatedSet = new LinkedHashSet<>();
-        // 遍历原始的Set，替换元素
-        for (String item : sets) {
-            if (item.equals(old)) {
-                updatedSet.add(newValue);
-            } else {
-                updatedSet.add(item);
-            }
-        }
-        sets.clear();
-        sets.addAll(updatedSet);
+        HaveDependTemplate.updateDependTemplate(defaultListableTemplateFactory, sourceTemplateName, templateNameText);
     }
 
     public boolean check() {

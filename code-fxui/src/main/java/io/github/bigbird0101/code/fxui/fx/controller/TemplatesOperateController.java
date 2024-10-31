@@ -12,6 +12,7 @@ import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.config.StringPropertySource;
 import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.domain.DataSourceConfig;
+import io.github.bigbird0101.code.core.event.TemplateListener;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 import io.github.bigbird0101.code.core.factory.OperateTemplateBeanFactory;
@@ -22,11 +23,13 @@ import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.fxui.CodeBuilderApplication;
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
 import io.github.bigbird0101.code.fxui.common.TooltipUtil;
+import io.github.bigbird0101.code.fxui.event.DatasourceConfigUpdateEvent;
 import io.github.bigbird0101.code.fxui.fx.bean.PageInputSnapshot;
 import io.github.bigbird0101.code.fxui.fx.component.FxAlerts;
 import io.github.bigbird0101.code.util.Utils;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -153,9 +156,17 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         try {
             templates.getChildren().clear();
             templates.autosize();
+            getTemplateContext().addListener(new TemplatesOperateController.DatasourceConfigUpdateEventListener());
             Platform.runLater(this::initData);
         } catch (CodeConfigException e) {
             LOGGER.info("Template Operate init error", e);
+        }
+    }
+
+    private class DatasourceConfigUpdateEventListener extends TemplateListener<DatasourceConfigUpdateEvent> {
+        @Override
+        protected void onTemplateEvent(DatasourceConfigUpdateEvent doGetTemplateAfterEvent) {
+            Platform.runLater(TemplatesOperateController.this::initData);
         }
     }
 
@@ -256,7 +267,9 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                                 LOGGER.info("targetTable item {}", targetTable.getItems());
                                 for (String s1 : s) {
                                     LOGGER.debug("all select {} targetTable item select {}", s, s1);
-                                    checkModel.check(s1);
+                                    if (targetTable.getItems().contains(s1)) {
+                                        checkModel.check(s1);
+                                    }
                                 }
                             } else {
                                 LOGGER.warn("targetTable item is empty");
@@ -463,13 +476,14 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                                 && CollUtil.isNotEmpty(s.getValue())
                                 && getTemplateContext().getMultipleTemplateNames().contains(s.getKey()))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                ObservableList<String> checkedItems = targetTable.getCheckModel().getCheckedItems();
                 final PageInputSnapshot build = PageInputSnapshot.Builder
                         .builder()
                         .withCurrentMultipleTemplate(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected())
                         .withFields(fields.getText())
                         .withRepresentFactor(representFactor.getText())
                         .withSelectTemplateGroup(templateGroup)
-                        .withTableNames(String.join(",", targetTable.getCheckModel().getCheckedItems()))
+                        .withTableNames(String.join(",", checkedItems))
                         .withDefinedFunction(isDefinedFunction.isSelected())
                         .withSelectTableAll(isAllTable.isSelected())
                         .build();
@@ -508,6 +522,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                 doInitView();
                 templates.requestLayout();
                 CachePool.clearAll();
+                DbUtil.CONNECTION_LFU_CACHE.clear();
             }
             AlertUtil.showInfo("刷新成功");
         } catch (CodeConfigException | TemplateResolveException e) {

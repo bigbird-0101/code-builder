@@ -113,7 +113,7 @@ public interface Template extends Cloneable, Serializable,TemplateMatchRule {
 
     /**
      * 设置模板文件
-     * @param templateResource
+     * @param templateResource templateResource
      */
     void setTemplateResource(Resource templateResource);
 

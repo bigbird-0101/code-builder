@@ -22,6 +22,7 @@ import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProv
 import io.github.bigbird0101.code.core.domain.DataSourceConfig;
 import io.github.bigbird0101.code.core.domain.DefinedFunctionDomain;
 import io.github.bigbird0101.code.core.domain.ProjectTemplateInfoConfig;
+import io.github.bigbird0101.code.core.event.TemplateListener;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 import io.github.bigbird0101.code.core.factory.GenericMultipleTemplateDefinition;
@@ -47,6 +48,7 @@ import io.github.bigbird0101.code.core.template.variable.resource.DataSourceTemp
 import io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
+import io.github.bigbird0101.code.fxui.event.DatasourceConfigUpdateEvent;
 import io.github.bigbird0101.code.fxui.event.DoGetTemplateAfterEvent;
 import io.github.bigbird0101.code.fxui.fx.bean.PageInputSnapshot;
 import io.github.bigbird0101.code.fxui.fx.component.FxAlerts;
@@ -211,7 +213,15 @@ public class ComplexController extends AbstractTemplateContextProvider implement
 
     private void init(){
         initView();
+        getTemplateContext().addListener(new DatasourceConfigUpdateEventListener());
         ThreadUtil.execAsync(this::initData);
+    }
+
+    private class DatasourceConfigUpdateEventListener extends TemplateListener<DatasourceConfigUpdateEvent> {
+        @Override
+        protected void onTemplateEvent(DatasourceConfigUpdateEvent doGetTemplateAfterEvent) {
+            ThreadUtil.execAsync(ComplexController.this::initData);
+        }
     }
 
     private void initData() {
@@ -910,6 +920,7 @@ public class ComplexController extends AbstractTemplateContextProvider implement
             multipleTemplateController.setMode(0);
             multipleTemplateController.getButton().setText("修改");
             multipleTemplateController.getModule().setVisible(true);
+            multipleTemplateController.getTemplateName().setVisible(true);
             multipleTemplateController.getSourcesRootName().setVisible(true);
             multipleTemplateController.getSrcPackageName().setVisible(true);
             multipleTemplateController.getMultipleTemplateName().setText(multipleTemplateName);

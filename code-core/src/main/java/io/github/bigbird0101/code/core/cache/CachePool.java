@@ -12,7 +12,8 @@ import java.util.function.Predicate;
  */
 public class CachePool {
     private static final List<Cache<?,?>> CACHES =new CopyOnWriteArrayList<>();
-    public static <K, C> void register(Cache<K, C> cache){
+
+    public static void register(Cache<?, ?> cache) {
         CACHES.add(cache);
     }
     public static <K, C> void clear(Cache<K, C> cache){
