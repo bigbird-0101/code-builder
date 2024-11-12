@@ -32,7 +32,7 @@
                     <TextArea fx:id="projectUrl" prefHeight="52.0" prefWidth="315.0" />
                 </HBox>
                     <HBox visible="false" fx:id="templateName">
-                        <Label text="模板的模块名:"/>
+                        <Label text="模板名:"/>
                         <Label text="旧:"/>
                         <TextField fx:id="templateNameOld" prefWidth="215.0"/>
                         <Label text="新:"/>
@@ -45,7 +45,7 @@
                         </Button>
                     </HBox>
                 <HBox visible="false" fx:id="module">
-                    <Label text="模板的模块地址:" />
+                    <Label text="模板的模块名:"/>
                     <Label text="旧:" />
                     <TextField fx:id="moduleNameOld" prefWidth="215.0" />
                     <Label text="新:" />
