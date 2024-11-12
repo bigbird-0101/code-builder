@@ -6,6 +6,7 @@ import com.alibaba.fastjson.TypeReference;
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.config.StringPropertySource;
 import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
+import io.github.bigbird0101.code.fxui.event.DatasourceConfigUpdateEvent;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -91,6 +92,7 @@ public class ConfigController extends AbstractTemplateContextProvider implements
             if(o!=null&&null!=n&&!o.equals(n)) {
                 getTemplateContext().getEnvironment().refreshPropertySourceSerialize(new StringPropertySource("code.datasource", n));
                 setDataSource(environment, n);
+                getTemplateContext().multicastEvent(new DatasourceConfigUpdateEvent(new Object()));
             }
         });
         setDataSource(environment, defaultName);
