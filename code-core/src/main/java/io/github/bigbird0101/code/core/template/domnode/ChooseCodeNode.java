@@ -23,9 +23,6 @@ public class ChooseCodeNode implements CodeNode{
                 return true;
             }
         }
-        if(contentsOtherWise.apply(context)){
-            return true;
-        }
-        return false;
+        return contentsOtherWise.apply(context);
     }
 }
