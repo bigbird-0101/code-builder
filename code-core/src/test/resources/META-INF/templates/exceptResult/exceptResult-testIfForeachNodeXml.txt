@@ -1,0 +1,22 @@
+    /**
+     * 分页方法获取用户表信息列表
+     *
+     * @param pageReqVo 分页请求参数
+     * @return 用户表数据列表
+     */
+    @Override
+    public <T extends PageReqVo> PageResult<UserRespVo> getUserPage(T pageReqVo) {
+        LambdaQueryWrapper<User> lambdaQueryWrapper=new LambdaQueryWrapper<>();
+        if(StrUtil.isNotBlank(pageReqVo.getSearchKey())) {
+            lambdaQueryWrapper.and(i->i
+                    .or()
+                    .likeRight(User::getName, pageReqVo.getSearchKey())
+                    .or()
+                    .likeRight(User::getTitle, pageReqVo.getSearchKey())
+            );
+        }
+        pageReqVo.bindDefaultQuery(lambdaQueryWrapper);
+        Page<User> page=new Page<>(pageReqVo.getPageNo(),pageReqVo.getPageSize());
+        IPage<User> pageResult = UserDao.selectPage(page, lambdaQueryWrapper);
+        return toPageResult(pageResult,UserRespVo.class);
+    }

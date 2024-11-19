@@ -5,14 +5,18 @@ import cn.hutool.core.util.StrUtil;
 import io.github.bigbird0101.code.core.cache.Cache;
 import io.github.bigbird0101.code.core.cache.CacheKey;
 import io.github.bigbird0101.code.core.cache.CachePool;
+import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.domain.DefinedFunctionDomain;
 import io.github.bigbird0101.code.core.domain.TemplateFileClassInfo;
 import io.github.bigbird0101.code.core.exception.CodeBuilderException;
+import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -37,6 +41,33 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     protected ResolverStrategy resolverStrategy;
 
     protected volatile boolean refreshed;
+
+    public AbstractHandleFunctionTemplate() {
+    }
+
+    public AbstractHandleFunctionTemplate(String templeFileName) throws CodeConfigException {
+        super(templeFileName);
+    }
+
+    public AbstractHandleFunctionTemplate(String templeFileName, Environment environment) throws CodeConfigException {
+        super(templeFileName, environment);
+    }
+
+    public AbstractHandleFunctionTemplate(String templeFileName, TemplateResolver templateResolver) {
+        super(templeFileName, templateResolver);
+    }
+
+    public AbstractHandleFunctionTemplate(String templateName, URL templateFileUrl) {
+        super(templateName, templateFileUrl);
+    }
+
+    public AbstractHandleFunctionTemplate(URL templateFileUrl) {
+        super(templateFileUrl);
+    }
+
+    public AbstractHandleFunctionTemplate(File file) throws IOException {
+        super(file);
+    }
 
     @Override
     public void refresh(){
@@ -67,7 +98,7 @@ public abstract class AbstractHandleFunctionTemplate extends AbstractTemplate {
     /**
      * 获取根据模板最终生成的模板内容
      *
-     * @return
+     * @return 生成的模板内容
      */
     @Override
     public String process(Map<String,Object> dataModel) throws TemplateResolveException {

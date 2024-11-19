@@ -10,6 +10,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import static cn.hutool.core.text.StrPool.CRLF;
+import static cn.hutool.core.text.StrPool.LF;
+
 /**
  * @author bigbird-0101
  * @version 1.0.0
@@ -47,7 +50,13 @@ public class ForeachCodeNode implements CodeNode{
             if(0==a||null==separator) {
                 context=new PrefixedContext(context, "");
             }else{
-                context = new PrefixedContext(context, separator);
+                if (separator.contains("\\r\\n") || separator.contains("\\n")) {
+                    context = new PrefixedContext(context, separator
+                            .replace("\\r\\n", CRLF)
+                            .replace("\\n", LF));
+                } else {
+                    context = new PrefixedContext(context, separator);
+                }
             }
             String uniqueNumber= IdUtil.randomUUID();
             applyItem(context,o,uniqueNumber);

@@ -28,6 +28,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,11 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
     private Environment environment;
     private Document context;
     public DomHandleFunctionTemplate() {
+        this.setTemplateResolver(SimpleAbstractTemplateResolver.getInstance());
+    }
+
+    public DomHandleFunctionTemplate(URL url) {
+        super(url);
         this.setTemplateResolver(SimpleAbstractTemplateResolver.getInstance());
     }
 

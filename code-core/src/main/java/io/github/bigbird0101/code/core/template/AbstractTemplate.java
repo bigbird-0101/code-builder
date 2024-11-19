@@ -1,6 +1,8 @@
 package io.github.bigbird0101.code.core.template;
 
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.io.file.FileNameUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
@@ -9,6 +11,7 @@ import io.github.bigbird0101.code.core.cache.Cache;
 import io.github.bigbird0101.code.core.cache.CachePool;
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.Environment;
+import io.github.bigbird0101.code.core.config.FileUrlResource;
 import io.github.bigbird0101.code.core.config.Resource;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.template.targetfile.DefaultTargetFilePrefixNameStrategy;
@@ -21,6 +24,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -85,7 +90,7 @@ public abstract class AbstractTemplate implements Template {
     }
 
     public AbstractTemplate() {
-        this(null);
+        this((String) null);
     }
 
     public AbstractTemplate(String templeFileName) throws CodeConfigException {
@@ -99,6 +104,34 @@ public abstract class AbstractTemplate implements Template {
     public AbstractTemplate(String templeFileName, TemplateResolver templateResolver) {
         this.setTemplateName(templeFileName);
         this.templateResolver = templateResolver;
+    }
+
+    public AbstractTemplate(String templateName, URL templateFileUrl) {
+        this(templateName);
+        this.templateResource = new FileUrlResource(templateFileUrl);
+    }
+
+    public AbstractTemplate(URL templateFileUrl) {
+        Assert.notNull(templateFileUrl, "templateFileUrl can not be null");
+        String file = templateFileUrl.getFile();
+        String templateName = FileNameUtil.getName(file);
+        Assert.notNull(templateName, "templateName can not be null");
+        this.templateName = templateName;
+        this.templateResolver = new DefaultAbstractTemplateResolver();
+        this.templateResource = new FileUrlResource(templateFileUrl);
+    }
+
+    public AbstractTemplate(File file) throws IOException {
+        Assert.notNull(file, "file can not be null");
+        String templateName = FileNameUtil.getName(file);
+        Assert.notNull(templateName, "templateName can not be null");
+        this.templateName = templateName;
+        this.templateResolver = new DefaultAbstractTemplateResolver();
+        try {
+            this.templateResource = new FileUrlResource(file.getAbsolutePath());
+        } catch (MalformedURLException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 
     /**

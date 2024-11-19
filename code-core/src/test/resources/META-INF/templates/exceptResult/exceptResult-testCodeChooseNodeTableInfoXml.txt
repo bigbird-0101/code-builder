@@ -1,0 +1,12 @@
+/**
+ * 根据id 获取用户表
+ *
+ * @param id 用户表的id
+ * @return 数据处理结果
+ */
+@GetMapping("/get")
+@ApiOperation(value = "根据id获取用户表", notes = "返回用户表详细信息", hidden=true)
+@ApiImplicitParam(paramType = "query", name = "id", value = "用户表id", required = true, dataType = "Long")
+public Result<UserRespVo> getUser(@RequestParam Long id) {
+    return Result.success(UserService.getUser(id).orElse(null));
+}

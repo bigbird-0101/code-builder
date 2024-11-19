@@ -3,8 +3,6 @@ package io.github.bigbird0101.code.core.template;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.URLUtil;
-import io.github.bigbird0101.code.core.config.StandardEnvironment;
 import io.github.bigbird0101.code.core.context.GenericTemplateContext;
 import io.github.bigbird0101.code.core.template.domnode.DomScriptCodeNodeBuilderTest;
 import org.junit.jupiter.api.Test;
@@ -27,11 +25,9 @@ class DomHandleFunctionTemplateTest {
 
     @Test
     void test() throws SQLException {
-        StandardEnvironment environment=new StandardEnvironment();
-        environment.setTemplatesPath(URLUtil.decode(ResourceUtil.getResource("template").getPath()));
-        GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
+        GenericTemplateContext genericTemplateContext = new GenericTemplateContext();
         final Template dao = genericTemplateContext.getTemplate("testCodeNodeXml");
-        Map<String, Object> dataModel = new HashMap<>(DomScriptCodeNodeBuilderTest.doBuildData(environment));
+        Map<String, Object> dataModel = new HashMap<>(DomScriptCodeNodeBuilderTest.doBuildData(genericTemplateContext.getEnvironment()));
         final String templateResult = dao.process(dataModel).trim();
         assertNotNull(templateResult);
         final String domExceptResult = ResourceUtil.getResourceObj("DomExceptResult").readUtf8Str().trim().replaceAll("\r\n","\n");
@@ -39,9 +35,7 @@ class DomHandleFunctionTemplateTest {
     }
     @Test
     void test2() {
-        StandardEnvironment environment=new StandardEnvironment();
-        environment.setTemplatesPath(URLUtil.decode(ResourceUtil.getResource("template").getPath()));
-        GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
+        GenericTemplateContext genericTemplateContext = new GenericTemplateContext();
         final Template dao = genericTemplateContext.getTemplate("testCodeChooseNodeXml");
         Map<String, Object> dataModel = MapUtil.of("test","ad");
         String templateResult = dao.process(dataModel).trim();
@@ -60,9 +54,7 @@ class DomHandleFunctionTemplateTest {
 
     @Test
     void test3() {
-        StandardEnvironment environment=new StandardEnvironment();
-        environment.setTemplatesPath(URLUtil.decode(ResourceUtil.getResource("template").getPath()));
-        GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
+        GenericTemplateContext genericTemplateContext = new GenericTemplateContext();
         final Template dao = genericTemplateContext.getTemplate("testCodeChooseForeachNodeXml");
         Map<String, Object> dataModel = MapUtil.of("tableInfo2",MapUtil.of("columnList", ListUtil.of(MapUtil.of("test","ab2"))));
         String templateResult = dao.process(dataModel).trim();

@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static cn.hutool.core.text.CharSequenceUtil.SPACE;
-import static cn.hutool.core.text.CharSequenceUtil.lowerFirst;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -153,10 +152,40 @@ public abstract class Utils {
      * @param object  源对象  比如:student
      * @return 获取一个对象的属性字段值
      */
-    @SuppressWarnings("unchecked")
     public static Object getObjectFieldValue(String typeStr, Object object) {
         String[] typeArray = typeStr.split("\\.");
         List<String> list = Arrays.stream(typeArray).filter(Utils::isNotEmpty).skip(1).collect(toList());
+        return doGetObjectFieldValue(object, list);
+    }
+
+
+    /**
+     * 获取一个对象的属性字段值
+     *
+     * @param typeStr 一个对象的形如json的字符串属性列  比如:student.teacher.name
+     * @param object  源对象  比如:student
+     * @return 获取一个对象的属性字段值
+     */
+    public static Object getLatestObjectFieldValue(String typeStr, Object object) {
+        return typeStr.contains(".") ? getObjectFieldValue(typeStr, object) : getObjectFieldValueNoSkip(typeStr, object);
+    }
+
+
+    /**
+     * 获取一个对象的属性字段值
+     *
+     * @param typeStr 一个对象的形如json的字符串属性列  比如:student.teacher.name
+     * @param object  源对象  比如:student
+     * @return 获取一个对象的属性字段值
+     */
+    public static Object getObjectFieldValueNoSkip(String typeStr, Object object) {
+        String[] typeArray = typeStr.split("\\.");
+        List<String> list = Arrays.stream(typeArray).filter(Utils::isNotEmpty).collect(toList());
+        return doGetObjectFieldValue(object, list);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object doGetObjectFieldValue(Object object, List<String> list) {
         Class<?> currentClazz= object.getClass();
         Object currentObj=object;
         Field currentField;
@@ -166,23 +195,26 @@ public abstract class Utils {
                 currentObj = objMap.get(name);
                 if(null==currentObj){
                     throw new TemplateResolveException("未定义的属性,模板中语法异常 {} 属性在对象[}中不存在",name,
-                            lowerFirst(objMap.getClass().getSimpleName()));
+                            objMap.getClass().getSimpleName());
                 }
             } else {
+                if (currentObj instanceof String || currentObj instanceof Number) {
+                    return currentObj;
+                }
                 try {
                     currentField = ReflectUtil.getField(currentClazz, name);
                     if(null==currentField){
                         throw new TemplateResolveException("未定义的属性,模板中语法异常 {} 属性在对象{}中不存在",name,
-                                lowerFirst(currentObj.getClass().getSimpleName()));
+                                currentObj.getClass().getSimpleName());
                     }
                     currentClazz = currentField.getClass();
                     currentObj = ReflectUtil.getFieldValue(currentObj, currentField);
                 } catch (UtilException e) {
                     LOGGER.error("getObjectFieldValue error", e);
                     LOGGER.warn("getObjectFieldValue typeStr 对象{}中{}属性不存在",
-                            lowerFirst(currentObj.getClass().getSimpleName()), name);
+                            currentObj.getClass().getSimpleName(), name);
                     throw new TemplateResolveException("未定义的属性,模板中语法异常 {} 属性在对象{}中不存在",name,
-                            lowerFirst(currentObj.getClass().getSimpleName()));
+                            currentObj.getClass().getSimpleName());
                 }
             }
         }

@@ -1,0 +1,30 @@
+<template>
+<prefix>
+</prefix>
+<function name="get">
+/**
+ * 根据id 获取*{tableInfo.tableComment}*
+ *
+ * @param id *{tableInfo.tableComment}*的id
+ * @return 数据处理结果
+ */
+@GetMapping("/get")
+@ApiOperation(value = "根据id获取*{tableInfo.tableComment}*", notes = "返回*{tableInfo.tableComment}*详细信息", hidden=true)
+@ApiImplicitParam(paramType = "query", name = "id", value = "*{tableInfo.tableComment}*id", required = true, dataType = "Long")
+public Result&lt;*{respVoSimpleName}*&gt; get*{tableInfo.domainName}*(@RequestParam Long id) {
+    <choose>
+    <when test="tableInfo.columnList anyMatch ('name',['tenant_id'])">
+    return Result.success(*{firstLowerDoSimpleName}*.get*{tableInfo.domainName}*ByIdAndTenantId(id,UserUtils.getTenantId()).orElse(null));
+    </when>
+    <when test="tableInfo.columnList anyMatch ('name',['user_id'])">
+    return Result.success(*{firstLowerDoSimpleName}*.get*{tableInfo.domainName}*(id,UserUtils.getUserId()).orElse(null));
+    </when>
+    <otherwise>
+    return Result.success(*{firstLowerDoSimpleName}*.get*{tableInfo.domainName}*(id).orElse(null));
+    </otherwise>
+    </choose>
+}
+</function>
+<suffix>
+</suffix>
+</template>

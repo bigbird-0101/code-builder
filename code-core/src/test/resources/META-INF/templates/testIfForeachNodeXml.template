@@ -1,0 +1,33 @@
+<template>
+<prefix>
+</prefix>
+<function name="getPage">
+    /**
+     * 分页方法获取*{tableInfo.tableComment}*信息列表
+     *
+     * @param pageReqVo 分页请求参数
+     * @return *{tableInfo.tableComment}*数据列表
+     */
+    @Override
+    public &lt;T extends PageReqVo&gt; PageResult&lt;*{respVoSimpleName}*&gt; get*{doSimpleName}*Page(T pageReqVo) {
+        LambdaQueryWrapper&lt;*{doSimpleName}*&gt; lambdaQueryWrapper=new LambdaQueryWrapper&lt;&gt;();
+        <if v-if="tableInfo.columnList anyMatch ('javaType',['String']) &amp;&amp; tableInfo.columnList containsAnyIgnoreCase ('name',['name','title','search'])">
+        if(StrUtil.isNotBlank(pageReqVo.getSearchKey())) {
+            lambdaQueryWrapper.and(i->i
+                <foreach v-for="column in tableInfo.columnList" separator="                    .or()\n">
+                    <if v-if="column.name containsAnyIgnoreCase ['name','title','search'] &amp;&amp; column.javaType=='String'">
+                    .likeRight(*{doSimpleName}*::get*{tool.firstUpper(*{column.domainPropertyName}*)}*, pageReqVo.getSearchKey())
+                    </if>
+                </foreach>
+            );
+        }
+        </if>
+        pageReqVo.bindDefaultQuery(lambdaQueryWrapper);
+        Page&lt;*{doSimpleName}*&gt; page=new Page&lt;&gt;(pageReqVo.getPageNo(),pageReqVo.getPageSize());
+        IPage&lt;*{doSimpleName}*&gt; pageResult = *{firstLowerDaoSimpleName}*.selectPage(page, lambdaQueryWrapper);
+        return toPageResult(pageResult,*{respVoSimpleName}*.class);
+    }
+</function>
+<suffix>
+</suffix>
+</template>

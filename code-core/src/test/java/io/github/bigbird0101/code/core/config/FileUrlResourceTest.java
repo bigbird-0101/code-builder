@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class FileUrlResourceTest {
     @Test
     public void test() throws IOException {
-        URL resource = ResourceUtil.getResource("template/testCodeNodeXml.template");
+        URL resource = ResourceUtil.getResource("META-INF/templates/testCodeNodeXml.template");
         FileUrlResource fileUrlResource=new FileUrlResource(resource);
         assertNotNull(IoUtil.readUtf8(fileUrlResource.getInputStream()));
     }

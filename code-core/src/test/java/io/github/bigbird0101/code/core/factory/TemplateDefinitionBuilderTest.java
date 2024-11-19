@@ -25,7 +25,7 @@ class TemplateDefinitionBuilderTest {
     @Test
     void testBuild() {
         final TemplateDefinition build = TemplateDefinitionBuilder.build(
-                new File(URLUtil.decode(ResourceUtil.getResourceObj("template/testCodeNodeXml.template").getUrl().getFile()))
+                new File(URLUtil.decode(ResourceUtil.getResourceObj("META-INF/templates/testCodeNodeXml.template").getUrl().getFile()))
         );
         Assertions.assertNotNull(build);
     }

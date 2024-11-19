@@ -27,7 +27,7 @@ class DomNoHandleFunctionTemplateTest {
    GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
    final String testConfigTemplateResource = "testCodeNodeXml";
    genericTemplateContext.registerTemplateDefinition(testConfigTemplateResource, TemplateDefinitionBuilder.build(
-           DomNoHandleFunctionTemplate.class, "template/testCodeNodeXml.template"));
+           DomNoHandleFunctionTemplate.class, "META-INF/templates/testCodeNodeXml.template"));
    final Template dao = genericTemplateContext.getTemplate("testCodeNodeXml");
      Map<String, Object> dataModel = new HashMap<>(DomScriptCodeNodeBuilderTest.doBuildData(environment));
    final String templateResult = dao.process(dataModel);
@@ -40,7 +40,7 @@ class DomNoHandleFunctionTemplateTest {
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         final String testConfigTemplateResource = "testXmlReal";
         genericTemplateContext.registerTemplateDefinition(testConfigTemplateResource, TemplateDefinitionBuilder.build(
-                DomNoHandleFunctionTemplate.class, "template/testXmlReal.template"));
+                DomNoHandleFunctionTemplate.class, "META-INF/templates/testXmlReal.template"));
         final Template dao = genericTemplateContext.getTemplate("testXmlReal");
         Map<String, Object> dataModel = new HashMap<>();
         List<TableInfo.ColumnInfo> columnInfos = RandomUtils.randomPojoList(TableInfo.ColumnInfo.class);

@@ -61,7 +61,7 @@ class ConfigFileTemplateVariableResourceTest {
         GenericTemplateContext genericTemplateContext=new GenericTemplateContext(standardEnvironment);
         final String testConfigTemplateResource = "testConfigTemplateResource";
         genericTemplateContext.registerTemplateDefinition(testConfigTemplateResource, TemplateDefinitionBuilder.build(
-                DefaultNoHandleFunctionTemplate.class, "template/testTemplateVariable.template"));
+                DefaultNoHandleFunctionTemplate.class, "META-INF/templates/testTemplateVariable.template"));
         final Template dao = genericTemplateContext.getTemplate("testConfigTemplateResource");
         final Queue<Map<String, Object>> noShareVar = configFileTemplateVariableResource.getNoShareVar();
         Map<String,Object> dataModel=new HashMap<>();

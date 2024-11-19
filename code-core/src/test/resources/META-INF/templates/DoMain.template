@@ -1,0 +1,57 @@
+package *{tableInfo.savePath}*.domain;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.Date;
+/**
+ * *{tableInfo.tableComment}*对象模型
+ * @since  *{tool.currentDateTime()}*
+ * @version 1.0.0
+ * @author *{tool.author()}*
+ */
+@ApiModel(value="*{tableInfo.tableComment}*对象模型")
+public class *{tableInfo.domainName}*
+{
+    *{foreach v-for="column in tableInfo.columnList"}*
+    /**
+      * *{column.comment}*
+      */
+    @ApiModelProperty(value="*{column.comment}*")
+    *{if v-if='!column.isNull'}*
+    @NotNull(message = "*{column.comment}*不允许为空")
+    *{/if}*
+    *{if v-if='column.javaType==String'}*
+    @Size(max=*{column.size}*,min=1,message = "*{column.comment}*最大长度为*{column.size}*,至少长度为1")
+    *{/if}*
+    *{if v-if='column.javaType==Integer'}*
+    @Max(value=*{column.size}*,message = "*{column.comment}*最大值为*{column.size}*")
+    *{/if}*
+    *{if v-if='column.javaType==Float'}*
+    @Max(value=*{column.size}*,message = "*{column.comment}*最大值为*{column.size}*")
+    *{/if}*
+    *{if v-if='column.javaType==Double'}*
+    @Max(value=*{column.size}*,message = "*{column.comment}*最大值为*{column.size}*")
+    *{/if}*
+    *{if v-if='column.isPrimaryKey!=true'}*
+    private *{column.javaType}* *{column.domainPropertyName}*;
+    *{/if}*
+    *{/foreach}*
+
+    *{foreach v-for="column in tableInfo.columnList"}*
+    *{if v-if='column.isPrimaryKey!=true'}*
+
+    public *{column.javaType}* get*{tool.firstUpper(*{column.domainPropertyName}*)}*()
+    {
+        return *{column.domainPropertyName}*;
+    }
+
+    public void set*{tool.firstUpper(*{column.domainPropertyName}*)}*(*{column.javaType}* *{column.domainPropertyName}*)
+    {
+        this.*{column.domainPropertyName}* = *{column.domainPropertyName}*;
+    }
+    *{/if}*
+    *{/foreach}*
+}

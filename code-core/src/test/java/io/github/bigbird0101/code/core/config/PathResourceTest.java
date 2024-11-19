@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class PathResourceTest {
      @Test
      public void test() throws IOException {
-         String path = URLUtil.decode(ResourceUtil.getResource("template/testCodeNodeXml.template").getPath());
+         String path = URLUtil.decode(ResourceUtil.getResource("META-INF/templates/testCodeNodeXml.template").getPath());
          String file = path.substring(1);
          PathResource pathResource=new PathResource(Paths.get(file));
          assertNotNull(IoUtil.readUtf8(pathResource.getInputStream()));

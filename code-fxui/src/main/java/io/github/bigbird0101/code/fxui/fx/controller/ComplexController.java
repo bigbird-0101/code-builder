@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.fxui.fx.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.comparator.CompareUtil;
 import cn.hutool.core.exceptions.ExceptionUtil;
@@ -121,6 +122,7 @@ import static io.github.bigbird0101.code.core.template.variable.resource.Templat
 import static io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_VALUE;
 import static io.github.bigbird0101.code.fxui.CodeBuilderApplication.USER_OPERATE_CACHE;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @author fpp
@@ -555,6 +557,12 @@ public class ComplexController extends AbstractTemplateContextProvider implement
                 Thread.sleep(100);
             }
             RootTemplateDefinition rootTemplateDefinition= (RootTemplateDefinition) clone;
+            LinkedHashSet<String> dependTemplates = rootTemplateDefinition.getDependTemplates();
+            if (CollUtil.isNotEmpty(dependTemplates)) {
+                rootTemplateDefinition.setDependTemplates(dependTemplates.stream()
+                        .map(s -> s + "Copy")
+                        .collect(Collectors.toCollection(LinkedHashSet::new)));
+            }
             rootTemplateDefinition.setTemplateResource(new FileUrlResource(file.getAbsolutePath()));
         } catch (Exception e) {
             logger.error(e);
@@ -926,7 +934,7 @@ public class ComplexController extends AbstractTemplateContextProvider implement
             multipleTemplateController.getMultipleTemplateName().setText(multipleTemplateName);
             multipleTemplateController.setSourceMultipleTemplateName(multipleTemplateName);
             MultipleTemplate multipleTemplate = getTemplateContext().getMultipleTemplate(multipleTemplateName);
-            Set<String> collect = multipleTemplate.getTemplates().stream().map(Template::getTemplateName).collect(Collectors.toSet());
+            Set<String> collect = multipleTemplate.getTemplates().stream().map(Template::getTemplateName).collect(toSet());
             multipleTemplateController.getTemplates().getChildren().forEach(checkbox -> {
                 CheckBox checkBox = (CheckBox) checkbox;
                 if (collect.contains(checkBox.getText())) {
