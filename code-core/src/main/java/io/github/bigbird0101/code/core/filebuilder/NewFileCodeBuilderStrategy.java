@@ -25,7 +25,7 @@ public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy 
     /**
      * 文件代码生成器策略
      *
-     * @return
+     * @return 代码
      */
     @Override
     public String doneCode(Map<String,Object> dataModel) throws TemplateResolveException {

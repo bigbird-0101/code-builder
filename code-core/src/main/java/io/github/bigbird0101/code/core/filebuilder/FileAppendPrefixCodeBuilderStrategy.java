@@ -17,8 +17,8 @@ import java.util.Objects;
  */
 public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy{
     /**
-     * 文件代码生成器策略
-     * @return
+     * @param dataModel dataModel
+     * @return 生成的代码
      */
     @Override
     public String doneCode(Map<String,Object> dataModel) throws TemplateResolveException {
@@ -50,8 +50,8 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
     /**
      * 文件写入的方式
      *
-     * @param code
-     * @param dataModel
+     * @param code code
+     * @param dataModel dataModel
      */
     @Override
     public void fileWrite(String code, Map<String, Object> dataModel) {
@@ -62,7 +62,7 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * 解析策略
      *
      * @param templateFileClassInfo 模板的详情信息
-     * @param dataModel
+     * @param dataModel dataModel
      */
     @Override
     public void resolverStrategy(TemplateFileClassInfo templateFileClassInfo, Map<String, Object> dataModel) {

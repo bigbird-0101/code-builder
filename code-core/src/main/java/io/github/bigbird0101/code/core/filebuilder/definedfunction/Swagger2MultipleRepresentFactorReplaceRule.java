@@ -21,44 +21,49 @@ import static java.util.regex.Pattern.compile;
 /**
  * 适配 swagger2
  * 对于 java 注释
- * \@ApiImplicitParam(paramType = "query", name = "id", value = "id", required = true, dataType = "Integer") 修饰的
- * 替换成 @ApiImplicitParams({
- *         \@ApiImplicitParam(paramType = "query", name = "name", value = "name", required = true, dataType = "Integer"),
- *         \@ApiImplicitParam(paramType = "query", name = "age", value = "age", required = true, dataType = "Integer")
+ * {@code
+ *    @ApiImplicitParam(paramType = "query", name = "id", value = "id", required = true, dataType = "Integer")
+ * }
+ * 修饰的 替换成
+ * {@code
+ *      @ApiImplicitParams({
+ *      @ApiImplicitParam(paramType = "query", name = "name", value = "name", required = true, dataType = "Integer"),
+ *      @ApiImplicitParam(paramType = "query", name = "age", value = "age", required = true, dataType = "Integer")
  *     })
- * @author Administrator
+ * }
+ * @author fpp
  */
-public class Swagger2MultipleRepresentFactorReplaceRule extends AbstractMultipleRepresentFactorReplaceRule{
+public class Swagger2MultipleRepresentFactorReplaceRule extends AbstractMultipleRepresentFactorReplaceRule {
     private static final String API_IMPLICIT_PARAM = "@ApiImplicitParam";
     private static final String PARAM_PREFIX_2 = "paramPrefix2";
     /**
      * Swagger2 类型获取
      */
-    private static final Pattern GET_TYPE = compile("\\s*dataType\\s*=\\s*\"\\s*(?<param>.*?)\\s*\"\\s*\\s*", DOTALL| CASE_INSENSITIVE);
+    private static final Pattern GET_TYPE = compile("\\s*dataType\\s*=\\s*\"\\s*(?<param>.*?)\\s*\"\\s*\\s*", DOTALL | CASE_INSENSITIVE);
 
     @Override
     protected boolean doMatch(String pendingString, String representFactor, String before, String after) {
-        Pattern compile = compile("(?<paramPrefix>.*?)" + API_IMPLICIT_PARAM+"\\s*\\(\\s*(?<paramPrefix2>.*)" + ReUtil.escape(before) + representFactor + ReUtil.escape(after)+"(?<paramSuffix>.*)\\s*\\)\\s*", DOTALL| CASE_INSENSITIVE);
+        Pattern compile = compile("(?<paramPrefix>.*?)" + API_IMPLICIT_PARAM + "\\s*\\(\\s*(?<paramPrefix2>.*)" + ReUtil.escape(before) + representFactor + ReUtil.escape(after) + "(?<paramSuffix>.*)\\s*\\)\\s*", DOTALL | CASE_INSENSITIVE);
         return compile.matcher(pendingString).find();
     }
 
     @Override
     public String replace(Map<String, Object> dataModel, String pendingString, String representFactor, String replaceString, String before, String after) {
-        Pattern compile = compile("(?<paramPrefix>.*?)" + API_IMPLICIT_PARAM +"\\s*\\(\\s*(?<paramPrefix2>.*)"+ ReUtil.escape(before) + representFactor + ReUtil.escape(after)+"(?<paramSuffix>.*)\\s*\\)\\s*", DOTALL| CASE_INSENSITIVE);
+        Pattern compile = compile("(?<paramPrefix>.*?)" + API_IMPLICIT_PARAM + "\\s*\\(\\s*(?<paramPrefix2>.*)" + ReUtil.escape(before) + representFactor + ReUtil.escape(after) + "(?<paramSuffix>.*)\\s*\\)\\s*", DOTALL | CASE_INSENSITIVE);
         final Matcher matcher = compile.matcher(pendingString);
-        while(matcher.find()){
+        while (matcher.find()) {
             final String paramSuffix = matcher.group(DefinedFunctionResolverRule.PARAM_SUFFIX);
             final String paramSuffix2 = matcher.group(PARAM_PREFIX_2);
             final String paramPrefix = matcher.group(DefinedFunctionResolverRule.PARAM_PREFIX);
             String prefixNull = Utils.getFirstNewLineNull(paramPrefix);
             String collect = Stream.of(replaceString.split(COMMA))
                     .map(s -> templateStringByRepresentFactor(representFactor, s))
-                    .map(s ->  paramPrefix+ API_IMPLICIT_PARAM +"("+getRepresentFactorReplaceRuleResolver()
-                            .doResolver(dataModel, paramSuffix2, representFactor, s)+ before + s+ after +
-                            getConvertTypeSuffix(dataModel,paramSuffix, representFactor, s)+")")
+                    .map(s -> paramPrefix + API_IMPLICIT_PARAM + "(" + getRepresentFactorReplaceRuleResolver()
+                            .doResolver(dataModel, paramSuffix2, representFactor, s) + before + s + after +
+                            getConvertTypeSuffix(dataModel, paramSuffix, representFactor, s) + ")")
                     .collect(Collectors.joining(",\r\n"));
             collect = prefixNull + "@ApiImplicitParams({\r\n" + collect + "\r\n" + prefixNull + "})";
-            pendingString = pendingString.replaceFirst(ReUtil.escape(matcher.group()),ReUtil.escape(collect));
+            pendingString = pendingString.replaceFirst(ReUtil.escape(matcher.group()), ReUtil.escape(collect));
         }
         return pendingString;
     }
@@ -66,24 +71,24 @@ public class Swagger2MultipleRepresentFactorReplaceRule extends AbstractMultiple
     /**
      * 获取到类型转换之后的 后缀
      *
-     * @param dataModel
-     * @param pendingString
-     * @param representFactor
-     * @param replaceString
-     * @return
+     * @param dataModel       dataModel
+     * @param pendingString   pendingString
+     * @param representFactor representFactor
+     * @param replaceString   replaceString
+     * @return 后缀
      */
-    public String getConvertTypeSuffix(Map<String, Object> dataModel, String pendingString, String representFactor, String replaceString){
+    public String getConvertTypeSuffix(Map<String, Object> dataModel, String pendingString, String representFactor, String replaceString) {
         final Template currentTemplate = TemplateTraceContext.getCurrentTemplate();
-        final String targetJavaType = TableInfo.getJavaType(replaceString, currentTemplate,dataModel);
+        final String targetJavaType = TableInfo.getJavaType(replaceString, currentTemplate, dataModel);
         String s = getRepresentFactorReplaceRuleResolver().doResolver(dataModel, pendingString, representFactor, replaceString);
         final Matcher matcher = GET_TYPE.matcher(s);
-        if(matcher.find()) {
+        if (matcher.find()) {
             try {
                 representFactor = matcher.group(0);
                 StaticLog.info("getConvertTypeSuffix  src {},target dataType = \"{}\"", representFactor, targetJavaType);
                 return getRepresentFactorReplaceRuleResolver().doResolver(dataModel, s, representFactor,
                         "dataType = \"" + targetJavaType + "\"");
-            }catch (Exception e){
+            } catch (Exception e) {
                 return s;
             }
         }

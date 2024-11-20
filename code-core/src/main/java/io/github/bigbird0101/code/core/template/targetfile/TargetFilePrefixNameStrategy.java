@@ -14,7 +14,7 @@ import java.util.Map;
 public interface TargetFilePrefixNameStrategy extends Serializable {
     /**
      * 获取命名策略代表值
-     * @return
+     * @return 命名策略代表值
      */
     @JSONField(name = "value")
     int getTypeValue();
@@ -23,7 +23,7 @@ public interface TargetFilePrefixNameStrategy extends Serializable {
      * @param template 模板
      * @param srcSource 源资源 比如表名
      * @param dataModel 数据模型
-     * @return
+     * @return 文件名前缀
      */
     String prefixStrategy(Template template, String srcSource, Map<String,Object> dataModel);
 

@@ -106,7 +106,7 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
     /**
      * 获取源文件的代码
      *
-     * @param srcFilePath
+     * @param srcFilePath srcFilePath
      * @return 获取源文件的代码
      */
     public String getSrcFileCode(String srcFilePath){
@@ -126,7 +126,7 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
     /**
      * 获取tableName对应的文件路径
      *
-     * @return
+     * @return tableName对应的文件路径
      */
     public String getFilePath(Map<String, Object> dataModel) {
         return this.getTemplate().getProjectUrl()+"/"+this.getTemplate().getModule() + "/" + this.getTemplate().getSourcesRoot() + "/"+this.getTemplate().getSrcPackage()+"/" + getFileNameBuilder().nameBuilder(template,dataModel);

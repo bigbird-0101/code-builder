@@ -17,7 +17,7 @@ public class DefaultTargetFilePrefixNameStrategy implements TargetFilePrefixName
     /**
      * 获取命名策略代表值
      *
-     * @return
+     * @return 命名策略代表值
      */
     @Override
     public int getTypeValue() {
@@ -29,7 +29,7 @@ public class DefaultTargetFilePrefixNameStrategy implements TargetFilePrefixName
      *
      * @param template  模板
      * @param srcSource 源资源 比如表名
-     * @return
+     * @return 文件名前缀
      */
     @Override
     public String prefixStrategy(Template template, String srcSource, Map<String,Object> dataModel) {

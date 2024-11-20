@@ -14,18 +14,22 @@ public interface FileCodeBuilderStrategy {
 
     /**
      * 设置自定义方法解析器
-     * @param definedFunctionResolver
+     * @param definedFunctionResolver definedFunctionResolver
      */
     void setDefinedFunctionResolver(DefinedFunctionResolver definedFunctionResolver);
 
     /**
      * 文件代码生成器策略
-     * @return
+     * @param dataModel dataModel
+     * @throws TemplateResolveException TemplateResolveException
+     * @return 代码
      */
     String doneCode(Map<String,Object> dataModel) throws TemplateResolveException;
 
     /**
      * 文件写入的方式
+     * @param code code
+     * @param dataModel dataModel
      */
     void fileWrite(String code, Map<String, Object> dataModel);
 }

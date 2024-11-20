@@ -73,7 +73,13 @@ I'm *{helloWorld}*
 **可修改data中的模板(模板必须为.template 后缀名) 达到修改生成的内容**
 
 项目启动后
+
 ![image-20220914222145472](https://s3.bmp.ovh/imgs/2022/09/14/153192b899a698bf.png)
+
+1. 选中组合模版
+2. 右侧页面选中目标表名 （如果不需要表，则指定配置文件）
+3. 选中指定模版
+4. 点击导航栏的运行按钮，点击生成按钮
 
 ### **参数详解**
 
@@ -748,7 +754,7 @@ column.size对应TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的
 
 2.点击复制按钮
 
-![image-20240929175121072](README.assets/image-20240929175121072.png)
+![image-20240929175121072](https://s3.bmp.ovh/imgs/2024/09/29/c20731148a4c0362.png)
 
 分享组合模版
 
@@ -762,7 +768,7 @@ column.size对应TableInfo 的 ColumnInfo的size的值,ColumnInfo还有其他的
 
 导入组合模版是组合模版
 
-![image-20240929175157332](README.assets/image-20240929175157332.png)
+![image-20240929175157332](https://s3.bmp.ovh/imgs/2024/09/29/76f1db8cd1e0c38d.png)
 
 #### 怎么将基础模版导入到组合模版当中？
 

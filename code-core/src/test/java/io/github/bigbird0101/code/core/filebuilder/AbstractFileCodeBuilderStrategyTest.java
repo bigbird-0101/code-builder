@@ -9,6 +9,7 @@ import io.github.bigbird0101.code.core.filebuilder.definedfunction.DefaultDefine
 import io.github.bigbird0101.code.core.template.AbstractHandleFunctionTemplate;
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.exception.TemplateResolveException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -66,9 +67,14 @@ class AbstractFileCodeBuilderStrategyTest {
                 "(paramType = \"query\", name = \"id\", value = \"a\", required = true, dataType = \"Integer\"); @param id testid; " +
                 " info (用户 {},id); Integer id;object.setId(id); public void  setId(Integer id){ this.id=id;}   "));
         final Map<String, Object> dataModel = new HashMap<>();
-
         // Run the test
         abstractFileCodeBuilderStrategyUnderTest.filterFunction(templateFileClassInfo, dataModel);
+
+        String result = templateFileClassInfo.getFunctionS().get("templateFunctionNameDEFINEDFUNCTION");
+        Assertions.assertEquals("@ApiImplicitParams({\n" +
+                "templateFunction @ApiImplicitParam(paramType = \"query\", name = \"name\", value = \"a\", required = true,dataType = \"String\"); @param name testid;  info (用户 {},id); String name,String code;object.setNameAndCode(name,code),\n" +
+                "templateFunction @ApiImplicitParam(paramType = \"query\", name = \"code\", value = \"a\", required = true,dataType = \"String\"); @param code testid;  info (用户 {},id); String name,String code;object.setNameAndCode(name,code)\n" +
+                "}); public void  setNameAndCode(String name,String code){ this.id=id;}   ", result.replaceAll("\\r\\n", "\n"));
 
         // Verify the results
     }

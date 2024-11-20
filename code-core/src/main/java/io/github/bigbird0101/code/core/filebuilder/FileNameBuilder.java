@@ -15,7 +15,7 @@ public interface FileNameBuilder {
      * 文件名生成方法
      *
      * @param template  模板
-     * @param dataModel
+     * @param dataModel dataModel
      * @return 最终的文件名
      */
     String nameBuilder(Template template, Map<String, Object> dataModel);

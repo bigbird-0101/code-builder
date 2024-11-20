@@ -25,11 +25,11 @@ import java.util.Objects;
  * @since 2020/7/1 19:11
  */
 public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy {
-    private static Logger logger= LogManager.getLogger(FileAppendSuffixCodeBuilderStrategy.class);
+    private static final Logger logger = LogManager.getLogger(FileAppendSuffixCodeBuilderStrategy.class);
 
     /**
-     *
-     * @return
+     * @param dataModel dataModel
+     * @return 生成的代码
      */
     @Override
     public String doneCode(Map<String,Object> dataModel) throws TemplateResolveException {
