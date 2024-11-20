@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static cn.hutool.core.text.StrPool.BACKSLASH;
+
 /**
  * 适配日志模块
  * 带有 representFactor {} 替换成 多个字段 的  字段A {},字段B {}
@@ -20,15 +22,13 @@ public class LogMultipleRepresentFactorReplaceRule extends AbstractMultipleRepre
 
     @Override
     protected boolean doMatch(String pendingString, String representFactor, String before, String after) {
-        Pattern compile = Pattern.compile(ReUtil.escape(before) + representFactor + "(?<param>.*?)\\{\\s*\\}",
-                Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
-        return compile.matcher(pendingString).find();
+        Pattern compile = Pattern.compile(ReUtil.escape(before) + representFactor + "(?<param>.*?)\\{\\s*}");
+        return false;
     }
 
     @Override
     public String replace(Map<String, Object> dataModel, String pendingString, String representFactor, String replaceString, String before, String after) {
-        Pattern compile = Pattern.compile(ReUtil.escape(before) + representFactor + "(?<param>.*?)\\{\\s*\\}",
-                Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
+        Pattern compile = Pattern.compile(ReUtil.escape(before) + representFactor + "(?<param>.*?)\\{\\s*}");
         Matcher matcher = compile.matcher(pendingString);
         while(matcher.find()){
             final String param = matcher.group(PARAM);
@@ -37,12 +37,12 @@ public class LogMultipleRepresentFactorReplaceRule extends AbstractMultipleRepre
                         .map(s -> templateStringByRepresentFactor(representFactor, s))
                         .map(s ->  s + param + StrUtil.EMPTY_JSON)
                         .collect(Collectors.joining(" "));
-                pendingString = pendingString.replaceFirst(StrUtil.BACKSLASH + before + representFactor+param+ "\\{\\s*\\}",
-                        StrUtil.BACKSLASH + before+collect);
+                pendingString = pendingString.replaceFirst(BACKSLASH + before + representFactor + param + "\\{\\s*\\}",
+                        BACKSLASH + before + collect);
             }else{
                 final String collect = Stream.of(replaceString.split(COMMA))
                         .map(s -> templateStringByRepresentFactor(representFactor, s))
-                        .map(s -> StrUtil.BACKSLASH + before + s + param + "\\{\\s*\\}")
+                        .map(s -> BACKSLASH + before + s + param + "\\{\\s*\\}")
                         .collect(Collectors.joining(" "));
                 pendingString = pendingString.replaceFirst(ReUtil.escape(matcher.group()),
                         collect);
