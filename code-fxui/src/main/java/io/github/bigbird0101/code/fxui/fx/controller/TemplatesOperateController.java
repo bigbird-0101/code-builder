@@ -12,8 +12,6 @@ import io.github.bigbird0101.code.core.cache.CachePool;
 import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.config.StringPropertySource;
 import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
-import io.github.bigbird0101.code.core.domain.DataSourceConfig;
-import io.github.bigbird0101.code.core.event.TemplateListener;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 import io.github.bigbird0101.code.core.factory.OperateTemplateBeanFactory;
@@ -24,15 +22,9 @@ import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.fxui.CodeBuilderApplication;
 import io.github.bigbird0101.code.fxui.common.AlertUtil;
 import io.github.bigbird0101.code.fxui.common.TooltipUtil;
-import io.github.bigbird0101.code.fxui.event.DatasourceConfigUpdateEvent;
 import io.github.bigbird0101.code.fxui.fx.bean.PageInputSnapshot;
 import io.github.bigbird0101.code.fxui.fx.component.FxAlerts;
 import io.github.bigbird0101.code.util.Utils;
-import javafx.application.Platform;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -46,18 +38,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.control.CheckComboBox;
-import org.controlsfx.control.IndexedCheckModel;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -79,6 +67,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static cn.hutool.core.comparator.CompareUtil.compare;
+import static java.util.Collections.emptySet;
 
 /**
  * @author fpp
@@ -98,8 +87,6 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
     @FXML
     Label currentTemplate;
     @FXML
-    CheckComboBox<String> targetTable;
-    @FXML
     CheckBox isDefinedFunction;
     @FXML
     TextField representFactor;
@@ -112,13 +99,10 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
 
     @FXML
     private TilePane templates;
+    private SelectTableController selectTableController;
 
     public CheckBox getIsAllTable() {
         return isAllTable;
-    }
-
-    public CheckComboBox<String> getTargetTable() {
-        return targetTable;
     }
 
     CheckBox getIsDefinedFunction() {
@@ -144,8 +128,6 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
     private Map<String, Map<String, List<String>>> selectTemplateGroup = new ConcurrentHashMap<>();
     private final URL resource = getClass().getResource("/views/template_info.fxml");
 
-    private Set<String> allTables = new HashSet<>();
-
     public File getFile() {
         return file;
     }
@@ -163,20 +145,17 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         try {
             templates.getChildren().clear();
             templates.autosize();
-            getTemplateContext().addListener(new TemplatesOperateController.DatasourceConfigUpdateEventListener());
-            Platform.runLater(this::initData);
         } catch (CodeConfigException e) {
             LOGGER.info("Template Operate init error", e);
         }
     }
 
     @FXML
-    public void selectTable(ActionEvent actionEvent) throws IOException {
+    public void selectTable() throws IOException {
         Stage secondWindow = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/select_table.fxml"));
         Parent root = fxmlLoader.load();
-        SelectTableController selectTableController = fxmlLoader.getController();
-        selectTableController.initTableCheckBox(new HashSet<>(allTables));
+        this.selectTableController = fxmlLoader.getController();
         Scene scene = new Scene(root);
         secondWindow.setTitle("选表");
         secondWindow.setScene(scene);
@@ -184,35 +163,8 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         secondWindow.show();
     }
 
-    private class DatasourceConfigUpdateEventListener extends TemplateListener<DatasourceConfigUpdateEvent> {
-        @Override
-        protected void onTemplateEvent(DatasourceConfigUpdateEvent doGetTemplateAfterEvent) {
-            TemplatesOperateController.this.initData();
-        }
-    }
-
-    private void initData() {
-        Platform.runLater(() -> {
-            Task<List<String>> task = new Task<List<String>>() {
-                @Override
-                protected List<String> call() {
-                    // 后台线程执行耗时操作
-                    DataSourceConfig dataSourceConfig = DataSourceConfig.getDataSourceConfig(getTemplateContext()
-                            .getEnvironment());
-                    List<String> allTableName = DbUtil.getAllTableName(dataSourceConfig);
-                    allTables.addAll(allTableName);
-                    return allTableName;
-                }
-            };
-            task.setOnSucceeded(event -> {
-                // 回到 JavaFX 主线程更新 UI
-                List<String> allTableName = task.getValue();
-                targetTable.getItems().clear();
-                targetTable.getItems().addAll(allTableName);
-            });
-            task.setOnFailed(event -> StaticLog.error("initData 异步加载失败", task.getException()));
-            new Thread(task).start();
-        });
+    public Set<String> getSelectTableNames() {
+        return Optional.ofNullable(selectTableController).map(SelectTableController::getSelectTableNames).orElse(emptySet());
     }
 
     protected void doInitView() {
@@ -289,29 +241,6 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         fields.setText(Optional.ofNullable(pageInputSnapshot.getFields()).orElse(StrUtil.EMPTY));
         isDefinedFunction.setSelected(Optional.ofNullable(pageInputSnapshot.getDefinedFunction()).orElse(false));
         representFactor.setText(Optional.ofNullable(pageInputSnapshot.getRepresentFactor()).orElse(StrUtil.EMPTY));
-        IndexedCheckModel<String> checkModel = targetTable.getCheckModel();
-        targetTable.getItems().addListener((ListChangeListener<String>) c -> {
-            if (c.next()) {
-                String tableNames = pageInputSnapshot.getTableNames();
-                LOGGER.info("tableNames {}", tableNames);
-                Optional.ofNullable(tableNames)
-                        .map(s -> s.split(","))
-                        .ifPresent(s -> {
-                            checkModel.clearChecks();
-                            if (!targetTable.getItems().isEmpty()) {
-                                LOGGER.info("targetTable item {}", targetTable.getItems());
-                                for (String s1 : s) {
-                                    LOGGER.debug("all select {} targetTable item select {}", s, s1);
-                                    if (targetTable.getItems().contains(s1)) {
-                                        checkModel.check(s1);
-                                    }
-                                }
-                            } else {
-                                LOGGER.warn("targetTable item is empty");
-                            }
-                        });
-            }
-        });
         isAllTable.setSelected(Optional.ofNullable(pageInputSnapshot.getSelectTableAll()).orElse(false));
     }
 
@@ -514,14 +443,13 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         try {
             for (Node node : templates.getChildren()) {
                 VBox box = (VBox) node;
-                AnchorPane anchorPane = (AnchorPane) box.getChildren().get(0);
-                BorderPane borderPane = (BorderPane) anchorPane.getChildren().get(0);
-                final HBox hBox = (HBox) borderPane.getCenter();
-                final CheckBox checkBox2 = (CheckBox) hBox.lookup("#templateName");
+                GridPane gridPane = (GridPane) box.getChildren().get(0);
+                GridPane gridPaneForm = (GridPane) box.getChildren().get(1);
+                final CheckBox checkBox2 = (CheckBox) gridPane.lookup("#templateName");
                 if (checkBox2.isSelected()) {
                     String templateName = (String) checkBox2.getUserData();
                     Template template = getTemplateContext().getTemplate(templateName);
-                    doSetTemplate(template, anchorPane);
+                    doSetTemplate(template, gridPaneForm);
                     DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory) getTemplateContext().getTemplateFactory();
                     operateTemplateBeanFactory.refreshTemplate(template);
                 }
@@ -533,14 +461,17 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                                 && CollUtil.isNotEmpty(s.getValue())
                                 && getTemplateContext().getMultipleTemplateNames().contains(s.getKey()))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                ObservableList<String> checkedItems = targetTable.getCheckModel().getCheckedItems();
+                Set<String> checkTables = Optional.ofNullable(this.selectTableController)
+                        .map(SelectTableController::getSelectTableNames)
+                        .orElse(new HashSet<>());
+                LOGGER.info("checked tables {}", checkTables);
                 final PageInputSnapshot build = PageInputSnapshot.Builder
                         .builder()
                         .withCurrentMultipleTemplate(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected())
                         .withFields(fields.getText())
                         .withRepresentFactor(representFactor.getText())
                         .withSelectTemplateGroup(templateGroup)
-                        .withTableNames(String.join(",", checkedItems))
+                        .withTableNames(String.join(",", checkTables))
                         .withDefinedFunction(isDefinedFunction.isSelected())
                         .withSelectTableAll(isAllTable.isSelected())
                         .build();
@@ -552,14 +483,14 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         }
     }
 
-    public void doSetTemplate(Template template, AnchorPane anchorPane) {
-        TextArea textArea = (TextArea) anchorPane.getChildren().get(2);
+    public void doSetTemplate(Template template, GridPane gridPane) {
+        TextArea textArea = (TextArea) gridPane.lookup("#projectUrl");
         String projectUrl = textArea.getText();
-        TextField textField = (TextField) anchorPane.getChildren().get(4);
+        TextField textField = (TextField) gridPane.lookup("#moduleName");
         String moduleName = textField.getText();
-        TextField textField2 = (TextField) anchorPane.getChildren().get(6);
+        TextField textField2 = (TextField) gridPane.lookup("#sourcesRoot");
         String sourcesRoot = textField2.getText();
-        TextField textField3 = (TextField) anchorPane.getChildren().get(8);
+        TextField textField3 = (TextField) gridPane.lookup("#srcPackage");
         String srcPackage = textField3.getText();
         template.setProjectUrl(Utils.convertTruePathIfNotNull(projectUrl));
         template.setModule(Utils.convertTruePathIfNotNull(moduleName));
@@ -598,29 +529,4 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         }
     }
 
-    @FXML
-    private TextField searchTable;
-
-    @FXML
-    public void searchTableNames() {
-        String searchText = searchTable.getText().toLowerCase();
-        ObservableList<String> originalItems = targetTable.getItems();
-        IndexedCheckModel<String> checkModel = targetTable.getCheckModel();
-
-        // 保存原始数据
-        if (searchText.isEmpty()) {
-            targetTable.getItems().setAll(originalItems);
-            checkModel.clearChecks();
-            return;
-        }
-
-        // 动态过滤
-        List<String> filteredItems = originalItems.stream()
-                .filter(item -> item.toLowerCase().contains(searchText))
-                .collect(Collectors.toList());
-
-        // 更新表格内容并选中过滤后的表名
-        targetTable.getItems().setAll(filteredItems);
-        filteredItems.forEach(checkModel::check);
-    }
 }

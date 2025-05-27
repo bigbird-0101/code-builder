@@ -17,7 +17,7 @@
     </padding>
 
     <!-- 模板名与操作图标 -->
-    <GridPane hgap="10" vgap="5" style="-fx-font-size: 14px;">
+    <GridPane fx:id="templateTitle" hgap="10" vgap="5" style="-fx-font-size: 14px;">
         <CheckBox fx:id="templateName" maxWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
         <Label fx:id="templateNameLabel" text="模板名：" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
@@ -36,7 +36,7 @@
     </GridPane>
 
     <!-- 表单项区域 -->
-    <GridPane hgap="10" vgap="5" style="-fx-font-size: 12px;">
+    <GridPane fx:id="projectInfo" hgap="10" vgap="5" style="-fx-font-size: 12px;">
         <Label text="项目地址:" GridPane.rowIndex="0" GridPane.columnIndex="0" minWidth="80"/>
         <TextArea fx:id="projectUrl" prefHeight="60" prefWidth="250" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 

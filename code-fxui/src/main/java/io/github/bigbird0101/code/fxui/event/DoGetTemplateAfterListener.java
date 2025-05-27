@@ -7,7 +7,7 @@ import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.fxui.fx.controller.TemplatesOperateController;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 
 import java.util.List;
 import java.util.Set;
@@ -27,17 +27,17 @@ public class DoGetTemplateAfterListener extends TemplateListener<DoGetTemplateAf
         final TemplatesOperateController templatesOperateController = doGetTemplateAfterEvent.getTemplatesOperateController();
         final Template template = doGetTemplateAfterEvent.getTemplate();
         if(ObjectUtil.isAllNotEmpty(templatesOperateController,template)) {
-            Set<Node> nodes = templatesOperateController.getTemplates().lookupAll("AnchorPane");
-            List<CheckBox> collect = nodes.stream().map(node -> (AnchorPane) node)
-                    .map(anchorPane -> anchorPane.lookup("CheckBox"))
+            Set<Node> nodes = templatesOperateController.getTemplates().lookupAll("#templateTitle");
+            List<CheckBox> collect = nodes.stream().map(node -> (GridPane) node)
+                    .map(anchorPane -> anchorPane.lookup("#templateName"))
                     .map(node -> (CheckBox) node)
                     .filter(checkBox -> checkBox.getUserData().equals(template.getTemplateName()))
                     .collect(toList());
             CheckBox checkBoxTarget = collect.stream().findFirst().orElse(null);
             if (null != checkBoxTarget) {
-                AnchorPane anchorPane = (AnchorPane) checkBoxTarget.getParent().getParent().getParent();
+                GridPane gridPane = (GridPane) checkBoxTarget.getParent().getParent().lookup("#projectInfo");
                 //重新设置模板值但不持久化
-                templatesOperateController.doSetTemplate(template, anchorPane);
+                templatesOperateController.doSetTemplate(template, gridPane);
             } else {
                 StaticLog.warn("checkBoxTarget not get {}", template.getTemplateName());
             }

@@ -59,7 +59,6 @@ import io.github.bigbird0101.code.util.Utils;
 import io.github.bigbird0101.spi.SPIServiceLoader;
 import io.github.bigbird0101.spi.inject.instance.InstanceContext;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -134,7 +133,7 @@ public class ComplexController extends AbstractTemplateContextProvider implement
     StackPane contentParent;
     @FXML
     Menu showLog;
-    private Logger logger = LogManager.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
     @FXML
     TreeView<Label> listViewTemplate;
     @FXML
@@ -152,13 +151,13 @@ public class ComplexController extends AbstractTemplateContextProvider implement
      */
     private List<String> tableSelected = new ArrayList<>(10);
     private static boolean isSelectedAllTable = false;
-    private CheckComboBox<String> selectedTable;
     private VBox templatesOperateNode;
     private FXMLLoader templatesOperateFxmlLoader;
     final ThreadPoolExecutor DO_ANALYSIS_TEMPLATE = ExecutorBuilder.create()
             .setCorePoolSize(5)
             .setThreadFactory(ThreadFactoryBuilder.create().setNamePrefix("DO_ANALYSIS_TEMPLATE").build())
             .build();
+    private TemplatesOperateController templatesOperateController;
 
     public FXMLLoader getTemplatesOperateFxmlLoader() {
         return templatesOperateFxmlLoader;
@@ -592,7 +591,7 @@ public class ComplexController extends AbstractTemplateContextProvider implement
         templatesOperateController.getCurrentTemplate().setText("当前组合模板:" + templateNameSelected);
         CheckBox checkBox = templatesOperateController.getIsAllTable();
         checkBox.selectedProperty().addListener((o, old, newVal) -> isSelectedAllTable = newVal);
-        selectedTable = templatesOperateController.getTargetTable();
+        this.templatesOperateController = templatesOperateController;
         content.getChildren().clear();
         content.getChildren().add(templatesOperateNode);
         templatesOperateController.doInitView();
@@ -706,9 +705,9 @@ public class ComplexController extends AbstractTemplateContextProvider implement
             if (isSelectedAllTable) {
                 this.tableSelected = new ArrayList<>(this.tableAll);
             } else {
-                ObservableList<String> checkedItems = selectedTable.getCheckModel().getCheckedItems();
-                if (!checkedItems.isEmpty()) {
-                    checkedItems.forEach(s -> {
+                Set<String> selectTableNames = this.templatesOperateController.getSelectTableNames();
+                if (!selectTableNames.isEmpty()) {
+                    selectTableNames.forEach(s -> {
                         if (!this.tableSelected.contains(s)) {
                             this.tableSelected.add(s);
                         }
@@ -717,7 +716,10 @@ public class ComplexController extends AbstractTemplateContextProvider implement
             }
             File templateVariableFile = templatesOperateController.getFile();
             if (this.tableSelected.isEmpty() && null == templateVariableFile) {
-                AlertUtil.showWarning("请输入一个表名或者选择一个变量文件");
+                AlertUtil.showWarning("请选择一个表名或者选择一个变量文件");
+                return;
+            }
+            if (!FxAlerts.confirmOkCancel("提示", "您已选择表:" + String.join(",", this.tableSelected) + ",您确认生成吗?")) {
                 return;
             }
             ProjectTemplateInfoConfig projectTemplateInfoConfig = getProjectTemplateInfoConfig();
