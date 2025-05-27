@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
@@ -30,13 +31,16 @@ import io.github.bigbird0101.code.util.Utils;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
@@ -46,8 +50,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.CheckComboBox;
@@ -57,11 +63,13 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -86,26 +94,24 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
     private static final String DEFAULT_USER_SAVE_TEMPLATE_CONFIG = "code.user.save.config";
 
     @FXML
-     Label fileName;
+    Label fileName;
     @FXML
-     Label currentTemplate;
+    Label currentTemplate;
     @FXML
     CheckComboBox<String> targetTable;
     @FXML
     CheckBox isDefinedFunction;
     @FXML
-     TextField representFactor;
+    TextField representFactor;
     @FXML
-     TextField fields;
+    TextField fields;
     @FXML
-     CheckBox isAllTable;
-    @FXML
-     ScrollPane scrollPane;
+    CheckBox isAllTable;
     @FXML
     private VBox box;
 
     @FXML
-    private FlowPane templates;
+    private TilePane templates;
 
     public CheckBox getIsAllTable() {
         return isAllTable;
@@ -127,26 +133,27 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         return fields;
     }
 
-    public FlowPane getTemplates() {
+    public TilePane getTemplates() {
         return templates;
     }
+
     /**
      * 变量文件
      */
     private File file;
-    private Map<String,Map<String,List<String>>> selectTemplateGroup = new ConcurrentHashMap<>();
+    private Map<String, Map<String, List<String>>> selectTemplateGroup = new ConcurrentHashMap<>();
     private final URL resource = getClass().getResource("/views/template_info.fxml");
-//    private final Insets inserts = new Insets(5, 5, 5, 0);
-//    public static final BorderWidths DEFAULT = new BorderWidths(1, 0, 0, 0, false, false, false, false);
-//    private final BorderStroke borderStroke = new BorderStroke(null, null, Color.BLACK, null, BorderStrokeStyle.SOLID, null, null, null, null, DEFAULT, new Insets(0, 0, 0, 0));
+
+    private Set<String> allTables = new HashSet<>();
 
     public File getFile() {
         return file;
     }
 
-    public Map<String,Map<String,List<String>>> getSelectTemplateGroup() {
+    public Map<String, Map<String, List<String>>> getSelectTemplateGroup() {
         return selectTemplateGroup;
     }
+
     public Label getCurrentTemplate() {
         return currentTemplate;
     }
@@ -163,25 +170,52 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         }
     }
 
+    @FXML
+    public void selectTable(ActionEvent actionEvent) throws IOException {
+        Stage secondWindow = new Stage();
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/select_table.fxml"));
+        Parent root = fxmlLoader.load();
+        SelectTableController selectTableController = fxmlLoader.getController();
+        selectTableController.initTableCheckBox(new HashSet<>(allTables));
+        Scene scene = new Scene(root);
+        secondWindow.setTitle("选表");
+        secondWindow.setScene(scene);
+        secondWindow.initOwner(box.getScene().getWindow());
+        secondWindow.show();
+    }
+
     private class DatasourceConfigUpdateEventListener extends TemplateListener<DatasourceConfigUpdateEvent> {
         @Override
         protected void onTemplateEvent(DatasourceConfigUpdateEvent doGetTemplateAfterEvent) {
-            Platform.runLater(TemplatesOperateController.this::initData);
+            TemplatesOperateController.this.initData();
         }
     }
 
     private void initData() {
-        try {
-            List<String> allTableName = DbUtil.getAllTableName(DataSourceConfig.getDataSourceConfig(getTemplateContext()
-                    .getEnvironment()));
-            targetTable.getItems().clear();
-            targetTable.getItems().addAll(allTableName);
-        }catch (Exception e){
-            LOGGER.error(e);
-        }
+        Platform.runLater(() -> {
+            Task<List<String>> task = new Task<List<String>>() {
+                @Override
+                protected List<String> call() {
+                    // 后台线程执行耗时操作
+                    DataSourceConfig dataSourceConfig = DataSourceConfig.getDataSourceConfig(getTemplateContext()
+                            .getEnvironment());
+                    List<String> allTableName = DbUtil.getAllTableName(dataSourceConfig);
+                    allTables.addAll(allTableName);
+                    return allTableName;
+                }
+            };
+            task.setOnSucceeded(event -> {
+                // 回到 JavaFX 主线程更新 UI
+                List<String> allTableName = task.getValue();
+                targetTable.getItems().clear();
+                targetTable.getItems().addAll(allTableName);
+            });
+            task.setOnFailed(event -> StaticLog.error("initData 异步加载失败", task.getException()));
+            new Thread(task).start();
+        });
     }
 
-    protected void doInitView(){
+    protected void doInitView() {
         initTemplateConfig();
         String templateNameSelected = CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected();
         if (StrUtil.isBlank(templateNameSelected)) {
@@ -208,8 +242,9 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
             String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
             if (selectTemplateGroup.isEmpty()) {
                 if (Utils.isNotEmpty(property)) {
-                    final PageInputSnapshot pageInputSnapshot = JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {});
-                    selectTemplateGroup =Optional.ofNullable(pageInputSnapshot.getSelectTemplateGroup()).orElse(new HashMap<>());
+                    final PageInputSnapshot pageInputSnapshot = JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {
+                    });
+                    selectTemplateGroup = Optional.ofNullable(pageInputSnapshot.getSelectTemplateGroup()).orElse(new HashMap<>());
                     doSetView(pageInputSnapshot);
                 }
                 if (!selectTemplateGroup.isEmpty()) {
@@ -217,8 +252,8 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                         LOGGER.info("user save config {}", property);
                     }
                 }
-                selectTemplateGroup.putIfAbsent(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected(),new HashMap<>());
-                selectTemplateGroup.forEach((k,v)->{
+                selectTemplateGroup.putIfAbsent(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected(), new HashMap<>());
+                selectTemplateGroup.forEach((k, v) -> {
                     try {
                         if (k == null || v == null) {
                             LOGGER.error("user save config error {}", selectTemplateGroup);
@@ -232,8 +267,8 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                         for (String templateName : subtract) {
                             v.remove(templateName);
                         }
-                    }catch (Exception e){
-                        LOGGER.error("初始化用户配置异常: {} {} {} {} {} {}",e, DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
+                    } catch (Exception e) {
+                        LOGGER.error("初始化用户配置异常: {} {} {} {} {} {}", e, DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
                     }
                 });
             } else {
@@ -245,7 +280,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
             }
         } catch (Exception e) {
             if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("初始化用户配置异常: {} {} {} {} {} {}",e, DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
+                LOGGER.error("初始化用户配置异常: {} {} {} {} {} {}", e, DEFAULT_USER_SAVE_TEMPLATE_CONFIG, ",", e.getClass().getName(), ":", e.getMessage());
             }
         }
     }
@@ -284,9 +319,9 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         VBox root = FXMLLoader.load(resource);
         try {
             initTemplateInfo(root, template);
-        }catch (Exception e){
+        } catch (Exception e) {
             StaticLog.error(e);
-            FxAlerts.warn("初始化模板异常",e.getMessage());
+            FxAlerts.warn("初始化模板异常", e.getMessage());
         }
         return root;
     }
@@ -302,7 +337,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
             Set<String> templateFunctionNameS = handlerTemplate.getTemplateFunctionNameS();
             templateFunctionNameS.forEach(templateFunction -> {
                 CheckBox checkBox = new CheckBox(templateFunction);
-                if(null!=stringListMap){
+                if (null != stringListMap) {
                     List<String> functionNames = stringListMap.get(templateName);
                     if (null != functionNames && functionNames.contains(templateFunction)) {
                         checkBox.setSelected(true);
@@ -315,7 +350,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
             Label label = new Label(template.getTemplateName());
             flowPane.getChildren().add(label);
         }
-        if (null!=stringListMap&&stringListMap.containsKey(templateName)) {
+        if (null != stringListMap && stringListMap.containsKey(templateName)) {
             templateNameCheckBox.setSelected(true);
         }
 
@@ -324,7 +359,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
             Map<String, List<String>> stringListMap2 = selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected());
             if (newValue) {
                 List<String> strings = stringListMap2.get(templateName);
-                if(null==strings||strings.isEmpty()){
+                if (null == strings || strings.isEmpty()) {
                     if (template instanceof AbstractHandleFunctionTemplate) {
                         flowPane.getChildren().forEach(node -> {
                             CheckBox checkBox = (CheckBox) node;
@@ -340,7 +375,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                         checkBox.setSelected(false);
                     });
                 }
-                if (null!=stringListMap2) {
+                if (null != stringListMap2) {
                     stringListMap2.remove(templateName);
                 }
             }
@@ -353,7 +388,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         projectUrlTextArea.setText(Utils.convertTruePathIfNotNull(template.getProjectUrl()));
 
         TextField moduleNameTextField = (TextField) parentNode.lookup("#moduleName");
-        moduleNameTextField.setText(Utils.isEmpty(template.getModule())?"/":Utils.convertTruePathIfNotNull(template.getModule()));
+        moduleNameTextField.setText(Utils.isEmpty(template.getModule()) ? "/" : Utils.convertTruePathIfNotNull(template.getModule()));
 
         TextField sourcesRootTextField = (TextField) parentNode.lookup("#sourcesRoot");
         sourcesRootTextField.setText(Utils.convertTruePathIfNotNull(ObjectUtil.defaultIfNull(template.getSourcesRoot(), DEFAULT_SOURCES_ROOT)));
@@ -367,7 +402,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
             try {
                 templateFile = template.getTemplateResource().getFile();
                 Desktop desktop = Desktop.getDesktop();
-                if(templateFile.exists()) {
+                if (templateFile.exists()) {
                     try {
                         desktop.open(templateFile);
                     } catch (IOException ignored) {
@@ -384,18 +419,40 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                     template.getSrcPackage());
             templateFile = path.toFile();
             Desktop desktop = Desktop.getDesktop();
-            if(templateFile.exists()) {
+            if (templateFile.exists()) {
                 try {
                     desktop.open(templateFile);
                 } catch (IOException ignored) {
                 }
+            } else {
+                TooltipUtil.showToast("文件不存在");
+            }
+        });
+        ImageView copyFileInfo = (ImageView) parentNode.lookup("#copyFileInfo");
+        copyFileInfo.setOnMouseClicked(event -> {
+            final File templateFile;
+            try {
+                final Path path = Paths.get(template.getProjectUrl(), template.getModule(), template.getSourcesRoot(),
+                        template.getSrcPackage());
+                templateFile = path.toFile();
+                if (templateFile.exists()) {
+                    Clipboard clipboard = Clipboard.getSystemClipboard();
+                    ClipboardContent content = new ClipboardContent();//创建剪贴板内容
+                    content.putString(IoUtil.readUtf8(Files.newInputStream(templateFile.toPath())));//剪贴板内容对象中添加上文定义的图片
+                    clipboard.setContent(content);
+                    TooltipUtil.showToast("生成的内容已复制");
+                } else {
+                    TooltipUtil.showToast("文件不存在");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
     }
 
     private static void doSetTemplateNameLabel(Node scene, String templateName) {
         Label templateNameLabel = (Label) scene.lookup("#templateNameLabel");
-        templateNameLabel.setText("模板名:"+ templateName);
+        templateNameLabel.setText("模板名:" + templateName);
         templateNameLabel.setOnMouseClicked(event -> {
             Clipboard clipboard = Clipboard.getSystemClipboard();
             ClipboardContent content = new ClipboardContent();//创建剪贴板内容
@@ -408,16 +465,16 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
     private void addCheckBoxListen(CheckBox checkBox, CheckBox templateNameCheckBox, String templateName, String templateFunction) {
         checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                LOGGER.info("selectTemplateGroup newValue {}",newValue);
+                LOGGER.info("selectTemplateGroup newValue {}", newValue);
                 if (!selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).containsKey(templateName)) {
                     List<String> functionNames = new ArrayList<>();
                     functionNames.add(templateFunction);
                     Map<String, List<String>> stringListMap = selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected());
-                    if(null==stringListMap){
-                        stringListMap=new HashMap<>();
-                        stringListMap.put(templateName,functionNames);
-                        selectTemplateGroup.put(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected(),stringListMap);
-                    }else {
+                    if (null == stringListMap) {
+                        stringListMap = new HashMap<>();
+                        stringListMap.put(templateName, functionNames);
+                        selectTemplateGroup.put(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected(), stringListMap);
+                    } else {
                         stringListMap.put(templateName, functionNames);
                     }
                 } else {
@@ -433,9 +490,9 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                 if (!templateNameCheckBox.isSelected()) {
                     templateNameCheckBox.setSelected(true);
                 }
-                LOGGER.info("selectTemplateGroup {}",selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName));
+                LOGGER.info("selectTemplateGroup {}", selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName));
             } else {
-                LOGGER.info("selectTemplateGroup oldValue{}",oldValue);
+                LOGGER.info("selectTemplateGroup oldValue{}", oldValue);
                 List<String> functionNames = selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName);
                 if (null != functionNames) {
                     functionNames.remove(templateFunction);
@@ -447,7 +504,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                     }
                     selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).remove(templateName);
                 }
-                LOGGER.info("selectTemplateGroup {}",selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName));
+                LOGGER.info("selectTemplateGroup {}", selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected()).get(templateName));
             }
         });
     }
@@ -464,7 +521,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                 if (checkBox2.isSelected()) {
                     String templateName = (String) checkBox2.getUserData();
                     Template template = getTemplateContext().getTemplate(templateName);
-                    doSetTemplate(template,anchorPane);
+                    doSetTemplate(template, anchorPane);
                     DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory) getTemplateContext().getTemplateFactory();
                     operateTemplateBeanFactory.refreshTemplate(template);
                 }
@@ -495,8 +552,8 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         }
     }
 
-    public void doSetTemplate(Template template,AnchorPane anchorPane){
-        TextArea textArea = (TextArea)anchorPane.getChildren().get(2);
+    public void doSetTemplate(Template template, AnchorPane anchorPane) {
+        TextArea textArea = (TextArea) anchorPane.getChildren().get(2);
         String projectUrl = textArea.getText();
         TextField textField = (TextField) anchorPane.getChildren().get(4);
         String moduleName = textField.getText();
@@ -536,8 +593,34 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Template files (*.properties)", "*.properties");
         fileChooser.getExtensionFilters().add(extFilter);
         this.file = fileChooser.showOpenDialog(box.getScene().getWindow());
-        if(null!=this.file) {
+        if (null != this.file) {
             fileName.setText(this.file.getName());
         }
+    }
+
+    @FXML
+    private TextField searchTable;
+
+    @FXML
+    public void searchTableNames() {
+        String searchText = searchTable.getText().toLowerCase();
+        ObservableList<String> originalItems = targetTable.getItems();
+        IndexedCheckModel<String> checkModel = targetTable.getCheckModel();
+
+        // 保存原始数据
+        if (searchText.isEmpty()) {
+            targetTable.getItems().setAll(originalItems);
+            checkModel.clearChecks();
+            return;
+        }
+
+        // 动态过滤
+        List<String> filteredItems = originalItems.stream()
+                .filter(item -> item.toLowerCase().contains(searchText))
+                .collect(Collectors.toList());
+
+        // 更新表格内容并选中过滤后的表名
+        targetTable.getItems().setAll(filteredItems);
+        filteredItems.forEach(checkModel::check);
     }
 }

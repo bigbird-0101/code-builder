@@ -6,9 +6,9 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import org.controlsfx.control.CheckComboBox?>
@@ -34,13 +34,18 @@
             </StackPane>
         </top>
         <center>
-            <StackPane  style="-fx-padding:15px 10px 15px 45px;">
+            <StackPane style="-fx-padding:15px 10px 15px 45px;">
                 <VBox>
-                    <HBox spacing="15" style="-fx-padding: 5px;">
+                    <HBox spacing="15" style="-fx-padding: 5px;" alignment="CENTER_LEFT">
                         <CheckBox fx:id="isAllTable" mnemonicParsing="false" text="全库生成"/>
                         <HBox spacing="10" alignment="CENTER_LEFT">
                             <Label text="目标表名"/>
-                            <CheckComboBox fx:id="targetTable" maxWidth="200" minWidth="200"/>
+                            <VBox spacing="5">
+                                <TextField fx:id="searchTable" onKeyReleased="#searchTableNames"
+                                           promptText="输入表名进行搜索"/>
+                                <CheckComboBox fx:id="targetTable" maxWidth="200" minWidth="200"/>
+                                <Button mnemonicParsing="false" onAction="#selectTable" text="选择"/>
+                            </VBox>
                         </HBox>
                         <HBox spacing="10" alignment="CENTER_LEFT">
                             <Label text="变量文件:"/>
@@ -70,9 +75,7 @@
             </StackPane>
         </center>
     </BorderPane>
-    <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true"
-                style="-fx-background-color: transparent; -fx-padding: 5px;">
-        <FlowPane fx:id="templates" hgap="15" vgap="15">
-        </FlowPane>
+    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+        <TilePane fx:id="templates" hgap="20" vgap="20" style="-fx-padding: 0px 0px 0px 20px;" alignment="CENTER_LEFT"/>
     </ScrollPane>
 </VBox>

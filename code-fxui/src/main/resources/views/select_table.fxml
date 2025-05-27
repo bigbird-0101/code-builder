@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
+<AnchorPane fx:id="anchorPane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="io.github.bigbird0101.code.fxui.fx.controller.SelectTableController">
+    <stylesheets>
+        <URL value="@../css/new_multiple_template.css"/>
+    </stylesheets>
+    <VBox>
+        <BorderPane>
+            <center>
+                <VBox>
+                    <HBox fx:id="tableBox" alignment="CENTER">
+                        <Label text="表名:"/>
+                        <TextField fx:id="searchField" promptText="表名"/>
+                        <Button mnemonicParsing="false" onAction="#selectAll" text="全选"/>
+                        <Button mnemonicParsing="false" onAction="#clearAll" text="清空"/>
+                    </HBox>
+                    <HBox>
+                        <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="500" minWidth="600">
+                            <FlowPane fx:id="tables"/>
+                        </ScrollPane>
+                    </HBox>
+                </VBox>
+            </center>
+            <padding>
+                <Insets right="50.0" top="20"/>
+            </padding>
+        </BorderPane>
+    </VBox>
+</AnchorPane>

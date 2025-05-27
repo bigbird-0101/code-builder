@@ -1,54 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox prefWidth="360" spacing="10" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
 
-<VBox prefWidth="300" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-    <AnchorPane>
-        <BorderPane layoutX="43.0" layoutY="6.0">
-            <center>
-                <HBox>
-                    <CheckBox fx:id="templateName" layoutX="50.0" layoutY="22.0" maxWidth="200" prefHeight="15.0"/>
-                    <Label fx:id="templateNameLabel" text="模板名:"/>
-                </HBox>
-            </center>
-            <right>
-                <HBox>
-                    <ImageView fx:id="editTemplate" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="TOP_RIGHT">
-                        <Image url="@/images/edit.png" />
-                    </ImageView>
-                    <VBox>
-                        <padding>
-                            <Insets left="5" right="5.0"/>
-                        </padding>
-                    </VBox>
-                    <ImageView fx:id="openTargetFile" fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="TOP_RIGHT">
-                        <Image url="@/images/openFile.png" />
-                    </ImageView>
-                    <padding>
-                        <Insets left="10" right="10.0"/>
-                    </padding>
-                </HBox>
-            </right>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-        </BorderPane>
-        <Label layoutX="50.0" layoutY="60.0" text="项目地址:" />
-        <TextArea fx:id="projectUrl" layoutX="142.0" layoutY="49.0" prefHeight="52.0" prefWidth="161.0" />
-        <Label layoutX="50.0" layoutY="128.0" text="模块名:" />
-        <TextField fx:id="moduleName" layoutX="142.0" layoutY="124.0" />
-        <Label layoutX="50.0" layoutY="170.0" text="源码包根路径:" />
-        <TextField fx:id="sourcesRoot" layoutX="142.0" layoutY="166.0" />
-        <Label layoutX="50.0" layoutY="210.0" prefHeight="15.0" prefWidth="67.0" text="源码包路径:" />
-        <TextField fx:id="srcPackage" layoutX="142.0" layoutY="206.0" />
+    <!-- 模板名与操作图标 -->
+    <GridPane hgap="10" vgap="5" style="-fx-font-size: 14px;">
+        <CheckBox fx:id="templateName" maxWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <Label fx:id="templateNameLabel" text="模板名：" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-    </AnchorPane>
-    <FlowPane fx:id="functionPane" layoutY="22" prefWrapLength="184.0">
+        <HBox spacing="8" alignment="CENTER_RIGHT" GridPane.rowIndex="0" GridPane.columnIndex="2">
+            <ImageView fx:id="editTemplate" fitHeight="20" fitWidth="20" pickOnBounds="true" style="-fx-cursor: hand;">
+                <Image url="@/images/edit.png"/>
+            </ImageView>
+            <ImageView fx:id="openTargetFile" fitHeight="16" fitWidth="16" pickOnBounds="true"
+                       style="-fx-cursor: hand;">
+                <Image url="@/images/openFile.png"/>
+            </ImageView>
+            <ImageView fx:id="copyFileInfo" fitHeight="20" fitWidth="20" pickOnBounds="true" style="-fx-cursor: hand;">
+                <Image url="@/images/copy.png"/>
+            </ImageView>
+        </HBox>
+    </GridPane>
+
+    <!-- 表单项区域 -->
+    <GridPane hgap="10" vgap="5" style="-fx-font-size: 12px;">
+        <Label text="项目地址:" GridPane.rowIndex="0" GridPane.columnIndex="0" minWidth="80"/>
+        <TextArea fx:id="projectUrl" prefHeight="60" prefWidth="250" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="模块名:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="moduleName" prefWidth="250" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="源码包根路径:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="sourcesRoot" prefWidth="250" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="源码包路径:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="srcPackage" prefWidth="250" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <!-- 功能区 -->
+    <FlowPane fx:id="functionPane" prefWrapLength="300" hgap="10" vgap="5"
+              style="-fx-background-color: #f0f0f0; -fx-border-radius: 5px; -fx-padding: 10px;">
         <padding>
-            <Insets left="50.0" right="20.0" top="20.0" />
+            <Insets left="10" top="5" right="10" bottom="5"/>
         </padding>
     </FlowPane>
 </VBox>
