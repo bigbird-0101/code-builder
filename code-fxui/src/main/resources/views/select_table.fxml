@@ -7,8 +7,8 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 <?import java.net.URL?>
 <AnchorPane fx:id="anchorPane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
@@ -29,7 +29,7 @@
                     </HBox>
                     <HBox>
                         <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="500" minWidth="600">
-                            <TilePane fx:id="tables"/>
+                            <FlowPane fx:id="tables"/>
                         </ScrollPane>
                     </HBox>
                 </VBox>

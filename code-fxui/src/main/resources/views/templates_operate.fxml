@@ -33,7 +33,7 @@
             </StackPane>
         </top>
         <center>
-            <StackPane style="-fx-padding:15px 10px 15px 45px;">
+            <StackPane style="-fx-padding:15px 10px 15px 25px;">
                 <VBox>
                     <HBox spacing="15" style="-fx-padding: 5px;" alignment="CENTER_LEFT">
                         <CheckBox fx:id="isAllTable" mnemonicParsing="false" text="全库生成"/>
@@ -41,6 +41,7 @@
                             <Label text="目标表名"/>
                             <VBox spacing="5">
                                 <Button mnemonicParsing="false" onAction="#selectTable" text="选择"/>
+                                <Label fx:id="selectTableName"/>
                             </VBox>
                         </HBox>
                         <HBox spacing="10" alignment="CENTER_LEFT">

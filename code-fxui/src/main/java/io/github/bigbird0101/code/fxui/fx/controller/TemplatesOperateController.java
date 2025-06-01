@@ -6,8 +6,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import io.github.bigbird0101.code.core.cache.CachePool;
 import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.config.StringPropertySource;
@@ -67,7 +65,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static cn.hutool.core.comparator.CompareUtil.compare;
-import static java.util.Collections.emptySet;
+import static cn.hutool.core.text.StrPool.COMMA;
 
 /**
  * @author fpp
@@ -81,7 +79,10 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
     private static final String DEFAULT_SOURCES_ROOT = "src/main/java";
 
     private static final String DEFAULT_USER_SAVE_TEMPLATE_CONFIG = "code.user.save.config";
+    public static final int MAX_SHOW_SELECT_NUMBER = 2;
 
+    @FXML
+    public Label selectTableName;
     @FXML
     Label fileName;
     @FXML
@@ -99,6 +100,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
 
     @FXML
     private TilePane templates;
+
     private SelectTableController selectTableController;
 
     public CheckBox getIsAllTable() {
@@ -128,6 +130,8 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
     private Map<String, Map<String, List<String>>> selectTemplateGroup = new ConcurrentHashMap<>();
     private final URL resource = getClass().getResource("/views/template_info.fxml");
 
+    private Set<String> selectTableNameSet = new HashSet<>();
+
     public File getFile() {
         return file;
     }
@@ -145,8 +149,18 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         try {
             templates.getChildren().clear();
             templates.autosize();
+            setSelectTableView();
         } catch (CodeConfigException e) {
             LOGGER.info("Template Operate init error", e);
+        }
+    }
+
+    private void setSelectTableView() {
+        Set<String> selectTableNames = getSelectTableNames();
+        if (selectTableNames.size() > MAX_SHOW_SELECT_NUMBER) {
+            this.selectTableName.setText("选择的表:" + String.join(COMMA, CollUtil.sub(selectTableNames, 0, 2)) + "...");
+        } else {
+            this.selectTableName.setText("选择的表:" + String.join(COMMA, selectTableNames));
         }
     }
 
@@ -156,15 +170,23 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/select_table.fxml"));
         Parent root = fxmlLoader.load();
         this.selectTableController = fxmlLoader.getController();
+        this.selectTableController.initViewBeforeSetData(selectTableNameSet);
         Scene scene = new Scene(root);
         secondWindow.setTitle("选表");
+        secondWindow.setOnCloseRequest(event -> setSelectTableView());
         secondWindow.setScene(scene);
         secondWindow.initOwner(box.getScene().getWindow());
         secondWindow.show();
     }
 
     public Set<String> getSelectTableNames() {
-        return Optional.ofNullable(selectTableController).map(SelectTableController::getSelectTableNames).orElse(emptySet());
+        Set<String> strings = Optional.ofNullable(selectTableController).map(SelectTableController::getSelectTableNames)
+                .orElse(getTemplateContext().getEnvironment()
+                        .functionPropertyIfPresent(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, PageInputSnapshot.class,
+                                s -> new HashSet<>(StrUtil.splitTrim(s.getTableNames(), COMMA))));
+        selectTableNameSet.clear();
+        selectTableNameSet.addAll(strings);
+        return selectTableNameSet;
     }
 
     protected void doInitView() {
@@ -184,27 +206,28 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                templates.getChildren().add(vBox);
+                if (null != vBox) {
+                    templates.getChildren().add(vBox);
+                }
             }
         }
     }
 
     protected void initTemplateConfig() {
         try {
-            String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
             if (selectTemplateGroup.isEmpty()) {
-                if (Utils.isNotEmpty(property)) {
-                    final PageInputSnapshot pageInputSnapshot = JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {
-                    });
-                    selectTemplateGroup = Optional.ofNullable(pageInputSnapshot.getSelectTemplateGroup()).orElse(new HashMap<>());
-                    doSetView(pageInputSnapshot);
-                }
+                getTemplateContext().getEnvironment()
+                        .consumerPropertyIfPresent(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, PageInputSnapshot.class, pageInputSnapshot -> {
+                            selectTemplateGroup = Optional.ofNullable(pageInputSnapshot.getSelectTemplateGroup()).orElse(new HashMap<>(16));
+                            doSetView(pageInputSnapshot);
+                        });
                 if (!selectTemplateGroup.isEmpty()) {
                     if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("user save config {}", property);
+                        LOGGER.info("user save config {}", getTemplateContext().getEnvironment()
+                                .getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG));
                     }
                 }
-                selectTemplateGroup.putIfAbsent(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected(), new HashMap<>());
+                selectTemplateGroup.putIfAbsent(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected(), new HashMap<>(16));
                 selectTemplateGroup.forEach((k, v) -> {
                     try {
                         if (k == null || v == null) {
@@ -224,11 +247,9 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                     }
                 });
             } else {
-                if (Utils.isNotEmpty(property)) {
-                    final PageInputSnapshot pageInputSnapshot = JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {
-                    });
-                    doSetView(pageInputSnapshot);
-                }
+                getTemplateContext().getEnvironment()
+                        .consumerPropertyIfPresent(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, PageInputSnapshot.class,
+                                this::doSetView);
             }
         } catch (Exception e) {
             if (LOGGER.isErrorEnabled()) {
@@ -245,14 +266,16 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
     }
 
     public VBox initTemplateInfo(Template template) throws IOException {
-        VBox root = FXMLLoader.load(resource);
         try {
+            assert resource != null;
+            VBox root = FXMLLoader.load(resource);
             initTemplateInfo(root, template);
+            return root;
         } catch (Exception e) {
             StaticLog.error(e);
             FxAlerts.warn("初始化模板异常", e.getMessage());
         }
-        return root;
+        return null;
     }
 
     public void initTemplateInfo(VBox root, Template template) {

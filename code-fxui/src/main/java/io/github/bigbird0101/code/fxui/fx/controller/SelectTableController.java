@@ -2,8 +2,6 @@ package io.github.bigbird0101.code.fxui.fx.controller;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
 import io.github.bigbird0101.code.core.domain.DataSourceConfig;
@@ -20,8 +18,8 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.TilePane;
 
 import java.net.URL;
 import java.util.HashSet;
@@ -38,14 +36,14 @@ import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT
  */
 public class SelectTableController extends AbstractTemplateContextProvider implements Initializable {
     @FXML
-    public TilePane tables;
+    public FlowPane tables;
     @FXML
     public HBox tableBox;
     @FXML
     public TextField searchField;
     private final Insets insets = new Insets(0, 10, 10, 0);
-    private final Set<String> selectTableNames = new HashSet<>();
     private final Set<String> allTables = new HashSet<>();
+    private final Set<String> allTablesSelect = new HashSet<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -59,26 +57,35 @@ public class SelectTableController extends AbstractTemplateContextProvider imple
             }
         });
         getTemplateContext().addListener(new SelectTableController.DatasourceConfigUpdateEventListener());
-        initData();
-        initView();
+        initData(this::initView);
+    }
+
+    public void initViewBeforeSetData(Set<String> tableDataSet) {
+        StaticLog.info("initViewBeforeSetData {}", tableDataSet);
+        allTablesSelect.clear();
+        allTablesSelect.addAll(tableDataSet);
     }
 
     private void initView() {
-        String property = getTemplateContext().getEnvironment().getProperty(DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
-        if (Utils.isNotEmpty(property)) {
-            final PageInputSnapshot pageInputSnapshot = JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {
-            });
-            String tableNames = pageInputSnapshot.getTableNames();
-            if (Utils.isNotEmpty(tableNames)) {
-                String[] split = tableNames.split(",");
-                for (String splitTableName : split) {
-                    for (String tableName : allTables) {
-                        if (tableName.equals(splitTableName)) {
-                            CheckBox checkBox = (CheckBox) tables.lookup("#" + splitTableName);
-                            checkBox.setSelected(true);
+        if (allTablesSelect.isEmpty()) {
+            getTemplateContext().getEnvironment().consumerPropertyIfPresent(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, PageInputSnapshot.class, pageInputSnapshot -> {
+                String tableNames = pageInputSnapshot.getTableNames();
+                if (Utils.isNotEmpty(tableNames)) {
+                    String[] split = tableNames.split(",");
+                    for (String splitTableName : split) {
+                        for (String tableName : allTables) {
+                            if (tableName.equals(splitTableName)) {
+                                CheckBox checkBox = (CheckBox) tables.lookup("#" + splitTableName);
+                                checkBox.setSelected(true);
+                            }
                         }
                     }
                 }
+            });
+        } else {
+            for (String tableName : allTablesSelect) {
+                CheckBox checkBox = (CheckBox) tables.lookup("#" + tableName);
+                checkBox.setSelected(true);
             }
         }
     }
@@ -87,11 +94,11 @@ public class SelectTableController extends AbstractTemplateContextProvider imple
     private class DatasourceConfigUpdateEventListener extends TemplateListener<DatasourceConfigUpdateEvent> {
         @Override
         protected void onTemplateEvent(DatasourceConfigUpdateEvent doGetTemplateAfterEvent) {
-            SelectTableController.this.initData();
+            SelectTableController.this.initData(SelectTableController.this::initView);
         }
     }
 
-    private void initData() {
+    private void initData(Runnable runnable) {
         Platform.runLater(() -> {
             Task<List<String>> task = new Task<List<String>>() {
                 @Override
@@ -108,6 +115,7 @@ public class SelectTableController extends AbstractTemplateContextProvider imple
                 // 回到 JavaFX 主线程更新 UI
                 List<String> allTableName = task.getValue();
                 initTableCheckBox(new HashSet<>(allTableName));
+                runnable.run();
             });
             task.setOnFailed(event -> StaticLog.error("initData 异步加载失败", task.getException()));
             new Thread(task).start();
@@ -119,6 +127,7 @@ public class SelectTableController extends AbstractTemplateContextProvider imple
         tableNames.forEach(templateName -> {
             CheckBox checkBox = new CheckBox(templateName);
             checkBox.setText(templateName);
+            checkBox.setId(templateName);
             checkBox.setPadding(insets);
             tables.getChildren().add(checkBox);
         });

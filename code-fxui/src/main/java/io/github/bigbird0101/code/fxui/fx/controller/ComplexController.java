@@ -117,6 +117,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import static cn.hutool.core.text.StrPool.COMMA;
 import static io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_KEY;
 import static io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_VALUE;
 import static io.github.bigbird0101.code.fxui.CodeBuilderApplication.USER_OPERATE_CACHE;
@@ -719,8 +720,13 @@ public class ComplexController extends AbstractTemplateContextProvider implement
                 AlertUtil.showWarning("请选择一个表名或者选择一个变量文件");
                 return;
             }
-            if (!FxAlerts.confirmOkCancel("提示", "您已选择表:" + String.join(",", this.tableSelected) + ",您确认生成吗?")) {
+            if (!isSelectedAllTable && !FxAlerts.confirmOkCancel("提示", "您已选择表:" + String.join(COMMA, this.tableSelected) + ",您确认生成吗?")) {
                 return;
+            }
+            if (isSelectedAllTable) {
+                if (FxAlerts.confirmOkCancel("提示", "您已选择所有表,您确认生成吗?")) {
+                    return;
+                }
             }
             ProjectTemplateInfoConfig projectTemplateInfoConfig = getProjectTemplateInfoConfig();
             CoreConfig coreConfig = new CoreConfig(DataSourceConfig.getDataSourceConfig(getTemplateContext().getEnvironment()), projectTemplateInfoConfig);

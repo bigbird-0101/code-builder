@@ -1,6 +1,8 @@
 package io.github.bigbird0101.code.core.config;
 
 import cn.hutool.core.convert.Convert;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * @author fpp
@@ -28,7 +30,23 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
             return null;
         }
         final PropertySource<Object> propertySourceTemplate = propertySources.getPropertySource(propertyKey);
-        return (T) Convert.convert(targetClass,propertySourceTemplate.getSource());
+        if (null != propertySourceTemplate.getSource() &&
+                propertySourceTemplate.getSource() instanceof String &&
+                isJsonValid((String) propertySourceTemplate.getSource())
+        ) {
+            String propertySourceTemplateSource = (String) propertySourceTemplate.getSource();
+            return Convert.convert(targetClass, JSON.parseObject(propertySourceTemplateSource));
+        }
+        return Convert.convert(targetClass, propertySourceTemplate.getSource());
+    }
+
+    public boolean isJsonValid(String jsonString) {
+        try {
+            JSONObject obj = JSON.parseObject(jsonString);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 
     /**
