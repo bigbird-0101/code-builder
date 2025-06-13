@@ -76,7 +76,9 @@ public class SelectTableController extends AbstractTemplateContextProvider imple
                         for (String tableName : allTables) {
                             if (tableName.equals(splitTableName)) {
                                 CheckBox checkBox = (CheckBox) tables.lookup("#" + splitTableName);
-                                checkBox.setSelected(true);
+                                if (null != checkBox) {
+                                    checkBox.setSelected(true);
+                                }
                             }
                         }
                     }
@@ -85,7 +87,9 @@ public class SelectTableController extends AbstractTemplateContextProvider imple
         } else {
             for (String tableName : allTablesSelect) {
                 CheckBox checkBox = (CheckBox) tables.lookup("#" + tableName);
-                checkBox.setSelected(true);
+                if (null != checkBox) {
+                    checkBox.setSelected(true);
+                }
             }
         }
     }
@@ -122,14 +126,73 @@ public class SelectTableController extends AbstractTemplateContextProvider imple
         });
     }
 
-    public void initTableCheckBox(Set<String> tableNames) {
-        tables.getChildren().clear();
-        tableNames.forEach(templateName -> {
-            CheckBox checkBox = new CheckBox(templateName);
-            checkBox.setText(templateName);
-            checkBox.setId(templateName);
-            checkBox.setPadding(insets);
-            tables.getChildren().add(checkBox);
+    // 优化表名过滤逻辑
+    private void initTableCheckBox(Set<String> tableNames) {
+        // 获取当前已有的复选框集合
+        ObservableList<Node> currentChildren = tables.getChildren();
+        Set<String> currentTableNames = currentChildren.stream()
+                .filter(node -> node instanceof CheckBox)
+                .map(Node::getId)
+                .collect(Collectors.toSet());
+
+        // 计算需要添加和移除的表名
+        Set<String> toAdd = new HashSet<>(tableNames);
+        toAdd.removeAll(currentTableNames);
+
+        Set<String> toRemove = new HashSet<>(currentTableNames);
+        toRemove.removeAll(tableNames);
+
+        // 批量设置不需要的复选框为不可见且不管理
+        currentChildren.forEach(node -> {
+            if (toRemove.contains(node.getId())) {
+                node.setVisible(false); // 设置为不可见
+                node.setManaged(false); // 释放布局空间
+            }
+        });
+
+        // 批量添加新的复选框
+        toAdd.forEach(tableName -> {
+            // 检查是否已存在相同ID的节点
+            if (currentChildren.stream().noneMatch(node -> tableName.equals(node.getId()))) {
+                CheckBox checkBox = new CheckBox();
+                checkBox.setId(tableName);
+                checkBox.setText("_" + tableName);
+                checkBox.setPadding(insets);
+                tables.getChildren().add(checkBox);
+            }
+        });
+
+        // 批量设置需要显示的复选框为可见且管理
+        currentChildren.forEach(node -> {
+            if (tableNames.contains(node.getId())) {
+                node.setVisible(true); // 设置为可见
+                node.setManaged(true); // 恢复布局管理
+            }
+        });
+    }
+
+    @FXML
+    public void selectAll() {
+        allTablesSelect.addAll(allTables);
+        // 延迟刷新UI
+        Platform.runLater(() -> refreshCheckBoxSelection(true));
+    }
+
+    @FXML
+    public void clearAll() {
+        allTablesSelect.clear();
+        // 延迟刷新UI
+        Platform.runLater(() -> refreshCheckBoxSelection(false));
+    }
+
+    // 新增方法：刷新复选框选中状态
+    private void refreshCheckBoxSelection(boolean isSelected) {
+        ObservableList<Node> children = tables.getChildren();
+        children.forEach(node -> {
+            if (node instanceof CheckBox) {
+                CheckBox checkBox = (CheckBox) node;
+                checkBox.setSelected(isSelected);
+            }
         });
     }
 
@@ -139,25 +202,9 @@ public class SelectTableController extends AbstractTemplateContextProvider imple
         children.forEach(s -> {
             CheckBox checkBox = (CheckBox) s;
             if (checkBox.isSelected()) {
-                result.add(checkBox.getText());
+                result.add(checkBox.getId());
             }
         });
         return result;
-    }
-
-    @FXML
-    public void selectAll() {
-        tables.getChildren().forEach(checkbox -> {
-            CheckBox checkBox = (CheckBox) checkbox;
-            checkBox.setSelected(true);
-        });
-    }
-
-    @FXML
-    public void clearAll() {
-        tables.getChildren().forEach(checkbox -> {
-            CheckBox checkBox = (CheckBox) checkbox;
-            checkBox.setSelected(false);
-        });
     }
 }
