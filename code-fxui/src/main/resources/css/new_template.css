@@ -1,0 +1,15 @@
+/* 表单元素通用样式 */
+HBox > Label {
+    -fx-alignment: CENTER_RIGHT;
+    -fx-padding: 0 10 0 0;
+}
+
+/* 输入组件统一宽度 */
+TextField, TextArea, ComboBox {
+    -fx-pref-width: 300;
+}
+
+/* 按钮样式 */
+#prefixStrategyPane > Button {
+    -fx-min-width: 120;
+}

@@ -926,7 +926,7 @@ public class ComplexController extends AbstractTemplateContextProvider implement
     }
     private void toNewMultipleTemplateView(String multipleTemplateName) throws IOException, CodeConfigException {
         Stage secondWindow = new Stage();
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/new_multiple_template.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/new_multiple_template.fxml"));
         Parent root = fxmlLoader.load();
         MultipleAbstractTemplateController multipleTemplateController = fxmlLoader.getController();
         multipleTemplateController.setListViewTemplate(listViewTemplate);

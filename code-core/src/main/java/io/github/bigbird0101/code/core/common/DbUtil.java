@@ -14,6 +14,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
@@ -312,12 +313,38 @@ public class DbUtil {
             if (null != rs) {
                 if (rs.next()) {
                     String tableCommentTemp=rs.getString("REMARKS");
+                    if (StrUtil.isBlank(tableCommentTemp)) {
+                        try (Statement stmt = connection.createStatement();
+                             ResultSet rsTemp = stmt.executeQuery("SHOW CREATE TABLE " + tableName)) {
+                            if (rsTemp.next()) {
+                                tableCommentTemp = parse(rsTemp.getString(2));
+                            }
+                        }
+                    }
                     tableComment = StrUtil.removeSuffix(tableCommentTemp,"表");
                 }
             }
         }
         tableInfo = new TableInfo(tableName, tableComment, getDomainName(tableName,environment), columnInfoList);
         return tableInfo;
+    }
+
+    /**
+     * 返回注释信息
+     *
+     * @param all all
+     * @return 注释信息
+     */
+
+    public static String parse(String all) {
+        String comment;
+        int index = all.indexOf("COMMENT='");
+        if (index < 0) {
+            return "";
+        }
+        comment = all.substring(index + 9);
+        comment = comment.substring(0, comment.length() - 1);
+        return comment;
     }
 
 

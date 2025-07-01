@@ -66,7 +66,7 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
     @FXML
     TextField moduleName;
     @FXML
-    TextField srcPackageName;
+    TextArea srcPackageName;
     @FXML
     TextField templateName;
     @FXML
