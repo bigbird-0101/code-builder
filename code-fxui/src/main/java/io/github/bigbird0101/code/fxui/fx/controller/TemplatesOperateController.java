@@ -65,6 +65,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static cn.hutool.core.comparator.CompareUtil.compare;
+import static cn.hutool.core.text.CharSequenceUtil.splitTrim;
 import static cn.hutool.core.text.StrPool.COMMA;
 
 /**
@@ -130,7 +131,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
     private Map<String, Map<String, List<String>>> selectTemplateGroup = new ConcurrentHashMap<>();
     private final URL resource = getClass().getResource("/views/template_info.fxml");
 
-    private Set<String> selectTableNameSet = new HashSet<>();
+    private final Set<String> selectTableNameSet = new HashSet<>();
 
     public File getFile() {
         return file;
@@ -183,7 +184,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         Set<String> strings = Optional.ofNullable(selectTableController).map(SelectTableController::getSelectTableNames)
                 .orElse(getTemplateContext().getEnvironment()
                         .functionPropertyIfPresent(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, PageInputSnapshot.class,
-                                s -> new HashSet<>(StrUtil.splitTrim(s.getTableNames(), COMMA))));
+                                s -> new HashSet<>(splitTrim(s.getTableNames(), COMMA))));
         if (CollUtil.isNotEmpty(strings)) {
             selectTableNameSet.clear();
             selectTableNameSet.addAll(strings);
@@ -490,17 +491,21 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                         .map(SelectTableController::getSelectTableNames)
                         .orElse(new HashSet<>());
                 LOGGER.info("checked tables {}", checkTables);
-                final PageInputSnapshot build = PageInputSnapshot.Builder
-                        .builder()
-                        .withCurrentMultipleTemplate(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected())
-                        .withFields(fields.getText())
-                        .withRepresentFactor(representFactor.getText())
-                        .withSelectTemplateGroup(templateGroup)
-                        .withTableNames(String.join(",", checkTables))
-                        .withDefinedFunction(isDefinedFunction.isSelected())
-                        .withSelectTableAll(isAllTable.isSelected())
-                        .build();
-                getTemplateContext().getEnvironment().refreshPropertySourceSerialize(new StringPropertySource(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, JSON.toJSONString(build)));
+                getTemplateContext().getEnvironment().consumerPropertyIfPresent(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, PageInputSnapshot.class, pageInputSnapshot -> {
+                    String tableNames = pageInputSnapshot.getTableNames();
+                    final PageInputSnapshot build = PageInputSnapshot.Builder
+                            .builder()
+                            .withCurrentMultipleTemplate(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected())
+                            .withFields(fields.getText())
+                            .withRepresentFactor(representFactor.getText())
+                            .withSelectTemplateGroup(templateGroup)
+                            .withTableNames(String.join(",", CollUtil.isEmpty(checkTables) ? splitTrim(tableNames, ",") : checkTables))
+                            .withDefinedFunction(isDefinedFunction.isSelected())
+                            .withSelectTableAll(isAllTable.isSelected())
+                            .build();
+                    getTemplateContext().getEnvironment().refreshPropertySourceSerialize(new StringPropertySource(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, JSON.toJSONString(build)));
+                });
+
             }
             TooltipUtil.showToast("保存成功");
         } catch (CodeConfigException e) {

@@ -367,7 +367,7 @@ public class DbUtil {
             tableNameS = new ArrayList<>();
             DatabaseMetaData dbmd = connection.getMetaData();
 
-            ResultSet rs = dbmd.getTables(null, getDatabaseNameFromJdbcUrl(dataSourceConfigPojo.getUrl()),
+            ResultSet rs = dbmd.getTables(getDatabaseNameFromJdbcUrl(dataSourceConfigPojo.getUrl()), null,
                     null, new String[]{"TABLE"});
             while (rs.next()) {
                 // 获得表名

@@ -73,7 +73,7 @@ public class PageInputSnapshot {
     }
 
     public static final class Builder {
-        private PageInputSnapshot pageInputSnapshot;
+        private final PageInputSnapshot pageInputSnapshot;
 
         private Builder() {
             pageInputSnapshot = new PageInputSnapshot();

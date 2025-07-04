@@ -713,6 +713,7 @@ public class ComplexController extends AbstractTemplateContextProvider implement
                             this.tableSelected.add(s);
                         }
                     });
+                    this.tableSelected.removeIf(s -> !selectTableNames.contains(s));
                 }
             }
             File templateVariableFile = templatesOperateController.getFile();
