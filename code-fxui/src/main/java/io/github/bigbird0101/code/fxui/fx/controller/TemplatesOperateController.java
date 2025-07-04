@@ -184,8 +184,10 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                 .orElse(getTemplateContext().getEnvironment()
                         .functionPropertyIfPresent(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, PageInputSnapshot.class,
                                 s -> new HashSet<>(StrUtil.splitTrim(s.getTableNames(), COMMA))));
-        selectTableNameSet.clear();
-        selectTableNameSet.addAll(strings);
+        if (CollUtil.isNotEmpty(strings)) {
+            selectTableNameSet.clear();
+            selectTableNameSet.addAll(strings);
+        }
         return selectTableNameSet;
     }
 

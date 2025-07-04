@@ -27,6 +27,10 @@ import java.util.Properties;
  */
 public class DbUtil {
     public static final Cache<String, Connection> CONNECTION_LFU_CACHE = CacheUtil.newLFUCache(2);
+    public static final String JDBC_SQLSERVER = "jdbc:sqlserver";
+    public static final String JDBC_ORACLE = "jdbc:oracle";
+    public static final String JDBC_MYSQL = "jdbc:mysql:";
+
     static {
         RuntimeUtil.addShutdownHook(() -> CONNECTION_LFU_CACHE.forEach(s -> {
             try {
@@ -43,7 +47,7 @@ public class DbUtil {
      * @return String java数据类型
      */
     public static String getJavaType(int dataType) {
-        String javaType = "";
+        String javaType;
         if (dataType == Types.INTEGER || dataType == Types.SMALLINT) {
             javaType = "Integer";
         } else if (dataType == Types.BIGINT) {
@@ -52,11 +56,13 @@ public class DbUtil {
                 || dataType == Types.CLOB || dataType == Types.BLOB) {
             javaType = "String";
         } else if (dataType == Types.TINYINT) {
-            javaType = "Short";
+            javaType = "Integer";
         } else if (dataType == Types.FLOAT) {
             javaType = "Double";
         } else if (dataType == Types.REAL) {
             javaType = "Float";
+        } else if (dataType == Types.DATE || dataType == Types.TIME || dataType == Types.TIMESTAMP) {
+            javaType = "Date";
         } else {
             javaType = getString(dataType);
         }
@@ -361,7 +367,8 @@ public class DbUtil {
             tableNameS = new ArrayList<>();
             DatabaseMetaData dbmd = connection.getMetaData();
 
-            ResultSet rs = dbmd.getTables(null, null, null, new String[]{"TABLE"});
+            ResultSet rs = dbmd.getTables(null, getDatabaseNameFromJdbcUrl(dataSourceConfigPojo.getUrl()),
+                    null, new String[]{"TABLE"});
             while (rs.next()) {
                 // 获得表名
                 String tableName = rs.getString("TABLE_NAME");
@@ -372,4 +379,71 @@ public class DbUtil {
         }
         return tableNameS;
     }
+
+    /**
+     * 从 JDBC URL 中获取数据库名（兼容多种数据库）
+     *
+     * @param jdbcUrl JDBC 连接 URL
+     * @return 数据库名
+     */
+    public static String getDatabaseNameFromJdbcUrl(String jdbcUrl) {
+        if (jdbcUrl == null || jdbcUrl.isEmpty()) {
+            return null;
+        }
+
+        // MySQL / PostgreSQL / MariaDB / SQLite 等基于路径的数据库
+        if (jdbcUrl.startsWith(JDBC_MYSQL) ||
+                jdbcUrl.startsWith("jdbc:postgresql:") ||
+                jdbcUrl.startsWith("jdbc:mariadb:") ||
+                jdbcUrl.startsWith("jdbc:sqlite:")) {
+            int pathStart = jdbcUrl.indexOf("//");
+            if (pathStart != -1) {
+                String rest = jdbcUrl.substring(pathStart + 2);
+                int dbStart = rest.indexOf("/");
+                if (dbStart != -1) {
+                    String dbPart = rest.substring(dbStart + 1);
+                    int paramIndex = dbPart.indexOf("?");
+                    if (paramIndex != -1) {
+                        dbPart = dbPart.substring(0, paramIndex);
+                    }
+                    int slashIndex = dbPart.indexOf("/");
+                    if (slashIndex != -1) {
+                        dbPart = dbPart.substring(0, slashIndex);
+                    }
+                    return dbPart;
+                }
+            }
+        }
+
+        // Oracle thin 格式：jdbc:oracle:thin:@//host:port/service_name
+        if (jdbcUrl.contains(JDBC_ORACLE)) {
+            String[] parts = jdbcUrl.split("/");
+            if (parts.length >= 4) {
+                return parts[3];
+            }
+        }
+
+        // SQL Server 格式：jdbc:sqlserver://host:port;databaseName=mydb
+        if (jdbcUrl.contains(JDBC_SQLSERVER)) {
+            String[] parts = jdbcUrl.split(";");
+            for (String part : parts) {
+                if (part.toLowerCase().startsWith("databasename=")) {
+                    return part.split("=")[1];
+                }
+            }
+        }
+
+        // 兜底：尝试通用正则匹配路径中的第一段
+        try {
+            String regex = "^jdbc:[^:]+://(?:[^/]*\\/){1}([^/?]+)";
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+            java.util.regex.Matcher matcher = pattern.matcher(jdbcUrl);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
 }

@@ -23,7 +23,8 @@
         <GridPane hgap="10" vgap="10">
             <!-- 行1 -->
             <Label text="项目地址:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-            <TextArea fx:id="projectUrl" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <TextArea fx:id="projectUrl" GridPane.rowIndex="0" GridPane.columnIndex="1" prefHeight="50"
+                      prefWidth="150"/>
 
             <!-- 行2 -->
             <Label text="模块名:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
@@ -35,13 +36,14 @@
 
             <!-- 行4 -->
             <Label text="源码包名:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-            <TextArea fx:id="srcPackageName" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <TextArea fx:id="srcPackageName" GridPane.rowIndex="3" GridPane.columnIndex="1" prefHeight="50"
+                      prefWidth="150"/>
 
             <!-- 行5 -->
             <Label text="选择模板文件：" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
             <HBox spacing="10" GridPane.rowIndex="4" GridPane.columnIndex="1">
-                <Button mnemonicParsing="false" onAction="#selectTemplateFile" text="选择" styleClass="primary-button"/>
-                <Label fx:id="fileName" styleClass="form-info"/>
+                <Button mnemonicParsing="false" onAction="#selectTemplateFile" text="选择"/>
+                <Label fx:id="fileName"/>
             </HBox>
 
             <!-- 行6 -->
@@ -70,9 +72,9 @@
             <TextField fx:id="filePrefixNameStrategyPattern" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
 
             <!-- 行12 -->
-            <HBox alignment="CENTER" GridPane.rowIndex="11" GridPane.columnIndex="0" GridPane.columnSpan="2">
-                <Button fx:id="button" mnemonicParsing="false" onAction="#createTemplate" text="创建"
-                        styleClass="primary-button" minWidth="120"/>
+            <HBox alignment="CENTER" GridPane.rowIndex="12" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                <Button fx:id="button" mnemonicParsing="false" onAction="#createTemplate" text="创建" minWidth="200"
+                        minHeight="30"/>
             </HBox>
             <padding>
                 <Insets bottom="50" left="20" right="20" top="50"/>

@@ -159,7 +159,9 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Template files (*.template)", "*.template");
         fileChooser.getExtensionFilters().add(extFilter);
         this.file = fileChooser.showOpenDialog(vBox.getScene().getWindow());
-        fileName.setText(this.file.getName());
+        if (null != this.file) {
+            fileName.setText(this.file.getName());
+        }
     }
 
     @FXML
@@ -195,16 +197,16 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
                                 .stream()
                                 .filter(labelTreeItem -> labelTreeItem.getValue().getText().equals(multipleTemplate.getTemplateName()))
                                 .findFirst()
-                                .ifPresent(s->{
-                                    final TreeItem<Label> labelTreeItem = s.getChildren()
-                                            .filtered(v -> v.getValue().getText().equals(sourceTemplateName))
-                                            .stream()
-                                            .findFirst()
-                                            .get();
-                                    int i=s.getChildren().indexOf(labelTreeItem);
-                                    final TreeItem<Label> andInitTemplateView = complexController.getAndInitTemplateView(newTemplate, multipleTemplate.getTemplateName(), s);
-                                    s.getChildren().set(i,andInitTemplateView);
-                                });
+                                .ifPresent(s -> s.getChildren()
+                                        .filtered(v -> v.getValue().getText().equals(sourceTemplateName))
+                                        .stream()
+                                        .findFirst()
+                                        .ifPresent(d -> {
+                                            int i = s.getChildren().indexOf(d);
+                                            final TreeItem<Label> andInitTemplateView = complexController
+                                                    .getAndInitTemplateView(newTemplate, multipleTemplate.getTemplateName(), s);
+                                            s.getChildren().set(i, andInitTemplateView);
+                                        }));
                     }
                 }
             }
