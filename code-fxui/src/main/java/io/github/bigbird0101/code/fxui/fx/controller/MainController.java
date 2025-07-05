@@ -58,6 +58,9 @@ import io.github.bigbird0101.code.fxui.fx.component.ProgressTask;
 import io.github.bigbird0101.code.util.Utils;
 import io.github.bigbird0101.spi.SPIServiceLoader;
 import io.github.bigbird0101.spi.inject.instance.InstanceContext;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
@@ -79,11 +82,13 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -127,7 +132,15 @@ import static java.util.stream.Collectors.toSet;
 /**
  * @author fpp
  */
-public class ComplexController extends AbstractTemplateContextProvider implements Initializable {
+public class MainController extends AbstractTemplateContextProvider implements Initializable {
+    @FXML
+    public TreeView<Label> unUseTemplate;
+    @FXML
+    public Pane paneUnUse;
+    @FXML
+    public VBox nonFavoriteContainer;
+    @FXML
+    public VBox favoriteContainer;
     @FXML
     VBox mainBox;
     @FXML
@@ -143,6 +156,13 @@ public class ComplexController extends AbstractTemplateContextProvider implement
     private AnchorPane content;
     @FXML
     private SplitPane splitPane;
+    @FXML
+    private SplitPane templateSplitPane;
+    @FXML
+    private Label favoriteToggleLabel;
+    @FXML
+    private Label nonFavoriteToggleLabel;
+
     /**
      * 所有的表格
      */
@@ -176,6 +196,13 @@ public class ComplexController extends AbstractTemplateContextProvider implement
         TreeItem<Label> root = new TreeItem<>(new Label("根节点"));
         listViewTemplate.setRoot(root);
         listViewTemplate.setShowRoot(false);
+        //宽度绑定为Pane宽度
+        unUseTemplate.prefWidthProperty().bind(paneUnUse.widthProperty());
+        //高度绑定为Pane高度
+        unUseTemplate.prefHeightProperty().bind(splitPane.heightProperty());
+        TreeItem<Label> root2 = new TreeItem<>(new Label("根节点"));
+        unUseTemplate.setRoot(root2);
+        unUseTemplate.setShowRoot(false);
         initMultipleTemplateViews(root);
         final String defaultMultipleTemplate = getDefaultMultipleTemplate();
         if(StrUtil.isNotBlank(defaultMultipleTemplate)){
@@ -211,6 +238,12 @@ public class ComplexController extends AbstractTemplateContextProvider implement
                 doSelectMultiple();
             }
         });
+
+        // 设置初始状态：常用区域展开，非常用区域收缩
+        setInitialFoldStates();
+
+        // 添加点击监听器，实现点击一个区域时另一个自动收缩
+        addFoldToggleListeners();
     }
 
     private void init(){
@@ -222,7 +255,7 @@ public class ComplexController extends AbstractTemplateContextProvider implement
     private class DatasourceConfigUpdateEventListener extends TemplateListener<DatasourceConfigUpdateEvent> {
         @Override
         protected void onTemplateEvent(DatasourceConfigUpdateEvent doGetTemplateAfterEvent) {
-            ThreadUtil.execAsync(ComplexController.this::initData);
+            ThreadUtil.execAsync(MainController.this::initData);
         }
     }
 
@@ -747,7 +780,7 @@ public class ComplexController extends AbstractTemplateContextProvider implement
             ProgressTask progressTask = new ProgressTask() {
                 @Override
                 protected void execute() {
-                    ComplexController.this.concurrentDoBuild(fileBuilder,
+                    MainController.this.concurrentDoBuild(fileBuilder,
                             finalConfigFileTemplateVariableResource, (total, current) -> updateProgress(current, total));
                 }
             };
@@ -991,6 +1024,99 @@ public class ComplexController extends AbstractTemplateContextProvider implement
     @FXML
     public void importMultipleTemplate() {
         openImportShareTemplate(null);
+    }
+
+    /**
+     * 置顶选中的模板
+     */
+    @FXML
+    public void pinSelectedTemplate() {
+        TreeItem<Label> selectedItem = listViewTemplate.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            // 获取根节点
+            TreeItem<Label> root = listViewTemplate.getRoot();
+            // 移除选中的项
+            root.getChildren().remove(selectedItem);
+            // 将选中的项插入到顶部
+            root.getChildren().add(0, selectedItem);
+            // 重新选择该项
+            listViewTemplate.getSelectionModel().select(selectedItem);
+            USER_OPERATE_CACHE.setTemplateNameSelected(selectedItem.getValue().getText());
+            doSelectMultiple(); // 更新右侧内容
+        } else {
+            AlertUtil.showWarning("请先选择一个模板");
+        }
+    }
+
+    private void setInitialFoldStates() {
+        // 常用区域默认展开
+        favoriteContainer.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        favoriteContainer.setMaxHeight(Region.USE_COMPUTED_SIZE);
+
+        // 非常用区域默认收缩
+        nonFavoriteContainer.setPrefHeight(20);
+        nonFavoriteContainer.setMaxHeight(20);
+
+        // 更新分割条位置  // 常用区域占90%
+        templateSplitPane.setDividerPositions(0.9, 0.1);
+    }
+
+    private void addFoldToggleListeners() {
+        favoriteToggleLabel.setOnMouseClicked(event -> {
+            toggleFavorite();
+            animateTransition();
+        });
+
+        nonFavoriteToggleLabel.setOnMouseClicked(event -> {
+            toggleNonFavorite();
+            animateTransition();
+        });
+    }
+
+    private void toggleFavorite() {
+        if (favoriteContainer.getPrefHeight() == Region.USE_COMPUTED_SIZE) {
+            // 收起常用区域
+            favoriteContainer.setPrefHeight(20);
+            favoriteContainer.setMaxHeight(20);
+
+            // 展开非常用区域
+            nonFavoriteContainer.setPrefHeight(Region.USE_COMPUTED_SIZE);
+            nonFavoriteContainer.setMaxHeight(Region.USE_COMPUTED_SIZE);
+
+            // 更新分割条位置 非常用区域占90%
+            templateSplitPane.setDividerPositions(0.1, 0.9);
+        } else {
+            toggleNonFavorite();
+        }
+    }
+
+    private void toggleNonFavorite() {
+        if (nonFavoriteContainer.getPrefHeight() == Region.USE_COMPUTED_SIZE) {
+            // 收起非常用区域
+            nonFavoriteContainer.setPrefHeight(20);
+            nonFavoriteContainer.setMaxHeight(20);
+
+            // 展开常用区域
+            favoriteContainer.setPrefHeight(Region.USE_COMPUTED_SIZE);
+            favoriteContainer.setMaxHeight(Region.USE_COMPUTED_SIZE);
+
+            // 更新分割条位置 // 常用区域占90%
+            templateSplitPane.setDividerPositions(0.9, 0.1);
+        } else {
+            toggleFavorite();
+        }
+    }
+
+    private void animateTransition() {
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.millis(300),
+                        new KeyValue(favoriteContainer.opacityProperty(), 0.5),
+                        new KeyValue(nonFavoriteContainer.opacityProperty(), 0.5)),
+                new KeyFrame(Duration.millis(600),
+                        new KeyValue(favoriteContainer.opacityProperty(), 1),
+                        new KeyValue(nonFavoriteContainer.opacityProperty(), 1))
+        );
+        timeline.play();
     }
 
     public static final class DoBuildTemplateParam{

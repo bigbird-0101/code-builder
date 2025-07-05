@@ -94,7 +94,7 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
     private File file;
     private final Insets insets = new Insets(0, 10, 10, 0);
     private String sourceTemplateName;
-    private ComplexController complexController;
+    private MainController mainController;
     private final Set<String> selectDepends = new LinkedHashSet<>();
     /**
      * 0-修改模式 1-添加模式
@@ -108,8 +108,8 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
         this.sourceTemplateName = sourceTemplateName;
     }
 
-    public void setComplexController(ComplexController complexController) {
-        this.complexController = complexController;
+    public void setComplexController(MainController mainController) {
+        this.mainController = mainController;
     }
 
     public void setMode(int mode) {
@@ -184,7 +184,7 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
             if(mode!=1){
                 //刷新父模板
                 Template newTemplate = templateContext.getTemplate(templateName.getText());
-                TreeItem<Label> root = complexController.listViewTemplate.getRoot();
+                TreeItem<Label> root = mainController.listViewTemplate.getRoot();
                 for(String multipleTemplateName:templateContext.getMultipleTemplateNames()){
                     MultipleTemplate multipleTemplate = defaultListableTemplateFactory.getMultipleTemplate(multipleTemplateName);
                     if(multipleTemplate.getTemplates().stream().anyMatch(template -> template.getTemplateName().equals(sourceTemplateName))) {
@@ -203,15 +203,15 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
                                         .findFirst()
                                         .ifPresent(d -> {
                                             int i = s.getChildren().indexOf(d);
-                                            final TreeItem<Label> andInitTemplateView = complexController
+                                            final TreeItem<Label> andInitTemplateView = mainController
                                                     .getAndInitTemplateView(newTemplate, multipleTemplate.getTemplateName(), s);
                                             s.getChildren().set(i, andInitTemplateView);
                                         }));
                     }
                 }
             }
-            if(null!=complexController) {
-                complexController.doSelectMultiple();
+            if (null != mainController) {
+                mainController.doSelectMultiple();
             }
             AlertUtil.showInfo("Success!");
             ((Stage)vBox.getScene().getWindow()).close();

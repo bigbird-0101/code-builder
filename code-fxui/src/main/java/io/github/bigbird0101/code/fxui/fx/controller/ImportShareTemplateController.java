@@ -37,7 +37,7 @@ public class ImportShareTemplateController extends AbstractTemplateContextProvid
     private static final String REPLACE = "替换";
 
     private final ShareClient shareClient = new ShareClient();
-    private ComplexController complexController;
+    private MainController mainController;
 
     private String oldTemplateName;
 
@@ -69,7 +69,7 @@ public class ImportShareTemplateController extends AbstractTemplateContextProvid
                         try {
                             File file = template.getTemplateResource().getFile();
                             FileWriter.create(file).write(templateContent);
-                            complexController.refreshTemplate();
+                            mainController.refreshTemplate();
                             AlertUtil.showInfo("替换成功");
                         } catch (IOException e) {
                             throw new RuntimeException(e);
@@ -94,7 +94,7 @@ public class ImportShareTemplateController extends AbstractTemplateContextProvid
                                 templateDefinitionWrapper.registerAndRefreshTemplate();
                             }
                         }
-                        complexController.initMultipleTemplateViews();
+                        mainController.initMultipleTemplateViews();
                         AlertUtil.showInfo("导入成功");
                         Node source = (Node) event.getSource();
                         Stage stage = (Stage) source.getScene().getWindow();
@@ -104,7 +104,7 @@ public class ImportShareTemplateController extends AbstractTemplateContextProvid
                     } else if (shareClient.isMultipleTemplateShareUrl(urlText)) {
                         MultipleTemplateDefinitionWrapper multipleTemplateDefinitionWrapper = shareClient.multipleTemplate(urlText);
                         multipleTemplateDefinitionWrapper.registerAndRefreshMultipleTemplate();
-                        complexController.initMultipleTemplateViews();
+                        mainController.initMultipleTemplateViews();
                         AlertUtil.showInfo("导入成功");
                         Node source = (Node) event.getSource();
                         Stage stage = (Stage) source.getScene().getWindow();
@@ -119,7 +119,7 @@ public class ImportShareTemplateController extends AbstractTemplateContextProvid
         });
     }
 
-    public void setComplexController(ComplexController complexController) {
-        this.complexController = complexController;
+    public void setComplexController(MainController mainController) {
+        this.mainController = mainController;
     }
 }

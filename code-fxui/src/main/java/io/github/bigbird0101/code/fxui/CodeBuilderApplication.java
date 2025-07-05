@@ -12,7 +12,7 @@ import io.github.bigbird0101.code.core.template.TemplateTraceContext;
 import io.github.bigbird0101.code.fxui.fx.MinWindow;
 import io.github.bigbird0101.code.fxui.fx.cache.UserOperateCache;
 import io.github.bigbird0101.code.fxui.fx.component.FxApp;
-import io.github.bigbird0101.code.fxui.fx.controller.ComplexController;
+import io.github.bigbird0101.code.fxui.fx.controller.MainController;
 import io.github.bigbird0101.code.util.ClassUtil;
 import io.github.bigbird0101.code.util.Utils;
 import io.github.bigbird0101.spi.inject.instance.InstanceContext;
@@ -97,7 +97,7 @@ public class CodeBuilderApplication extends Application {
         }
     }
 
-    private void addKeyCodeCombination(Scene scene, ComplexController controller) {
+    private void addKeyCodeCombination(Scene scene, MainController controller) {
         KeyCodeCombination kc1 = new KeyCodeCombination(KeyCode.A, KeyCodeCombination.CONTROL_DOWN);
         KeyCodeCombination kc3 = new KeyCodeCombination(KeyCode.B, KeyCodeCombination.CONTROL_DOWN);
         KeyCodeCombination kc2 = new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCodeCombination.CONTROL_DOWN);

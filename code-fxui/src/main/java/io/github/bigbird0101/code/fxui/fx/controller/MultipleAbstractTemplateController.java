@@ -121,7 +121,7 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         this.mode = mode;
     }
 
-    private ComplexController complexController;
+    private MainController mainController;
 
     public TextField getMultipleTemplateName() {
         return multipleTemplateName;
@@ -151,8 +151,8 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         return templates;
     }
 
-    public void setComplexController(ComplexController complexController) {
-        this.complexController = complexController;
+    public void setComplexController(MainController mainController) {
+        this.mainController = mainController;
     }
 
     @Override
@@ -196,7 +196,7 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         listViewTemplate.getRoot().getChildren().stream()
                 .filter(labelTreeItem -> labelTreeItem.getValue().getText().equals(sourceMultipleTemplateName))
                 .findFirst().ifPresent(labelTreeItemOld->{
-            final TreeItem<Label> labelTreeItemNew = complexController.initMultipleTemplateView(multipleTemplateName.getText(), listViewTemplate.getRoot());
+                    final TreeItem<Label> labelTreeItemNew = mainController.initMultipleTemplateView(multipleTemplateName.getText(), listViewTemplate.getRoot());
             final int i = listViewTemplate.getRoot().getChildren().indexOf(labelTreeItemOld);
             listViewTemplate.getRoot().getChildren().set(i,labelTreeItemNew);
         });
@@ -212,8 +212,8 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
                 (StrUtil.isNotBlank(sourceMultipleTemplateName) && sourceMultipleTemplateName.equals(USER_OPERATE_CACHE.getTemplateNameSelected()))) {
             USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateName.getText());
         }
-        complexController.initMultipleTemplateViews();
-        complexController.doSelectMultiple();
+        mainController.initMultipleTemplateViews();
+        mainController.doSelectMultiple();
     }
 
     /**
