@@ -350,14 +350,12 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 .sorted((o1, o2) -> CompareUtil.compare(o1.hashCode(), o2.hashCode()))
                 .collect(toList());
         List<String> useMultipleTemplateSelected = USER_OPERATE_CACHE.getUseMultipleTemplateSelected();
-        List<String> unUseMultipleTemplateSelected = USER_OPERATE_CACHE.getUnUseMultipleTemplateSelected();
         for (String multipleTemplateName : multipleTemplateNames) {
             if (USE_STRING.equals(root.getValue().getText()) && CollUtil.isNotEmpty(useMultipleTemplateSelected)
                     && useMultipleTemplateSelected.contains(multipleTemplateName)) {
                 final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
                 root.getChildren().add(labelTreeItem);
-            } else if (NO_USE_STRING.equals(root.getValue().getText()) && ((CollUtil.isEmpty(unUseMultipleTemplateSelected) &&
-                    CollUtil.isEmpty(useMultipleTemplateSelected)))) {
+            } else {
                 final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
                 root.getChildren().add(labelTreeItem);
             }
