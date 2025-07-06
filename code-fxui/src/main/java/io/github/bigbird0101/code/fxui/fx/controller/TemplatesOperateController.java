@@ -496,6 +496,10 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
                     final PageInputSnapshot build = PageInputSnapshot.Builder
                             .builder()
                             .withCurrentMultipleTemplate(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected())
+                            .withUseMultipleTemplateSelected(CodeBuilderApplication.USER_OPERATE_CACHE.getUseMultipleTemplateSelected())
+                            .withUnUseMultipleTemplateSelected(CodeBuilderApplication.USER_OPERATE_CACHE.getUnUseMultipleTemplateSelected())
+                            .withUnUseMultipleTemplateTopicOne(CodeBuilderApplication.USER_OPERATE_CACHE.getUnUseMultipleTemplateTopicOne())
+                            .withUseMultipleTemplateTopicOne(CodeBuilderApplication.USER_OPERATE_CACHE.getUseMultipleTemplateTopicOne())
                             .withFields(fields.getText())
                             .withRepresentFactor(representFactor.getText())
                             .withSelectTemplateGroup(templateGroup)

@@ -11,8 +11,6 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
 import cn.hutool.system.UserInfo;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.CoreConfig;
@@ -123,6 +121,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static cn.hutool.core.text.StrPool.COMMA;
+import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_USER_SAVE_TEMPLATE_CONFIG;
 import static io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_KEY;
 import static io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_VALUE;
 import static io.github.bigbird0101.code.fxui.CodeBuilderApplication.USER_OPERATE_CACHE;
@@ -133,6 +132,8 @@ import static java.util.stream.Collectors.toSet;
  * @author fpp
  */
 public class MainController extends AbstractTemplateContextProvider implements Initializable {
+    public static final String USE_STRING = "常用";
+    public static final String NO_USE_STRING = "不常用";
     @FXML
     public TreeView<Label> unUseTemplate;
     @FXML
@@ -193,18 +194,25 @@ public class MainController extends AbstractTemplateContextProvider implements I
         listViewTemplate.prefWidthProperty().bind(pane.widthProperty());
         //高度绑定为Pane高度
         listViewTemplate.prefHeightProperty().bind(splitPane.heightProperty());
-        TreeItem<Label> root = new TreeItem<>(new Label("根节点"));
+        TreeItem<Label> root = new TreeItem<>(new Label(USE_STRING));
         listViewTemplate.setRoot(root);
         listViewTemplate.setShowRoot(false);
         //宽度绑定为Pane宽度
         unUseTemplate.prefWidthProperty().bind(paneUnUse.widthProperty());
         //高度绑定为Pane高度
         unUseTemplate.prefHeightProperty().bind(splitPane.heightProperty());
-        TreeItem<Label> root2 = new TreeItem<>(new Label("根节点"));
-        unUseTemplate.setRoot(root2);
+        TreeItem<Label> unUseRoot = new TreeItem<>(new Label(NO_USE_STRING));
+        unUseTemplate.setRoot(unUseRoot);
         unUseTemplate.setShowRoot(false);
+        final PageInputSnapshot pageInputSnapshot = getDefaultMultipleTemplate();
         initMultipleTemplateViews(root);
-        final String defaultMultipleTemplate = getDefaultMultipleTemplate();
+        initMultipleTemplateViews(unUseRoot);
+        String defaultMultipleTemplate;
+        if (null != pageInputSnapshot) {
+            defaultMultipleTemplate = pageInputSnapshot.getCurrentMultipleTemplate();
+        } else {
+            defaultMultipleTemplate = null;
+        }
         if(StrUtil.isNotBlank(defaultMultipleTemplate)){
             Optional.ofNullable(root.getChildren()
                     .filtered(s -> s.getValue().getText().equals(defaultMultipleTemplate)))
@@ -227,23 +235,41 @@ public class MainController extends AbstractTemplateContextProvider implements I
         }
         init();
         doSelectMultiple();
-        listViewTemplate.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> {
-            if (null != newValue && !newValue.isLeaf()) {
-                USER_OPERATE_CACHE.setTemplateNameSelected(newValue.getValue().getText());
-                if (logger.isInfoEnabled()) {
-                    logger.info("select template name {}", newValue.getValue().getText());
-                }
-                doSelectMultiple();
-            }
-        });
+        rootSetSelectMultiple(listViewTemplate);
+        rootSetSelectMultiple(unUseTemplate);
 
         // 设置初始状态：常用区域展开，非常用区域收缩
         setInitialFoldStates();
 
         // 添加点击监听器，实现点击一个区域时另一个自动收缩
         addFoldToggleListeners();
+
+        pinMultipleTemplate();
+    }
+
+    private void pinMultipleTemplate() {
+        String useMultipleTemplateTopicOne = USER_OPERATE_CACHE.getUseMultipleTemplateTopicOne();
+        if (StrUtil.isNotBlank(useMultipleTemplateTopicOne)) {
+            setPinSelectTemplate(listViewTemplate, useMultipleTemplateTopicOne);
+        }
+        String unUseMultipleTemplateTopicOne = USER_OPERATE_CACHE.getUnUseMultipleTemplateTopicOne();
+        if (StrUtil.isNotBlank(unUseMultipleTemplateTopicOne)) {
+            setPinSelectTemplate(unUseTemplate, unUseMultipleTemplateTopicOne);
+        }
+    }
+
+    private void rootSetSelectMultiple(TreeView<Label> templateTreeView) {
+        templateTreeView.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                    if (null != newValue && !newValue.isLeaf()) {
+                        USER_OPERATE_CACHE.setTemplateNameSelected(newValue.getValue().getText());
+                        if (logger.isInfoEnabled()) {
+                            logger.info("select template name {}", newValue.getValue().getText());
+                        }
+                        doSelectMultiple();
+                    }
+                });
     }
 
     private void init(){
@@ -308,12 +334,8 @@ public class MainController extends AbstractTemplateContextProvider implements I
         });
     }
 
-    public String getDefaultMultipleTemplate(){
-        String property = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_USER_SAVE_TEMPLATE_CONFIG);
-        if (Utils.isNotEmpty(property)) {
-            return JSONObject.parseObject(property, new TypeReference<PageInputSnapshot>() {}).getCurrentMultipleTemplate();
-        }
-        return null;
+    public PageInputSnapshot getDefaultMultipleTemplate() {
+        return getTemplateContext().getEnvironment().functionPropertyIfPresent(DEFAULT_USER_SAVE_TEMPLATE_CONFIG, PageInputSnapshot.class, pageInputSnapshot -> pageInputSnapshot);
     }
 
     /**
@@ -326,9 +348,19 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 .stream()
                 .sorted((o1, o2) -> CompareUtil.compare(o1.hashCode(), o2.hashCode()))
                 .collect(toList());
+        List<String> useMultipleTemplateSelected = USER_OPERATE_CACHE.getUseMultipleTemplateSelected();
+        List<String> unUseMultipleTemplateSelected = USER_OPERATE_CACHE.getUnUseMultipleTemplateSelected();
         for (String multipleTemplateName : multipleTemplateNames) {
-            final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
-            root.getChildren().add(labelTreeItem);
+            if (USE_STRING.equals(root.getValue().getText()) && CollUtil.isNotEmpty(useMultipleTemplateSelected)
+                    && useMultipleTemplateSelected.contains(multipleTemplateName)) {
+                final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
+                root.getChildren().add(labelTreeItem);
+            } else if (NO_USE_STRING.equals(root.getValue().getText()) && ((CollUtil.isEmpty(unUseMultipleTemplateSelected) &&
+                    CollUtil.isEmpty(useMultipleTemplateSelected)) ||
+                    unUseMultipleTemplateSelected.contains(multipleTemplateName))) {
+                final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
+                root.getChildren().add(labelTreeItem);
+            }
         }
     }
 
@@ -337,6 +369,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
      */
     public void initMultipleTemplateViews() {
         initMultipleTemplateViews(listViewTemplate.getRoot());
+        initMultipleTemplateViews(unUseTemplate.getRoot());
         doSelectMultiple();
     }
 
@@ -359,33 +392,49 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 .map(template -> getAndInitTemplateView(template, multipleTemplateName, item))
                 .collect(toList());
         item.getChildren().addAll(item.getChildren().size(), collect);
+
+        String rootText = root.getValue().getText();
+
         ContextMenu contextMenu = new ContextMenu();
+        MenuItem top1 = new MenuItem("置顶");
         MenuItem delete = new MenuItem("删除");
+        MenuItem moveNoUse = new MenuItem("移动至不常用");
+        MenuItem moveUse = new MenuItem("移动至常用");
         MenuItem edit = new MenuItem("编辑");
         MenuItem copy = new MenuItem("复制");
         MenuItem deepCopy = new MenuItem("递归复制");
         MenuItem importTemplate = new MenuItem("导入模版");
         MenuItem copyShareUrl = new MenuItem("分享模版地址");
-
-        delete.setOnAction(event -> {
-            if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm("您确定删除该组合模板吗").getButtonData()) {
-                String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
-                logger.info("delete multiple template {}",text);
-                defaultListableTemplateFactory.removeMultipleTemplateDefinition(text);
-                defaultListableTemplateFactory.removeMultipleTemplate(text);
-                listViewTemplate.getRoot().getChildren().remove(listViewTemplate.getSelectionModel().getSelectedItem());
-                USER_OPERATE_CACHE.setTemplateNameSelected(defaultListableTemplateFactory.getMultipleTemplateNames()
-                        .stream()
-                        .findFirst()
-                        .orElse(""));
-                doSelectMultiple();
-                if (getTemplateContext().getMultipleTemplateNames().isEmpty()) {
-                    final TemplatesOperateController controller = templatesOperateFxmlLoader.getController();
-                    controller.saveConfig();
-                    controller.refreshTemplate();
-                }
+        top1.setOnAction(event -> {
+            String text = item.getParent().getValue().getText();
+            if (USE_STRING.equals(text)) {
+                pinSelectedTemplateUse();
+            } else {
+                pinSelectedTemplateNoUse();
             }
         });
+        delete.setOnAction(event -> deleteMultipleTemplate(defaultListableTemplateFactory));
+        moveUse.setOnAction(event -> {
+            String text = unUseTemplate.getSelectionModel().getSelectedItem().getValue().getText();
+            if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm(String.format("您确定将%s组合模板移动至常用吗", text)).getButtonData()) {
+                unUseTemplate.getRoot().getChildren().remove(item);
+                contextMenu.getItems().remove(moveUse);
+                contextMenu.getItems().add(moveNoUse);
+                listViewTemplate.getRoot().getChildren().add(item);
+                USER_OPERATE_CACHE.addUseMultipleTemplateSelected(multipleTemplateName);
+            }
+        });
+        moveNoUse.setOnAction(event -> {
+            String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
+            if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm(String.format("您确定将%s组合模板移动至不常用吗", text)).getButtonData()) {
+                listViewTemplate.getRoot().getChildren().remove(item);
+                contextMenu.getItems().remove(moveNoUse);
+                contextMenu.getItems().add(moveUse);
+                unUseTemplate.getRoot().getChildren().add(item);
+                USER_OPERATE_CACHE.addNoUseMultipleTemplateSelected(multipleTemplateName);
+            }
+        });
+
         edit.setOnAction(event -> {
             String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
             try {
@@ -410,25 +459,52 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", e);
             }
         });
-        copyShareUrl.setOnAction(event -> {
-            Stage secondWindow = new Stage();
-            try {
-                FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/share_url.fxml"));
-                Parent parent = fxmlLoader.load();
-                ShareController controller = fxmlLoader.getController();
-                String multipleTemplateShareUrl = AbstractShareServerProvider.getShareServer().getMultipleTemplateShareUrl(multipleTemplateName);
-                controller.setUrl(multipleTemplateShareUrl);
-                secondWindow.setTitle("分享");
-                secondWindow.setScene(new Scene(parent));
-                secondWindow.show();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        copyShareUrl.setOnAction(event -> copyShareUrl(multipleTemplateName));
         importTemplate.setOnAction(event -> openImportShareTemplate(multipleTemplateName));
-        contextMenu.getItems().addAll(delete, edit, copy, deepCopy, importTemplate, copyShareUrl);
+        contextMenu.getItems().addAll(top1, delete, edit, copy, deepCopy, importTemplate, copyShareUrl);
+        if (USE_STRING.equals(rootText)) {
+            contextMenu.getItems().add(moveNoUse);
+        } else {
+            contextMenu.getItems().add(moveUse);
+        }
         label.setContextMenu(contextMenu);
         return item;
+    }
+
+    private void deleteMultipleTemplate(DefaultListableTemplateFactory defaultListableTemplateFactory) {
+        if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm("您确定删除该组合模板吗").getButtonData()) {
+            String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
+            logger.info("delete multiple template {}", text);
+            defaultListableTemplateFactory.removeMultipleTemplateDefinition(text);
+            defaultListableTemplateFactory.removeMultipleTemplate(text);
+            listViewTemplate.getRoot().getChildren().remove(listViewTemplate.getSelectionModel().getSelectedItem());
+            USER_OPERATE_CACHE.setTemplateNameSelected(defaultListableTemplateFactory.getMultipleTemplateNames()
+                    .stream()
+                    .findFirst()
+                    .orElse(""));
+            doSelectMultiple();
+            if (getTemplateContext().getMultipleTemplateNames().isEmpty()) {
+                final TemplatesOperateController controller = templatesOperateFxmlLoader.getController();
+                controller.saveConfig();
+                controller.refreshTemplate();
+            }
+        }
+    }
+
+    private void copyShareUrl(String multipleTemplateName) {
+        Stage secondWindow = new Stage();
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/share_url.fxml"));
+            Parent parent = fxmlLoader.load();
+            ShareController controller = fxmlLoader.getController();
+            String multipleTemplateShareUrl = AbstractShareServerProvider.getShareServer().getMultipleTemplateShareUrl(multipleTemplateName);
+            controller.setUrl(multipleTemplateShareUrl);
+            secondWindow.setTitle("分享");
+            secondWindow.setScene(new Scene(parent));
+            secondWindow.show();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void refreshTemplate() {
@@ -1026,26 +1102,56 @@ public class MainController extends AbstractTemplateContextProvider implements I
         openImportShareTemplate(null);
     }
 
+
     /**
      * 置顶选中的模板
      */
-    @FXML
-    public void pinSelectedTemplate() {
-        TreeItem<Label> selectedItem = listViewTemplate.getSelectionModel().getSelectedItem();
+    public void pinSelectedTemplateNoUse() {
+        setPinSelectTemplate(unUseTemplate);
+        USER_OPERATE_CACHE.setUnUseMultipleTemplateTopicOne(USER_OPERATE_CACHE.getTemplateNameSelected());
+    }
+
+    private void setPinSelectTemplate(TreeView<Label> templateTreeItem) {
+        TreeItem<Label> selectedItem = templateTreeItem.getSelectionModel().getSelectedItem();
         if (selectedItem != null) {
             // 获取根节点
-            TreeItem<Label> root = listViewTemplate.getRoot();
+            TreeItem<Label> root = templateTreeItem.getRoot();
             // 移除选中的项
             root.getChildren().remove(selectedItem);
             // 将选中的项插入到顶部
             root.getChildren().add(0, selectedItem);
             // 重新选择该项
-            listViewTemplate.getSelectionModel().select(selectedItem);
+            templateTreeItem.getSelectionModel().select(selectedItem);
             USER_OPERATE_CACHE.setTemplateNameSelected(selectedItem.getValue().getText());
             doSelectMultiple(); // 更新右侧内容
         } else {
             AlertUtil.showWarning("请先选择一个模板");
         }
+    }
+
+    private void setPinSelectTemplate(TreeView<Label> templateTreeItem, String multipleTemplateName) {
+        // 获取根节点
+        TreeItem<Label> root = templateTreeItem.getRoot();
+        root.getChildren().filtered(s -> s.getValue().getText().equals(multipleTemplateName)).stream().findFirst()
+                .ifPresent(s -> {
+                    root.getChildren().removeIf(b -> b.getValue().getText().equals(multipleTemplateName));
+                    // 移除选中的项
+                    // 将选中的项插入到顶部
+                    root.getChildren().add(0, s);
+                    // 重新选择该项
+                    templateTreeItem.getSelectionModel().select(s);
+                    USER_OPERATE_CACHE.setTemplateNameSelected(s.getValue().getText());
+                    doSelectMultiple(); // 更新右侧内容
+                });
+
+    }
+
+    /**
+     * 置顶选中的模板
+     */
+    public void pinSelectedTemplateUse() {
+        setPinSelectTemplate(listViewTemplate);
+        USER_OPERATE_CACHE.setUseMultipleTemplateTopicOne(USER_OPERATE_CACHE.getTemplateNameSelected());
     }
 
     private void setInitialFoldStates() {

@@ -9,6 +9,10 @@ import java.util.Map;
 public class PageInputSnapshot {
 
     private String currentMultipleTemplate;
+    private List<String> useMultipleTemplateSelected;
+    private List<String> unUseMultipleTemplateSelected;
+    private String useMultipleTemplateTopicOne;
+    private String unUseMultipleTemplateTopicOne;
     private String tableNames;
     private Boolean selectTableAll;
     private Boolean definedFunction;
@@ -72,6 +76,38 @@ public class PageInputSnapshot {
         this.currentMultipleTemplate = currentMultipleTemplate;
     }
 
+    public List<String> getUseMultipleTemplateSelected() {
+        return useMultipleTemplateSelected;
+    }
+
+    public void setUseMultipleTemplateSelected(List<String> useMultipleTemplateSelected) {
+        this.useMultipleTemplateSelected = useMultipleTemplateSelected;
+    }
+
+    public List<String> getUnUseMultipleTemplateSelected() {
+        return unUseMultipleTemplateSelected;
+    }
+
+    public void setUnUseMultipleTemplateSelected(List<String> unUseMultipleTemplateSelected) {
+        this.unUseMultipleTemplateSelected = unUseMultipleTemplateSelected;
+    }
+
+    public String getUseMultipleTemplateTopicOne() {
+        return useMultipleTemplateTopicOne;
+    }
+
+    public void setUseMultipleTemplateTopicOne(String useMultipleTemplateTopicOne) {
+        this.useMultipleTemplateTopicOne = useMultipleTemplateTopicOne;
+    }
+
+    public String getUnUseMultipleTemplateTopicOne() {
+        return unUseMultipleTemplateTopicOne;
+    }
+
+    public void setUnUseMultipleTemplateTopicOne(String unUseMultipleTemplateTopicOne) {
+        this.unUseMultipleTemplateTopicOne = unUseMultipleTemplateTopicOne;
+    }
+
     public static final class Builder {
         private final PageInputSnapshot pageInputSnapshot;
 
@@ -85,6 +121,26 @@ public class PageInputSnapshot {
 
         public Builder withCurrentMultipleTemplate(String currentMultipleTemplate) {
             pageInputSnapshot.setCurrentMultipleTemplate(currentMultipleTemplate);
+            return this;
+        }
+
+        public Builder withUseMultipleTemplateSelected(List<String> useMultipleTemplateSelected) {
+            pageInputSnapshot.setUseMultipleTemplateSelected(useMultipleTemplateSelected);
+            return this;
+        }
+
+        public Builder withUnUseMultipleTemplateSelected(List<String> unUseMultipleTemplateSelected) {
+            pageInputSnapshot.setUnUseMultipleTemplateSelected(unUseMultipleTemplateSelected);
+            return this;
+        }
+
+        public Builder withUseMultipleTemplateTopicOne(String useMultipleTemplateTopicOne) {
+            pageInputSnapshot.setUseMultipleTemplateTopicOne(useMultipleTemplateTopicOne);
+            return this;
+        }
+
+        public Builder withUnUseMultipleTemplateTopicOne(String unUseMultipleTemplateTopicOne) {
+            pageInputSnapshot.setUnUseMultipleTemplateTopicOne(unUseMultipleTemplateTopicOne);
             return this;
         }
 
