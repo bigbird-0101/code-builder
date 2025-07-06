@@ -249,13 +249,13 @@ public class MainController extends AbstractTemplateContextProvider implements I
     }
 
     private void pinMultipleTemplate() {
-        String useMultipleTemplateTopicOne = USER_OPERATE_CACHE.getUseMultipleTemplateTopicOne();
-        if (StrUtil.isNotBlank(useMultipleTemplateTopicOne)) {
-            setPinSelectTemplate(listViewTemplate, useMultipleTemplateTopicOne);
-        }
         String unUseMultipleTemplateTopicOne = USER_OPERATE_CACHE.getUnUseMultipleTemplateTopicOne();
         if (StrUtil.isNotBlank(unUseMultipleTemplateTopicOne)) {
             setPinSelectTemplate(unUseTemplate, unUseMultipleTemplateTopicOne);
+        }
+        String useMultipleTemplateTopicOne = USER_OPERATE_CACHE.getUseMultipleTemplateTopicOne();
+        if (StrUtil.isNotBlank(useMultipleTemplateTopicOne)) {
+            setPinSelectTemplate(listViewTemplate, useMultipleTemplateTopicOne);
         }
     }
 
