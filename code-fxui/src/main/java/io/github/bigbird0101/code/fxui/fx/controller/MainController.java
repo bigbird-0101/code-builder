@@ -357,8 +357,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
                 root.getChildren().add(labelTreeItem);
             } else if (NO_USE_STRING.equals(root.getValue().getText()) && ((CollUtil.isEmpty(unUseMultipleTemplateSelected) &&
-                    CollUtil.isEmpty(useMultipleTemplateSelected)) ||
-                    unUseMultipleTemplateSelected.contains(multipleTemplateName))) {
+                    CollUtil.isEmpty(useMultipleTemplateSelected)))) {
                 final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
                 root.getChildren().add(labelTreeItem);
             }
