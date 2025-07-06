@@ -205,6 +205,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
         unUseTemplate.setRoot(unUseRoot);
         unUseTemplate.setShowRoot(false);
         final PageInputSnapshot pageInputSnapshot = getDefaultMultipleTemplate();
+        USER_OPERATE_CACHE.init(pageInputSnapshot);
         initMultipleTemplateViews(root);
         initMultipleTemplateViews(unUseRoot);
         String defaultMultipleTemplate;
