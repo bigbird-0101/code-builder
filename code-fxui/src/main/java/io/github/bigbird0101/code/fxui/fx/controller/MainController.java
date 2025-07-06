@@ -350,14 +350,20 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 .sorted((o1, o2) -> CompareUtil.compare(o1.hashCode(), o2.hashCode()))
                 .collect(toList());
         List<String> useMultipleTemplateSelected = USER_OPERATE_CACHE.getUseMultipleTemplateSelected();
-        for (String multipleTemplateName : multipleTemplateNames) {
-            if (USE_STRING.equals(root.getValue().getText()) && CollUtil.isNotEmpty(useMultipleTemplateSelected)
-                    && useMultipleTemplateSelected.contains(multipleTemplateName)) {
-                final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
-                root.getChildren().add(labelTreeItem);
-            } else {
-                final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
-                root.getChildren().add(labelTreeItem);
+        if (USE_STRING.equals(root.getValue().getText())) {
+            for (String multipleTemplateName : multipleTemplateNames) {
+                if (CollUtil.contains(useMultipleTemplateSelected, multipleTemplateName)) {
+                    final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
+                    root.getChildren().add(labelTreeItem);
+                }
+            }
+        } else {
+            for (String multipleTemplateName : multipleTemplateNames) {
+                if (!CollUtil.contains(useMultipleTemplateSelected, multipleTemplateName)
+                        || CollUtil.isEmpty(useMultipleTemplateSelected)) {
+                    final TreeItem<Label> labelTreeItem = initMultipleTemplateView(multipleTemplateName, root);
+                    root.getChildren().add(labelTreeItem);
+                }
             }
         }
     }
