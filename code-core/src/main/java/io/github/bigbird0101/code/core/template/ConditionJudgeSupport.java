@@ -418,8 +418,7 @@ public class ConditionJudgeSupport {
             } else {
                 Object rightObj = getRealObject(getTargetObject(targetObjectMap, right), right);
                 Object leftObj = getRealObject(getTargetObject(targetObjectMap, left), left);
-                if (rightObj instanceof Collection) {
-                    Collection<?> temp1Collection = (Collection<?>) rightObj;
+                if (rightObj instanceof Collection<?> temp1Collection) {
                     boolean anyMatch = temp1Collection.stream()
                             .map(s -> StrUtil.strip(String.valueOf(s).trim(), PREFIX, PREFIX))
                             .noneMatch(s -> s.equals(String.valueOf(leftObj)));
@@ -456,8 +455,7 @@ public class ConditionJudgeSupport {
             } else {
                 Object leftObj = getRealObject(getTargetObject(targetObjectMap, left), left);
                 Object rightObj = getRealObject(getTargetObject(targetObjectMap, right), right);
-                if (rightObj instanceof Collection) {
-                    Collection<?> rightCollection = (Collection<?>) rightObj;
+                if (rightObj instanceof Collection<?> rightCollection) {
                     boolean anyMatch = rightCollection.stream()
                             .map(s -> StrUtil.strip(String.valueOf(s).trim(), PREFIX, PREFIX))
                             .anyMatch(s -> s.equals(String.valueOf(leftObj)));
@@ -484,7 +482,7 @@ public class ConditionJudgeSupport {
                 String strip = StrUtil.strip(right, "(", ")");
                 List<String> split = StrUtil.splitTrim(strip, COMMA, 2);
                 if (split.size() == 1) {
-                    String rightFirstParamString = split.get(0);
+                    String rightFirstParamString = split.getFirst();
                     if (StrUtil.isSurround(rightFirstParamString, BRACKET_START, BRACKET_END)) {
                         List<String> rightStringList = StrUtil.split(rightFirstParamString, COMMA)
                                 .stream()
@@ -519,10 +517,9 @@ public class ConditionJudgeSupport {
                         throw new TemplateResolveException("if 语句中 " + getOperatorName() + "语句错误 左短语【" + left + "】不是数组类型");
                     }
                     String rightSecondParamString = split.get(1);
-                    if (!(leftObj instanceof Collection)) {
+                    if (!(leftObj instanceof Collection<?> leftCollection)) {
                         throw new TemplateResolveException("if 语句中 " + getOperatorName() + "语句错误 左短语【" + left + "】不是数组类型");
                     }
-                    Collection<?> leftCollection = (Collection<?>) leftObj;
                     List<String> leftStringList = leftCollection.stream()
                             .map(s -> {
                                 if ((s instanceof Number || s instanceof Character)) {

@@ -54,8 +54,7 @@ public abstract class AbstractTemplateLangResolver implements TemplateLangResolv
         StringBuilder stringBuilder=new StringBuilder();
         String tempStamp= Utils.getFirstNewLineNull(body);
         String lastNewLineNull = Utils.getLastNewLineNull(body);
-        if(targetObject instanceof Collection){
-            Collection<?> collection= (Collection<?>) targetObject;
+        if (targetObject instanceof Collection<?> collection) {
             for(Object object:collection){
                 append(body, targetObjectKey, stringBuilder, tempStamp, lastNewLineNull, object);
             }

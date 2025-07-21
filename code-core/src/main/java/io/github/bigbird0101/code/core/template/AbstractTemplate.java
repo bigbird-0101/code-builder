@@ -245,10 +245,9 @@ public abstract class AbstractTemplate implements Template {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AbstractTemplate)) {
+        if (!(o instanceof AbstractTemplate that)) {
             return false;
         }
-        AbstractTemplate that = (AbstractTemplate) o;
         return Objects.equals(getTemplateName(), that.getTemplateName()) &&
                 Objects.equals(getProjectUrl(), that.getProjectUrl()) &&
                 Objects.equals(getModule(), that.getModule()) &&
@@ -288,9 +287,7 @@ public abstract class AbstractTemplate implements Template {
                 int typeValue = targetFilePrefixNameStrategy.getTypeValue();
                 JSONObject value = new JSONObject();
                 value.put("value", typeValue);
-                if (abstractTemplate.getTargetFilePrefixNameStrategy() instanceof PatternTargetFilePrefixNameStrategy) {
-                    PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy =
-                            (PatternTargetFilePrefixNameStrategy) abstractTemplate.getTargetFilePrefixNameStrategy();
+                if (abstractTemplate.getTargetFilePrefixNameStrategy() instanceof PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy) {
                     value.put("pattern", patternTemplateFilePrefixNameStrategy.getPattern());
                 }
                 jsonObject.put("filePrefixNameStrategy", value);

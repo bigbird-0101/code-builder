@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author bigbird-0101
@@ -135,7 +134,7 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
 
     private void doSetVar(CodeNode source, Map<String, Object> dataModel) {
         if (source instanceof MixCodeNode codeSource) {
-            final CodeNode codeNode = codeSource.getContents().get(0);
+            final CodeNode codeNode = codeSource.getContents().getFirst();
             if (codeNode instanceof TemplateCodeNode templateCodeNode) {
                 final CodeNode contents = templateCodeNode.getCodeNode();
                 if (contents instanceof MixCodeNode mixContent) {
@@ -154,16 +153,15 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
 
     private Map<String, String> getFunctionS(CodeNode source, Map<String, Object> dataModel) {
         Map<String,String> result=new HashMap<>();
-        if(source instanceof MixCodeNode){
-            MixCodeNode codeSource= (MixCodeNode) source;
-            final CodeNode codeNode = codeSource.getContents().get(0);
+        if (source instanceof MixCodeNode codeSource) {
+            final CodeNode codeNode = codeSource.getContents().getFirst();
             if (codeNode instanceof TemplateCodeNode templateCodeNode) {
                 final CodeNode contents = templateCodeNode.getCodeNode();
                 if (contents instanceof MixCodeNode mixContent) {
                     final List<FunctionCodeNode> functionCodeNodes = mixContent.getContents().stream()
                             .filter(s -> (s instanceof FunctionCodeNode))
                             .map(s -> (FunctionCodeNode) s)
-                            .collect(Collectors.toList());
+                            .toList();
                     for (FunctionCodeNode functionCodeNode : functionCodeNodes) {
                         final DynamicCodeNodeContext codeNodeContext = getCodeNodeContext(dataModel);
                         functionCodeNode.apply(codeNodeContext);
@@ -179,14 +177,11 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
 
     private String getSuffix(CodeNode source, Map<String, Object> dataModel) {
         final DynamicCodeNodeContext codeNodeContext = getCodeNodeContext(dataModel);
-        if(source instanceof MixCodeNode){
-            MixCodeNode codeSource= (MixCodeNode) source;
-            final CodeNode codeNode = codeSource.getContents().get(0);
-            if(codeNode instanceof TemplateCodeNode){
-                TemplateCodeNode templateCodeNode= (TemplateCodeNode) codeNode;
+        if (source instanceof MixCodeNode codeSource) {
+            final CodeNode codeNode = codeSource.getContents().getFirst();
+            if (codeNode instanceof TemplateCodeNode templateCodeNode) {
                 final CodeNode contents = templateCodeNode.getCodeNode();
-                if(contents instanceof MixCodeNode){
-                    MixCodeNode mixContent= (MixCodeNode) contents;
+                if (contents instanceof MixCodeNode mixContent) {
                     final CodeNode suffix = mixContent.getContents().stream()
                             .filter(s ->(s instanceof SuffixCodeNode))
                             .map(s->(SuffixCodeNode)s)
@@ -202,14 +197,11 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
 
     private String getPrefix(CodeNode source, Map<String, Object> dataModel) {
         final DynamicCodeNodeContext codeNodeContext = getCodeNodeContext(dataModel);
-        if(source instanceof MixCodeNode){
-            MixCodeNode codeSource= (MixCodeNode) source;
-            final CodeNode codeNode = codeSource.getContents().get(0);
-            if(codeNode instanceof TemplateCodeNode){
-                TemplateCodeNode templateCodeNode= (TemplateCodeNode) codeNode;
+        if (source instanceof MixCodeNode codeSource) {
+            final CodeNode codeNode = codeSource.getContents().getFirst();
+            if (codeNode instanceof TemplateCodeNode templateCodeNode) {
                 final CodeNode contents = templateCodeNode.getCodeNode();
-                if(contents instanceof MixCodeNode){
-                    MixCodeNode mixContent= (MixCodeNode) contents;
+                if (contents instanceof MixCodeNode mixContent) {
                     final CodeNode prefix = mixContent.getContents().stream()
                             .filter(s -> (s instanceof PrefixCodeNode))
                             .map(s->(PrefixCodeNode)s)
