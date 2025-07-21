@@ -5,7 +5,6 @@ import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.XmlUtil;
 import com.alibaba.fastjson.annotation.JSONType;
-import com.sun.org.apache.xerces.internal.dom.DeferredAttrNSImpl;
 import io.github.bigbird0101.code.core.config.Environment;
 import io.github.bigbird0101.code.core.config.aware.EnvironmentAware;
 import io.github.bigbird0101.code.core.domain.TemplateFileClassInfo;
@@ -100,12 +99,12 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
         for(int a=0;a<length;a++){
             Node item = functionNodes.item(a);
             NamedNodeMap attributes = item.getAttributes();
-            DeferredAttrNSImpl name = (DeferredAttrNSImpl) attributes.getNamedItem("name");
+            Node name = attributes.getNamedItem("name");
             if (null == name) {
                 throw new TemplateResolveException("this dom template {} index = {} no get function name ", getTemplateName(), a);
             }
             String textContent = item.getTextContent();
-            result.put(name.getValue(),textContent);
+            result.put(name.getNodeValue(), textContent);
         }
         return result;
     }
@@ -135,14 +134,11 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
     }
 
     private void doSetVar(CodeNode source, Map<String, Object> dataModel) {
-        if(source instanceof MixCodeNode){
-            MixCodeNode codeSource= (MixCodeNode) source;
+        if (source instanceof MixCodeNode codeSource) {
             final CodeNode codeNode = codeSource.getContents().get(0);
-            if(codeNode instanceof TemplateCodeNode){
-                TemplateCodeNode templateCodeNode= (TemplateCodeNode) codeNode;
+            if (codeNode instanceof TemplateCodeNode templateCodeNode) {
                 final CodeNode contents = templateCodeNode.getCodeNode();
-                if(contents instanceof MixCodeNode){
-                    MixCodeNode mixContent= (MixCodeNode) contents;
+                if (contents instanceof MixCodeNode mixContent) {
                     mixContent.getContents().stream()
                             .filter(s ->(s instanceof VarCodeNode))
                             .map(s->(VarCodeNode)s)
@@ -161,11 +157,9 @@ public class DomHandleFunctionTemplate extends DefaultHandleFunctionTemplate imp
         if(source instanceof MixCodeNode){
             MixCodeNode codeSource= (MixCodeNode) source;
             final CodeNode codeNode = codeSource.getContents().get(0);
-            if(codeNode instanceof TemplateCodeNode){
-                TemplateCodeNode templateCodeNode= (TemplateCodeNode) codeNode;
+            if (codeNode instanceof TemplateCodeNode templateCodeNode) {
                 final CodeNode contents = templateCodeNode.getCodeNode();
-                if(contents instanceof MixCodeNode){
-                    MixCodeNode mixContent= (MixCodeNode) contents;
+                if (contents instanceof MixCodeNode mixContent) {
                     final List<FunctionCodeNode> functionCodeNodes = mixContent.getContents().stream()
                             .filter(s -> (s instanceof FunctionCodeNode))
                             .map(s -> (FunctionCodeNode) s)

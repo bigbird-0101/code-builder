@@ -179,8 +179,8 @@
         <checkstyle.skip>false</checkstyle.skip>
         <skip.maven.deploy>false</skip.maven.deploy>
         <!-- Compiler settings properties -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>22</maven.compiler.source>
+        <maven.compiler.target>22</maven.compiler.target>
         <mysql-connector-java-version>8.0.30</mysql-connector-java-version>
         <postgresql-connector-java-version>42.4.1</postgresql-connector-java-version>
         <fastjson-version>1.2.83</fastjson-version>
@@ -189,7 +189,7 @@
         <hutool-version>5.8.16</hutool-version>
         <jupiter.version>5.7.0</jupiter.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven_surefire_version>3.0.0-M5</maven_surefire_version>
         <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
         <maven_jar_version>3.2.0</maven_jar_version>
@@ -205,6 +205,7 @@
         <podam.version>7.2.11.RELEASE</podam.version>
         <mockito.version>3.12.4</mockito.version>
         <dom4j.version>2.1.4</dom4j.version>
+        <javafx.version>24.0.1</javafx.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -247,6 +248,13 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-bom</artifactId>
                 <version>${hutool-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx</artifactId>
+                <version>${javafx.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -414,21 +422,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven_compiler_version}</version>
-                <configuration>
-                    <compilerArgs>
-                        <compilerArg>-proc:none</compilerArg>
-                        <compilerArg>-parameters</compilerArg>
-                    </compilerArgs>
-                    <fork>true</fork>
-                    <source>${java_source_version}</source>
-                    <target>${java_target_version}</target>
-                    <encoding>${file_encoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${maven-resources-plugin.version}</version>
                 <configuration>
@@ -443,8 +436,15 @@
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <compilerVersion>${maven.compiler.source}</compilerVersion>
-                    <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
+                    <verbose>true</verbose>
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <compilerArg>-proc:none</compilerArg>
+                        <compilerArg>-parameters</compilerArg>
+                    </compilerArgs>
+                    <fork>true</fork>
+                    <encoding>${file_encoding}</encoding>
                 </configuration>
             </plugin>
             <plugin>
