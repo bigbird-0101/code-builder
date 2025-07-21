@@ -588,7 +588,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
         TemplateContext templateContext = getTemplateContext();
         DefaultListableTemplateFactory defaultListableTemplateFactory = (DefaultListableTemplateFactory) templateContext.getTemplateFactory();
         TreeItem<Label> labelTreeItem = new TreeItem<>(label);
-        register.setOnAction(event -> {
+        register.setOnAction(_ -> {
             if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm("您确定删除" + multipleTemplateName + "中的" + template.getTemplateName() + "模板吗").getButtonData()) {
                 //删除组合模板中的模板
                 MultipleTemplate multipleTemplate = defaultListableTemplateFactory.getMultipleTemplate(multipleTemplateName);
@@ -598,23 +598,23 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 initMultipleTemplateViews();
             }
         });
-        edit.setOnAction(event -> {
+        edit.setOnAction(_ -> {
             try {
                 toNewTemplateView(template, multipleTemplateName);
             } catch (Exception e) {
-                FxAlerts.error(mainBox.getScene().getWindow(), "修改页加载失败", e);
+                FxAlerts.error(mainBox.getScene().getWindow(), "修改页加载失败", ExceptionUtil.getRootCause(e));
             }
         });
 
-        copy.setOnAction(event -> {
+        copy.setOnAction(_ -> {
             try {
                 copyTemplate(template, defaultListableTemplateFactory);
                 AlertUtil.showInfo("复制成功");
             }catch (Exception e){
-                FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", e);
+                FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", ExceptionUtil.getRootCause(e));
             }
         });
-        copyShareUrl.setOnAction(event -> {
+        copyShareUrl.setOnAction(_ -> {
             Stage secondWindow = new Stage();
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/share_url.fxml"));
@@ -630,7 +630,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 throw new RuntimeException(e);
             }
         });
-        replaceTemplateUrl.setOnAction(event -> {
+        replaceTemplateUrl.setOnAction(_ -> {
             Stage secondWindow = new Stage();
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/import_share_template.fxml"));
@@ -704,7 +704,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
         String templateNameSelected = Optional.ofNullable(USER_OPERATE_CACHE.getTemplateNameSelected()).orElse("");
         templatesOperateController.getCurrentTemplate().setText("当前组合模板:" + templateNameSelected);
         CheckBox checkBox = templatesOperateController.getIsAllTable();
-        checkBox.selectedProperty().addListener((o, old, newVal) -> isSelectedAllTable = newVal);
+        checkBox.selectedProperty().addListener((_, _, newVal) -> isSelectedAllTable = newVal);
         this.templatesOperateController = templatesOperateController;
         content.getChildren().clear();
         content.getChildren().add(templatesOperateNode);
@@ -744,8 +744,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
             templateController.setFile(template.getTemplateResource().getFile());
             templateController.fileName.setText(template.getTemplateResource().getFile().getName());
             templateController.fileSuffixName.setText(template.getTargetFileSuffixName());
-            if(template instanceof HaveDependTemplate) {
-                HaveDependTemplate haveDepend= (HaveDependTemplate) template;
+            if (template instanceof HaveDependTemplate haveDepend) {
                 if(CollectionUtil.isNotEmpty(haveDepend.getDependTemplates())) {
                     String value = String.join(",", haveDepend.getDependTemplates());
                     logger.info("src templateName {},dependTemplate {}",template.getTemplateName(),value);
@@ -957,8 +956,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                         .mergeTemplateVariable(doBuildTemplateParam.getTemplateVariableResources()));
                 Optional.ofNullable(doBuildTemplateParam.getNoShareVar().poll()).ifPresent(dataModel::putAll);
                 doSetDependTemplateVariablesMapping(template, doBuildTemplateParam.getTableName(),dataModel);
-                if (templateContext instanceof AbstractTemplateContext) {
-                    AbstractTemplateContext abstractTemplateContext = (AbstractTemplateContext) templateContext;
+            if (templateContext instanceof AbstractTemplateContext abstractTemplateContext) {
                     Platform.runLater(() -> abstractTemplateContext.publishEvent(
                             new DoGetTemplateAfterEvent(template, controller)));
                 }
@@ -998,8 +996,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
         if(StrUtil.isNotBlank(template.getSrcPackage())) {
             dataModel.put("packageName", Utils.pathToPackage(template.getSrcPackage()));
         }
-        if(template instanceof HaveDependTemplate){
-            HaveDependTemplate haveDependTemplate= (HaveDependTemplate) template;
+        if (template instanceof HaveDependTemplate haveDependTemplate) {
             if(CollectionUtil.isNotEmpty(haveDependTemplate.getDependTemplates())) {
                 haveDependTemplate.getDependTemplates()
                         .forEach(s -> {
@@ -1123,7 +1120,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
             // 移除选中的项
             root.getChildren().remove(selectedItem);
             // 将选中的项插入到顶部
-            root.getChildren().add(0, selectedItem);
+            root.getChildren().addFirst(selectedItem);
             // 重新选择该项
             templateTreeItem.getSelectionModel().select(selectedItem);
             USER_OPERATE_CACHE.setTemplateNameSelected(selectedItem.getValue().getText());
@@ -1141,7 +1138,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                     root.getChildren().removeIf(b -> b.getValue().getText().equals(multipleTemplateName));
                     // 移除选中的项
                     // 将选中的项插入到顶部
-                    root.getChildren().add(0, s);
+                    root.getChildren().addFirst(s);
                     // 重新选择该项
                     templateTreeItem.getSelectionModel().select(s);
                     USER_OPERATE_CACHE.setTemplateNameSelected(s.getValue().getText());

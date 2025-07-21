@@ -194,7 +194,7 @@
         <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
         <maven_jar_version>3.2.0</maven_jar_version>
         <maven_jacoco_version>0.8.7</maven_jacoco_version>
-        <controlsfx.version>8.40.14</controlsfx.version>
+        <controlsfx.version>11.2.2</controlsfx.version>
         <maven-checkstyle-plugin>3.1.1</maven-checkstyle-plugin>
         <maven_flatten_version>1.2.5</maven_flatten_version>
         <maven_deploy_version>2.8.2</maven_deploy_version>
