@@ -50,7 +50,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH;
 import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
@@ -139,7 +138,7 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
             filePrefixNameStrategyPane.setVisible(filePrefixNameStrategyValue == 3);
         });
         ArrayList<Class<?>> allClassByInterface = ClassUtil.getAllClassByInterface(Template.class);
-        List<String> collect = allClassByInterface.stream().map(Class::getName).collect(Collectors.toList());
+        List<String> collect = allClassByInterface.stream().map(Class::getName).toList();
         selectTemplateClassName.getItems().addAll(collect);
         selectDepends.clear();
         depends.getCheckModel().getCheckedItems().addListener((ListChangeListener<String>) change -> {

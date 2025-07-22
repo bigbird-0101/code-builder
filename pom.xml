@@ -172,7 +172,7 @@
         </profile>
     </profiles>
     <properties>
-        <revision>3.0.4</revision>
+        <revision>5.0.4</revision>
         <maven.javadoc.skip>false</maven.javadoc.skip>
         <maven.source.skip>false</maven.source.skip>
         <gpg.skip>false</gpg.skip>
@@ -193,7 +193,7 @@
         <maven_surefire_version>3.0.0-M5</maven_surefire_version>
         <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
         <maven_jar_version>3.2.0</maven_jar_version>
-        <maven_jacoco_version>0.8.7</maven_jacoco_version>
+        <maven_jacoco_version>0.8.13</maven_jacoco_version>
         <controlsfx.version>11.2.2</controlsfx.version>
         <maven-checkstyle-plugin>3.1.1</maven-checkstyle-plugin>
         <maven_flatten_version>1.2.5</maven_flatten_version>
@@ -418,7 +418,7 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>${maven_deploy_version}</version>
                 <configuration>
-                    <skip>${skip_maven_deploy}</skip>
+                    <skip>${skip.maven.deploy}</skip>
                 </configuration>
             </plugin>
             <plugin>

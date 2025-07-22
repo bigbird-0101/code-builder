@@ -46,13 +46,13 @@ public class CodeBuilderApplication extends Application {
     private static final Logger logger= LogManager.getLogger(CodeBuilderApplication.class);
     @Override
     public void start(Stage primaryStage) throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getClassLoader().getResource("views/main.fxml")));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/main.fxml"));
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root);
         addKeyCodeCombination(scene,fxmlLoader.getController());
         primaryStage.setTitle("code-builder");
         primaryStage.setScene(scene);
-        primaryStage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(ICON_PNG))));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/images/icon.png")).openStream()));
         primaryStage.setOnCloseRequest(event -> {
             ButtonType restart = new ButtonType("重启");
             ButtonType hide = new ButtonType("最小化托盘");
@@ -77,9 +77,7 @@ public class CodeBuilderApplication extends Application {
             }else{
                 event.consume();
             }
-            alert.setOnCloseRequest(ev->{
-                alert.close();
-            });
+            alert.setOnCloseRequest(_ -> alert.close());
         });
         primaryStage.show();
         FxApp.init(primaryStage,ICON_PNG);
@@ -126,6 +124,9 @@ public class CodeBuilderApplication extends Application {
             }
         }
         environment.setContextTemplateInitRefresh(true);
+        if (isRemoteDebugEnabled()) {
+            ThreadUtil.safeSleep(8_000);
+        }
         GenericTemplateContext genericTemplateContext =new GenericTemplateContext(environment);
         AbstractTemplateContextProvider.setTemplateContext(genericTemplateContext);
         ThreadUtil.execAsync(() -> {
@@ -139,6 +140,17 @@ public class CodeBuilderApplication extends Application {
             }
         });
         ThreadUtil.execAsync(() -> ClassUtil.getAllClassByInterface(Template.class));
+    }
+
+    public static boolean isRemoteDebugEnabled() {
+        try {
+            return java.lang.management.ManagementFactory.getRuntimeMXBean()
+                    .getInputArguments()
+                    .toString()
+                    .contains("jdwp");
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     public void setLogFilePath(String logFilePath){

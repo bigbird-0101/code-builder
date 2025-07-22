@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import java.net.URL?>
-<VBox fx:id="mainBox" prefHeight="700.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+<VBox fx:id="mainBox" prefHeight="700.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.bigbird0101.code.fxui.fx.controller.MainController">
   <stylesheets>
     <URL value="@../css/main.css"/>

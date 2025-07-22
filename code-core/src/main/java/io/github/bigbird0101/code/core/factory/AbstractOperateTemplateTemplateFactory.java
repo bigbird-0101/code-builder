@@ -21,6 +21,7 @@ import io.github.bigbird0101.code.core.template.MultipleTemplate;
 import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.util.Utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -83,10 +84,11 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
             }else {
                 Class<?> templateClass = beanClassLoader.loadClass(templateDefinition.getTemplateClassName());
                 templateDefinition.setTemplateClass(templateClass);
-                result= (Template) templateClass.newInstance();
+                result = (Template) templateClass.getDeclaredConstructor().newInstance();
             }
             invokeBaseAware(result);
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException
+                 | InvocationTargetException | NoSuchMethodException e) {
             throw new CreateTemplateException(e);
         }
         return result;

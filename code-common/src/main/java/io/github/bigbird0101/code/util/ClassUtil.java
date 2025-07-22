@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.util;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +18,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -31,6 +31,10 @@ public class ClassUtil {
     private static final Map<Class<?>, ArrayList<Class<?>>> CACHE =new ConcurrentHashMap<>();
 
     public static ArrayList<Class<?>> getAllClassByInterface(Class<?> clazz) {
+        return getAllClassByInterface(clazz, 3);
+    }
+
+    public static ArrayList<Class<?>> getAllClassByInterface(Class<?> clazz, int prefixCount) {
         ArrayList<Class<?>> objects = CACHE.get(clazz);
         if(!CollectionUtil.isEmpty(objects)){
             LOG.info("getAllClassByInterface cache {}",objects);
@@ -40,7 +44,7 @@ public class ClassUtil {
         // 判断是否是一个接口
         if (clazz.isInterface()) {
             try {
-                ArrayList<Class<?>> allClass = getAllClass(clazz.getPackage().getName());
+                ArrayList<Class<?>> allClass = getAllClass(clazz.getPackage().getName(), prefixCount);
                 for (Class<?> aClass : allClass) {
                     // isAssignableFrom:判定此 Class 对象所表示的类或接口与指定的 Class
                     // 参数所表示的类或接口是否相同，或是否是其超类或超接口
@@ -66,13 +70,14 @@ public class ClassUtil {
      * 从一个指定路径下查找所有的类
      *
      * @param packageName packageName
+     * @param prefixCount
      */
-    private static ArrayList<Class<?>> getAllClass(String packageName) {
+    private static ArrayList<Class<?>> getAllClass(String packageName, int prefixCount) {
 
         if(LOG.isDebugEnabled()) {
             LOG.debug("packageName to search：{}", packageName);
         }
-        List<String> classNameList = getClassName(packageName);
+        List<String> classNameList = getClassName(packageName, prefixCount);
         if(LOG.isDebugEnabled()) {
             LOG.debug("getAllClass classNameList: {}", classNameList);
         }
@@ -85,7 +90,7 @@ public class ClassUtil {
                 LOG.warn("load class from name failed :{} {}", e, className);
             }
         }
-        LOG.debug("find list size :" + list.size());
+        LOG.debug("find list size :{}", list.size());
         return list;
     }
 
@@ -93,13 +98,15 @@ public class ClassUtil {
      * 获取某包下所有类
      *
      * @param packageName 包名
+     * @param prefixCount 前缀个数
      * @return 类的完整名称
      */
-    public static List<String> getClassName(String packageName) {
+    public static List<String> getClassName(String packageName, int prefixCount) {
 
         List<String> fileNames = null;
         ClassLoader loader = cn.hutool.core.util.ClassUtil.getClassLoader();
         String packagePath = packageName.replace(".", "/");
+        String prefix = String.join(".", StrUtil.split(packageName, '.', prefixCount));
         LOG.info("getClassName packagePath {} ",packagePath);
         URL url = loader.getResource(packagePath);
         if (url != null) {
@@ -110,12 +117,12 @@ public class ClassUtil {
                 LOG.debug("fileSearchPath: " + fileSearchPath);
                 fileSearchPath = fileSearchPath.substring(0, fileSearchPath.indexOf("/classes"));
                 LOG.debug("fileSearchPath: " + fileSearchPath);
-                fileNames = getClassNameByFile(fileSearchPath);
+                fileNames = getClassNameByFile(fileSearchPath, prefix);
             } else if ("jar".equals(type)) {
                 try {
                     JarURLConnection jar = (JarURLConnection) url.openConnection();
                     JarFile jarFile = jar.getJarFile();
-                    fileNames = getClassNameByJar(jarFile);
+                    fileNames = getClassNameByJar(jarFile, prefix);
                 } catch (java.io.IOException e) {
                     throw new RuntimeException("open Package URL failed：" + e.getMessage());
                 }
@@ -131,24 +138,27 @@ public class ClassUtil {
      * 从项目文件获取某包下所有类
      *
      * @param filePath 文件路径
+     * @param prefix
      * @return 类的完整名称
      */
-    private static List<String> getClassNameByFile(String filePath) {
+    private static List<String> getClassNameByFile(String filePath, String prefix) {
         List<String> myClassName = new ArrayList<String>();
         File file = new File(URLUtil.decode(filePath));
         File[] listFiles = file.listFiles();
         List<File> childFiles = Stream.of(Objects.requireNonNull(listFiles))
                 .filter(s -> !s.getAbsolutePath().endsWith("test-classes"))
-                .collect(Collectors.toList());
+                .toList();
         for (File childFile : childFiles) {
             if (childFile.isDirectory()) {
-                myClassName.addAll(getClassNameByFile(childFile.getPath()));
+                myClassName.addAll(getClassNameByFile(childFile.getPath(), prefix));
             } else {
                 String childFilePath = childFile.getPath();
                 if (childFilePath.endsWith(".class")) {
                     childFilePath = childFilePath.substring(childFilePath.indexOf("\\classes") + 9, childFilePath.lastIndexOf("."));
                     childFilePath = childFilePath.replace("\\", ".");
-                    myClassName.add(childFilePath);
+                    if (childFilePath.startsWith(prefix)) {
+                        myClassName.add(childFilePath);
+                    }
                 }
             }
         }
@@ -161,7 +171,7 @@ public class ClassUtil {
      *
      * @return 类的完整名称
      */
-    private static List<String> getClassNameByJar(JarFile jarFile) {
+    private static List<String> getClassNameByJar(JarFile jarFile, String prefix) {
         List<String> myClassName = new ArrayList<String>();
         try {
             Enumeration<JarEntry> entrys = jarFile.entries();
@@ -171,8 +181,10 @@ public class ClassUtil {
                 LOG.debug("entrys jarfile:{}",entryName);
                 if (entryName.endsWith(".class")) {
                     entryName = entryName.replace("/", ".").substring(0, entryName.lastIndexOf("."));
-                    myClassName.add(entryName);
-                    LOG.debug("Find Class :{}",entryName);
+                    if (entryName.startsWith(prefix)) {
+                        myClassName.add(entryName);
+                        LOG.debug("Find Class :{}", entryName);
+                    }
                 }
             }
         } catch (Exception e) {
