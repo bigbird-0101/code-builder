@@ -135,7 +135,7 @@ public class CodeBuilderApplication extends Application {
                 shareServer.init();
                 shareServer.start();
                 AbstractShareServerProvider.setShareServer(shareServer);
-            } catch (Exception exception) {
+            } catch (Throwable exception) {
                 logger.error("shareServer start failed", exception);
             }
         });
