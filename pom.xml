@@ -179,8 +179,8 @@
         <checkstyle.skip>false</checkstyle.skip>
         <skip.maven.deploy>false</skip.maven.deploy>
         <!-- Compiler settings properties -->
-        <maven.compiler.source>22</maven.compiler.source>
-        <maven.compiler.target>22</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <mysql-connector-java-version>8.0.30</mysql-connector-java-version>
         <postgresql-connector-java-version>42.4.1</postgresql-connector-java-version>
         <fastjson-version>1.2.83</fastjson-version>
