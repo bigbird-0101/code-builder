@@ -22,7 +22,7 @@ public interface TemplateVariableResource extends TypeBasedSPI {
 
     /**
      * 获取模板变量资源
-     * @return
+     * @return 模板变量资源
      */
     Map<String,Object> getTemplateVariable();
 
@@ -32,7 +32,7 @@ public interface TemplateVariableResource extends TypeBasedSPI {
      * @return 模板变量
      */
     default Map<String,Object> mergeTemplateVariable(List<TemplateVariableResource> templateVariableResources){
-        Map<String,Object> result=new HashMap<>();
+        Map<String, Object> result = new HashMap<>(16);
         templateVariableResources.stream()
                 .filter(Objects::nonNull)
                 .map(TemplateVariableResource::getTemplateVariable)

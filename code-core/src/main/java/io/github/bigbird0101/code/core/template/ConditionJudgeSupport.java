@@ -38,6 +38,8 @@ public class ConditionJudgeSupport {
     public static final String AND_STRING = "&&";
     public static final String OR_STRING = "||";
     protected static final String PREFIX = "'";
+    public static final String LEFT_BRACKET = "(";
+    public static final String RIGHT_BRACKET = ")";
 
     private final Map<String, Operator> operatorMap = Stream.of(new NotOperator(), new EqualsOperator(),
                     new NotEqualsOperator(), new InOperator(), new NotInOperator(), new AnyMatchOperator(),
@@ -74,7 +76,7 @@ public class ConditionJudgeSupport {
      * @return 是否满足条件
      */
     public boolean meetConditions(String test, List<String> targetKeyList, Map<String, Object> replaceKeyValue) {
-        Map<String,Object> objectMap=new HashMap<>();
+        Map<String, Object> objectMap = new HashMap<>(16);
         for (String targetKey:targetKeyList){
             Object targetObject=replaceKeyValue.get(targetKey);
             StaticLog.info(" if语句 {} 满足条件目标对象 {}",targetKey,targetObject);
@@ -145,7 +147,7 @@ public class ConditionJudgeSupport {
             }
         }
         StaticLog.info(" if语句解析的后缀表达式的结果 {}",result.toString());
-        return new PostfixExpressionModule(result,title);
+        return new PostfixExpressionModule(result, title);
     }
 
     /**
@@ -206,8 +208,18 @@ public class ConditionJudgeSupport {
     }
 
     private interface Operator extends Order {
+        /**
+         * 运算符名称
+         *
+         * @return 运算符名称
+         */
         String getOperatorName();
 
+        /**
+         * 运算
+         * @param computeStack 计算栈
+         * @param targetObjectMap 目标对象
+         */
         void apply(Stack<String> computeStack, Map<String, Object> targetObjectMap);
 
         /**
@@ -285,15 +297,22 @@ public class ConditionJudgeSupport {
             computeStack.push(String.valueOf(result));
         }
 
+        /**
+         * 匹配
+         *
+         * @param leftString  左短语
+         * @param rightString 右短语
+         * @return 匹配结果
+         */
         abstract boolean doContains(String leftString, String rightString);
 
         @Override
         public void checkExpression(String completedExpression, String left, String right) {
             if (StrUtil.isAllNotBlank(left, right)) {
-                if (StrUtil.isSurround(right, "(", ")") || StrUtil.isSurround(right, BRACKET_START, BRACKET_END)) {
+                if (StrUtil.isSurround(right, LEFT_BRACKET, RIGHT_BRACKET) || StrUtil.isSurround(right, BRACKET_START, BRACKET_END)) {
                     throw new TemplateResolveException("if 语句中 " + getOperatorName() + "语句错误 仅支持字符串之间的contains，但是右短语语句却传" + right);
                 }
-                if (StrUtil.isSurround(left, "(", ")") || StrUtil.isSurround(left, BRACKET_START, BRACKET_END)) {
+                if (StrUtil.isSurround(left, LEFT_BRACKET, RIGHT_BRACKET) || StrUtil.isSurround(left, BRACKET_START, BRACKET_END)) {
                     throw new TemplateResolveException("if 语句中 " + getOperatorName() + "语句错误 仅支持字符串之间的contains，但是左短语语句却传" + left);
                 }
             }
@@ -478,8 +497,8 @@ public class ConditionJudgeSupport {
             String right = computeStack.pop();
             String left = computeStack.pop();
             Object leftObj = getRealObject(getTargetObject(targetObjectMap, left), left);
-            if (StrUtil.isSurround(right, "(", ")")) {
-                String strip = StrUtil.strip(right, "(", ")");
+            if (StrUtil.isSurround(right, LEFT_BRACKET, RIGHT_BRACKET)) {
+                String strip = StrUtil.strip(right, LEFT_BRACKET, RIGHT_BRACKET);
                 List<String> split = StrUtil.splitTrim(strip, COMMA, 2);
                 if (split.size() == 1) {
                     String rightFirstParamString = split.getFirst();
@@ -564,13 +583,19 @@ public class ConditionJudgeSupport {
             }
         }
 
+        /**
+         * 匹配
+         * @param leftStringList leftStringList
+         * @param rightStringList rightStringList
+         * @return boolean
+         */
         abstract boolean doMatch(List<String> leftStringList, List<String> rightStringList);
 
         @Override
         public void checkExpression(String completedExpression, String left, String right) {
             if (StrUtil.isNotBlank(right)) {
-                if (StrUtil.isSurround(right, "(", ")")) {
-                    String strip = StrUtil.strip(right, "(", ")");
+                if (StrUtil.isSurround(right, LEFT_BRACKET, RIGHT_BRACKET)) {
+                    String strip = StrUtil.strip(right, LEFT_BRACKET, RIGHT_BRACKET);
                     List<String> split = StrUtil.splitTrim(strip, COMMA, 2);
                     if (split.size() > 2) {
                         throw new TemplateResolveException("if 语句中 " + getOperatorName() + "语句错误 仅支持传两个参数，但是语句却传" + right);
@@ -616,7 +641,7 @@ public class ConditionJudgeSupport {
         }
     }
 
-    private class PostfixExpressionModule {
+    private static class PostfixExpressionModule {
         private List<String> postfixExpression;
         //目前支持&& || 不支持 混合使用
         private String title;

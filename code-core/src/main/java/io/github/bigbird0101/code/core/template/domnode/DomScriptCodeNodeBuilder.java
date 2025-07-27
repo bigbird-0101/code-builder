@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 import static io.github.bigbird0101.code.core.template.AbstractHandleAbstractTemplateResolver.FUNCTION_BODY_BETWEEN_SPLIT;
 import static io.github.bigbird0101.code.core.template.AbstractHandleAbstractTemplateResolver.TEMPLATE_PREFIX_SPLIT;
 import static io.github.bigbird0101.code.core.template.AbstractHandleAbstractTemplateResolver.TEMPLATE_SUFFIX_SPLIT;
-import static java.util.stream.Collectors.toList;
 import static org.w3c.dom.Node.CDATA_SECTION_NODE;
 import static org.w3c.dom.Node.ELEMENT_NODE;
 import static org.w3c.dom.Node.TEXT_NODE;
@@ -192,7 +191,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
             final MixCodeNode mixCodeNode = parseNode(node);
             final String separator = getAttributeOrDefault(node.getAttributes(),SEPARATOR,StrUtil.EMPTY);
             final String vFor = getAttributeOrThrow(node.getAttributes(),V_FOR,"foreach not get v-for error");
-            final List<String> collect = Stream.of(vFor.split(IN_REGEX)).map(String::trim).collect(toList());
+            final List<String> collect = Stream.of(vFor.split(IN_REGEX)).map(String::trim).toList();
             if(!vFor.contains(IN_REGEX)||collect.size()!=2){
                 throw new TemplateResolveException("foreach 语句 语法异常,未在v-for中以 in 隔开");
             }

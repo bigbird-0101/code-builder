@@ -19,7 +19,6 @@ import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 import io.github.bigbird0101.code.core.factory.RootTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.MultipleTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
-import io.github.bigbird0101.code.core.template.AbstractTemplate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,7 +35,7 @@ import static io.github.bigbird0101.code.core.share.ShareConstant.TEMPLATE_NAME;
  * @date 2024-06-08 22:02
  */
 public class ShareServer extends AbstractTemplateContextProvider {
-    private static final Logger LOGGER = LogManager.getLogger(AbstractTemplate.class);
+    private static final Logger LOGGER = LogManager.getLogger(ShareServer.class);
 
     private SimpleServer server;
     private int port;

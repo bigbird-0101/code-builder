@@ -14,6 +14,7 @@ public interface TemplateScanner extends Serializable {
      * @param templatesPath 模板文件路径
      * @param templateConfigPath 模板配置文件路径
      * @return 所有的类型模板定义
+     * @throws CodeConfigException 配置文件异常
      */
     AllTemplateDefinitionHolder scanner(String templatesPath, String templateConfigPath) throws CodeConfigException;
 }

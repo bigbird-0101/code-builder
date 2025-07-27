@@ -10,7 +10,7 @@ public interface EnvironmentCapable {
 
 	/**
 	 * 获取环境
-	 * @return
+	 * @return 环境
 	 */
 	Environment getEnvironment();
 

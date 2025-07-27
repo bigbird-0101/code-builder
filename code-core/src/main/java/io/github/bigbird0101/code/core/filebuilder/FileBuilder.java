@@ -27,7 +27,7 @@ public interface FileBuilder {
 
     /**
      * 获取文件代码构建策略
-     * @return
+     * @return 文件代码构建策略
      */
     FileCodeBuilderStrategy getFileCodeBuilderStrategy();
 
@@ -41,6 +41,7 @@ public interface FileBuilder {
      * 文件生成器
      * @param template 模板
      * @param dataModel 数据模型
+     * @throws TemplateResolveException 模板解析异常
      */
     void build(Template template, Map<String,Object> dataModel) throws TemplateResolveException;
 }

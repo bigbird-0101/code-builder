@@ -15,7 +15,7 @@ public interface TemplatePostProcessor {
      *  when BeforeInstantiation will invoked
      * @param template template instant
      * @param templateName template name
-     * @return
+     * @return template
      */
     default Template postProcessBeforeInstantiation(Template template, String templateName){
         return template;
@@ -25,7 +25,7 @@ public interface TemplatePostProcessor {
      *  when AfterInstantiation will invoked
      * @param template template instant
      * @param templateName template name
-     * @return
+     * @return template
      */
     default Template postProcessAfterInstantiation(Template template, String templateName){
         return template;

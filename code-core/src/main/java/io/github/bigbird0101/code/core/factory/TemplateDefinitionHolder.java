@@ -37,10 +37,9 @@ public class TemplateDefinitionHolder {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof TemplateDefinitionHolder)) {
+        if (!(o instanceof TemplateDefinitionHolder that)) {
             return false;
         }
-        TemplateDefinitionHolder that = (TemplateDefinitionHolder) o;
         return Objects.equals(getTemplateDefinition(), that.getTemplateDefinition()) &&
                 Objects.equals(getTemplateName(), that.getTemplateName());
     }

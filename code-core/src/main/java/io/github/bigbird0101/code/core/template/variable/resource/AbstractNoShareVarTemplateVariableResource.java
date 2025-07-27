@@ -28,8 +28,8 @@ public abstract class AbstractNoShareVarTemplateVariableResource implements Temp
 
     public Queue<Map<String,Object>> getNoShareVar(){
         Queue<Map<String,Object>> linked=new LinkedList<>();
-        Map<String, List<JSONObject>> map=new HashMap<>();
-        /**
+        Map<String, List<JSONObject>> map = new HashMap<>(16);
+        /*
          * 获取文件当中的非共享变量
          * NO_SHARE_VAR_method=[{"a":"b"},{"a":"b1"}]
          * NO_SHARE_VAR_method2=[{"a":"b"},{"a":"b1"},{"a":"b2"}]
@@ -39,8 +39,7 @@ public abstract class AbstractNoShareVarTemplateVariableResource implements Temp
          */
         MapUtil.filter(getTemplateVariable(), entry->entry.getKey().startsWith(NO_SHARE_VAR_TEMPLATE_PREFIX))
                 .forEach((k,v)->{
-                    if(v instanceof JSONArray){
-                        JSONArray jsonArray= (JSONArray) v;
+                    if (v instanceof JSONArray jsonArray) {
                         final List<JSONObject> collect = jsonArray.stream().map(s -> (JSONObject) s).collect(toList());
                         map.put(StrUtil.subSuf(k, NO_SHARE_VAR_TEMPLATE_PREFIX.length()), collect);
                     }
@@ -51,13 +50,13 @@ public abstract class AbstractNoShareVarTemplateVariableResource implements Temp
             final List<JSONObject> value = entry.getValue();
             minSize=Math.min(minSize,value.size());
         }
-        /**
+        /*
          * 队列当中将得到这种结构 一行为队列当中的一个元素
          * method=>{"a":"b"},method2=>{"a":"b"}
          * method=>{"a":"b1"},method2=>{"a":"b1"}
          */
         for(int a=0;a<minSize;a++) {
-            Map<String,Object> mapValue=new HashMap<>();
+            Map<String, Object> mapValue = new HashMap<>(16);
             for(Map.Entry<String,List<JSONObject>> entry:map.entrySet()){
                 final String key = entry.getKey();
                 final List<JSONObject> value = entry.getValue();

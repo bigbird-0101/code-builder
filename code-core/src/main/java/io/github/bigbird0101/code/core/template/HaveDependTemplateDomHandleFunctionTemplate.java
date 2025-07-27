@@ -2,8 +2,6 @@ package io.github.bigbird0101.code.core.template;
 
 import cn.hutool.core.util.ReUtil;
 import com.alibaba.fastjson.annotation.JSONType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.LinkedHashSet;
 
@@ -15,7 +13,6 @@ import static io.github.bigbird0101.code.core.template.resolver.DependTemplateLa
  */
 @JSONType(serializer = AbstractTemplate.TemplateSerializer.class)
 public class HaveDependTemplateDomHandleFunctionTemplate extends DomHandleFunctionTemplate implements HaveDependTemplate{
-    private static final Logger LOGGER = LogManager.getLogger(HaveDependTemplateDomHandleFunctionTemplate.class);
 
     private LinkedHashSet<String> dependTemplates;
 

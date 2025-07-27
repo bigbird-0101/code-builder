@@ -11,7 +11,8 @@ import java.io.IOException;
 public interface ConfigurableListableTemplateFactory extends ConfigurableTemplateFactory{
     /**
      * 初始化模板
-     * @throws CodeConfigException
+     * @throws CodeConfigException 配置异常
+     * @throws IOException io异常
      */
     void preInstantiateTemplates() throws CodeConfigException, IOException;
 

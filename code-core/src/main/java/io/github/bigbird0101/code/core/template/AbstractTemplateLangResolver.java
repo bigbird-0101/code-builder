@@ -66,7 +66,7 @@ public abstract class AbstractTemplateLangResolver implements TemplateLangResolv
 
     private void append(String body, String targetObjectKey, StringBuilder stringBuilder, String tempStamp,
                         String lastNewLineNull, Object object) {
-        HashMap<String,Object> replaceKey=new HashMap<>();
+        HashMap<String, Object> replaceKey = new HashMap<>(16);
         replaceKey.put(targetObjectKey,object);
         String replaceResult=this.templateResolver.resolver(body,replaceKey);
         if(StrUtil.isNotBlank(replaceResult.trim())) {
