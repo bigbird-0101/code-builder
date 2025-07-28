@@ -125,7 +125,6 @@ import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT
 import static io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_KEY;
 import static io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_VALUE;
 import static io.github.bigbird0101.code.fxui.CodeBuilderApplication.USER_OPERATE_CACHE;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -221,7 +220,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                         if(s.isEmpty()){
                             return;
                         }
-                        final TreeItem<Label> labelTreeItem = s.get(0);
+                        final TreeItem<Label> labelTreeItem = s.getFirst();
                         listViewTemplate.getSelectionModel().select(labelTreeItem);
                     });
         }else{
@@ -279,6 +278,20 @@ public class MainController extends AbstractTemplateContextProvider implements I
         ThreadUtil.execAsync(this::initData);
     }
 
+    @FXML
+    public void clearTemplate(ActionEvent actionEvent) {
+        Stage secondWindow = new Stage();
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/clear_template.fxml"));
+            Parent parent = fxmlLoader.load();
+            secondWindow.setTitle("清理");
+            secondWindow.setScene(new Scene(parent));
+            secondWindow.show();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private class DatasourceConfigUpdateEventListener extends TemplateListener<DatasourceConfigUpdateEvent> {
         @Override
         protected void onTemplateEvent(DatasourceConfigUpdateEvent doGetTemplateAfterEvent) {
@@ -311,28 +324,36 @@ public class MainController extends AbstractTemplateContextProvider implements I
                     StaticLog.debug("logPath {}", logPath);
                 }
                 if(file.exists()){
-                    FileFilterUtils.filterList(FileFileFilter.FILE, file.listFiles())
-                            .stream().map(File::getName)
-                            .map(MenuItem::new)
-                            .forEach(s->{
-                                if(logger.isDebugEnabled()) {
-                                    StaticLog.debug("MenuItem {}", s.getText());
-                                }
-                                s.setOnAction(event -> {
-                                    Desktop desktop = Desktop.getDesktop();
-                                    File logFile=new File(logPath+File.separator+s.getText());
-                                    if(logFile.exists()) {
-                                        try {
-                                            desktop.open(logFile);
-                                        } catch (IOException ignored) {
-                                        }
-                                    }
-                                });
-                                showLog.getItems().add(s);
-                            });
+                    setLogView(logPath, file);
+                } else {
+                    final String logPathCore = property + File.separator + "log" + File.separator + "core";
+                    final File fileCore = new File(logPathCore);
+                    setLogView(logPath, fileCore);
                 }
             }
         });
+    }
+
+    private void setLogView(String logPath, File fileCore) {
+        FileFilterUtils.filterList(FileFileFilter.FILE, fileCore.listFiles())
+                .stream().map(File::getName)
+                .map(MenuItem::new)
+                .forEach(s -> {
+                    if (logger.isDebugEnabled()) {
+                        StaticLog.debug("MenuItem {}", s.getText());
+                    }
+                    s.setOnAction(event -> {
+                        Desktop desktop = Desktop.getDesktop();
+                        File logFile = new File(logPath + File.separator + s.getText());
+                        if (logFile.exists()) {
+                            try {
+                                desktop.open(logFile);
+                            } catch (IOException ignored) {
+                            }
+                        }
+                    });
+                    showLog.getItems().add(s);
+                });
     }
 
     public PageInputSnapshot getDefaultMultipleTemplate() {
@@ -348,7 +369,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
         List<String> multipleTemplateNames = getTemplateContext().getMultipleTemplateNames()
                 .stream()
                 .sorted((o1, o2) -> CompareUtil.compare(o1.hashCode(), o2.hashCode()))
-                .collect(toList());
+                .toList();
         List<String> useMultipleTemplateSelected = USER_OPERATE_CACHE.getUseMultipleTemplateSelected();
         if (USE_STRING.equals(root.getValue().getText())) {
             for (String multipleTemplateName : multipleTemplateNames) {
@@ -394,7 +415,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 .getTemplates()
                 .stream()
                 .map(template -> getAndInitTemplateView(template, multipleTemplateName, item))
-                .collect(toList());
+                .toList();
         item.getChildren().addAll(item.getChildren().size(), collect);
 
         String rootText = root.getValue().getText();
@@ -557,14 +578,14 @@ public class MainController extends AbstractTemplateContextProvider implements I
         copyLabel.prefWidthProperty().bind(listViewTemplate.widthProperty());
         TreeItem<Label> copyItem = new TreeItem<>(copyLabel);
         copyItem.setExpanded(true);
-        List<TreeItem<Label>> collect = defaultListableTemplateFactory.getMultipleTemplate(copyMultipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, copyMultipleTemplateName, copyItem)).collect(toList());
+        List<TreeItem<Label>> collect = defaultListableTemplateFactory.getMultipleTemplate(copyMultipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, copyMultipleTemplateName, copyItem)).toList();
         copyItem.getChildren().addAll(copyItem.getChildren().size(), collect);
         final FilteredList<TreeItem<Label>> filtered = root.getChildren().filtered(s -> s.getValue().getText().equals(copyMultipleTemplateName));
         final int size = filtered.size();
         if(0==size) {
             root.getChildren().add(root.getChildren().size(), copyItem);
         }else if(1==size){
-            root.getChildren().remove(filtered.get(0));
+            root.getChildren().remove(filtered.getFirst());
             root.getChildren().add(root.getChildren().size(), copyItem);
         }
         copyLabel.setContextMenu(contextMenu);
@@ -663,12 +684,12 @@ public class MainController extends AbstractTemplateContextProvider implements I
             throw new CodeConfigException(e);
         }
         try {
-            String newFileName = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + File.separator + copyTemplateName+AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
+            String newFileName = getTemplateContext().getEnvironment()
+                    .getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + File.separator +
+                    copyTemplateName + AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
             final File file = new File(newFileName);
-            if(!file.exists()) {
-                FileUtils.copyFile(templateFile, file);
-                Thread.sleep(100);
-            }
+            FileUtils.copyFile(templateFile, file);
+            Thread.sleep(100);
             RootTemplateDefinition rootTemplateDefinition= (RootTemplateDefinition) clone;
             LinkedHashSet<String> dependTemplates = rootTemplateDefinition.getDependTemplates();
             if (CollUtil.isNotEmpty(dependTemplates)) {

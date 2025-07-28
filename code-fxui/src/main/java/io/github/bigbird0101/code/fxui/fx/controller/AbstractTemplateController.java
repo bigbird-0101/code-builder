@@ -228,8 +228,7 @@ public class AbstractTemplateController extends AbstractTemplateContextProvider 
         RootTemplateDefinition rootTemplateDefinition =isNotHave?new RootTemplateDefinition(): (RootTemplateDefinition) templateDefinition;
         TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = templateFilePrefixNameStrategyFactory
                 .getTemplateFilePrefixNameStrategy(ObjectUtil.defaultIfNull(filePrefixNameStrategyValue, 1));
-        if(targetFilePrefixNameStrategy instanceof PatternTargetFilePrefixNameStrategy){
-            PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy= (PatternTargetFilePrefixNameStrategy) targetFilePrefixNameStrategy;
+        if (targetFilePrefixNameStrategy instanceof PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy) {
             patternTemplateFilePrefixNameStrategy.setPattern(filePrefixNameStrategyPattern.getText());
         }
         rootTemplateDefinition.setTemplateClassName(selectTemplateClassName.getSelectionModel().getSelectedItem());

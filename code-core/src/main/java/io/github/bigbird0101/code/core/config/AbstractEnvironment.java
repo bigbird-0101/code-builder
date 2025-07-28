@@ -133,7 +133,7 @@ public abstract class AbstractEnvironment implements Environment {
         loadCoreConfig(coreConfigPath);
     }
     protected void loadTemplatesPath() {
-        Collection<File> files = FileUtils.listFiles(new File(getDecodeFilePath(templatesPath)), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
+        Collection<File> files = FileUtils.listFiles(getTemplateDirectory(), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
         files.forEach(file -> {
             String fileName = file.getName();
             TEMPLATE_FILE_NAME_URL_MAPPING.put(fileName, file.getAbsolutePath());
@@ -148,6 +148,10 @@ public abstract class AbstractEnvironment implements Environment {
                 }
             }
         });
+    }
+
+    public File getTemplateDirectory() {
+        return new File(getDecodeFilePath(templatesPath));
     }
 
     private String getDecodeFilePath(String path) {
@@ -192,16 +196,14 @@ public abstract class AbstractEnvironment implements Environment {
             JSONArray multipleTemplates = configContent.getJSONArray(MULTIPLE_TEMPLATES);
             JSONArray templates = configContent.getJSONArray(TEMPLATES);
             Arrays.stream(propertySources).forEach(propertySource -> {
-                if (propertySource.getSource() instanceof Template) {
-                    Template template = (Template) propertySource.getSource();
-                    int index = IsHaveTemplate(templates, template.getTemplateName());
+                if (propertySource.getSource() instanceof Template template) {
+                    int index = isHaveTemplate(templates, template.getTemplateName());
                     if(index>=0) {
                         templates.remove(index);
                     }
                     templates.add(JSON.toJSON(template));
-                } else if (propertySource.getSource() instanceof MultipleTemplate) {
-                    MultipleTemplate template = (MultipleTemplate) propertySource.getSource();
-                    int index = IsHaveTemplate(multipleTemplates, template.getTemplateName());
+                } else if (propertySource.getSource() instanceof MultipleTemplate template) {
+                    int index = isHaveTemplate(multipleTemplates, template.getTemplateName());
                     if(index>=0) {
                         multipleTemplates.remove(index);
                     }
@@ -261,15 +263,13 @@ public abstract class AbstractEnvironment implements Environment {
             JSONArray multipleTemplates = configContent.getJSONArray(MULTIPLE_TEMPLATES);
             JSONArray templates = configContent.getJSONArray(TEMPLATES);
             Arrays.stream(propertySources).forEach(propertySource -> {
-                if (propertySource.getSource() instanceof Template) {
-                    Template template = (Template) propertySource.getSource();
-                    int index = IsHaveTemplate(templates, template.getTemplateName());
+                if (propertySource.getSource() instanceof Template template) {
+                    int index = isHaveTemplate(templates, template.getTemplateName());
                     if (index >= 0) {
                         templates.remove(index);
                     }
-                } else if (propertySource.getSource() instanceof MultipleTemplate) {
-                    MultipleTemplate template = (MultipleTemplate) propertySource.getSource();
-                    int index = IsHaveTemplate(multipleTemplates, template.getTemplateName());
+                } else if (propertySource.getSource() instanceof MultipleTemplate template) {
+                    int index = isHaveTemplate(multipleTemplates, template.getTemplateName());
                     if (index >= 0) {
                         multipleTemplates.remove(index);
                     }
@@ -282,7 +282,7 @@ public abstract class AbstractEnvironment implements Environment {
         }
     }
 
-    private int IsHaveTemplate(JSONArray jsonArray, String templateName) {
+    private int isHaveTemplate(JSONArray jsonArray, String templateName) {
         if (null != jsonArray && !jsonArray.isEmpty()) {
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject templateInfo = (JSONObject) jsonArray.get(i);

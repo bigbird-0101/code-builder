@@ -25,8 +25,7 @@ public abstract class AbstractTemplateContextProvider {
             AbstractAbstractTemplateResolver templateResolver = (AbstractAbstractTemplateResolver) currentTemplate.getTemplateResolver();
             List<TemplateLangResolver> templateLangResolverList = templateResolver.getTemplateLangResolverList();
             for (TemplateLangResolver templateLangResolver : templateLangResolverList) {
-                if (templateLangResolver instanceof TemplateContextAware) {
-                    TemplateContextAware aware = (TemplateContextAware) templateLangResolver;
+                if (templateLangResolver instanceof TemplateContextAware aware) {
                     aware.setTemplateContext(templateContext);
                 }
             }

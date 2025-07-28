@@ -202,7 +202,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         if (null != multipleTemplate) {
             for (Template template : multipleTemplate.getTemplates().stream()
                     .sorted((o1, o2) -> compare(o1.hashCode(), o2.hashCode()))
-                    .collect(Collectors.toList())) {
+                    .toList()) {
                 VBox vBox;
                 try {
                     vBox = initTemplateInfo(template);

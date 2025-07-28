@@ -37,8 +37,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -360,6 +362,7 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         Set<Template> newTemplates = new LinkedHashSet<>(multipleTemplate.getTemplates());
         DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory)
                 getTemplateContext().getTemplateFactory();
+        Map<String, String> needUpdateDependTemplate = new HashMap<>(16);
         multipleTemplate.getTemplates().forEach(t -> {
             String templateNameSrc = t.getTemplateName();
             String templateNameNewSrc = StrUtil.replace(templateNameSrc, templateNameOldStr, templateNameNewText);
@@ -385,9 +388,7 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
                     Template template = getTemplateContext().getTemplate(templateNameNewSrc);
                     newTemplates.add(template);
                     operateTemplateBeanFactory.refreshTemplate(template);
-
-                    //修改模板名也要修改此时依赖此模板的所依赖的模板名
-                    HaveDependTemplate.updateDependTemplate(operateTemplateBeanFactory, templateNameSrc, templateNameNewSrc);
+                    needUpdateDependTemplate.put(templateNameSrc, templateNameNewSrc);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -395,6 +396,10 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         });
         multipleTemplate.setTemplates(newTemplates);
         operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate);
+        needUpdateDependTemplate.forEach((templateNameSrc, templateNameNewSrc) -> {
+            HaveDependTemplate.updateDependTemplate(operateTemplateBeanFactory, templateNameSrc, templateNameNewSrc);
+        });
+        //修改模板名也要修改此时依赖此模板的所依赖的模板名
         doRefreshMainView();
     }
 
