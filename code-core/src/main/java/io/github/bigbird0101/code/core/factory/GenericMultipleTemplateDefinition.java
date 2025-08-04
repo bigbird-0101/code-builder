@@ -33,10 +33,9 @@ public class GenericMultipleTemplateDefinition implements MultipleTemplateDefini
         if (this == o) {
             return true;
         }
-        if (!(o instanceof GenericMultipleTemplateDefinition)) {
+        if (!(o instanceof GenericMultipleTemplateDefinition that)) {
             return false;
         }
-        GenericMultipleTemplateDefinition that = (GenericMultipleTemplateDefinition) o;
         return Objects.equals(getTemplateNames(), that.getTemplateNames());
     }
 

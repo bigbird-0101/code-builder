@@ -125,8 +125,7 @@ public class ShareServer extends AbstractTemplateContextProvider {
         private JSONObject getTemplateJson(TemplateDefinition templateDefinition, String templateName) {
             JSONObject json = getTemplateJson(templateDefinition);
             JSONObject dependTemplates = new JSONObject();
-            if (templateDefinition instanceof RootTemplateDefinition) {
-                RootTemplateDefinition rootTemplateDefinition = (RootTemplateDefinition) templateDefinition;
+            if (templateDefinition instanceof RootTemplateDefinition rootTemplateDefinition) {
                 if (CollUtil.isNotEmpty(rootTemplateDefinition.getDependTemplates())) {
                     rootTemplateDefinition.getDependTemplates().forEach(s -> {
                         TemplateDefinition dependTemplateDefinition = factory.getTemplateDefinition(s);

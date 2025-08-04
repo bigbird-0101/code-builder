@@ -38,8 +38,8 @@ public class DefaultTemplateRegistry implements TemplateRegistry {
     /**
      * 注册组合模板
      *
-     * @param templateName
-     * @param template
+     * @param templateName 组合模板名
+     * @param template 组合模板
      */
     @Override
     public void registerMultipleTemplate(String templateName, MultipleTemplate template) {

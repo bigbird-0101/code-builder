@@ -17,7 +17,7 @@ import java.util.List;
 public abstract class AbstractDefinedFunctionResolver implements DefinedFunctionResolver {
 
     protected List<DefinedFunctionResolverRule> ruleList=new ArrayList<>(10);
-    private static Cache<DefinedFunctionDomain, String> definedFunctionDomainStringCache= CachePool.build(156);
+    private static final Cache<DefinedFunctionDomain, String> DEFINED_FUNCTION_DOMAIN_STRING_CACHE = CachePool.build(156);
 
     @Override
     public void addResolverRule(DefinedFunctionResolverRule definedFunctionResolverRule) {
@@ -26,7 +26,7 @@ public abstract class AbstractDefinedFunctionResolver implements DefinedFunction
 
     @Override
     public String doResolver(DefinedFunctionDomain definedFunctionDomain) {
-        final String cache = definedFunctionDomainStringCache.get(definedFunctionDomain);
+        final String cache = DEFINED_FUNCTION_DOMAIN_STRING_CACHE.get(definedFunctionDomain);
         if(StrUtil.isNotBlank(cache)){
             StaticLog.debug("AbstractDefinedFunctionResolver doResolver get cache {}",cache);
             return cache;
@@ -40,7 +40,7 @@ public abstract class AbstractDefinedFunctionResolver implements DefinedFunction
             StaticLog.debug("AbstractDefinedFunctionResolver rule {} {}",rule,(e-l)/1000);
         }
         final String templateFunction = definedFunctionDomain.getTemplateFunction();
-        definedFunctionDomainStringCache.put(clone, templateFunction);
+        DEFINED_FUNCTION_DOMAIN_STRING_CACHE.put(clone, templateFunction);
         return templateFunction;
     }
 }

@@ -29,12 +29,10 @@ public abstract class AbstractTemplateFactory extends DefaultTemplateRegistry im
     }
 
     public void invokeBaseAware(Object object) {
-        if(object instanceof TemplateFactoryAware){
-            TemplateFactoryAware templateFactoryAware= (TemplateFactoryAware) object;
+        if (object instanceof TemplateFactoryAware templateFactoryAware) {
             templateFactoryAware.setTemplateFactory(AbstractTemplateFactory.this);
         }
-        if(object instanceof EnvironmentAware){
-            EnvironmentAware environmentAware= (EnvironmentAware) object;
+        if (object instanceof EnvironmentAware environmentAware) {
             environmentAware.setEnvironment(getEnvironment());
         }
     }

@@ -96,7 +96,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
          * @param namedNodeMap namedNodeMap
          * @param name name
          * @param defaultValue defaultValue
-         * @return
+         * @return 获取到的属性值
          */
         default String getAttributeOrDefault(NamedNodeMap namedNodeMap, String name, String defaultValue){
             return Optional.ofNullable(namedNodeMap.getNamedItem(name))
@@ -108,7 +108,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
          * @param namedNodeMap namedNodeMap
          * @param name name
          * @param errorMsg errorMsg
-         * @return
+         * @return 获取到的属性值
          */
         default String getAttributeOrThrow(NamedNodeMap namedNodeMap, String name, String errorMsg){
             return Optional.ofNullable(namedNodeMap.getNamedItem(name))
@@ -138,7 +138,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
             List<CodeNode> whenCodeNodes=new ArrayList<>();
             List<CodeNode> otherCodeNodes=new ArrayList<>();
             parseWhenCodeNodes(node,whenCodeNodes,otherCodeNodes);
-            contents.add(new ChooseCodeNode(whenCodeNodes, otherCodeNodes.get(0)));
+            contents.add(new ChooseCodeNode(whenCodeNodes, otherCodeNodes.getFirst()));
         }
 
         private void parseWhenCodeNodes(Node node, List<CodeNode> whenCodeNodes, List<CodeNode> otherCodeNodes) {
@@ -149,12 +149,10 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
                 if(ELEMENT_NODE==nodeType){
                     final String nodeName = item.getNodeName();
                     final CodeNodeHandler codeNodeHandler = CODE_NODE_HANDLER_MAP.get(nodeName);
-                    if(codeNodeHandler instanceof WhenCodeNodeHandler){
-                        WhenCodeNodeHandler whenCodeNodeHandler= (WhenCodeNodeHandler) codeNodeHandler;
+                    if (codeNodeHandler instanceof WhenCodeNodeHandler whenCodeNodeHandler) {
                         whenCodeNodeHandler.handleNode(item,whenCodeNodes);
                     }
-                    if(codeNodeHandler instanceof OtherwiseCodeNodeHandler){
-                        OtherwiseCodeNodeHandler otherwiseCodeNodeHandler= (OtherwiseCodeNodeHandler) codeNodeHandler;
+                    if (codeNodeHandler instanceof OtherwiseCodeNodeHandler otherwiseCodeNodeHandler) {
                         otherwiseCodeNodeHandler.handleNode(item,otherCodeNodes);
                     }
                 }

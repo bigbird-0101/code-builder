@@ -37,10 +37,9 @@ public class MultipleTemplateDefinitionHolder {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof MultipleTemplateDefinitionHolder)) {
+        if (!(o instanceof MultipleTemplateDefinitionHolder that)) {
             return false;
         }
-        MultipleTemplateDefinitionHolder that = (MultipleTemplateDefinitionHolder) o;
         return Objects.equals(getMultipleTemplateDefinition(), that.getMultipleTemplateDefinition()) &&
                 Objects.equals(getMultipleTemplateName(), that.getMultipleTemplateName());
     }

@@ -11,6 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MultiplePropertySources implements PropertySources {
     private final List<PropertySource<?>> sources=new CopyOnWriteArrayList<>();
     @Override
+    @SuppressWarnings("unchecked")
     public PropertySource<?> getPropertySource(String name) {
         for (PropertySource<?> propertySource : this.sources) {
             if (propertySource.getName().equals(name)) {

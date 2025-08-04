@@ -31,10 +31,9 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
         }
         final PropertySource<Object> propertySourceTemplate = propertySources.getPropertySource(propertyKey);
         if (null != propertySourceTemplate.getSource() &&
-                propertySourceTemplate.getSource() instanceof String &&
+                propertySourceTemplate.getSource() instanceof String propertySourceTemplateSource &&
                 isJsonValid((String) propertySourceTemplate.getSource())
         ) {
-            String propertySourceTemplateSource = (String) propertySourceTemplate.getSource();
             return Convert.convert(targetClass, JSON.parseObject(propertySourceTemplateSource));
         }
         return Convert.convert(targetClass, propertySourceTemplate.getSource());
@@ -52,9 +51,9 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
     /**
      * 更新属性
      *
-     * @param propertyKey
-     * @param source
-     * @return
+     * @param propertyKey 属性key
+     * @param source 属性值
+     * @return 是否更新成功
      */
     @Override
     public boolean updateProperty(String propertyKey, Object source) {

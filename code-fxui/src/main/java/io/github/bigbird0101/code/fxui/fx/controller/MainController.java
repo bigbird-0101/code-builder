@@ -430,7 +430,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
         MenuItem deepCopy = new MenuItem("递归复制");
         MenuItem importTemplate = new MenuItem("导入模版");
         MenuItem copyShareUrl = new MenuItem("分享模版地址");
-        top1.setOnAction(event -> {
+        top1.setOnAction(_ -> {
             String text = item.getParent().getValue().getText();
             if (USE_STRING.equals(text)) {
                 pinSelectedTemplateUse();
@@ -438,8 +438,8 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 pinSelectedTemplateNoUse();
             }
         });
-        delete.setOnAction(event -> deleteMultipleTemplate(defaultListableTemplateFactory));
-        moveUse.setOnAction(event -> {
+        delete.setOnAction(_ -> deleteMultipleTemplate(defaultListableTemplateFactory));
+        moveUse.setOnAction(_ -> {
             String text = unUseTemplate.getSelectionModel().getSelectedItem().getValue().getText();
             if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm(String.format("您确定将%s组合模板移动至常用吗", text)).getButtonData()) {
                 unUseTemplate.getRoot().getChildren().remove(item);
@@ -449,7 +449,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 USER_OPERATE_CACHE.addUseMultipleTemplateSelected(multipleTemplateName);
             }
         });
-        moveNoUse.setOnAction(event -> {
+        moveNoUse.setOnAction(_ -> {
             String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
             if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm(String.format("您确定将%s组合模板移动至不常用吗", text)).getButtonData()) {
                 listViewTemplate.getRoot().getChildren().remove(item);
@@ -460,7 +460,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
             }
         });
 
-        edit.setOnAction(event -> {
+        edit.setOnAction(_ -> {
             String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
             try {
                 toNewMultipleTemplateView(text);
@@ -468,7 +468,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 FxAlerts.error(mainBox.getScene().getWindow(), "修改失败", e);
             }
         });
-        copy.setOnAction(event -> {
+        copy.setOnAction(_ -> {
             try {
                 copyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu);
                 AlertUtil.showInfo("复制成功");
@@ -476,7 +476,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", e);
             }
         });
-        deepCopy.setOnAction(event -> {
+        deepCopy.setOnAction(_ -> {
             try {
                 deepCopyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu);
                 AlertUtil.showInfo("复制成功");
@@ -484,8 +484,8 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", e);
             }
         });
-        copyShareUrl.setOnAction(event -> copyShareUrl(multipleTemplateName));
-        importTemplate.setOnAction(event -> openImportShareTemplate(multipleTemplateName));
+        copyShareUrl.setOnAction(_ -> copyShareUrl(multipleTemplateName));
+        importTemplate.setOnAction(_ -> openImportShareTemplate(multipleTemplateName));
         contextMenu.getItems().addAll(top1, delete, edit, copy, deepCopy, importTemplate, copyShareUrl);
         if (USE_STRING.equals(rootText)) {
             contextMenu.getItems().add(moveNoUse);
@@ -886,7 +886,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
             };
             Window controllerWindow = mainBox.getScene().getWindow();
             FxProgressDialog dialog = FxProgressDialog.create(controllerWindow, progressTask, "正在生成中...");
-            progressTask.setOnCancelled(event -> {
+            progressTask.setOnCancelled(_ -> {
                 throw new IllegalArgumentException("生成被取消。");
             });
             progressTask.setOnFailed(event -> {

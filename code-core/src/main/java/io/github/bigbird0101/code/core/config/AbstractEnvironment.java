@@ -313,7 +313,7 @@ public abstract class AbstractEnvironment implements Environment {
 
     /**
      * 设置容器初始化时是否需要刷新
-     * @param initRefresh
+     * @param initRefresh 是否需要刷新
      */
     public void setContextTemplateInitRefresh(Boolean initRefresh){
         getPropertySources().addPropertySource(new GenericPropertySource<>(CODE_CONTEXT_TEMPLATE_INIT_REFRESH,initRefresh));

@@ -131,9 +131,7 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
             if (null != targetFilePrefixNameStrategy) {
                 int typeValue = targetFilePrefixNameStrategy.getTypeValue();
                 jsonObject.put("value", typeValue);
-                if (targetFilePrefixNameStrategy instanceof PatternTargetFilePrefixNameStrategy) {
-                    PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy =
-                            (PatternTargetFilePrefixNameStrategy) targetFilePrefixNameStrategy;
+                if (targetFilePrefixNameStrategy instanceof PatternTargetFilePrefixNameStrategy patternTemplateFilePrefixNameStrategy) {
                     jsonObject.put("pattern", patternTemplateFilePrefixNameStrategy.getPattern());
                 }
             }

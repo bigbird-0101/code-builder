@@ -9,5 +9,6 @@ public interface RefreshPropertySourceSerialize {
      * @param propertySources propertySources
      * @param <T> 属性对象
      */
+    @SuppressWarnings("unchecked")
    <T> void refreshPropertySourceSerialize(PropertySource<T>... propertySources);
 }
