@@ -14,76 +14,78 @@
 <?import java.net.URL?>
 <VBox fx:id="mainBox" prefHeight="700.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.bigbird0101.code.fxui.fx.controller.MainController">
-  <stylesheets>
-    <URL value="@../css/main.css"/>
-  </stylesheets>
-  <MenuBar VBox.vgrow="NEVER">
-    <Menu mnemonicParsing="false" text="模板">
-      <Menu mnemonicParsing="false" text="新建">
-        <MenuItem mnemonicParsing="false" onAction="#addTemplate" text="模板"/>
-        <MenuItem mnemonicParsing="false" text="导入模板" onAction="#importTemplate"/>
-        <MenuItem mnemonicParsing="false" text="组合模板" onAction="#addMultipleTemplate"/>
-        <MenuItem mnemonicParsing="false" text="导入组合模板" onAction="#importMultipleTemplate"/>
-      </Menu>
-      <MenuItem mnemonicParsing="false" text="Quit"/>
-    </Menu>
-    <Menu mnemonicParsing="false" text="配置">
-      <MenuItem mnemonicParsing="false" text="核心配置" onAction="#coreConfig"/>
-    </Menu>
-    <Menu mnemonicParsing="false" text="运行">
-      <MenuItem mnemonicParsing="false" text="生成 CTRL+A" onAction="#doBuildCore"/>
-      <MenuItem mnemonicParsing="false" text="已有文件存在就覆盖 CTRL+B" onAction="#doBuildCoreOverride"/>
-      <MenuItem mnemonicParsing="false" text="在已有文件的末尾处生成 CTRL+空格" onAction="#doBuildCoreAfter"/>
-    </Menu>
-    <Menu mnemonicParsing="false" text="帮助">
-      <MenuItem mnemonicParsing="false" text="关于" onAction="#about"/>
-      <Menu fx:id="showLog" mnemonicParsing="false" text="日志">
-      </Menu>
-    </Menu>
-  </MenuBar>
-  <SplitPane fx:id="splitPane" focusTraversable="true" VBox.vgrow="ALWAYS">
-    <!-- 左侧 StackPane -->
-    <StackPane minWidth="150" style="-fx-background-color: red;">
-      <VBox spacing="5">
-        <!-- 使用 SplitPane 实现上下分栏 -->
-        <SplitPane orientation="VERTICAL" fx:id="templateSplitPane">
-          <!-- 常用模板区域 - 默认展开 -->
-          <VBox fx:id="favoriteContainer"
-                style="-fx-background-color: #e0e0e0;" prefHeight="20">
-            <!-- 可视化折叠指示器 -->
-            <Label text="▼常用"
-                   style="-fx-alignment: center; -fx-background-color: #b0b0b0;"
-                   prefHeight="20"
-                   VBox.vgrow="ALWAYS"
-                   fx:id="favoriteToggleLabel"/>
-            <Pane fx:id="pane">
-              <TreeView fx:id="listViewTemplate"/>
-            </Pane>
-          </VBox>
+    <stylesheets>
+        <URL value="@../css/main.css"/>
+    </stylesheets>
+    <MenuBar VBox.vgrow="NEVER">
+        <Menu mnemonicParsing="false" text="模板">
+            <Menu mnemonicParsing="false" text="新建">
+                <MenuItem mnemonicParsing="false" onAction="#addTemplate" text="模板"/>
+                <MenuItem mnemonicParsing="false" text="导入模板" onAction="#importTemplate"/>
+                <MenuItem mnemonicParsing="false" text="组合模板" onAction="#addMultipleTemplate"/>
+                <MenuItem mnemonicParsing="false" text="导入组合模板" onAction="#importMultipleTemplate"/>
+            </Menu>
+            <MenuItem mnemonicParsing="false" text="清理模版" onAction="#clearTemplate"/>
+            <MenuItem mnemonicParsing="false" text="Quit"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="配置">
+            <MenuItem mnemonicParsing="false" text="核心配置" onAction="#coreConfig"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="运行">
+            <MenuItem mnemonicParsing="false" text="生成 CTRL+A" onAction="#doBuildCore"/>
+            <MenuItem mnemonicParsing="false" text="已有文件存在就覆盖 CTRL+B" onAction="#doBuildCoreOverride"/>
+            <MenuItem mnemonicParsing="false" text="在已有文件的末尾处生成 CTRL+空格" onAction="#doBuildCoreAfter"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="帮助">
+            <MenuItem mnemonicParsing="false" text="关于" onAction="#about"/>
+            <MenuItem mnemonicParsing="false" text="智能加载" onAction="#smartLoad"/>
+            <Menu fx:id="showLog" mnemonicParsing="false" text="日志">
+            </Menu>
+        </Menu>
+    </MenuBar>
+    <SplitPane fx:id="splitPane" focusTraversable="true" VBox.vgrow="ALWAYS">
+        <!-- 左侧 StackPane -->
+        <StackPane minWidth="150" style="-fx-background-color: red;">
+            <VBox spacing="5">
+                <!-- 使用 SplitPane 实现上下分栏 -->
+                <SplitPane orientation="VERTICAL" fx:id="templateSplitPane">
+                    <!-- 常用模板区域 - 默认展开 -->
+                    <VBox fx:id="favoriteContainer"
+                          style="-fx-background-color: #e0e0e0;" prefHeight="20">
+                        <!-- 可视化折叠指示器 -->
+                        <Label text="▼常用"
+                               style="-fx-alignment: center; -fx-background-color: #b0b0b0;"
+                               prefHeight="20"
+                               VBox.vgrow="ALWAYS"
+                               fx:id="favoriteToggleLabel"/>
+                        <Pane fx:id="pane">
+                            <TreeView fx:id="listViewTemplate"/>
+                        </Pane>
+                    </VBox>
 
-          <!-- 非常用模板区域 - 默认收缩 -->
-          <VBox fx:id="nonFavoriteContainer"
-                style="-fx-background-color: #d0d0d0;"
-                prefHeight="20">
-            <!-- 可视化折叠指示器 -->
-            <Label text="▼不常用"
-                   style="-fx-alignment: center; -fx-background-color: #b0b0b0;"
-                   prefHeight="20"
-                   VBox.vgrow="ALWAYS"
-                   fx:id="nonFavoriteToggleLabel"/>
-            <Pane fx:id="paneUnUse">
-              <TreeView fx:id="unUseTemplate">
-                <TreeItem>
-                </TreeItem>
-              </TreeView>
-            </Pane>
-          </VBox>
-        </SplitPane>
-      </VBox>
-    </StackPane>
-    <!-- 右侧 StackPane -->
-    <StackPane fx:id="contentParent" VBox.vgrow="ALWAYS">
-      <AnchorPane fx:id="content"/>
-    </StackPane>
-  </SplitPane>
+                    <!-- 非常用模板区域 - 默认收缩 -->
+                    <VBox fx:id="nonFavoriteContainer"
+                          style="-fx-background-color: #d0d0d0;"
+                          prefHeight="20">
+                        <!-- 可视化折叠指示器 -->
+                        <Label text="▼不常用"
+                               style="-fx-alignment: center; -fx-background-color: #b0b0b0;"
+                               prefHeight="20"
+                               VBox.vgrow="ALWAYS"
+                               fx:id="nonFavoriteToggleLabel"/>
+                        <Pane fx:id="paneUnUse">
+                            <TreeView fx:id="unUseTemplate">
+                                <TreeItem>
+                                </TreeItem>
+                            </TreeView>
+                        </Pane>
+                    </VBox>
+                </SplitPane>
+            </VBox>
+        </StackPane>
+        <!-- 右侧 StackPane -->
+        <StackPane fx:id="contentParent" VBox.vgrow="ALWAYS">
+            <AnchorPane fx:id="content"/>
+        </StackPane>
+    </SplitPane>
 </VBox>

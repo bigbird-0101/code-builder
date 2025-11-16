@@ -11,10 +11,12 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
 import cn.hutool.system.UserInfo;
+import com.alibaba.fastjson.JSONObject;
 import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.CoreConfig;
 import io.github.bigbird0101.code.core.config.FileUrlResource;
+import io.github.bigbird0101.code.core.config.ObjectPropertySources;
 import io.github.bigbird0101.code.core.context.AbstractTemplateContext;
 import io.github.bigbird0101.code.core.context.TemplateContext;
 import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
@@ -51,8 +53,10 @@ import io.github.bigbird0101.code.fxui.event.DatasourceConfigUpdateEvent;
 import io.github.bigbird0101.code.fxui.event.DoGetTemplateAfterEvent;
 import io.github.bigbird0101.code.fxui.fx.bean.PageInputSnapshot;
 import io.github.bigbird0101.code.fxui.fx.component.FxAlerts;
+import io.github.bigbird0101.code.fxui.fx.component.FxDialog;
 import io.github.bigbird0101.code.fxui.fx.component.FxProgressDialog;
 import io.github.bigbird0101.code.fxui.fx.component.ProgressTask;
+import io.github.bigbird0101.code.fxui.loadsmart.CorrectSmartConfigGenerator;
 import io.github.bigbird0101.code.util.Utils;
 import io.github.bigbird0101.spi.SPIServiceLoader;
 import io.github.bigbird0101.spi.inject.instance.InstanceContext;
@@ -65,6 +69,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ButtonType;
@@ -75,6 +80,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -125,7 +131,8 @@ import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT
 import static io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_KEY;
 import static io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_VALUE;
 import static io.github.bigbird0101.code.fxui.CodeBuilderApplication.USER_OPERATE_CACHE;
-import static java.util.stream.Collectors.toList;
+import static io.github.bigbird0101.code.fxui.common.LayoutHelper.hbox;
+import static io.github.bigbird0101.code.fxui.common.LayoutHelper.vbox;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -216,12 +223,12 @@ public class MainController extends AbstractTemplateContextProvider implements I
         }
         if(StrUtil.isNotBlank(defaultMultipleTemplate)){
             Optional.ofNullable(root.getChildren()
-                    .filtered(s -> s.getValue().getText().equals(defaultMultipleTemplate)))
+                            .filtered(s -> s.getValue().getText().equals(defaultMultipleTemplate)))
                     .ifPresent(s->{
                         if(s.isEmpty()){
                             return;
                         }
-                        final TreeItem<Label> labelTreeItem = s.get(0);
+                        final TreeItem<Label> labelTreeItem = s.getFirst();
                         listViewTemplate.getSelectionModel().select(labelTreeItem);
                     });
         }else{
@@ -279,6 +286,48 @@ public class MainController extends AbstractTemplateContextProvider implements I
         ThreadUtil.execAsync(this::initData);
     }
 
+    @FXML
+    public void clearTemplate(ActionEvent actionEvent) {
+        Stage secondWindow = new Stage();
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/clear_template.fxml"));
+            Parent parent = fxmlLoader.load();
+            secondWindow.setTitle("清理");
+            secondWindow.setScene(new Scene(parent));
+            secondWindow.show();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @FXML
+    public void smartLoad(ActionEvent actionEvent) {
+        TextArea textArea = new TextArea();
+        textArea.setText("请输入要加载的模板路径");
+        textArea.setPrefWidth(250);
+        textArea.setPrefHeight(50);
+        FxDialog<Void> fxDialog = new FxDialog<Void>()
+                .setOwner(mainBox.getScene().getWindow())
+                .setBody(vbox(0, 5, Pos.CENTER,
+                        hbox(5, 0, textArea)
+                ))
+                .setButtonTypes(ButtonType.OK, ButtonType.CANCEL)
+                .setButtonHandler(ButtonType.OK, (_, stage) -> {
+                    String trimmed = textArea.getText().trim();
+                    if (StrUtil.isBlank(trimmed)) {
+                        return;
+                    }
+                    CorrectSmartConfigGenerator generator = new CorrectSmartConfigGenerator(trimmed, null);
+                    JSONObject config = generator.generate();
+                    getTemplateContext().getEnvironment().refreshPropertySourceSerialize(
+                            new ObjectPropertySources(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH, config));
+                    FxAlerts.info("成功", "加载成功");
+                    stage.close();
+                })
+                .setCloseable(false);
+        fxDialog.showAndWait();
+    }
+
     private class DatasourceConfigUpdateEventListener extends TemplateListener<DatasourceConfigUpdateEvent> {
         @Override
         protected void onTemplateEvent(DatasourceConfigUpdateEvent doGetTemplateAfterEvent) {
@@ -311,28 +360,36 @@ public class MainController extends AbstractTemplateContextProvider implements I
                     StaticLog.debug("logPath {}", logPath);
                 }
                 if(file.exists()){
-                    FileFilterUtils.filterList(FileFileFilter.FILE, file.listFiles())
-                            .stream().map(File::getName)
-                            .map(MenuItem::new)
-                            .forEach(s->{
-                                if(logger.isDebugEnabled()) {
-                                    StaticLog.debug("MenuItem {}", s.getText());
-                                }
-                                s.setOnAction(event -> {
-                                    Desktop desktop = Desktop.getDesktop();
-                                    File logFile=new File(logPath+File.separator+s.getText());
-                                    if(logFile.exists()) {
-                                        try {
-                                            desktop.open(logFile);
-                                        } catch (IOException ignored) {
-                                        }
-                                    }
-                                });
-                                showLog.getItems().add(s);
-                            });
+                    setLogView(logPath, file);
+                } else {
+                    final String logPathCore = property + File.separator + "log" + File.separator + "core";
+                    final File fileCore = new File(logPathCore);
+                    setLogView(logPath, fileCore);
                 }
             }
         });
+    }
+
+    private void setLogView(String logPath, File fileCore) {
+        FileFilterUtils.filterList(FileFileFilter.FILE, fileCore.listFiles())
+                .stream().map(File::getName)
+                .map(MenuItem::new)
+                .forEach(s -> {
+                    if (logger.isDebugEnabled()) {
+                        StaticLog.debug("MenuItem {}", s.getText());
+                    }
+                    s.setOnAction(event -> {
+                        Desktop desktop = Desktop.getDesktop();
+                        File logFile = new File(logPath + File.separator + s.getText());
+                        if (logFile.exists()) {
+                            try {
+                                desktop.open(logFile);
+                            } catch (IOException ignored) {
+                            }
+                        }
+                    });
+                    showLog.getItems().add(s);
+                });
     }
 
     public PageInputSnapshot getDefaultMultipleTemplate() {
@@ -348,8 +405,8 @@ public class MainController extends AbstractTemplateContextProvider implements I
         List<String> multipleTemplateNames = getTemplateContext().getMultipleTemplateNames()
                 .stream()
                 .sorted((o1, o2) -> CompareUtil.compare(o1.hashCode(), o2.hashCode()))
-                .collect(toList());
-        List<String> useMultipleTemplateSelected = USER_OPERATE_CACHE.getUseMultipleTemplateSelected();
+                .toList();
+        LinkedHashSet<String> useMultipleTemplateSelected = USER_OPERATE_CACHE.getUseMultipleTemplateSelected();
         if (USE_STRING.equals(root.getValue().getText())) {
             for (String multipleTemplateName : multipleTemplateNames) {
                 if (CollUtil.contains(useMultipleTemplateSelected, multipleTemplateName)) {
@@ -394,7 +451,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 .getTemplates()
                 .stream()
                 .map(template -> getAndInitTemplateView(template, multipleTemplateName, item))
-                .collect(toList());
+                .toList();
         item.getChildren().addAll(item.getChildren().size(), collect);
 
         String rootText = root.getValue().getText();
@@ -557,14 +614,14 @@ public class MainController extends AbstractTemplateContextProvider implements I
         copyLabel.prefWidthProperty().bind(listViewTemplate.widthProperty());
         TreeItem<Label> copyItem = new TreeItem<>(copyLabel);
         copyItem.setExpanded(true);
-        List<TreeItem<Label>> collect = defaultListableTemplateFactory.getMultipleTemplate(copyMultipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, copyMultipleTemplateName, copyItem)).collect(toList());
+        List<TreeItem<Label>> collect = defaultListableTemplateFactory.getMultipleTemplate(copyMultipleTemplateName).getTemplates().stream().map(template -> getAndInitTemplateView(template, copyMultipleTemplateName, copyItem)).toList();
         copyItem.getChildren().addAll(copyItem.getChildren().size(), collect);
         final FilteredList<TreeItem<Label>> filtered = root.getChildren().filtered(s -> s.getValue().getText().equals(copyMultipleTemplateName));
         final int size = filtered.size();
         if(0==size) {
             root.getChildren().add(root.getChildren().size(), copyItem);
         }else if(1==size){
-            root.getChildren().remove(filtered.get(0));
+            root.getChildren().remove(filtered.getFirst());
             root.getChildren().add(root.getChildren().size(), copyItem);
         }
         copyLabel.setContextMenu(contextMenu);
@@ -663,12 +720,12 @@ public class MainController extends AbstractTemplateContextProvider implements I
             throw new CodeConfigException(e);
         }
         try {
-            String newFileName = getTemplateContext().getEnvironment().getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + File.separator + copyTemplateName+AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
+            String newFileName = getTemplateContext().getEnvironment()
+                    .getProperty(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH) + File.separator +
+                    copyTemplateName + AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
             final File file = new File(newFileName);
-            if(!file.exists()) {
-                FileUtils.copyFile(templateFile, file);
-                Thread.sleep(100);
-            }
+            FileUtils.copyFile(templateFile, file);
+            Thread.sleep(100);
             RootTemplateDefinition rootTemplateDefinition= (RootTemplateDefinition) clone;
             LinkedHashSet<String> dependTemplates = rootTemplateDefinition.getDependTemplates();
             if (CollUtil.isNotEmpty(dependTemplates)) {
@@ -709,6 +766,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
         content.getChildren().clear();
         content.getChildren().add(templatesOperateNode);
         templatesOperateController.doInitView();
+        templatesOperateController.saveConfig();
     }
 
     /**
@@ -758,6 +816,13 @@ public class MainController extends AbstractTemplateContextProvider implements I
                     for (String s1 : haveDepend.getDependTemplates()) {
                         checkModel.check(s1);
                     }
+                } else {
+                    if (StrUtil.isNotBlank(multipleTemplateName)) {
+                        getTemplateContext().getMultipleTemplate(multipleTemplateName)
+                                .getTemplates().stream()
+                                .map(Template::getTemplateName)
+                                .forEach(s -> templateController.depends.getItems().add(s));
+                    }
                 }
             }
             TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = Optional.ofNullable(template
@@ -772,10 +837,12 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 templateController.filePrefixNameStrategyPattern.setText(patternTemplateFilePrefixNameStrategy.getPattern());
             }
         } else {
-            getTemplateContext().getMultipleTemplate(multipleTemplateName)
-                    .getTemplates().stream()
-                    .map(Template::getTemplateName)
-                    .forEach(s -> templateController.depends.getItems().add(s));
+            if (StrUtil.isNotBlank(multipleTemplateName)) {
+                getTemplateContext().getMultipleTemplate(multipleTemplateName)
+                        .getTemplates().stream()
+                        .map(Template::getTemplateName)
+                        .forEach(s -> templateController.depends.getItems().add(s));
+            }
         }
         Scene scene = new Scene(root);
         secondWindow.setTitle(isEdit ? "编辑模板" : "新建模板");
@@ -797,7 +864,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
 
     @FXML
     public void doBuildCore() {
-         doBuild(FileBuilderEnum.NEW);
+        doBuild(FileBuilderEnum.NEW);
     }
 
     @FXML
@@ -948,26 +1015,26 @@ public class MainController extends AbstractTemplateContextProvider implements I
         AtomicInteger i= new AtomicInteger(1);
         for (String templateName : templateNamesSelected) {
 //            final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
-                final long l = System.currentTimeMillis();
-                Template template = templateContext.getTemplate(templateName);
-                Map<String, Object> dataModel = new HashMap<>(doBuildTemplateParam.getTemplateVariableResources().stream()
-                        .filter(Objects::nonNull)
-                        .findFirst().orElseThrow(() -> new CodeConfigException("not get eVariable resource config"))
-                        .mergeTemplateVariable(doBuildTemplateParam.getTemplateVariableResources()));
-                Optional.ofNullable(doBuildTemplateParam.getNoShareVar().poll()).ifPresent(dataModel::putAll);
-                doSetDependTemplateVariablesMapping(template, doBuildTemplateParam.getTableName(),dataModel);
+            final long l = System.currentTimeMillis();
+            Template template = templateContext.getTemplate(templateName);
+            Map<String, Object> dataModel = new HashMap<>(doBuildTemplateParam.getTemplateVariableResources().stream()
+                    .filter(Objects::nonNull)
+                    .findFirst().orElseThrow(() -> new CodeConfigException("not get eVariable resource config"))
+                    .mergeTemplateVariable(doBuildTemplateParam.getTemplateVariableResources()));
+            Optional.ofNullable(doBuildTemplateParam.getNoShareVar().poll()).ifPresent(dataModel::putAll);
+            doSetDependTemplateVariablesMapping(template, doBuildTemplateParam.getTableName(), dataModel);
             if (templateContext instanceof AbstractTemplateContext abstractTemplateContext) {
-                    Platform.runLater(() -> abstractTemplateContext.publishEvent(
-                            new DoGetTemplateAfterEvent(template, controller)));
-                }
-                try {
-                    doBuildTemplateParam.getFileBuilder().build(template,dataModel);
-                }catch (TemplateResolveException templateResolveException){
-                    throw new TemplateResolveException("{} 解析异常,{}",template.getTemplateName(),
-                            templateResolveException.getMessage());
-                }
-                final long e = System.currentTimeMillis();
-                StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
+                Platform.runLater(() -> abstractTemplateContext.publishEvent(
+                        new DoGetTemplateAfterEvent(template, controller)));
+            }
+            try {
+                doBuildTemplateParam.getFileBuilder().build(template, dataModel);
+            } catch (TemplateResolveException templateResolveException) {
+                throw new TemplateResolveException("{} 解析异常,{}", template.getTemplateName(),
+                        templateResolveException.getMessage());
+            }
+            final long e = System.currentTimeMillis();
+            StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
 //            }, DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> doBuildTemplateParam.getOnProgressUpdate().accept(all, i.getAndIncrement()),
 //                    DO_ANALYSIS_TEMPLATE);
             doBuildTemplateParam.getOnProgressUpdate().accept(all,i.getAndIncrement());

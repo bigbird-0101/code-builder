@@ -3,15 +3,17 @@ package io.github.bigbird0101.code.fxui.fx.cache;
 import cn.hutool.core.collection.CollUtil;
 import io.github.bigbird0101.code.fxui.fx.bean.PageInputSnapshot;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
 
+/**
+ * @author Lily
+ */
 public class UserOperateCache {
     private String templateNameSelected;
-    private List<String> useMultipleTemplateSelected;
+    private LinkedHashSet<String> useMultipleTemplateSelected;
     private String useMultipleTemplateTopicOne;
     private String unUseMultipleTemplateTopicOne;
-    private List<String> unUseMultipleTemplateSelected;
+    private LinkedHashSet<String> unUseMultipleTemplateSelected;
 
     public String getTemplateNameSelected() {
         return templateNameSelected;
@@ -21,20 +23,20 @@ public class UserOperateCache {
         this.templateNameSelected = templateNameSelected;
     }
 
-    public List<String> getUseMultipleTemplateSelected() {
+    public LinkedHashSet<String> getUseMultipleTemplateSelected() {
         return useMultipleTemplateSelected;
     }
 
-    public void setUseMultipleTemplateSelected(List<String> useMultipleTemplateSelected) {
+    public void setUseMultipleTemplateSelected(LinkedHashSet<String> useMultipleTemplateSelected) {
         this.useMultipleTemplateSelected = useMultipleTemplateSelected;
     }
 
     public void addUseMultipleTemplateSelected(String multipleTemplateName) {
         if (CollUtil.isEmpty(this.useMultipleTemplateSelected)) {
-            this.useMultipleTemplateSelected = new ArrayList<>();
+            this.useMultipleTemplateSelected = new LinkedHashSet<>();
         }
         if (CollUtil.isEmpty(this.unUseMultipleTemplateSelected)) {
-            this.unUseMultipleTemplateSelected = new ArrayList<>();
+            this.unUseMultipleTemplateSelected = new LinkedHashSet<>();
         }
         this.unUseMultipleTemplateSelected.remove(multipleTemplateName);
         this.useMultipleTemplateSelected.add(multipleTemplateName);
@@ -42,20 +44,20 @@ public class UserOperateCache {
 
     public void addNoUseMultipleTemplateSelected(String multipleTemplateName) {
         if (CollUtil.isEmpty(this.useMultipleTemplateSelected)) {
-            this.useMultipleTemplateSelected = new ArrayList<>();
+            this.useMultipleTemplateSelected = new LinkedHashSet<>();
         }
         if (CollUtil.isEmpty(this.unUseMultipleTemplateSelected)) {
-            this.unUseMultipleTemplateSelected = new ArrayList<>();
+            this.unUseMultipleTemplateSelected = new LinkedHashSet<>();
         }
         this.useMultipleTemplateSelected.remove(multipleTemplateName);
         this.unUseMultipleTemplateSelected.add(multipleTemplateName);
     }
 
-    public List<String> getUnUseMultipleTemplateSelected() {
+    public LinkedHashSet<String> getUnUseMultipleTemplateSelected() {
         return unUseMultipleTemplateSelected;
     }
 
-    public void setUnUseMultipleTemplateSelected(List<String> unUseMultipleTemplateSelected) {
+    public void setUnUseMultipleTemplateSelected(LinkedHashSet<String> unUseMultipleTemplateSelected) {
         this.unUseMultipleTemplateSelected = unUseMultipleTemplateSelected;
     }
 

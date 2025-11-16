@@ -64,8 +64,7 @@ public class DataSourceConfig {
 
     /**
      * 获取数据源配置
-     *
-     * @return
+     * @return 数据源配置
      */
     public static DataSourceConfig getDataSourceConfig(Environment environment) {
         final String selectDataSource = environment.getProperty("code.datasource");

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -13,25 +14,40 @@ import java.util.Set;
 public interface HaveDependTemplate extends Template {
     /**
      * 获取依赖的模板名
-     * @return
+     * @return 依赖的模板名
      */
     Set<String> getDependTemplates();
 
+    /**
+     * 更新模板依赖
+     *
+     * @param operateTemplateBeanFactory 模板工厂
+     * @param templateNameSrc            模板名
+     * @param templateNameNewSrc         新模板名
+     */
     static void updateDependTemplate(DefaultListableTemplateFactory operateTemplateBeanFactory, String templateNameSrc, String templateNameNewSrc) {
-        operateTemplateBeanFactory.getTemplateNames()
+        List<HaveDependTemplate> list = operateTemplateBeanFactory.getTemplateNames()
                 .stream()
                 .map(operateTemplateBeanFactory::getTemplate)
                 .filter(s -> s instanceof HaveDependTemplate)
                 .map(s -> (HaveDependTemplate) s)
+                .toList();
+        list.stream().filter(s -> CollectionUtil.isNotEmpty(s.getDependTemplates()) && s.getDependTemplates().contains(templateNameSrc))
                 .forEach(s -> {
                     Set<String> templates = s.getDependTemplates();
-                    if (CollectionUtil.isNotEmpty(templates)) {
+                    if (CollectionUtil.isNotEmpty(templates) && templates.contains(templateNameSrc)) {
                         replace(templates, templateNameSrc, templateNameNewSrc);
+                        operateTemplateBeanFactory.refreshTemplate(s);
                     }
-                    operateTemplateBeanFactory.refreshTemplate(s);
                 });
     }
 
+    /**
+     * 替换
+     * @param sets 集合
+     * @param old 旧值
+     * @param newValue 新值
+     */
     static void replace(Set<String> sets, String old, String newValue) {
         // 创建一个新的Set来存储结果
         Set<String> updatedSet = new LinkedHashSet<>();

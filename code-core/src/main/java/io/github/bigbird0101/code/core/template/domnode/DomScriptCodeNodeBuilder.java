@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 import static io.github.bigbird0101.code.core.template.AbstractHandleAbstractTemplateResolver.FUNCTION_BODY_BETWEEN_SPLIT;
 import static io.github.bigbird0101.code.core.template.AbstractHandleAbstractTemplateResolver.TEMPLATE_PREFIX_SPLIT;
 import static io.github.bigbird0101.code.core.template.AbstractHandleAbstractTemplateResolver.TEMPLATE_SUFFIX_SPLIT;
-import static java.util.stream.Collectors.toList;
 import static org.w3c.dom.Node.CDATA_SECTION_NODE;
 import static org.w3c.dom.Node.ELEMENT_NODE;
 import static org.w3c.dom.Node.TEXT_NODE;
@@ -97,7 +96,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
          * @param namedNodeMap namedNodeMap
          * @param name name
          * @param defaultValue defaultValue
-         * @return
+         * @return 获取到的属性值
          */
         default String getAttributeOrDefault(NamedNodeMap namedNodeMap, String name, String defaultValue){
             return Optional.ofNullable(namedNodeMap.getNamedItem(name))
@@ -109,7 +108,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
          * @param namedNodeMap namedNodeMap
          * @param name name
          * @param errorMsg errorMsg
-         * @return
+         * @return 获取到的属性值
          */
         default String getAttributeOrThrow(NamedNodeMap namedNodeMap, String name, String errorMsg){
             return Optional.ofNullable(namedNodeMap.getNamedItem(name))
@@ -139,7 +138,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
             List<CodeNode> whenCodeNodes=new ArrayList<>();
             List<CodeNode> otherCodeNodes=new ArrayList<>();
             parseWhenCodeNodes(node,whenCodeNodes,otherCodeNodes);
-            contents.add(new ChooseCodeNode(whenCodeNodes, otherCodeNodes.get(0)));
+            contents.add(new ChooseCodeNode(whenCodeNodes, otherCodeNodes.getFirst()));
         }
 
         private void parseWhenCodeNodes(Node node, List<CodeNode> whenCodeNodes, List<CodeNode> otherCodeNodes) {
@@ -150,12 +149,10 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
                 if(ELEMENT_NODE==nodeType){
                     final String nodeName = item.getNodeName();
                     final CodeNodeHandler codeNodeHandler = CODE_NODE_HANDLER_MAP.get(nodeName);
-                    if(codeNodeHandler instanceof WhenCodeNodeHandler){
-                        WhenCodeNodeHandler whenCodeNodeHandler= (WhenCodeNodeHandler) codeNodeHandler;
+                    if (codeNodeHandler instanceof WhenCodeNodeHandler whenCodeNodeHandler) {
                         whenCodeNodeHandler.handleNode(item,whenCodeNodes);
                     }
-                    if(codeNodeHandler instanceof OtherwiseCodeNodeHandler){
-                        OtherwiseCodeNodeHandler otherwiseCodeNodeHandler= (OtherwiseCodeNodeHandler) codeNodeHandler;
+                    if (codeNodeHandler instanceof OtherwiseCodeNodeHandler otherwiseCodeNodeHandler) {
                         otherwiseCodeNodeHandler.handleNode(item,otherCodeNodes);
                     }
                 }
@@ -192,7 +189,7 @@ public class DomScriptCodeNodeBuilder implements CodeNodeBuilder{
             final MixCodeNode mixCodeNode = parseNode(node);
             final String separator = getAttributeOrDefault(node.getAttributes(),SEPARATOR,StrUtil.EMPTY);
             final String vFor = getAttributeOrThrow(node.getAttributes(),V_FOR,"foreach not get v-for error");
-            final List<String> collect = Stream.of(vFor.split(IN_REGEX)).map(String::trim).collect(toList());
+            final List<String> collect = Stream.of(vFor.split(IN_REGEX)).map(String::trim).toList();
             if(!vFor.contains(IN_REGEX)||collect.size()!=2){
                 throw new TemplateResolveException("foreach 语句 语法异常,未在v-for中以 in 隔开");
             }

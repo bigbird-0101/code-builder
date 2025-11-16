@@ -11,7 +11,7 @@ import io.github.bigbird0101.code.core.config.Environment;
 public interface EnvironmentAware {
     /**
      * 框架环境感知
-     * @param environment
+     * @param environment 框架环境
      */
     void setEnvironment(Environment environment);
 }

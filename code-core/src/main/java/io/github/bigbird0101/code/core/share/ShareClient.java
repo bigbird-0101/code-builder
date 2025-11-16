@@ -14,7 +14,6 @@ import io.github.bigbird0101.code.core.exception.NoSuchTemplateDefinitionExcepti
 import io.github.bigbird0101.code.core.factory.GenericMultipleTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.GenericTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.config.MultipleTemplateDefinition;
-import io.github.bigbird0101.code.core.template.AbstractTemplate;
 import io.github.bigbird0101.code.core.template.Template;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,7 +35,7 @@ import static io.github.bigbird0101.code.core.share.ShareConstant.TEMPLATE;
  * @date 2024-06-09 22:53
  */
 public class ShareClient extends AbstractTemplateContextProvider {
-    private static final Logger LOGGER = LogManager.getLogger(AbstractTemplate.class);
+    private static final Logger LOGGER = LogManager.getLogger(ShareClient.class);
 
     public boolean isTemplateShareUrl(String url) {
         return url.contains(TEMPLATE);
@@ -47,46 +46,48 @@ public class ShareClient extends AbstractTemplateContextProvider {
     }
 
     public MultipleTemplateDefinitionWrapper multipleTemplate(String url) {
-        HttpResponse response = HttpUtil.createGet(UrlBuilder.of(url).build())
-                .execute();
-        if (response.isOk()) {
-            byte[] input = response.bodyBytes();
-            JSONObject jsonObject = (JSONObject) JSONObject.parse(input);
-            MultipleTemplateDefinition multipleTemplateDefinition = JSONObject.parseObject(input, GenericMultipleTemplateDefinition.class);
-            String multipleTemplateName = jsonObject.getString(ShareConstant.TEMPLATE_NAME);
-            JSONObject templateMaps = jsonObject.getJSONObject(ShareConstant.TEMPLATE_MAPS);
-            List<TemplateDefinitionWrapper> templateDefinitionWrappers = templateMaps
-                    .values()
-                    .stream()
-                    .map(object -> {
-                JSONObject jsonObjectTemplate = (JSONObject) object;
-                GenericTemplateDefinition genericTemplateDefinition = getGenericTemplateDefinition(jsonObjectTemplate);
-                List<TemplateDefinitionWrapper> collect = getDependTemplateDefinitionWrappers(jsonObjectTemplate);
-                return new TemplateDefinitionWrapper(genericTemplateDefinition, jsonObjectTemplate.getString(ShareConstant.TEMPLATE_NAME), collect);
-            }).collect(Collectors.toList());
-            return new MultipleTemplateDefinitionWrapper(multipleTemplateName, multipleTemplateDefinition, templateDefinitionWrappers);
-        } else {
-            if (response.getStatus() != HTTP_NOT_FOUND) {
-                LOGGER.error("require {} error {}", url, response.body());
+        try (HttpResponse response = HttpUtil.createGet(UrlBuilder.of(url).build())
+                .execute()) {
+            if (response.isOk()) {
+                byte[] input = response.bodyBytes();
+                JSONObject jsonObject = (JSONObject) JSONObject.parse(input);
+                MultipleTemplateDefinition multipleTemplateDefinition = JSONObject.parseObject(input, GenericMultipleTemplateDefinition.class);
+                String multipleTemplateName = jsonObject.getString(ShareConstant.TEMPLATE_NAME);
+                JSONObject templateMaps = jsonObject.getJSONObject(ShareConstant.TEMPLATE_MAPS);
+                List<TemplateDefinitionWrapper> templateDefinitionWrappers = templateMaps
+                        .values()
+                        .stream()
+                        .map(object -> {
+                            JSONObject jsonObjectTemplate = (JSONObject) object;
+                            GenericTemplateDefinition genericTemplateDefinition = getGenericTemplateDefinition(jsonObjectTemplate);
+                            List<TemplateDefinitionWrapper> collect = getDependTemplateDefinitionWrappers(jsonObjectTemplate);
+                            return new TemplateDefinitionWrapper(genericTemplateDefinition, jsonObjectTemplate.getString(ShareConstant.TEMPLATE_NAME), collect);
+                        }).collect(Collectors.toList());
+                return new MultipleTemplateDefinitionWrapper(multipleTemplateName, multipleTemplateDefinition, templateDefinitionWrappers);
+            } else {
+                if (response.getStatus() != HTTP_NOT_FOUND) {
+                    LOGGER.error("require {} error {}", url, response.body());
+                }
+                throw new NoSuchMultipleTemplateDefinitionException(response.body());
             }
-            throw new NoSuchMultipleTemplateDefinitionException(response.body());
         }
     }
 
     public TemplateDefinitionWrapper template(String url) {
-        HttpResponse response = HttpUtil.createGet(UrlBuilder.of(url).build())
-                .execute();
-        if (response.isOk()) {
-            byte[] input = response.bodyBytes();
-            JSONObject jsonObject = (JSONObject) JSONObject.parse(input);
-            GenericTemplateDefinition o = getGenericTemplateDefinition(jsonObject);
-            List<TemplateDefinitionWrapper> collect = getDependTemplateDefinitionWrappers(jsonObject);
-            return new TemplateDefinitionWrapper(o, jsonObject.getString(ShareConstant.TEMPLATE_NAME), collect);
-        } else {
-            if (response.getStatus() != HTTP_NOT_FOUND) {
-                LOGGER.error("require {} error {}", url, response.body());
+        try (HttpResponse response = HttpUtil.createGet(UrlBuilder.of(url).build())
+                .execute()) {
+            if (response.isOk()) {
+                byte[] input = response.bodyBytes();
+                JSONObject jsonObject = (JSONObject) JSONObject.parse(input);
+                GenericTemplateDefinition o = getGenericTemplateDefinition(jsonObject);
+                List<TemplateDefinitionWrapper> collect = getDependTemplateDefinitionWrappers(jsonObject);
+                return new TemplateDefinitionWrapper(o, jsonObject.getString(ShareConstant.TEMPLATE_NAME), collect);
+            } else {
+                if (response.getStatus() != HTTP_NOT_FOUND) {
+                    LOGGER.error("require {} error {}", url, response.body());
+                }
+                throw new NoSuchTemplateDefinitionException(response.body());
             }
-            throw new NoSuchTemplateDefinitionException(response.body());
         }
     }
 
@@ -129,17 +130,18 @@ public class ShareClient extends AbstractTemplateContextProvider {
     }
 
     public String templateContent(String url){
-        HttpResponse response = HttpUtil.createGet(UrlBuilder.of(url).build())
-                .execute();
-        if(response.isOk()) {
-            byte[] input = response.bodyBytes();
-            JSONObject jsonObject = (JSONObject) JSONObject.parse(input);
-            return jsonObject.getString(ShareConstant.TEMPLATE_CONTENT);
-        }else{
-            if (response.getStatus() != HTTP_NOT_FOUND) {
-                LOGGER.error("require {} error {}", url, response.body());
+        try (HttpResponse response = HttpUtil.createGet(UrlBuilder.of(url).build())
+                .execute()) {
+            if (response.isOk()) {
+                byte[] input = response.bodyBytes();
+                JSONObject jsonObject = (JSONObject) JSONObject.parse(input);
+                return jsonObject.getString(ShareConstant.TEMPLATE_CONTENT);
+            } else {
+                if (response.getStatus() != HTTP_NOT_FOUND) {
+                    LOGGER.error("require {} error {}", url, response.body());
+                }
+                throw new NoSuchTemplateDefinitionException(response.body());
             }
-            throw new NoSuchTemplateDefinitionException(response.body());
         }
     }
 }

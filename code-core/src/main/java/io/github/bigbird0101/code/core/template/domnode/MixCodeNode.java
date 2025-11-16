@@ -7,20 +7,11 @@ import java.util.List;
  * @version 1.0.0
  * @since 2022-09-30 22:41:56
  */
-public class MixCodeNode implements CodeNode{
-    private final List<CodeNode> contents;
-
-    public MixCodeNode(List<CodeNode> contents) {
-        this.contents = contents;
-    }
+public record MixCodeNode(List<CodeNode> contents) implements CodeNode {
 
     @Override
     public boolean apply(CodeNodeContext context) {
-        contents.forEach(s->s.apply(context));
+        contents.forEach(s -> s.apply(context));
         return true;
-    }
-
-    public List<CodeNode> getContents() {
-        return contents;
     }
 }

@@ -19,12 +19,10 @@ public class TemplateContextAwareProcessor {
 
     public void awareProcessor() {
         final ConfigurableListableTemplateFactory templateFactory = templateContext.getTemplateFactory();
-        if(templateFactory instanceof AbstractTemplateFactory){
-            AbstractTemplateFactory abstractTemplateFactory= (AbstractTemplateFactory) templateFactory;
+        if (templateFactory instanceof AbstractTemplateFactory abstractTemplateFactory) {
             for (TemplatePostProcessor postProcessor : abstractTemplateFactory.getTemplatePostProcessors()) {
                 abstractTemplateFactory.invokeBaseAware(postProcessor);
-                if(postProcessor instanceof TemplateContextAware){
-                    TemplateContextAware templateContextAware= (TemplateContextAware) postProcessor;
+                if (postProcessor instanceof TemplateContextAware templateContextAware) {
                     templateContextAware.setTemplateContext(templateContext);
                 }
             }

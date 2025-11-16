@@ -2,6 +2,7 @@ package io.github.bigbird0101.code.core.filebuilder;
 
 /**
  * 超时正则字符序列
+ * @author bigbird-0101
  */
 public class TimeoutRegexCharSequence implements CharSequence {
 

@@ -10,13 +10,13 @@ import java.util.Map;
 public interface CodeNodeContext {
     /**
      * 获取最终的代码
-     * @return
+     * @return 最终的代码
      */
     String getCode();
 
     /**
      * 拼接code
-     * @param code
+     * @param code 待拼接的代码
      */
     void appendCode(String code);
     /**

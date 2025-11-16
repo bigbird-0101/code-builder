@@ -35,8 +35,7 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
     public String doneCode(Map<String,Object> dataModel) throws TemplateResolveException {
         Objects.requireNonNull(getTemplate(),"模板对象不允许为空!");
         Template template = getTemplate();
-        if(template instanceof AbstractHandleFunctionTemplate){
-            AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
+        if (template instanceof AbstractHandleFunctionTemplate handleFunctionTemplate) {
             handleFunctionTemplate.setResolverStrategy(this);
             String templeResult=handleFunctionTemplate.process(dataModel);
             String srcFilePath=getFilePath(dataModel);
@@ -89,7 +88,7 @@ public class FileAppendSuffixCodeBuilderStrategy extends AbstractFileCodeBuilder
      * 解析策略
      *
      * @param templateFileClassInfo 模板的详情信息
-     * @param dataModel
+     * @param dataModel 数据模型
      */
     @Override
     public void resolverStrategy(TemplateFileClassInfo templateFileClassInfo, Map<String, Object> dataModel) {

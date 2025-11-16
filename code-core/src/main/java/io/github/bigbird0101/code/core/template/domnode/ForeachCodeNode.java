@@ -39,11 +39,10 @@ public class ForeachCodeNode implements CodeNode{
     @Override
     public boolean apply(CodeNodeContext context) {
         Object temp= Utils.getTargetObject(context.getTemplateVariable(),collectionExpression);
-        if(!(temp instanceof Collection)){
+        if (!(temp instanceof Collection<?> collection)) {
             throw new TemplateResolveException("Foreach collectionExpression {} target object is not collection",
                     temp);
         }
-        Collection<?> collection= (Collection<?>) temp;
         int a=0;
         for(Object o:collection){
             CodeNodeContext oldContext = context;

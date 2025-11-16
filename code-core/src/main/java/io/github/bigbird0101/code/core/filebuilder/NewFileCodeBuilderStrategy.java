@@ -1,10 +1,6 @@
 package io.github.bigbird0101.code.core.filebuilder;
 
 import cn.hutool.log.StaticLog;
-import io.github.bigbird0101.code.core.template.AbstractHandleFunctionTemplate;
-import io.github.bigbird0101.code.core.template.AbstractNoHandleFunctionTemplate;
-import io.github.bigbird0101.code.core.template.Template;
-import io.github.bigbird0101.code.exception.TemplateResolveException;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +9,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 生成新文件的代码策略
@@ -22,25 +17,6 @@ import java.util.Objects;
  */
 public class NewFileCodeBuilderStrategy extends AbstractFileCodeBuilderStrategy {
     private static final Logger logger= LogManager.getLogger(NewFileCodeBuilderStrategy.class);
-    /**
-     * 文件代码生成器策略
-     *
-     * @return 代码
-     */
-    @Override
-    public String doneCode(Map<String,Object> dataModel) throws TemplateResolveException {
-        Objects.requireNonNull(getTemplate(),"模板对象不允许为空!");
-        Template template = getTemplate();
-        if(template instanceof AbstractHandleFunctionTemplate){
-            AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
-            handleFunctionTemplate.setResolverStrategy(this);
-            return handleFunctionTemplate.process(dataModel);
-        }else if(template instanceof AbstractNoHandleFunctionTemplate){
-            return template.process(dataModel);
-        }else{
-            return template.process(dataModel);
-        }
-    }
 
     /**
      * 文件写入的方式

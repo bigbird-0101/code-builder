@@ -14,7 +14,6 @@ import io.github.bigbird0101.code.core.common.OrderedProperties;
 import io.github.bigbird0101.code.core.exception.CodeConfigException;
 import io.github.bigbird0101.code.core.template.MultipleTemplate;
 import io.github.bigbird0101.code.core.template.Template;
-import io.github.bigbird0101.code.util.CommonFileUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
@@ -23,20 +22,22 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static cn.hutool.core.text.StrPool.SLASH;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * @author fpp
@@ -133,21 +134,25 @@ public abstract class AbstractEnvironment implements Environment {
         loadCoreConfig(coreConfigPath);
     }
     protected void loadTemplatesPath() {
-        Collection<File> files = FileUtils.listFiles(new File(getDecodeFilePath(templatesPath)), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
+        Collection<File> files = FileUtils.listFiles(getTemplateDirectory(), new SuffixFileFilter(DEFAULT_TEMPLATE_FILE_SUFFIX), null);
         files.forEach(file -> {
             String fileName = file.getName();
             TEMPLATE_FILE_NAME_URL_MAPPING.put(fileName, file.getAbsolutePath());
             try (FileInputStream fileInputStream = new FileInputStream(file)) {
-                TEMPLATE_FILE_URL_CONTENT_MAPPING.put(file.getAbsolutePath(), IOUtils.toString(fileInputStream, StandardCharsets.UTF_8));
+                TEMPLATE_FILE_URL_CONTENT_MAPPING.put(file.getAbsolutePath(), IOUtils.toString(fileInputStream, UTF_8));
             } catch (IOException e) {
                 InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(templatesPath);
                 try {
                     assert resourceAsStream != null;
-                    TEMPLATE_FILE_URL_CONTENT_MAPPING.put(file.getAbsolutePath(), IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8));
+                    TEMPLATE_FILE_URL_CONTENT_MAPPING.put(file.getAbsolutePath(), IOUtils.toString(resourceAsStream, UTF_8));
                 } catch (IOException ignored) {
                 }
             }
         });
+    }
+
+    public File getTemplateDirectory() {
+        return new File(getDecodeFilePath(templatesPath));
     }
 
     private String getDecodeFilePath(String path) {
@@ -166,7 +171,8 @@ public abstract class AbstractEnvironment implements Environment {
             pss.load(reader);
         }
         if(logger.isInfoEnabled()){
-            logger.info("加载配置环境 {}",pss);
+            logger.info("加载配置环境\t\r\n {}", pss.stringPropertyNames().stream()
+                    .map(s -> s + "=" + pss.getProperty(s)).collect(Collectors.joining("\r\n")));
         }
         pss.stringPropertyNames().forEach((k) -> {
             StringPropertySource multipleTemplatePropertySource = new StringPropertySource(k, pss.getProperty(k));
@@ -184,24 +190,24 @@ public abstract class AbstractEnvironment implements Environment {
     @Override
     public final <T> void refreshPropertySourceSerialize(PropertySource<T>... propertySources) {
         boolean isTemplateCorePath = false;
+        boolean isCoreConfigPath = false;
         if (propertySources.length > 0) {
             isTemplateCorePath = propertySources[0].getName().equals(DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE);
+            isCoreConfigPath = propertySources[0].getName().equals(DEFAULT_CORE_TEMPLATE_PATH);
         }
         if (isTemplateCorePath) {
             JSONObject configContent = getConfigContent(templateConfigPath);
             JSONArray multipleTemplates = configContent.getJSONArray(MULTIPLE_TEMPLATES);
             JSONArray templates = configContent.getJSONArray(TEMPLATES);
             Arrays.stream(propertySources).forEach(propertySource -> {
-                if (propertySource.getSource() instanceof Template) {
-                    Template template = (Template) propertySource.getSource();
-                    int index = IsHaveTemplate(templates, template.getTemplateName());
+                if (propertySource.getSource() instanceof Template template) {
+                    int index = isHaveTemplate(templates, template.getTemplateName());
                     if(index>=0) {
                         templates.remove(index);
                     }
                     templates.add(JSON.toJSON(template));
-                } else if (propertySource.getSource() instanceof MultipleTemplate) {
-                    MultipleTemplate template = (MultipleTemplate) propertySource.getSource();
-                    int index = IsHaveTemplate(multipleTemplates, template.getTemplateName());
+                } else if (propertySource.getSource() instanceof MultipleTemplate template) {
+                    int index = isHaveTemplate(multipleTemplates, template.getTemplateName());
                     if(index>=0) {
                         multipleTemplates.remove(index);
                     }
@@ -212,6 +218,10 @@ public abstract class AbstractEnvironment implements Environment {
                 }
             });
             doSetTemplateConfig(configContent);
+        } else if (isCoreConfigPath) {
+            if (propertySources[0].getSource() instanceof JSONObject coreTemplateConfig) {
+                doSetTemplateConfig(coreTemplateConfig);
+            }
         } else {
             Arrays.stream(propertySources).forEach(propertySource -> getPropertySources().updatePropertySource(propertySource.getName(), propertySource.getSource()));
             doSetCoreConfig();
@@ -227,24 +237,43 @@ public abstract class AbstractEnvironment implements Environment {
                     stringBuilder.append(k).append("=").append(v).append("\r\n");
                 }
             });
-            try (FileOutputStream fileOutputStream = new FileOutputStream(coreConfigPath)) {
-                CommonFileUtils.clearFileContent(coreConfigPath);
-                IOUtils.write(stringBuilder.toString().getBytes(StandardCharsets.UTF_8), fileOutputStream);
+            String content = stringBuilder.toString();
+            // 先写入到临时位置
+            Path tempPath = Paths.get(coreConfigPath + ".partial");
+            try {
+                Files.writeString(tempPath, content, UTF_8);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Failed to write partial core config file", e);
+            }
+
+            // 原子性重命名
+            try {
+                Files.move(tempPath, Paths.get(coreConfigPath),
+                        REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to commit core config file", e);
             }
         }
     }
 
     private void doSetTemplateConfig(JSONObject configContent) {
         if(StrUtil.isNotBlank(templateConfigPath)) {
-            try (FileOutputStream fileOutputStream = new FileOutputStream(templateConfigPath)) {
-                CommonFileUtils.clearFileContent(templateConfigPath);
-                String result = JSON.toJSONString(configContent, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue,
-                        SerializerFeature.WriteDateUseDateFormat);
-                IOUtils.write(result.getBytes(StandardCharsets.UTF_8), fileOutputStream);
+            String result = JSON.toJSONString(configContent, SerializerFeature.PrettyFormat,
+                    SerializerFeature.WriteMapNullValue, SerializerFeature.WriteDateUseDateFormat);
+            // 先写入到临时位置
+            Path tempPath = Paths.get(templateConfigPath + ".partial");
+            try {
+                Files.writeString(tempPath, result);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Failed to write partial config file", e);
+            }
+
+            // 原子性重命名
+            try {
+                Files.move(tempPath, Paths.get(templateConfigPath),
+                        REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to commit config file", e);
             }
         }
     }
@@ -261,15 +290,13 @@ public abstract class AbstractEnvironment implements Environment {
             JSONArray multipleTemplates = configContent.getJSONArray(MULTIPLE_TEMPLATES);
             JSONArray templates = configContent.getJSONArray(TEMPLATES);
             Arrays.stream(propertySources).forEach(propertySource -> {
-                if (propertySource.getSource() instanceof Template) {
-                    Template template = (Template) propertySource.getSource();
-                    int index = IsHaveTemplate(templates, template.getTemplateName());
+                if (propertySource.getSource() instanceof Template template) {
+                    int index = isHaveTemplate(templates, template.getTemplateName());
                     if (index >= 0) {
                         templates.remove(index);
                     }
-                } else if (propertySource.getSource() instanceof MultipleTemplate) {
-                    MultipleTemplate template = (MultipleTemplate) propertySource.getSource();
-                    int index = IsHaveTemplate(multipleTemplates, template.getTemplateName());
+                } else if (propertySource.getSource() instanceof MultipleTemplate template) {
+                    int index = isHaveTemplate(multipleTemplates, template.getTemplateName());
                     if (index >= 0) {
                         multipleTemplates.remove(index);
                     }
@@ -282,7 +309,7 @@ public abstract class AbstractEnvironment implements Environment {
         }
     }
 
-    private int IsHaveTemplate(JSONArray jsonArray, String templateName) {
+    private int isHaveTemplate(JSONArray jsonArray, String templateName) {
         if (null != jsonArray && !jsonArray.isEmpty()) {
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject templateInfo = (JSONObject) jsonArray.get(i);
@@ -297,7 +324,7 @@ public abstract class AbstractEnvironment implements Environment {
     public static JSONObject getConfigContent(String templatesFilePath) throws CodeConfigException {
         String result;
         try {
-            result = IOUtils.toString(Files.newInputStream(Paths.get(templatesFilePath)), StandardCharsets.UTF_8);
+            result = IOUtils.toString(Files.newInputStream(Paths.get(templatesFilePath)), UTF_8);
         } catch (IOException e) {
             throw new CodeConfigException(e);
         }
@@ -313,7 +340,7 @@ public abstract class AbstractEnvironment implements Environment {
 
     /**
      * 设置容器初始化时是否需要刷新
-     * @param initRefresh
+     * @param initRefresh 是否需要刷新
      */
     public void setContextTemplateInitRefresh(Boolean initRefresh){
         getPropertySources().addPropertySource(new GenericPropertySource<>(CODE_CONTEXT_TEMPLATE_INIT_REFRESH,initRefresh));

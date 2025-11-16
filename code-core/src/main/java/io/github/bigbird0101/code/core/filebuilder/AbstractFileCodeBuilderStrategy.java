@@ -7,8 +7,10 @@ import io.github.bigbird0101.code.core.domain.TableInfo;
 import io.github.bigbird0101.code.core.domain.TemplateFileClassInfo;
 import io.github.bigbird0101.code.core.filebuilder.definedfunction.DefinedFunctionResolver;
 import io.github.bigbird0101.code.core.template.AbstractHandleFunctionTemplate;
+import io.github.bigbird0101.code.core.template.AbstractNoHandleFunctionTemplate;
 import io.github.bigbird0101.code.core.template.ResolverStrategy;
 import io.github.bigbird0101.code.core.template.Template;
+import io.github.bigbird0101.code.exception.TemplateResolveException;
 import io.github.bigbird0101.code.util.Utils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +23,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author fpp
@@ -140,5 +143,19 @@ public abstract class AbstractFileCodeBuilderStrategy implements FileCodeBuilder
     @Override
     public void resolverStrategy(TemplateFileClassInfo templateFileClassInfo, Map<String, Object> dataModel) {
        filterFunction(templateFileClassInfo,dataModel);
+    }
+
+    @Override
+    public String doneCode(Map<String, Object> dataModel) throws TemplateResolveException {
+        Objects.requireNonNull(getTemplate(), "模板对象不允许为空!");
+        Template template = getTemplate();
+        if (template instanceof AbstractHandleFunctionTemplate handleFunctionTemplate) {
+            handleFunctionTemplate.setResolverStrategy(this);
+            return handleFunctionTemplate.process(dataModel);
+        } else if (template instanceof AbstractNoHandleFunctionTemplate) {
+            return template.process(dataModel);
+        } else {
+            return template.process(dataModel);
+        }
     }
 }

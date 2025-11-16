@@ -25,8 +25,7 @@ public class FileAppendPrefixCodeBuilderStrategy extends AbstractFileCodeBuilder
         Template template = getTemplate();
         Objects.requireNonNull(template,"模板对象不允许为空!");
 
-        if(template instanceof AbstractHandleFunctionTemplate){
-            AbstractHandleFunctionTemplate handleFunctionTemplate= (AbstractHandleFunctionTemplate) template;
+        if (template instanceof AbstractHandleFunctionTemplate handleFunctionTemplate) {
             handleFunctionTemplate.setResolverStrategy(this);
             String templeResult=handleFunctionTemplate.process(dataModel);
 

@@ -48,6 +48,7 @@ public abstract class AbstractRefreshTemplateContext extends AbstractTemplateCon
         return new DefaultListableTemplateFactory();
     }
 
+    @Override
     public void destroyTemplates() {
         getTemplateFactory().destroyTemplates();
     }

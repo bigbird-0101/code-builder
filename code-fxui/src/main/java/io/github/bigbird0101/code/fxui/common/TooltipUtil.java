@@ -24,6 +24,9 @@ public class TooltipUtil {
 
     public static void showToast(Node node, String message) {
         Window window = Utils.getWindow(node);
+        if (null == window) {
+            return;
+        }
         double x = 0;
         double y = 0;
         if (node != null) {

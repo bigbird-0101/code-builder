@@ -12,7 +12,7 @@ public interface SPIServiceInjector extends TypeBasedSPI {
      * @param type instance type
      * @param name instance name
      * @return instance
-     * @param <T>
+     * @param <T> T
      */
     <T> T getInstance(final Class<T> type, final String name);
 }

@@ -8,7 +8,7 @@ package io.github.bigbird0101.code.core.template.domnode;
 public interface CodeNodeBuilder {
     /**
      * CodeNode构建器
-     * @return
+     * @return CodeNode
      */
     CodeNode parse();
 }

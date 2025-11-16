@@ -105,8 +105,7 @@ public class DefaultListableTemplateFactory extends AbstractOperateTemplateTempl
 
     /**
      * 获取组合模板名集合
-     *
-     * @return
+     * @return 组合模板名集合
      */
     @Override
     public Set<String> getMultipleTemplateNames() {

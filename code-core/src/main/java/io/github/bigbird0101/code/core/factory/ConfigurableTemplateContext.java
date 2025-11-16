@@ -13,19 +13,19 @@ public interface ConfigurableTemplateContext extends TemplateContext {
 
     /**
      * 刷新 容器
-     * @throws CodeConfigException
+     * @throws CodeConfigException CodeConfigException
      */
     void refresh();
 
     /**
      * 添加TemplateFactoryPostProcessor
-     * @param templateFactoryPostProcessor
+     * @param templateFactoryPostProcessor templateFactoryPostProcessor
      */
     void addTemplateFactoryPostProcessor(TemplateFactoryPostProcessor templateFactoryPostProcessor);
 
     /**
      * 添加基础代码监听
-     * @param listener
+     * @param listener  listener
      */
     void addBasicCodeListener(BasicCodeListener<?> listener);
 }

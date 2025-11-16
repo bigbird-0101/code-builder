@@ -10,8 +10,8 @@ import java.util.Objects;
  */
 public abstract class PropertySource<T> implements Serializable {
 
-    private String name;
-    private T source;
+    private final String name;
+    private final T source;
 
     public PropertySource(String name, T source) {
         Objects.requireNonNull(name,"name must be not null");

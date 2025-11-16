@@ -18,8 +18,12 @@ public class SimpleCacheImpl<K,C> implements Cache<K,C>, Serializable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 		SimpleCacheImpl<?, ?> that = (SimpleCacheImpl<?, ?>) o;
 		return Objects.equals(cache, that.cache);
 	}
