@@ -25,12 +25,12 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * 自定义对话框
  *
+ * @author Lily
  * @param <T> 对话框的 Controller 类型
  */
 public class FxDialog<T> {
@@ -152,11 +152,11 @@ public class FxDialog<T> {
 
         if (this.bodyFxmlPath != null) {
             ClassLoader classLoader =
-                this.bodyFxmlClassLoader == null ? FxDialog.class.getClassLoader() : this.bodyFxmlClassLoader;
+                    this.bodyFxmlClassLoader == null ? FxDialog.class.getClassLoader() : this.bodyFxmlClassLoader;
 
             FXMLLoader fxmlLoader = resourceBundle == null?
-                FxmlUtil.loadFxmlFromResource(classLoader, this.bodyFxmlPath):
-                FxmlUtil.loadFxmlFromResource(classLoader, this.bodyFxmlPath, resourceBundle);
+                    FxmlUtil.loadFxmlFromResource(classLoader, this.bodyFxmlPath) :
+                    FxmlUtil.loadFxmlFromResource(classLoader, this.bodyFxmlPath, resourceBundle);
 
             Stage stage = createStage(fxmlLoader.getRoot());
             stage.show();
@@ -176,11 +176,11 @@ public class FxDialog<T> {
 
         if (this.bodyFxmlPath != null) {
             ClassLoader classLoader =
-                this.bodyFxmlClassLoader == null ? FxDialog.class.getClassLoader() : this.bodyFxmlClassLoader;
+                    this.bodyFxmlClassLoader == null ? FxDialog.class.getClassLoader() : this.bodyFxmlClassLoader;
 
             FXMLLoader fxmlLoader = resourceBundle == null?
-                FxmlUtil.loadFxmlFromResource(classLoader, this.bodyFxmlPath):
-                FxmlUtil.loadFxmlFromResource(classLoader, this.bodyFxmlPath, resourceBundle);
+                    FxmlUtil.loadFxmlFromResource(classLoader, this.bodyFxmlPath) :
+                    FxmlUtil.loadFxmlFromResource(classLoader, this.bodyFxmlPath, resourceBundle);
 
             Stage stage = createStage(fxmlLoader.getRoot());
             stage.showAndWait();
@@ -249,9 +249,9 @@ public class FxDialog<T> {
     private ButtonBar buttonsPanel(Stage stage) {
         ButtonBar buttonBar = new ButtonBar();
         buttonBar.getButtons().addAll(
-            Stream.of(this.buttonTypes)
-                .map(buttonType -> createButton(buttonType, stage))
-                .collect(Collectors.toList())
+                Stream.of(this.buttonTypes)
+                        .map(buttonType -> createButton(buttonType, stage))
+                        .toList()
         );
         return buttonBar;
     }

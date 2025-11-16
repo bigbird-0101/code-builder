@@ -192,6 +192,15 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         DefaultListableTemplateFactory defaultListableTemplateFactory = genericTemplateContext.getTemplateFactory();
         if (mode != 1) {
             defaultListableTemplateFactory.removeMultipleTemplate(sourceMultipleTemplateName);
+            if (StrUtil.equals(sourceMultipleTemplateName, USER_OPERATE_CACHE.getUseMultipleTemplateTopicOne())) {
+                USER_OPERATE_CACHE.getUseMultipleTemplateSelected().remove(sourceMultipleTemplateName);
+                USER_OPERATE_CACHE.setUseMultipleTemplateTopicOne(multipleTemplateName.getText());
+                USER_OPERATE_CACHE.addUseMultipleTemplateSelected(multipleTemplateName.getText());
+            } else if (StrUtil.equals(sourceMultipleTemplateName, USER_OPERATE_CACHE.getUnUseMultipleTemplateTopicOne())) {
+                USER_OPERATE_CACHE.getUnUseMultipleTemplateSelected().remove(sourceMultipleTemplateName);
+                USER_OPERATE_CACHE.setUnUseMultipleTemplateTopicOne(multipleTemplateName.getText());
+                USER_OPERATE_CACHE.addNoUseMultipleTemplateSelected(multipleTemplateName.getText());
+            }
         }
         buildNewMultipleTemplate(genericTemplateContext);
         //刷新组合模板ListView页面
@@ -199,9 +208,9 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
                 .filter(labelTreeItem -> labelTreeItem.getValue().getText().equals(sourceMultipleTemplateName))
                 .findFirst().ifPresent(labelTreeItemOld->{
                     final TreeItem<Label> labelTreeItemNew = mainController.initMultipleTemplateView(multipleTemplateName.getText(), listViewTemplate.getRoot());
-            final int i = listViewTemplate.getRoot().getChildren().indexOf(labelTreeItemOld);
-            listViewTemplate.getRoot().getChildren().set(i,labelTreeItemNew);
-        });
+                    final int i = listViewTemplate.getRoot().getChildren().indexOf(labelTreeItemOld);
+                    listViewTemplate.getRoot().getChildren().set(i, labelTreeItemNew);
+                });
         doRefreshMainView();
     }
 
@@ -227,7 +236,7 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         DefaultListableTemplateFactory defaultListableTemplateFactory = genericTemplateContext.getTemplateFactory();
         boolean isNotHave = null == genericTemplateContext.getMultipleTemplateDefinition(sourceMultipleTemplateName);
         GenericMultipleTemplateDefinition genericMultipleTemplateDefinition =isNotHave?
-        new GenericMultipleTemplateDefinition(): (GenericMultipleTemplateDefinition) genericTemplateContext.getMultipleTemplateDefinition(sourceMultipleTemplateName);
+                new GenericMultipleTemplateDefinition() : (GenericMultipleTemplateDefinition) genericTemplateContext.getMultipleTemplateDefinition(sourceMultipleTemplateName);
         genericMultipleTemplateDefinition.setTemplateNames(selectTemplateNames);
         if(isNotHave||!multipleTemplateName.getText().equals(sourceMultipleTemplateName)) {
             genericTemplateContext.registerMultipleTemplateDefinition(multipleTemplateName.getText(), genericMultipleTemplateDefinition);
@@ -395,10 +404,10 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
             }
         });
         multipleTemplate.setTemplates(newTemplates);
-        operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate);
         needUpdateDependTemplate.forEach((templateNameSrc, templateNameNewSrc) -> {
             HaveDependTemplate.updateDependTemplate(operateTemplateBeanFactory, templateNameSrc, templateNameNewSrc);
         });
+        operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate);
         //修改模板名也要修改此时依赖此模板的所依赖的模板名
         doRefreshMainView();
     }

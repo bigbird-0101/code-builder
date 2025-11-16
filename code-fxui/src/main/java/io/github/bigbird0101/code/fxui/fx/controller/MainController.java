@@ -11,10 +11,12 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
 import cn.hutool.system.UserInfo;
+import com.alibaba.fastjson.JSONObject;
 import io.github.bigbird0101.code.core.common.DbUtil;
 import io.github.bigbird0101.code.core.config.AbstractEnvironment;
 import io.github.bigbird0101.code.core.config.CoreConfig;
 import io.github.bigbird0101.code.core.config.FileUrlResource;
+import io.github.bigbird0101.code.core.config.ObjectPropertySources;
 import io.github.bigbird0101.code.core.context.AbstractTemplateContext;
 import io.github.bigbird0101.code.core.context.TemplateContext;
 import io.github.bigbird0101.code.core.context.aware.AbstractTemplateContextProvider;
@@ -51,8 +53,10 @@ import io.github.bigbird0101.code.fxui.event.DatasourceConfigUpdateEvent;
 import io.github.bigbird0101.code.fxui.event.DoGetTemplateAfterEvent;
 import io.github.bigbird0101.code.fxui.fx.bean.PageInputSnapshot;
 import io.github.bigbird0101.code.fxui.fx.component.FxAlerts;
+import io.github.bigbird0101.code.fxui.fx.component.FxDialog;
 import io.github.bigbird0101.code.fxui.fx.component.FxProgressDialog;
 import io.github.bigbird0101.code.fxui.fx.component.ProgressTask;
+import io.github.bigbird0101.code.fxui.loadsmart.CorrectSmartConfigGenerator;
 import io.github.bigbird0101.code.util.Utils;
 import io.github.bigbird0101.spi.SPIServiceLoader;
 import io.github.bigbird0101.spi.inject.instance.InstanceContext;
@@ -65,6 +69,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ButtonType;
@@ -75,6 +80,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -125,6 +131,8 @@ import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT
 import static io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_KEY;
 import static io.github.bigbird0101.code.core.template.variable.resource.TemplateVariableResource.DEFAULT_SRC_RESOURCE_VALUE;
 import static io.github.bigbird0101.code.fxui.CodeBuilderApplication.USER_OPERATE_CACHE;
+import static io.github.bigbird0101.code.fxui.common.LayoutHelper.hbox;
+import static io.github.bigbird0101.code.fxui.common.LayoutHelper.vbox;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -215,7 +223,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
         }
         if(StrUtil.isNotBlank(defaultMultipleTemplate)){
             Optional.ofNullable(root.getChildren()
-                    .filtered(s -> s.getValue().getText().equals(defaultMultipleTemplate)))
+                            .filtered(s -> s.getValue().getText().equals(defaultMultipleTemplate)))
                     .ifPresent(s->{
                         if(s.isEmpty()){
                             return;
@@ -290,6 +298,34 @@ public class MainController extends AbstractTemplateContextProvider implements I
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @FXML
+    public void smartLoad(ActionEvent actionEvent) {
+        TextArea textArea = new TextArea();
+        textArea.setText("请输入要加载的模板路径");
+        textArea.setPrefWidth(250);
+        textArea.setPrefHeight(50);
+        FxDialog<Void> fxDialog = new FxDialog<Void>()
+                .setOwner(mainBox.getScene().getWindow())
+                .setBody(vbox(0, 5, Pos.CENTER,
+                        hbox(5, 0, textArea)
+                ))
+                .setButtonTypes(ButtonType.OK, ButtonType.CANCEL)
+                .setButtonHandler(ButtonType.OK, (_, stage) -> {
+                    String trimmed = textArea.getText().trim();
+                    if (StrUtil.isBlank(trimmed)) {
+                        return;
+                    }
+                    CorrectSmartConfigGenerator generator = new CorrectSmartConfigGenerator(trimmed, null);
+                    JSONObject config = generator.generate();
+                    getTemplateContext().getEnvironment().refreshPropertySourceSerialize(
+                            new ObjectPropertySources(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH, config));
+                    FxAlerts.info("成功", "加载成功");
+                    stage.close();
+                })
+                .setCloseable(false);
+        fxDialog.showAndWait();
     }
 
     private class DatasourceConfigUpdateEventListener extends TemplateListener<DatasourceConfigUpdateEvent> {
@@ -370,7 +406,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 .stream()
                 .sorted((o1, o2) -> CompareUtil.compare(o1.hashCode(), o2.hashCode()))
                 .toList();
-        List<String> useMultipleTemplateSelected = USER_OPERATE_CACHE.getUseMultipleTemplateSelected();
+        LinkedHashSet<String> useMultipleTemplateSelected = USER_OPERATE_CACHE.getUseMultipleTemplateSelected();
         if (USE_STRING.equals(root.getValue().getText())) {
             for (String multipleTemplateName : multipleTemplateNames) {
                 if (CollUtil.contains(useMultipleTemplateSelected, multipleTemplateName)) {
@@ -430,7 +466,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
         MenuItem deepCopy = new MenuItem("递归复制");
         MenuItem importTemplate = new MenuItem("导入模版");
         MenuItem copyShareUrl = new MenuItem("分享模版地址");
-        top1.setOnAction(_ -> {
+        top1.setOnAction(event -> {
             String text = item.getParent().getValue().getText();
             if (USE_STRING.equals(text)) {
                 pinSelectedTemplateUse();
@@ -438,8 +474,8 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 pinSelectedTemplateNoUse();
             }
         });
-        delete.setOnAction(_ -> deleteMultipleTemplate(defaultListableTemplateFactory));
-        moveUse.setOnAction(_ -> {
+        delete.setOnAction(event -> deleteMultipleTemplate(defaultListableTemplateFactory));
+        moveUse.setOnAction(event -> {
             String text = unUseTemplate.getSelectionModel().getSelectedItem().getValue().getText();
             if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm(String.format("您确定将%s组合模板移动至常用吗", text)).getButtonData()) {
                 unUseTemplate.getRoot().getChildren().remove(item);
@@ -449,7 +485,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 USER_OPERATE_CACHE.addUseMultipleTemplateSelected(multipleTemplateName);
             }
         });
-        moveNoUse.setOnAction(_ -> {
+        moveNoUse.setOnAction(event -> {
             String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
             if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm(String.format("您确定将%s组合模板移动至不常用吗", text)).getButtonData()) {
                 listViewTemplate.getRoot().getChildren().remove(item);
@@ -460,7 +496,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
             }
         });
 
-        edit.setOnAction(_ -> {
+        edit.setOnAction(event -> {
             String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
             try {
                 toNewMultipleTemplateView(text);
@@ -468,7 +504,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 FxAlerts.error(mainBox.getScene().getWindow(), "修改失败", e);
             }
         });
-        copy.setOnAction(_ -> {
+        copy.setOnAction(event -> {
             try {
                 copyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu);
                 AlertUtil.showInfo("复制成功");
@@ -476,7 +512,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", e);
             }
         });
-        deepCopy.setOnAction(_ -> {
+        deepCopy.setOnAction(event -> {
             try {
                 deepCopyMultipleTemplate(root, defaultListableTemplateFactory, contextMenu);
                 AlertUtil.showInfo("复制成功");
@@ -484,8 +520,8 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 FxAlerts.error(mainBox.getScene().getWindow(), "复制失败", e);
             }
         });
-        copyShareUrl.setOnAction(_ -> copyShareUrl(multipleTemplateName));
-        importTemplate.setOnAction(_ -> openImportShareTemplate(multipleTemplateName));
+        copyShareUrl.setOnAction(event -> copyShareUrl(multipleTemplateName));
+        importTemplate.setOnAction(event -> openImportShareTemplate(multipleTemplateName));
         contextMenu.getItems().addAll(top1, delete, edit, copy, deepCopy, importTemplate, copyShareUrl);
         if (USE_STRING.equals(rootText)) {
             contextMenu.getItems().add(moveNoUse);
@@ -730,6 +766,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
         content.getChildren().clear();
         content.getChildren().add(templatesOperateNode);
         templatesOperateController.doInitView();
+        templatesOperateController.saveConfig();
     }
 
     /**
@@ -779,6 +816,13 @@ public class MainController extends AbstractTemplateContextProvider implements I
                     for (String s1 : haveDepend.getDependTemplates()) {
                         checkModel.check(s1);
                     }
+                } else {
+                    if (StrUtil.isNotBlank(multipleTemplateName)) {
+                        getTemplateContext().getMultipleTemplate(multipleTemplateName)
+                                .getTemplates().stream()
+                                .map(Template::getTemplateName)
+                                .forEach(s -> templateController.depends.getItems().add(s));
+                    }
                 }
             }
             TargetFilePrefixNameStrategy targetFilePrefixNameStrategy = Optional.ofNullable(template
@@ -793,10 +837,12 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 templateController.filePrefixNameStrategyPattern.setText(patternTemplateFilePrefixNameStrategy.getPattern());
             }
         } else {
-            getTemplateContext().getMultipleTemplate(multipleTemplateName)
-                    .getTemplates().stream()
-                    .map(Template::getTemplateName)
-                    .forEach(s -> templateController.depends.getItems().add(s));
+            if (StrUtil.isNotBlank(multipleTemplateName)) {
+                getTemplateContext().getMultipleTemplate(multipleTemplateName)
+                        .getTemplates().stream()
+                        .map(Template::getTemplateName)
+                        .forEach(s -> templateController.depends.getItems().add(s));
+            }
         }
         Scene scene = new Scene(root);
         secondWindow.setTitle(isEdit ? "编辑模板" : "新建模板");
@@ -818,7 +864,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
 
     @FXML
     public void doBuildCore() {
-         doBuild(FileBuilderEnum.NEW);
+        doBuild(FileBuilderEnum.NEW);
     }
 
     @FXML
@@ -886,7 +932,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
             };
             Window controllerWindow = mainBox.getScene().getWindow();
             FxProgressDialog dialog = FxProgressDialog.create(controllerWindow, progressTask, "正在生成中...");
-            progressTask.setOnCancelled(_ -> {
+            progressTask.setOnCancelled(event -> {
                 throw new IllegalArgumentException("生成被取消。");
             });
             progressTask.setOnFailed(event -> {
@@ -969,26 +1015,26 @@ public class MainController extends AbstractTemplateContextProvider implements I
         AtomicInteger i= new AtomicInteger(1);
         for (String templateName : templateNamesSelected) {
 //            final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
-                final long l = System.currentTimeMillis();
-                Template template = templateContext.getTemplate(templateName);
-                Map<String, Object> dataModel = new HashMap<>(doBuildTemplateParam.getTemplateVariableResources().stream()
-                        .filter(Objects::nonNull)
-                        .findFirst().orElseThrow(() -> new CodeConfigException("not get eVariable resource config"))
-                        .mergeTemplateVariable(doBuildTemplateParam.getTemplateVariableResources()));
-                Optional.ofNullable(doBuildTemplateParam.getNoShareVar().poll()).ifPresent(dataModel::putAll);
-                doSetDependTemplateVariablesMapping(template, doBuildTemplateParam.getTableName(),dataModel);
+            final long l = System.currentTimeMillis();
+            Template template = templateContext.getTemplate(templateName);
+            Map<String, Object> dataModel = new HashMap<>(doBuildTemplateParam.getTemplateVariableResources().stream()
+                    .filter(Objects::nonNull)
+                    .findFirst().orElseThrow(() -> new CodeConfigException("not get eVariable resource config"))
+                    .mergeTemplateVariable(doBuildTemplateParam.getTemplateVariableResources()));
+            Optional.ofNullable(doBuildTemplateParam.getNoShareVar().poll()).ifPresent(dataModel::putAll);
+            doSetDependTemplateVariablesMapping(template, doBuildTemplateParam.getTableName(), dataModel);
             if (templateContext instanceof AbstractTemplateContext abstractTemplateContext) {
-                    Platform.runLater(() -> abstractTemplateContext.publishEvent(
-                            new DoGetTemplateAfterEvent(template, controller)));
-                }
-                try {
-                    doBuildTemplateParam.getFileBuilder().build(template,dataModel);
-                }catch (TemplateResolveException templateResolveException){
-                    throw new TemplateResolveException("{} 解析异常,{}",template.getTemplateName(),
-                            templateResolveException.getMessage());
-                }
-                final long e = System.currentTimeMillis();
-                StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
+                Platform.runLater(() -> abstractTemplateContext.publishEvent(
+                        new DoGetTemplateAfterEvent(template, controller)));
+            }
+            try {
+                doBuildTemplateParam.getFileBuilder().build(template, dataModel);
+            } catch (TemplateResolveException templateResolveException) {
+                throw new TemplateResolveException("{} 解析异常,{}", template.getTemplateName(),
+                        templateResolveException.getMessage());
+            }
+            final long e = System.currentTimeMillis();
+            StaticLog.debug("{} 耗时: {}", template.getTemplateName(), (e - l) / 1000);
 //            }, DO_ANALYSIS_TEMPLATE).whenCompleteAsync((v, e) -> doBuildTemplateParam.getOnProgressUpdate().accept(all, i.getAndIncrement()),
 //                    DO_ANALYSIS_TEMPLATE);
             doBuildTemplateParam.getOnProgressUpdate().accept(all,i.getAndIncrement());

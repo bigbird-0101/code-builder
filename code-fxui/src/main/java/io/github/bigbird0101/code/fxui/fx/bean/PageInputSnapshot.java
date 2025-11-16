@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.fxui.fx.bean;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -9,8 +10,8 @@ import java.util.Map;
 public class PageInputSnapshot {
 
     private String currentMultipleTemplate;
-    private List<String> useMultipleTemplateSelected;
-    private List<String> unUseMultipleTemplateSelected;
+    private LinkedHashSet<String> useMultipleTemplateSelected;
+    private LinkedHashSet<String> unUseMultipleTemplateSelected;
     private String useMultipleTemplateTopicOne;
     private String unUseMultipleTemplateTopicOne;
     private String tableNames;
@@ -76,19 +77,19 @@ public class PageInputSnapshot {
         this.currentMultipleTemplate = currentMultipleTemplate;
     }
 
-    public List<String> getUseMultipleTemplateSelected() {
+    public LinkedHashSet<String> getUseMultipleTemplateSelected() {
         return useMultipleTemplateSelected;
     }
 
-    public void setUseMultipleTemplateSelected(List<String> useMultipleTemplateSelected) {
+    public void setUseMultipleTemplateSelected(LinkedHashSet<String> useMultipleTemplateSelected) {
         this.useMultipleTemplateSelected = useMultipleTemplateSelected;
     }
 
-    public List<String> getUnUseMultipleTemplateSelected() {
+    public LinkedHashSet<String> getUnUseMultipleTemplateSelected() {
         return unUseMultipleTemplateSelected;
     }
 
-    public void setUnUseMultipleTemplateSelected(List<String> unUseMultipleTemplateSelected) {
+    public void setUnUseMultipleTemplateSelected(LinkedHashSet<String> unUseMultipleTemplateSelected) {
         this.unUseMultipleTemplateSelected = unUseMultipleTemplateSelected;
     }
 
@@ -124,12 +125,12 @@ public class PageInputSnapshot {
             return this;
         }
 
-        public Builder withUseMultipleTemplateSelected(List<String> useMultipleTemplateSelected) {
+        public Builder withUseMultipleTemplateSelected(LinkedHashSet<String> useMultipleTemplateSelected) {
             pageInputSnapshot.setUseMultipleTemplateSelected(useMultipleTemplateSelected);
             return this;
         }
 
-        public Builder withUnUseMultipleTemplateSelected(List<String> unUseMultipleTemplateSelected) {
+        public Builder withUnUseMultipleTemplateSelected(LinkedHashSet<String> unUseMultipleTemplateSelected) {
             pageInputSnapshot.setUnUseMultipleTemplateSelected(unUseMultipleTemplateSelected);
             return this;
         }

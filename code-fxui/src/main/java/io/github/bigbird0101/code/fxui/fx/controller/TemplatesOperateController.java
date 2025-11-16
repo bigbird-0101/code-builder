@@ -287,8 +287,7 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         doSetTemplateNameLabel(root, templateName);
         CheckBox templateNameCheckBox = (CheckBox) root.lookup("#templateName");
         Map<String, List<String>> stringListMap = selectTemplateGroup.get(CodeBuilderApplication.USER_OPERATE_CACHE.getTemplateNameSelected());
-        if (template instanceof AbstractHandleFunctionTemplate) {
-            AbstractHandleFunctionTemplate handlerTemplate = (AbstractHandleFunctionTemplate) template;
+        if (template instanceof AbstractHandleFunctionTemplate handlerTemplate) {
             Set<String> templateFunctionNameS = handlerTemplate.getTemplateFunctionNameS();
             templateFunctionNameS.forEach(templateFunction -> {
                 CheckBox checkBox = new CheckBox(templateFunction);
@@ -529,7 +528,8 @@ public class TemplatesOperateController extends AbstractTemplateContextProvider 
         template.setProjectUrl(Utils.convertTruePathIfNotNull(projectUrl));
         template.setModule(Utils.convertTruePathIfNotNull(moduleName));
         template.setSourcesRoot(Utils.convertTruePathIfNotNull(sourcesRoot));
-        template.setSrcPackage(Utils.convertTruePathIfNotNull(srcPackage));
+        String convertedTruePathIfNotNull = Utils.convertTruePathIfNotNull(srcPackage);
+        template.setSrcPackage(StrUtil.replace(convertedTruePathIfNotNull, ".", "/"));
     }
 
     @FXML
