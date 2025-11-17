@@ -131,7 +131,7 @@ I'm *{helloWorld}*
 
 ##### 例子:
 
-[dom可控制方法模版(DomHandleFunctionTemplate)](doc/template/DomHandleFunctionTemplate.md)
+[dom可控制方法模版(DomHandleFunctionTemplate)](doc/templates/DomHandleFunctionTemplate.md)
 
 #### dom不可控制方法模版(DomNoHandleFunctionTemplate) 推荐使用
 
@@ -145,7 +145,7 @@ I'm *{helloWorld}*
 
 ##### 例子：
 
-[dom不可控制方法模版(DomNoHandleFunctionTemplate)](doc/template/DomNoHandleFunctionTemplate.md)
+[dom不可控制方法模版(DomNoHandleFunctionTemplate)](doc/templates/DomNoHandleFunctionTemplate.md)
 
 #### dom可控制方法有依赖模版（HaveDependTemplateDomHandleFunctionTemplate）推荐使用
 
@@ -155,7 +155,7 @@ I'm *{helloWorld}*
 
 ##### 例子
 
-[dom可控制方法有依赖模版(HaveDependTemplateDomHandleFunctionTemplate)](doc/template/HaveDependTemplateDomHandleFunctionTemplate.md)
+[dom可控制方法有依赖模版(HaveDependTemplateDomHandleFunctionTemplate)](doc/templates/HaveDependTemplateDomHandleFunctionTemplate.md)
 
 #### dom不可控制方法有依赖模版（HaveDependTemplateDomNoHandleFunctionTemplate）推荐使用
 
@@ -213,19 +213,19 @@ I'm *{helloWorld}*
 
 ### 通用模版使用
 
-#### [DataEntity 数据库对象模版](doc/template/DataEntity.md)
+#### [DataEntity 数据库对象模版](doc/templates/DataEntity.md)
 
-#### [Dao 模版](doc/template/Dao.md)
+#### [Dao 模版](doc/templates/Dao.md)
 
-#### [ReqVo 模版](doc/template/ReqVo.md)
+#### [ReqVo 模版](doc/templates/ReqVo.md)
 
-#### [RespVo 模版](doc/template/RespVo.md)
+#### [RespVo 模版](doc/templates/RespVo.md)
 
-#### [ServiceInterface 模版](doc/template/ServiceInterface.md)
+#### [ServiceInterface 模版](doc/templates/ServiceInterface.md)
 
-#### [ServiceInterfaceImpl 模版](doc/template/ServiceInterfaceImpl.md)
+#### [ServiceInterfaceImpl 模版](doc/templates/ServiceInterfaceImpl.md)
 
-#### [Controller 模版](doc/template/Controller.md)
+#### [Controller 模版](doc/templates/Controller.md)
 
 ### 加群
 
