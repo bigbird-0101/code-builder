@@ -222,15 +222,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
             defaultMultipleTemplate = null;
         }
         if(StrUtil.isNotBlank(defaultMultipleTemplate)){
-            Optional.ofNullable(root.getChildren()
-                            .filtered(s -> s.getValue().getText().equals(defaultMultipleTemplate)))
-                    .ifPresent(s->{
-                        if(s.isEmpty()){
-                            return;
-                        }
-                        final TreeItem<Label> labelTreeItem = s.getFirst();
-                        listViewTemplate.getSelectionModel().select(labelTreeItem);
-                    });
+            selectDefaultMultipleTemplate(defaultMultipleTemplate);
         }else{
             listViewTemplate.getSelectionModel().select(0);
         }
@@ -253,6 +245,26 @@ public class MainController extends AbstractTemplateContextProvider implements I
         addFoldToggleListeners();
 
         pinMultipleTemplate();
+    }
+
+    public void selectDefaultMultipleTemplate(String defaultMultipleTemplate) {
+        selectListView(defaultMultipleTemplate, listViewTemplate);
+    }
+
+    public void selectUnUseDefaultMultipleTemplate(String defaultMultipleTemplate) {
+        selectListView(defaultMultipleTemplate, unUseTemplate);
+    }
+
+    private void selectListView(String defaultMultipleTemplate, TreeView<Label> treeView) {
+        Optional.ofNullable(treeView.getRoot().getChildren()
+                        .filtered(s -> s.getValue().getText().equals(defaultMultipleTemplate)))
+                .ifPresent(s -> {
+                    if (s.isEmpty()) {
+                        return;
+                    }
+                    final TreeItem<Label> labelTreeItem = s.getFirst();
+                    treeView.getSelectionModel().select(labelTreeItem);
+                });
     }
 
     private void pinMultipleTemplate() {
@@ -423,6 +435,10 @@ public class MainController extends AbstractTemplateContextProvider implements I
                 }
             }
         }
+    }
+
+    public boolean isUse() {
+        return USE_STRING.equals(listViewTemplate.getRoot().getValue().getText());
     }
 
     /**
