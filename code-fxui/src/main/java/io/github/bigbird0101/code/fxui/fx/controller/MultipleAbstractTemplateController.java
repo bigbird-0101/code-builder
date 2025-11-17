@@ -10,6 +10,7 @@ import io.github.bigbird0101.code.core.factory.AbstractTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.DefaultListableTemplateFactory;
 import io.github.bigbird0101.code.core.factory.GenericMultipleTemplateDefinition;
 import io.github.bigbird0101.code.core.factory.RootTemplateDefinition;
+import io.github.bigbird0101.code.core.factory.config.MultipleTemplateDefinition;
 import io.github.bigbird0101.code.core.template.HaveDependTemplate;
 import io.github.bigbird0101.code.core.template.MultipleTemplate;
 import io.github.bigbird0101.code.core.template.Template;
@@ -200,6 +201,12 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
                 USER_OPERATE_CACHE.getUnUseMultipleTemplateSelected().remove(sourceMultipleTemplateName);
                 USER_OPERATE_CACHE.setUnUseMultipleTemplateTopicOne(multipleTemplateName.getText());
                 USER_OPERATE_CACHE.addNoUseMultipleTemplateSelected(multipleTemplateName.getText());
+            } else if (USER_OPERATE_CACHE.getUseMultipleTemplateSelected().contains(sourceMultipleTemplateName)) {
+                USER_OPERATE_CACHE.getUseMultipleTemplateSelected().remove(sourceMultipleTemplateName);
+                USER_OPERATE_CACHE.addUseMultipleTemplateSelected(multipleTemplateName.getText());
+            } else if (USER_OPERATE_CACHE.getUnUseMultipleTemplateSelected().contains(sourceMultipleTemplateName)) {
+                USER_OPERATE_CACHE.getUnUseMultipleTemplateSelected().remove(sourceMultipleTemplateName);
+                USER_OPERATE_CACHE.addNoUseMultipleTemplateSelected(multipleTemplateName.getText());
             }
         }
         buildNewMultipleTemplate(genericTemplateContext);
@@ -217,20 +224,29 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
     private void doRefreshMainView() {
         AlertUtil.showInfo("Success!");
         ((Stage) anchorPane.getScene().getWindow()).close();
+        String multipleTemplateNameText = multipleTemplateName.getText();
         if (StrUtil.isBlank(USER_OPERATE_CACHE.getTemplateNameSelected())) {
-            USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateName.getText());
-        } else if (multipleTemplateName.getText().equals(USER_OPERATE_CACHE.getTemplateNameSelected()) ||
-                (StrUtil.isNotBlank(sourceMultipleTemplateName) && sourceMultipleTemplateName.equals(USER_OPERATE_CACHE.getTemplateNameSelected()))) {
-            USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateName.getText());
+            USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateNameText);
+        } else if (multipleTemplateNameText.equals(USER_OPERATE_CACHE.getTemplateNameSelected()) ||
+                (StrUtil.isNotBlank(sourceMultipleTemplateName) && sourceMultipleTemplateName
+                        .equals(USER_OPERATE_CACHE.getTemplateNameSelected()))) {
+            USER_OPERATE_CACHE.setTemplateNameSelected(multipleTemplateNameText);
         }
         mainController.initMultipleTemplateViews();
         mainController.doSelectMultiple();
+        if (mainController.isUse()) {
+            mainController.selectDefaultMultipleTemplate(multipleTemplateNameText);
+            mainController.pinSelectedTemplateUse();
+        } else {
+            mainController.selectUnUseDefaultMultipleTemplate(multipleTemplateNameText);
+            mainController.pinSelectedTemplateNoUse();
+        }
     }
 
     /**
      * 创建新的组合模板
      * @param genericTemplateContext 模板容器
-     * @throws CodeConfigException
+     * @throws CodeConfigException CodeConfigException
      */
     private void buildNewMultipleTemplate(GenericTemplateContext genericTemplateContext) throws CodeConfigException {
         DefaultListableTemplateFactory defaultListableTemplateFactory = genericTemplateContext.getTemplateFactory();
@@ -407,6 +423,13 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         needUpdateDependTemplate.forEach((templateNameSrc, templateNameNewSrc) -> {
             HaveDependTemplate.updateDependTemplate(operateTemplateBeanFactory, templateNameSrc, templateNameNewSrc);
         });
+        MultipleTemplateDefinition multipleTemplateDefinition =
+                operateTemplateBeanFactory.getMultipleTemplateDefinition(multipleTemplate.getTemplateName());
+        if (multipleTemplateDefinition instanceof GenericMultipleTemplateDefinition genericMultipleTemplateDefinition) {
+            genericMultipleTemplateDefinition.setTemplateNames(newTemplates.stream()
+                    .map(Template::getTemplateName)
+                    .collect(Collectors.toSet()));
+        }
         operateTemplateBeanFactory.refreshMultipleTemplate(multipleTemplate);
         //修改模板名也要修改此时依赖此模板的所依赖的模板名
         doRefreshMainView();
