@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static cn.hutool.core.text.CharSequenceUtil.strip;
+import static cn.hutool.core.text.StrPool.SLASH;
 
 /**
  * @author fpp
@@ -60,11 +61,18 @@ public class ToolTemplateLangResolver extends AbstractTemplateLangResolver imple
         REP("rep"){
             @Override
             String done(String src) {
-                final LinkedList<String> collect = Stream.of(src.split(","))
+                LinkedList<String> collect = Stream.of(src.split(","))
                         .collect(Collectors.toCollection(LinkedList::new));
                 final int size = collect.size();
                 int i = 3;
-                if(size != i){
+                if (size > i) {
+                    LinkedList<String> collectTemp = new LinkedList<>();
+                    collectTemp.add(String.join(",", collect.subList(0, size - 2)));
+                    collectTemp.add(String.join("", collect.subList(size - 2, size - 1)));
+                    collectTemp.add(String.join("", collect.subList(size - 1, size)));
+                    collect = collectTemp;
+                }
+                if (collect.size() != i) {
                     throw new TemplateResolveException("tool rep method [{}],src split , size, must = 3 ",src);
                 }
                 String allString = collect.get(0);
@@ -181,10 +189,10 @@ public class ToolTemplateLangResolver extends AbstractTemplateLangResolver imple
             @Override
             String done(String src) {
                 String result="";
-                if(src.indexOf(".")>0){
-                    result=src.substring(0,src.lastIndexOf("."));
-                }else if(src.indexOf("/")>0){
-                    result=src.substring(0,src.lastIndexOf("/"));
+                if (src.indexOf(StrUtil.DOT) > 0) {
+                    result = src.substring(0, src.lastIndexOf(StrUtil.DOT));
+                } else if (src.indexOf(SLASH) > 0) {
+                    result = src.substring(0, src.lastIndexOf(SLASH));
                 }
                 return result;
             }
@@ -255,7 +263,7 @@ public class ToolTemplateLangResolver extends AbstractTemplateLangResolver imple
     /**
      * 获取 模板排除某些正则key 这些正则key是模板中语言的 类型 的set
      *
-     * @return
+     * @return 模板排除某些正则key 这些正则key是模板中语言的 类型 的set
      */
     @Override
     public Set<Pattern> getExcludeVariablePatten() {
@@ -302,7 +310,7 @@ public class ToolTemplateLangResolver extends AbstractTemplateLangResolver imple
                 titleBuilder.setLength(0);
                 titleBuilder.append(realTitle);
             }
-            title=titleBuilder.length()==0?title:titleBuilder.toString();
+            title = titleBuilder.isEmpty() ? title : titleBuilder.toString();
             Function functionTemp=checkFunction(function);
             String mendLastStr = Utils.getLastNewLineNull(all);
             mendFirstStr=Utils.getFirstNewLineNull(all);
@@ -328,16 +336,16 @@ public class ToolTemplateLangResolver extends AbstractTemplateLangResolver imple
         final AbstractAbstractTemplateResolver templateResolver = (AbstractAbstractTemplateResolver) getTemplateResolver();
         return Optional.ofNullable(templateResolver)
                 .flatMap(b -> b.getTemplateLangResolverList()
-                .stream().filter(s -> s instanceof DependTemplateLangResolver)
-                .map(s -> (DependTemplateLangResolver) s)
-                .findFirst());
+                        .stream().filter(s -> s instanceof DependTemplateLangResolver)
+                        .map(s -> (DependTemplateLangResolver) s)
+                        .findFirst());
     }
 
     private boolean isMatchDependTemplate(String title){
         Optional<DependTemplateLangResolver> templateResolver = getDependTemplateResolver();
         return templateResolver.map(dependTemplateResolver -> dependTemplateResolver.getExcludeVariablePatten()
-                .stream()
-                .anyMatch(s -> s.matcher(title).find()))
+                        .stream()
+                        .anyMatch(s -> s.matcher(title).find()))
                 .orElse(false);
     }
 

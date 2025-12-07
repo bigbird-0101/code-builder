@@ -48,7 +48,7 @@ public class DbUtil {
      */
     public static String getJavaType(int dataType) {
         String javaType;
-        if (dataType == Types.INTEGER || dataType == Types.SMALLINT) {
+        if (dataType == Types.INTEGER || dataType == Types.SMALLINT || dataType == Types.BIT) {
             javaType = "Integer";
         } else if (dataType == Types.BIGINT) {
             javaType = "Long";
