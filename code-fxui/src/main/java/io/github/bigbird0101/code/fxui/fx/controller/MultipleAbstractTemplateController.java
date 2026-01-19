@@ -420,9 +420,7 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
             }
         });
         multipleTemplate.setTemplates(newTemplates);
-        needUpdateDependTemplate.forEach((templateNameSrc, templateNameNewSrc) -> {
-            HaveDependTemplate.updateDependTemplate(operateTemplateBeanFactory, templateNameSrc, templateNameNewSrc);
-        });
+        HaveDependTemplate.updateDependTemplate(operateTemplateBeanFactory, needUpdateDependTemplate);
         MultipleTemplateDefinition multipleTemplateDefinition =
                 operateTemplateBeanFactory.getMultipleTemplateDefinition(multipleTemplate.getTemplateName());
         if (multipleTemplateDefinition instanceof GenericMultipleTemplateDefinition genericMultipleTemplateDefinition) {

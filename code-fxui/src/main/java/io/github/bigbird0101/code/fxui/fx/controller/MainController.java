@@ -8,6 +8,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
 import cn.hutool.system.UserInfo;
@@ -315,7 +316,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
     @FXML
     public void smartLoad(ActionEvent actionEvent) {
         TextArea textArea = new TextArea();
-        textArea.setText("请输入要加载的模板路径");
+        textArea.setPromptText("请输入要加载的模板路径");
         textArea.setPrefWidth(250);
         textArea.setPrefHeight(50);
         FxDialog<Void> fxDialog = new FxDialog<Void>()
@@ -334,6 +335,9 @@ public class MainController extends AbstractTemplateContextProvider implements I
                     getTemplateContext().getEnvironment().refreshPropertySourceSerialize(
                             new ObjectPropertySources(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH, config));
                     FxAlerts.info("成功", "加载成功");
+                    stage.close();
+                })
+                .setButtonHandler(ButtonType.CANCEL, (_, stage) -> {
                     stage.close();
                 })
                 .setCloseable(false);
@@ -550,11 +554,19 @@ public class MainController extends AbstractTemplateContextProvider implements I
 
     private void deleteMultipleTemplate(DefaultListableTemplateFactory defaultListableTemplateFactory) {
         if (ButtonType.OK.getButtonData() == AlertUtil.showConfirm("您确定删除该组合模板吗").getButtonData()) {
-            String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
+            TreeItem<Label> selectedItem = listViewTemplate.getSelectionModel().getSelectedItem();
+            TreeItem<Label> unUseSelectItem = unUseTemplate.getSelectionModel().getSelectedItem();
+            String text = ObjectUtil.defaultIfNull(selectedItem,
+                    unUseSelectItem).getValue().getText();
             logger.info("delete multiple template {}", text);
-            defaultListableTemplateFactory.removeMultipleTemplateDefinition(text);
             defaultListableTemplateFactory.removeMultipleTemplate(text);
-            listViewTemplate.getRoot().getChildren().remove(listViewTemplate.getSelectionModel().getSelectedItem());
+            defaultListableTemplateFactory.removeMultipleTemplateDefinition(text);
+            if (null != selectedItem) {
+                listViewTemplate.getRoot().getChildren().remove(selectedItem);
+            }
+            if (null != unUseSelectItem) {
+                unUseTemplate.getRoot().getChildren().remove(unUseSelectItem);
+            }
             USER_OPERATE_CACHE.setTemplateNameSelected(defaultListableTemplateFactory.getMultipleTemplateNames()
                     .stream()
                     .findFirst()
