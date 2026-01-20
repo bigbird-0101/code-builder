@@ -130,6 +130,7 @@ public abstract class AbstractTemplateDefinition implements TemplateDefinition {
         return Objects.hash(projectUrl, module, sourcesRoot, srcPackage, templateResource, templateClass);
     }
 
+    @Override
     public Object clone() {
         return ObjectUtil.cloneByStream(this);
     }
