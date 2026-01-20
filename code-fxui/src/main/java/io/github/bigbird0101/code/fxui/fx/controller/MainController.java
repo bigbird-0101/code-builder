@@ -485,6 +485,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
         MenuItem copy = new MenuItem("复制");
         MenuItem deepCopy = new MenuItem("递归复制");
         MenuItem importTemplate = new MenuItem("导入模版");
+        MenuItem exportTemplate = new MenuItem("导出模版");
         MenuItem copyShareUrl = new MenuItem("分享模版地址");
         top1.setOnAction(_ -> {
             String text = item.getParent().getValue().getText();
@@ -544,7 +545,8 @@ public class MainController extends AbstractTemplateContextProvider implements I
         });
         copyShareUrl.setOnAction(_ -> copyShareUrl(multipleTemplateName));
         importTemplate.setOnAction(_ -> openImportShareTemplate(multipleTemplateName));
-        contextMenu.getItems().addAll(top1, delete, edit, copy, deepCopy, importTemplate, copyShareUrl);
+        exportTemplate.setOnAction(_ -> openExportMultipleTemplateWithSelected(multipleTemplateName));
+        contextMenu.getItems().addAll(top1, delete, edit, copy, deepCopy, importTemplate, exportTemplate, copyShareUrl);
         if (USE_STRING.equals(rootText)) {
             contextMenu.getItems().add(moveNoUse);
         } else {
@@ -1187,6 +1189,7 @@ public class MainController extends AbstractTemplateContextProvider implements I
             ImportShareTemplateController controller = fxmlLoader.getController();
             controller.setComplexController(this);
             controller.setMultipleTemplateName(multipleTemplateName);
+            controller.setStage(secondWindow);
             secondWindow.setTitle(StrUtil.isNotBlank(multipleTemplateName) ? "导入模版" : "导入分享");
             secondWindow.setScene(new Scene(parent));
             secondWindow.show();
@@ -1198,6 +1201,42 @@ public class MainController extends AbstractTemplateContextProvider implements I
     @FXML
     public void importMultipleTemplate() {
         openImportShareTemplate(null);
+    }
+
+    @FXML
+    public void exportMultipleTemplate() {
+        openExportMultipleTemplate();
+    }
+
+    private void openExportMultipleTemplate() {
+        Stage secondWindow = new Stage();
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/export_multiple_template.fxml"));
+            Parent parent = fxmlLoader.load();
+            ExportMultipleTemplateController controller = fxmlLoader.getController();
+            controller.setStage(secondWindow);
+            secondWindow.setTitle("导出组合模板");
+            secondWindow.setScene(new Scene(parent));
+            secondWindow.show();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void openExportMultipleTemplateWithSelected(String selectedTemplateName) {
+        Stage secondWindow = new Stage();
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/views/export_multiple_template.fxml"));
+            Parent parent = fxmlLoader.load();
+            ExportMultipleTemplateController controller = fxmlLoader.getController();
+            controller.setStage(secondWindow);
+            controller.setSelectedTemplate(selectedTemplateName);
+            secondWindow.setTitle("导出组合模板 - " + selectedTemplateName);
+            secondWindow.setScene(new Scene(parent));
+            secondWindow.show();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

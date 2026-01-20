@@ -7,3 +7,4 @@ target
 *.iml
 .run
 .flattened-pom.xml
+jrebel.xml

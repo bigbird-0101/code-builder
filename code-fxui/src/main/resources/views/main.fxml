@@ -25,6 +25,9 @@
                 <MenuItem mnemonicParsing="false" text="组合模板" onAction="#addMultipleTemplate"/>
                 <MenuItem mnemonicParsing="false" text="导入组合模板" onAction="#importMultipleTemplate"/>
             </Menu>
+            <Menu mnemonicParsing="false" text="导出">
+                <MenuItem mnemonicParsing="false" text="导出组合模板" onAction="#exportMultipleTemplate"/>
+            </Menu>
             <MenuItem mnemonicParsing="false" text="清理模版" onAction="#clearTemplate"/>
             <MenuItem mnemonicParsing="false" text="Quit"/>
         </Menu>

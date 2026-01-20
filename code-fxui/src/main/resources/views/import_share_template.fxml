@@ -1,20 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
-      prefWidth="600.0"
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0"
+      prefWidth="650.0"
       xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.github.bigbird0101.code.fxui.fx.controller.ImportShareTemplateController">
-    <Label layoutX="100.0" layoutY="76.0" text="地址:"/>
-    <TextArea fx:id="url" layoutX="139.0" layoutY="72.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="100.0"
-              prefWidth="400.0" style="-fx-font-weight: 700;" wrapText="true">
+    <Label layoutX="50.0" layoutY="30.0" text="从地址导入:">
+        <font>
+            <Font size="14.0"/>
+        </font>
+    </Label>
+    <TextArea fx:id="url" layoutX="130.0" layoutY="26.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="80.0"
+              prefWidth="470.0" style="-fx-font-weight: 700;" wrapText="true">
         <font>
             <Font size="13.0"/>
         </font>
     </TextArea>
-    <Button fx:id="importTemplate" layoutX="536.0" layoutY="34.0" text="导入"/>
+    <Button fx:id="importTemplate" layoutX="610.0" layoutY="26.0" text="导入"/>
+
+    <Label layoutX="50.0" layoutY="140.0" text="从ZIP导入:">
+        <font>
+            <Font size="14.0"/>
+        </font>
+    </Label>
+    <TextField fx:id="zipFilePath" layoutX="130.0" layoutY="136.0" prefHeight="30.0" prefWidth="430.0"/>
+    <Button layoutX="570.0" layoutY="136.0" onAction="#selectZipFile" text="选择..." prefWidth="70.0"/>
+
+    <Label layoutX="50.0" layoutY="190.0" text="选择要导入的组合模板:">
+        <font>
+            <Font size="14.0"/>
+        </font>
+    </Label>
+    <ComboBox fx:id="multipleTemplateSelector" layoutX="200.0" layoutY="186.0" prefHeight="30.0" prefWidth="440.0"/>
+
+    <CheckBox fx:id="includeDependentTemplates" layoutX="200.0" layoutY="240.0" selected="true" text="包含依赖模板">
+        <font>
+            <Font size="13.0"/>
+        </font>
+    </CheckBox>
+
+    <Button layoutX="550.0" layoutY="320.0" onAction="#importFromZip" text="导入ZIP" prefWidth="80.0"/>
+    <Button layoutX="450.0" layoutY="320.0" onAction="#cancelImport" text="取消" prefWidth="80.0"/>
+
+    <Label layoutX="50.0" layoutY="380.0" text="• 从地址导入: 支持从网络地址导入分享的模板" textFill="#666666">
+        <font>
+            <Font size="11.0"/>
+        </font>
+    </Label>
+    <Label layoutX="50.0" layoutY="405.0" text="• 从ZIP导入: 支持从ZIP文件导入导出的组合模板，可选择性导入"
+           textFill="#666666">
+        <font>
+            <Font size="11.0"/>
+        </font>
+    </Label>
 </Pane>
