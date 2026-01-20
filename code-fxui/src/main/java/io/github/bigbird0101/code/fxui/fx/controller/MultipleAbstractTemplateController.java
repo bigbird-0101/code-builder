@@ -47,6 +47,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static cn.hutool.core.text.CharSequenceUtil.replace;
 import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_CORE_TEMPLATE_FILES_PATH;
 import static io.github.bigbird0101.code.core.config.AbstractEnvironment.DEFAULT_TEMPLATE_FILE_SUFFIX;
 import static io.github.bigbird0101.code.fxui.CodeBuilderApplication.USER_OPERATE_CACHE;
@@ -321,13 +322,17 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         MultipleTemplate multipleTemplate = getMultipleTemplate();
         multipleTemplate.getTemplates().forEach(s->{
             String moduleSrc = s.getModule();
-            moduleSrc=StrUtil.replace(moduleSrc,oldModule,newModule);
+            moduleSrc = removeSuffix(replace(moduleSrc, oldModule, newModule));
             s.setModule(moduleSrc);
             DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory)
                     getTemplateContext().getTemplateFactory();
             operateTemplateBeanFactory.refreshTemplate(s);
         });
         doRefreshMainView();
+    }
+
+    private String removeSuffix(String str) {
+        return StrUtil.removeSuffix(StrUtil.removeSuffix(str, "/"), "\\");
     }
 
     private MultipleTemplate getMultipleTemplate() {
@@ -346,7 +351,7 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         MultipleTemplate multipleTemplate = getMultipleTemplate();
         multipleTemplate.getTemplates().forEach(s->{
             String sourcesRoot = s.getSourcesRoot();
-            sourcesRoot=StrUtil.replace(sourcesRoot,oldSourcesRootName,newSourcesRootName);
+            sourcesRoot = removeSuffix(replace(sourcesRoot, oldSourcesRootName, newSourcesRootName));
             s.setSourcesRoot(sourcesRoot);
             DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory)
                     getTemplateContext().getTemplateFactory();
@@ -366,7 +371,7 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         MultipleTemplate multipleTemplate = getMultipleTemplate();
         multipleTemplate.getTemplates().forEach(s->{
             String srcPackage = s.getSrcPackage();
-            srcPackage=StrUtil.replace(srcPackage,oldSrcPackageName,newSrcPackageName);
+            srcPackage = removeSuffix(replace(srcPackage, oldSrcPackageName, newSrcPackageName));
             s.setSrcPackage(srcPackage);
             DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory)
                     getTemplateContext().getTemplateFactory();
@@ -390,7 +395,7 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         Map<String, String> needUpdateDependTemplate = new HashMap<>(16);
         multipleTemplate.getTemplates().forEach(t -> {
             String templateNameSrc = t.getTemplateName();
-            String templateNameNewSrc = StrUtil.replace(templateNameSrc, templateNameOldStr, templateNameNewText);
+            String templateNameNewSrc = replace(templateNameSrc, templateNameOldStr, templateNameNewText);
             if (!templateNameNewSrc.equals(templateNameSrc)) {
                 newTemplates.remove(t);
                 operateTemplateBeanFactory.removeTemplate(templateNameSrc);

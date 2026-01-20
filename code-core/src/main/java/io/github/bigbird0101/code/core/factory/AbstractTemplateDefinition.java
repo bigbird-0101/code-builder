@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.annotation.JSONField;
 import io.github.bigbird0101.code.core.config.Resource;
 import io.github.bigbird0101.code.core.factory.config.TemplateDefinition;
+import io.github.bigbird0101.code.core.template.Template;
 
 import java.util.Objects;
 
@@ -131,5 +132,16 @@ public abstract class AbstractTemplateDefinition implements TemplateDefinition {
 
     public Object clone() {
         return ObjectUtil.cloneByStream(this);
+    }
+
+    @Override
+    public void refresh(Template template) {
+        this.setProjectUrl(template.getProjectUrl());
+        this.setModule(template.getModule());
+        this.setSourcesRoot(template.getSourcesRoot());
+        this.setSrcPackage(template.getSrcPackage());
+        this.setTemplateResource(template.getTemplateResource());
+        this.setTemplateClass(template.getClass());
+
     }
 }

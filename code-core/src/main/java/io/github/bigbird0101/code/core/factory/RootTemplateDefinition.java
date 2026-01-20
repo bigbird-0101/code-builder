@@ -1,5 +1,6 @@
 package io.github.bigbird0101.code.core.factory;
 
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -7,6 +8,8 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import io.github.bigbird0101.code.core.template.AbstractHandleFunctionTemplate;
+import io.github.bigbird0101.code.core.template.HaveDependTemplate;
+import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.core.template.targetfile.PatternTargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 import io.github.bigbird0101.code.core.template.targetfile.TemplateFilePrefixNameStrategyFactory;
@@ -136,6 +139,23 @@ public class RootTemplateDefinition extends AbstractTemplateDefinition {
                 }
             }
             serializer.write(jsonObject);
+        }
+    }
+
+    @Override
+    public void refresh(Template template) {
+        super.refresh(template);
+        this.setTargetFileSuffixName(template.getTargetFileSuffixName());
+        this.setTargetFilePrefixNameStrategy(template.getTargetFilePrefixNameStrategy());
+        if (template instanceof HaveDependTemplate haveDependTemplate) {
+            if (CollUtil.isNotEmpty(this.getDependTemplates())) {
+                this.getDependTemplates().clear();
+            } else {
+                this.setDependTemplates(new LinkedHashSet<>());
+            }
+            if (CollUtil.isNotEmpty(haveDependTemplate.getDependTemplates())) {
+                this.getDependTemplates().addAll(haveDependTemplate.getDependTemplates());
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package io.github.bigbird0101.code.core.factory.config;
 
 import io.github.bigbird0101.code.core.config.Resource;
+import io.github.bigbird0101.code.core.template.Template;
 import io.github.bigbird0101.code.core.template.targetfile.TargetFilePrefixNameStrategy;
 
 import java.io.Serializable;
@@ -79,5 +80,11 @@ public interface TemplateDefinition extends Cloneable, Serializable {
      */
     void setTemplateClassName(String templateClassName);
 
-
+    /**
+     * 刷新模板
+     *
+     * @param template 模板
+     */
+    default void refresh(Template template) {
+    }
 }

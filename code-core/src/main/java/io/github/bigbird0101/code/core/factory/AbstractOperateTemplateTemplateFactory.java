@@ -129,12 +129,15 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
 
     @Override
     public void refreshTemplate(String templateName) throws CodeConfigException {
-        getTemplate(templateName).refresh();
+        refreshTemplate(getTemplate(templateName));
     }
 
     @Override
     public Template refreshTemplate(Template template) {
         Template templateNew = replaceTemplate(template);
+        TemplateDefinition templateDefinition = getTemplateDefinition(templateNew.getTemplateName());
+        templateDefinition.refresh(templateNew);
+        template.refresh();
         //刷新模板到配置文件中
         getEnvironment().refreshPropertySourceSerialize(new TemplatePropertySource(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE, template));
         return templateNew;
@@ -143,6 +146,9 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     @Override
     public MultipleTemplate refreshMultipleTemplate(MultipleTemplate multipleTemplate) {
         MultipleTemplate multipleTemplateNew = replaceMultipleTemplate(multipleTemplate);
+        MultipleTemplateDefinition multipleTemplateDefinition = getMultipleTemplateDefinition(multipleTemplateNew.getTemplateName());
+        multipleTemplateDefinition.refresh(multipleTemplateNew);
+        multipleTemplateNew.getTemplates().forEach(this::refreshTemplate);
         //刷新模板到配置文件中
         getEnvironment().refreshPropertySourceSerialize(new MultipleTemplatePropertySource(AbstractEnvironment.DEFAULT_CORE_TEMPLATE_PATH_TEMPLATE, multipleTemplate));
         return multipleTemplateNew;
@@ -151,11 +157,7 @@ public abstract class AbstractOperateTemplateTemplateFactory extends AbstractTem
     @Override
     public void refreshMultipleTemplate(String templateName) throws CodeConfigException {
         MultipleTemplate multipleTemplate = getMultipleTemplate(templateName);
-        if (null != multipleTemplate) {
-            for (Template template : multipleTemplate.getTemplates()) {
-                template.refresh();
-            }
-        }
+        refreshMultipleTemplate(multipleTemplate);
     }
 
     @Override

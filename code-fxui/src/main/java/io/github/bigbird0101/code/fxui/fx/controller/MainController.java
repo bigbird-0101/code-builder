@@ -517,7 +517,9 @@ public class MainController extends AbstractTemplateContextProvider implements I
         });
 
         edit.setOnAction(event -> {
-            String text = listViewTemplate.getSelectionModel().getSelectedItem().getValue().getText();
+            TreeItem<Label> selectedItem = listViewTemplate.getSelectionModel().getSelectedItem();
+            TreeItem<Label> unUseSelectedItem = unUseTemplate.getSelectionModel().getSelectedItem();
+            String text = null != selectedItem ? selectedItem.getValue().getText() : unUseSelectedItem.getValue().getText();
             try {
                 toNewMultipleTemplateView(text);
             } catch (IOException | CodeConfigException e) {
