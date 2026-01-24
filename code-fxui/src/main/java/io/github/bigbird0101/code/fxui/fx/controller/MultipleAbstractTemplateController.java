@@ -371,7 +371,8 @@ public class MultipleAbstractTemplateController extends AbstractTemplateContextP
         MultipleTemplate multipleTemplate = getMultipleTemplate();
         multipleTemplate.getTemplates().forEach(s->{
             String srcPackage = s.getSrcPackage();
-            srcPackage = removeSuffix(replace(srcPackage, oldSrcPackageName, newSrcPackageName));
+            srcPackage = removeSuffix(replace(replace(replace(srcPackage, oldSrcPackageName, newSrcPackageName),
+                    ".", "/"), "\\", "/"));
             s.setSrcPackage(srcPackage);
             DefaultListableTemplateFactory operateTemplateBeanFactory = (DefaultListableTemplateFactory)
                     getTemplateContext().getTemplateFactory();
